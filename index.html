@@ -62,6 +62,26 @@ min-width:120px;
 font-size:12px;
 }
 
+.item-barang button{
+width:auto;
+padding:4px 8px;
+margin-top:6px;
+margin-right:4px;
+display:inline-block;
+font-size:11px;
+border-radius:6px;
+}
+
+.btn-edit{
+background:#f59e0b;
+color:white;
+}
+
+.btn-delete{
+background:#ef4444;
+color:white;
+}
+
 .scroll-box{
 max-height:250px;
 overflow-y:auto;
@@ -169,9 +189,17 @@ render();
 function tambahBarang(){
 let nama = document.getElementById("namaBarang").value;
 let qty = Number(document.getElementById("qtyBarang").value);
+
 if(!nama || qty<=0) return;
 
-barang.push({nama:nama, stok:qty});
+barang.push({
+nama:nama,
+stok:qty
+});
+
+document.getElementById("namaBarang").value = "";
+document.getElementById("qtyBarang").value = "";
+
 saveData();
 render();
 }
@@ -183,7 +211,11 @@ if(namaBaru===null) return;
 let qtyBaru = prompt("Qty Stok", barang[index].stok);
 if(qtyBaru===null) return;
 
-barang[index] = {nama:namaBaru, stok:Number(qtyBaru)};
+barang[index] = {
+nama:namaBaru,
+stok:Number(qtyBaru)
+};
+
 saveData();
 render();
 }
@@ -218,6 +250,9 @@ qty:qty,
 nominal:nominal
 });
 
+document.getElementById("qtyJual").value = "";
+document.getElementById("nominalJual").value = "";
+
 saveData();
 render();
 }
@@ -225,6 +260,7 @@ render();
 function tambahPengeluaran(){
 let nominal = Number(document.getElementById("nominalKeluar").value);
 let ket = document.getElementById("ketKeluar").value;
+
 if(nominal<=0) return;
 
 pengeluaran.push({
@@ -232,6 +268,9 @@ tanggal:new Date().toLocaleString(),
 nominal:nominal,
 keterangan:ket
 });
+
+document.getElementById("nominalKeluar").value = "";
+document.getElementById("ketKeluar").value = "";
 
 saveData();
 render();
@@ -252,22 +291,29 @@ document.getElementById("totalBarang").innerText = barang.length;
 let omzet = penjualan.reduce((a,b)=>a+b.nominal,0);
 let keluar = pengeluaran.reduce((a,b)=>a+b.nominal,0);
 
-document.getElementById("omzet").innerText = "Rp " + omzet.toLocaleString("id-ID");
-document.getElementById("pengeluaran").innerText = "Rp " + keluar.toLocaleString("id-ID");
-document.getElementById("laba").innerText = "Rp " + (omzet-keluar).toLocaleString("id-ID");
+document.getElementById("omzet").innerText =
+"Rp " + omzet.toLocaleString("id-ID");
+
+document.getElementById("pengeluaran").innerText =
+"Rp " + keluar.toLocaleString("id-ID");
+
+document.getElementById("laba").innerText =
+"Rp " + (omzet-keluar).toLocaleString("id-ID");
 
 document.getElementById("listBarang").innerHTML =
 barang.map((x,i)=>`
 <div class="item-barang">
 <b>${x.nama}</b><br>
 Stock: ${x.stok}<br>
-<button onclick="editBarang(${i})">✏️</button>
-<button onclick="hapusBarang(${i})">🗑️</button>
+<button class="btn-edit" onclick="editBarang(${i})">Edit</button>
+<button class="btn-delete" onclick="hapusBarang(${i})">Hapus</button>
 </div>
 `).join("");
 
 document.getElementById("barangJual").innerHTML =
-barang.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
+barang.map((x,i)=>`
+<option value="${i}">${x.nama}</option>
+`).join("");
 
 document.getElementById("riwayatJual").innerHTML =
 penjualan.map(x=>`
