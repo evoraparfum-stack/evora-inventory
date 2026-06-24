@@ -82,10 +82,22 @@ background:#ef4444;
 color:white;
 }
 
+.row-riwayat{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
 .scroll-box{
 max-height:250px;
 overflow-y:auto;
 padding-right:5px;
+}
+
+@media(max-width:768px){
+.row-riwayat{
+grid-template-columns:1fr;
+}
 }
 </style>
 </head>
@@ -139,6 +151,7 @@ padding-right:5px;
 <button onclick="tambahPengeluaran()">Simpan Pengeluaran</button>
 </div>
 
+<div class="row-riwayat">
 <div class="card">
 <h3>Riwayat Penjualan</h3>
 <div class="scroll-box">
@@ -150,6 +163,7 @@ padding-right:5px;
 <h3>Riwayat Pengeluaran</h3>
 <div class="scroll-box">
 <div id="riwayatKeluar"></div>
+</div>
 </div>
 </div>
 
@@ -244,7 +258,7 @@ stokBotol -= qty;
 stokBox -= qty;
 
 penjualan.push({
-tanggal:new Date().toLocaleString(),
+tanggal:new Date().toLocaleString("id-ID"),
 barang:barang[index].nama,
 qty:qty,
 nominal:nominal
@@ -264,7 +278,7 @@ let ket = document.getElementById("ketKeluar").value;
 if(nominal<=0) return;
 
 pengeluaran.push({
-tanggal:new Date().toLocaleString(),
+tanggal:new Date().toLocaleString("id-ID"),
 nominal:nominal,
 keterangan:ket
 });
@@ -323,6 +337,7 @@ ${x.barang}<br>
 ${x.qty} pcs<br>
 Rp ${x.nominal.toLocaleString("id-ID")}
 </p>
+<hr style="border:0;border-top:1px solid #333;">
 `).join("");
 
 document.getElementById("riwayatKeluar").innerHTML =
@@ -332,6 +347,7 @@ ${x.tanggal}<br>
 Rp ${x.nominal.toLocaleString("id-ID")}<br>
 ${x.keterangan}
 </p>
+<hr style="border:0;border-top:1px solid #333;">
 `).join("");
 }
 
