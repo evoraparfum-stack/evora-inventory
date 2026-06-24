@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EVORA Inventory V2</title>
+<title>EVORA Tracker</title>
 
 <style>
 body{
@@ -96,13 +96,23 @@ color:white;
 </div>
 
 <div class="stat">
-<h4>Total Bibit</h4>
-<p id="totalBibit">0</p>
+<h4>Total Barang</h4>
+<p id="totalBarang">0</p>
 </div>
 
 <div class="stat">
-<h4>Total Produk</h4>
-<p id="totalProduk">0</p>
+<h4>Omzet</h4>
+<p id="omzet">Rp 0</p>
+</div>
+
+<div class="stat">
+<h4>Pengeluaran</h4>
+<p id="pengeluaran">Rp 0</p>
+</div>
+
+<div class="stat">
+<h4>Laba</h4>
+<p id="laba">Rp 0</p>
 </div>
 </div>
 </div>
@@ -110,64 +120,61 @@ color:white;
 <div class="card">
 <h3>Stock Barang</h3>
 
-<input id="botolInput" type="number" placeholder="Stock Botol">
-<input id="boxInput" type="number" placeholder="Stock Box">
+<input id="botolInput" type="number" placeholder="Stok Botol">
+<input id="boxInput" type="number" placeholder="Stok Box">
 
 <button onclick="simpanStockBarang()">
-Simpan Stock Barang
+Simpan Stock
 </button>
 </div>
 
 <div class="card">
-<h3>Tambah Bibit</h3>
+<h3>Tambah Barang</h3>
 
-<input id="namaBibit" placeholder="Nama Bibit">
-<input id="stokBibit" type="number" placeholder="Stock Bibit (ml)">
+<input id="namaBarang" placeholder="Nama Barang">
 
-<button onclick="tambahBibit()">
-Tambah Bibit
+<button onclick="tambahBarang()">
+Tambah Barang
 </button>
 </div>
 
 <div class="card">
-<h3>Daftar Bibit</h3>
-<div id="listBibit"></div>
-</div>
-
-<div class="card">
-<h3>Tambah Produk</h3>
-
-<input id="namaProduk" placeholder="Nama Produk">
-
-<select id="bibitProduk"></select>
-
-<input id="formulaBibit" type="number" placeholder="Formula Bibit (ml)">
-
-<button onclick="tambahProduk()">
-Tambah Produk
-</button>
-</div>
-
-<div class="card">
-<h3>Daftar Produk</h3>
-<div id="listProduk"></div>
+<h3>Daftar Barang</h3>
+<div id="listBarang"></div>
 </div>
 
 <div class="card">
 <h3>Penjualan</h3>
 
-<select id="produkJual"></select>
+<select id="barangJual"></select>
 
 <input id="qtyJual" type="number" placeholder="Qty">
+<input id="nominalJual" type="number" placeholder="Nominal Rp">
 
-<button onclick="jualProduk()">
+<button onclick="jualBarang()">
 Simpan Penjualan
 </button>
 </div>
 
 <div class="card">
+<h3>Pengeluaran</h3>
+
+<input id="nominalKeluar" type="number" placeholder="Nominal">
+<input id="keteranganKeluar" placeholder="Keterangan">
+
+<button onclick="tambahPengeluaran()">
+Simpan Pengeluaran
+</button>
+</div>
+
+<div class="card">
 <h3>Riwayat Penjualan</h3>
-<div id="riwayatPenjualan"></div>
+<div id="riwayatJual"></div>
+</div>
+
+<div class="card">
+<h3>Riwayat Pengeluaran</h3>
+<div id="riwayatKeluar"></div>
 </div>
 
 <div class="card">
@@ -179,16 +186,16 @@ RESET SEMUA DATA
 <script>
 let stokBotol = Number(localStorage.getItem("stokBotol") || 0);
 let stokBox = Number(localStorage.getItem("stokBox") || 0);
-let bibit = JSON.parse(localStorage.getItem("bibit") || "[]");
-let produk = JSON.parse(localStorage.getItem("produk") || "[]");
-let riwayat = JSON.parse(localStorage.getItem("riwayat") || "[]");
+let barang = JSON.parse(localStorage.getItem("barang") || "[]");
+let penjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
+let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 
 function saveData(){
 localStorage.setItem("stokBotol", stokBotol);
 localStorage.setItem("stokBox", stokBox);
-localStorage.setItem("bibit", JSON.stringify(bibit));
-localStorage.setItem("produk", JSON.stringify(produk));
-localStorage.setItem("riwayat", JSON.stringify(riwayat));
+localStorage.setItem("barang", JSON.stringify(barang));
+localStorage.setItem("penjualan", JSON.stringify(penjualan));
+localStorage.setItem("pengeluaran", JSON.stringify(pengeluaran));
 }
 
 function simpanStockBarang(){
@@ -198,84 +205,38 @@ saveData();
 render();
 }
 
-function tambahBibit(){
-let nama = document.getElementById("namaBibit").value;
-let stok = Number(document.getElementById("stokBibit").value);
+function tambahBarang(){
+let nama = document.getElementById("namaBarang").value;
 if(!nama) return;
 
-bibit.push({nama:nama,stok:stok});
+barang.push({nama:nama});
 saveData();
 render();
 }
 
-function editBibit(index){
-let namaBaru = prompt("Nama Bibit", bibit[index].nama);
+function editBarang(index){
+let namaBaru = prompt("Nama Barang", barang[index].nama);
 if(namaBaru===null) return;
 
-let stokBaru = prompt("Stock Bibit", bibit[index].stok);
-if(stokBaru===null) return;
-
-bibit[index].nama = namaBaru;
-bibit[index].stok = Number(stokBaru);
-
+barang[index].nama = namaBaru;
 saveData();
 render();
 }
 
-function hapusBibit(index){
-if(confirm("Hapus bibit?")){
-bibit.splice(index,1);
+function hapusBarang(index){
+if(confirm("Hapus barang?")){
+barang.splice(index,1);
 saveData();
 render();
 }
 }
 
-function tambahProduk(){
-let nama = document.getElementById("namaProduk").value;
-let bibitIndex = document.getElementById("bibitProduk").value;
-let formula = Number(document.getElementById("formulaBibit").value);
-
-if(!nama) return;
-
-produk.push({
-nama:nama,
-bibit:bibitIndex,
-formula:formula
-});
-
-saveData();
-render();
-}
-
-function editProduk(index){
-let namaBaru = prompt("Nama Produk", produk[index].nama);
-if(namaBaru===null) return;
-
-let formulaBaru = prompt("Formula Bibit", produk[index].formula);
-if(formulaBaru===null) return;
-
-produk[index].nama = namaBaru;
-produk[index].formula = Number(formulaBaru);
-
-saveData();
-render();
-}
-
-function hapusProduk(index){
-if(confirm("Hapus produk?")){
-produk.splice(index,1);
-saveData();
-render();
-}
-}
-
-function jualProduk(){
-let index = document.getElementById("produkJual").value;
+function jualBarang(){
+let index = document.getElementById("barangJual").value;
 let qty = Number(document.getElementById("qtyJual").value);
-if(qty<=0) return;
+let nominal = Number(document.getElementById("nominalJual").value);
 
-let p = produk[index];
-let kebutuhanBibit = p.formula * qty;
+if(qty<=0 || nominal<=0) return;
 
 if(stokBotol < qty){
 alert("Stok botol kurang");
@@ -287,37 +248,54 @@ alert("Stok box kurang");
 return;
 }
 
-if(bibit[p.bibit].stok < kebutuhanBibit){
-alert("Stok bibit kurang");
-return;
-}
-
 stokBotol -= qty;
 stokBox -= qty;
-bibit[p.bibit].stok -= kebutuhanBibit;
 
-riwayat.push({
+penjualan.push({
 tanggal:new Date().toLocaleString(),
-produk:p.nama,
-qty:qty
+barang:barang[index].nama,
+qty:qty,
+nominal:nominal
 });
 
 saveData();
 render();
-
-alert("Penjualan berhasil");
 }
 
-function hapusRiwayat(index){
-if(confirm("Hapus riwayat?")){
-riwayat.splice(index,1);
+function tambahPengeluaran(){
+let nominal = Number(document.getElementById("nominalKeluar").value);
+let ket = document.getElementById("keteranganKeluar").value;
+
+if(nominal<=0) return;
+
+pengeluaran.push({
+tanggal:new Date().toLocaleString(),
+nominal:nominal,
+keterangan:ket
+});
+
+saveData();
+render();
+}
+
+function hapusPenjualan(index){
+if(confirm("Hapus riwayat penjualan?")){
+penjualan.splice(index,1);
+saveData();
+render();
+}
+}
+
+function hapusPengeluaran(index){
+if(confirm("Hapus riwayat pengeluaran?")){
+pengeluaran.splice(index,1);
 saveData();
 render();
 }
 }
 
 function resetData(){
-if(confirm("RESET semua data?")){
+if(confirm("Reset semua data?")){
 localStorage.clear();
 location.reload();
 }
@@ -326,58 +304,67 @@ location.reload();
 function render(){
 document.getElementById("stokBotol").innerText = stokBotol;
 document.getElementById("stokBox").innerText = stokBox;
-document.getElementById("totalBibit").innerText = bibit.length;
-document.getElementById("totalProduk").innerText = produk.length;
+document.getElementById("totalBarang").innerText = barang.length;
 
-let bibitHTML = "";
-let optionBibit = "";
+let totalOmzet = 0;
+penjualan.forEach(x => totalOmzet += x.nominal);
 
-bibit.forEach((x,index)=>{
-bibitHTML += `
+let totalPengeluaran = 0;
+pengeluaran.forEach(x => totalPengeluaran += x.nominal);
+
+document.getElementById("omzet").innerText =
+"Rp " + totalOmzet.toLocaleString("id-ID");
+
+document.getElementById("pengeluaran").innerText =
+"Rp " + totalPengeluaran.toLocaleString("id-ID");
+
+document.getElementById("laba").innerText =
+"Rp " + (totalOmzet-totalPengeluaran).toLocaleString("id-ID");
+
+let barangHTML = "";
+let optionHTML = "";
+
+barang.forEach((x,index)=>{
+
+barangHTML += `
 <p>
-${x.nama} - ${x.stok} ml
-<button class="action-btn edit-btn" onclick="editBibit(${index})">Edit</button>
-<button class="action-btn delete-btn" onclick="hapusBibit(${index})">Hapus</button>
+${x.nama}
+<button class="action-btn edit-btn" onclick="editBarang(${index})">Edit</button>
+<button class="action-btn delete-btn" onclick="hapusBarang(${index})">Hapus</button>
 </p>
 `;
 
-optionBibit += `<option value="${index}">${x.nama}</option>`;
+optionHTML += `<option value="${index}">${x.nama}</option>`;
 });
 
-document.getElementById("listBibit").innerHTML = bibitHTML;
-document.getElementById("bibitProduk").innerHTML = optionBibit;
+document.getElementById("listBarang").innerHTML = barangHTML;
+document.getElementById("barangJual").innerHTML = optionHTML;
 
-let produkHTML = "";
-let optionProduk = "";
-
-produk.forEach((x,index)=>{
-produkHTML += `
-<p>
-${x.nama} (${bibit[x.bibit]?.nama || "-"} - ${x.formula}ml)
-<button class="action-btn edit-btn" onclick="editProduk(${index})">Edit</button>
-<button class="action-btn delete-btn" onclick="hapusProduk(${index})">Hapus</button>
-</p>
-`;
-
-optionProduk += `<option value="${index}">${x.nama}</option>`;
-});
-
-document.getElementById("listProduk").innerHTML = produkHTML;
-document.getElementById("produkJual").innerHTML = optionProduk;
-
-let riwayatHTML = "";
-
-riwayat.forEach((x,index)=>{
-riwayatHTML += `
+let jualHTML = "";
+penjualan.forEach((x,index)=>{
+jualHTML += `
 <p>
 ${x.tanggal}<br>
-${x.produk} - ${x.qty} pcs
-<button class="action-btn delete-btn" onclick="hapusRiwayat(${index})">Hapus</button>
+${x.barang} - ${x.qty} pcs - Rp ${x.nominal.toLocaleString("id-ID")}
+<button class="action-btn delete-btn" onclick="hapusPenjualan(${index})">Hapus</button>
 </p>
 `;
 });
 
-document.getElementById("riwayatPenjualan").innerHTML = riwayatHTML;
+document.getElementById("riwayatJual").innerHTML = jualHTML;
+
+let keluarHTML = "";
+pengeluaran.forEach((x,index)=>{
+keluarHTML += `
+<p>
+${x.tanggal}<br>
+Rp ${x.nominal.toLocaleString("id-ID")} - ${x.keterangan}
+<button class="action-btn delete-btn" onclick="hapusPengeluaran(${index})">Hapus</button>
+</p>
+`;
+});
+
+document.getElementById("riwayatKeluar").innerHTML = keluarHTML;
 }
 
 render();
