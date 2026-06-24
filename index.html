@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>EVORA Inventory</title>
 
 <style>
@@ -41,17 +40,6 @@ font-weight:bold;
 cursor:pointer;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-td,th{
-padding:8px;
-border-bottom:1px solid #333;
-text-align:left;
-}
-
 .action-btn{
 width:auto;
 padding:6px 10px;
@@ -70,6 +58,7 @@ color:white;
 }
 </style>
 </head>
+
 <body>
 
 <h1>EVORA</h1>
@@ -112,8 +101,7 @@ Tambah Bibit
 
 <input id="namaProduk" placeholder="Nama Produk">
 
-<select id="bibitProduk">
-</select>
+<select id="bibitProduk"></select>
 
 <input id="formulaBibit" type="number" placeholder="Bibit per botol (ml)">
 
@@ -130,8 +118,7 @@ Tambah Produk
 <div class="card">
 <h3>Penjualan</h3>
 
-<select id="produkJual">
-</select>
+<select id="produkJual"></select>
 
 <input id="qtyJual" type="number" placeholder="Qty">
 
@@ -139,33 +126,22 @@ Tambah Produk
 Simpan Penjualan
 </button>
 </div>
-<body>
-<script>
 
+<script>
 let stokBotol = 0;
 let stokBox = 0;
 let bibit = [];
 let produk = [];
 
 function simpanStockBarang(){
-
-stokBotol =
-Number(document.getElementById("botolInput").value);
-
-stokBox =
-Number(document.getElementById("boxInput").value);
-
+stokBotol = Number(document.getElementById("botolInput").value);
+stokBox = Number(document.getElementById("boxInput").value);
 render();
-
 }
 
 function tambahBibit(){
-
-let nama =
-document.getElementById("namaBibit").value;
-
-let stok =
-Number(document.getElementById("stokBibit").value);
+let nama = document.getElementById("namaBibit").value;
+let stok = Number(document.getElementById("stokBibit").value);
 
 if(!nama) return;
 
@@ -175,48 +151,26 @@ stok:stok
 });
 
 render();
-
 }
 
 function editBibit(index){
-
-let stokBaru = prompt(
-"Stock baru (ml)",
-bibit[index].stok
-);
-
+let stokBaru = prompt("Stock baru (ml)", bibit[index].stok);
 if(stokBaru===null) return;
-
-bibit[index].stok =
-Number(stokBaru);
-
+bibit[index].stok = Number(stokBaru);
 render();
-
 }
 
 function hapusBibit(index){
-
 if(confirm("Hapus bibit?")){
-
 bibit.splice(index,1);
 render();
-
 }
-
 }
 
 function tambahProduk(){
-
-let nama =
-document.getElementById("namaProduk").value;
-
-let bibitIndex =
-document.getElementById("bibitProduk").value;
-
-let formula =
-Number(
-document.getElementById("formulaBibit").value
-);
+let nama = document.getElementById("namaProduk").value;
+let bibitIndex = document.getElementById("bibitProduk").value;
+let formula = Number(document.getElementById("formulaBibit").value);
 
 if(!nama) return;
 
@@ -227,16 +181,11 @@ formula:formula
 });
 
 render();
-
 }
 
 function jualProduk(){
-
-let index =
-document.getElementById("produkJual").value;
-
-let qty =
-Number(document.getElementById("qtyJual").value);
+let index = document.getElementById("produkJual").value;
+let qty = Number(document.getElementById("qtyJual").value);
 
 if(qty<=0) return;
 
@@ -263,98 +212,52 @@ stokBox -= qty;
 bibit[p.bibit].stok -= kebutuhanBibit;
 
 alert("Penjualan berhasil");
-
 render();
-
 }
 
 function render(){
-
-document.getElementById("stokBotol").innerText =
-stokBotol;
-
-document.getElementById("stokBox").innerText =
-stokBox;
+document.getElementById("stokBotol").innerText = stokBotol;
+document.getElementById("stokBox").innerText = stokBox;
 
 let bibitHTML = "";
 let optionBibit = "";
 
 bibit.forEach((x,index)=>{
-
 bibitHTML += `
 <p>
 ${x.nama}: ${x.stok} ml
-
-<button
-class="action-btn edit-btn"
-onclick="editBibit(${index})">
-Edit
-</button>
-
-<button
-class="action-btn delete-btn"
-onclick="hapusBibit(${index})">
-Hapus
-</button>
-
+<button class="action-btn edit-btn" onclick="editBibit(${index})">Edit</button>
+<button class="action-btn delete-btn" onclick="hapusBibit(${index})">Hapus</button>
 </p>
 `;
 
 optionBibit += `
-<option value="${index}">
-${x.nama}
-</option>
+<option value="${index}">${x.nama}</option>
 `;
-
 });
 
-document.getElementById("listBibit").innerHTML =
-bibitHTML;
-
-document.getElementById("bibitProduk").innerHTML =
-optionBibit;
+document.getElementById("listBibit").innerHTML = bibitHTML;
+document.getElementById("bibitProduk").innerHTML = optionBibit;
 
 let produkHTML = "";
 let optionProduk = "";
 
 produk.forEach((x,index)=>{
-
 produkHTML += `
-<p>
-${x.nama}
-(${bibit[x.bibit]?.nama || "-"} - ${x.formula}ml)
-</p>
+<p>${x.nama} (${bibit[x.bibit]?.nama || "-"} - ${x.formula}ml)</p>
 `;
 
 optionProduk += `
-<option value="${index}">
-${x.nama}
-</option>
+<option value="${index}">${x.nama}</option>
 `;
-
 });
 
-document.getElementById("listProduk").innerHTML =
-produkHTML;
-
-document.getElementById("produkJual").innerHTML =
-optionProduk;
-
+document.getElementById("listProduk").innerHTML = produkHTML;
+document.getElementById("produkJual").innerHTML = optionProduk;
 }
 
 render();
-
 </script>
-
-</body>
-</html>
-<h1>EVORA</h1>
-
-<div class="card">
-<h3>Inventory</h3>
-<p>Botol: 0</p>
-<p>Box: 0</p>
-</div>
 
 </body>
 </html>
