@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>EVORA Tracker</title>
 
 <style>
@@ -35,11 +35,6 @@ box-sizing:border-box;
 font-size:16px;
 }
 
-button{
-font-weight:bold;
-cursor:pointer;
-}
-
 .stats{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -53,21 +48,24 @@ border-radius:10px;
 text-align:center;
 }
 
-.action-btn{
-width:auto;
-padding:6px 10px;
-margin-left:5px;
+.grid-barang{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+}
+
+.item-barang{
+background:#222;
+padding:10px;
+border-radius:10px;
+min-width:120px;
 font-size:12px;
 }
 
-.edit-btn{
-background:#f59e0b;
-color:#fff;
-}
-
-.delete-btn{
-background:#ef4444;
-color:#fff;
+.scroll-box{
+max-height:250px;
+overflow-y:auto;
+padding-right:5px;
 }
 </style>
 </head>
@@ -103,7 +101,7 @@ color:#fff;
 
 <div class="card">
 <h3>Daftar Barang</h3>
-<div id="listBarang"></div>
+<div id="listBarang" class="grid-barang"></div>
 </div>
 
 <div class="card">
@@ -123,12 +121,16 @@ color:#fff;
 
 <div class="card">
 <h3>Riwayat Penjualan</h3>
+<div class="scroll-box">
 <div id="riwayatJual"></div>
+</div>
 </div>
 
 <div class="card">
 <h3>Riwayat Pengeluaran</h3>
+<div class="scroll-box">
 <div id="riwayatKeluar"></div>
+</div>
 </div>
 
 <div class="card">
@@ -256,20 +258,35 @@ document.getElementById("laba").innerText = "Rp " + (omzet-keluar).toLocaleStrin
 
 document.getElementById("listBarang").innerHTML =
 barang.map((x,i)=>`
-<p>${x.nama} - Stock: ${x.stok}
-<button onclick="editBarang(${i})">Edit</button>
-<button onclick="hapusBarang(${i})">Hapus</button>
-</p>
+<div class="item-barang">
+<b>${x.nama}</b><br>
+Stock: ${x.stok}<br>
+<button onclick="editBarang(${i})">✏️</button>
+<button onclick="hapusBarang(${i})">🗑️</button>
+</div>
 `).join("");
 
 document.getElementById("barangJual").innerHTML =
 barang.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 
 document.getElementById("riwayatJual").innerHTML =
-penjualan.map(x=>`<p>${x.barang} - ${x.qty} pcs - Rp ${x.nominal.toLocaleString("id-ID")}</p>`).join("");
+penjualan.map(x=>`
+<p>
+${x.tanggal}<br>
+${x.barang}<br>
+${x.qty} pcs<br>
+Rp ${x.nominal.toLocaleString("id-ID")}
+</p>
+`).join("");
 
 document.getElementById("riwayatKeluar").innerHTML =
-pengeluaran.map(x=>`<p>Rp ${x.nominal.toLocaleString("id-ID")} - ${x.keterangan}</p>`).join("");
+pengeluaran.map(x=>`
+<p>
+${x.tanggal}<br>
+Rp ${x.nominal.toLocaleString("id-ID")}<br>
+${x.keterangan}
+</p>
+`).join("");
 }
 
 render();
