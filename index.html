@@ -87,9 +87,9 @@ color:#fff;
 </div>
 
 <div class="card">
-<h3>Stock Barang</h3>
-<input id="botolInput" type="number" placeholder="Stok Botol">
-<input id="boxInput" type="number" placeholder="Stok Box">
+<h3>Tambah Stock</h3>
+<input id="botolInput" type="number" placeholder="Tambah Stok Botol">
+<input id="boxInput" type="number" placeholder="Tambah Stok Box">
 <button onclick="simpanStock()">Simpan Stock</button>
 </div>
 
@@ -150,8 +150,15 @@ localStorage.setItem("pengeluaran", JSON.stringify(pengeluaran));
 }
 
 function simpanStock(){
-stokBotol = Number(document.getElementById("botolInput").value);
-stokBox = Number(document.getElementById("boxInput").value);
+let botolInput = document.getElementById("botolInput").value;
+let boxInput = document.getElementById("boxInput").value;
+
+if(botolInput !== "") stokBotol += Number(botolInput);
+if(boxInput !== "") stokBox += Number(boxInput);
+
+document.getElementById("botolInput").value = "";
+document.getElementById("boxInput").value = "";
+
 saveData();
 render();
 }
@@ -159,14 +166,9 @@ render();
 function tambahBarang(){
 let nama = document.getElementById("namaBarang").value;
 let qty = Number(document.getElementById("qtyBarang").value);
-
 if(!nama || qty<=0) return;
 
-barang.push({
-nama:nama,
-stok:qty
-});
-
+barang.push({nama:nama, stok:qty});
 saveData();
 render();
 }
@@ -178,11 +180,7 @@ if(namaBaru===null) return;
 let qtyBaru = prompt("Qty Stok", barang[index].stok);
 if(qtyBaru===null) return;
 
-barang[index] = {
-nama:namaBaru,
-stok:Number(qtyBaru)
-};
-
+barang[index] = {nama:namaBaru, stok:Number(qtyBaru)};
 saveData();
 render();
 }
@@ -202,20 +200,9 @@ let nominal = Number(document.getElementById("nominalJual").value);
 
 if(qty<=0 || nominal<=0) return;
 
-if(barang[index].stok < qty){
-alert("Stok barang kurang");
-return;
-}
-
-if(stokBotol < qty){
-alert("Stok botol kurang");
-return;
-}
-
-if(stokBox < qty){
-alert("Stok box kurang");
-return;
-}
+if(barang[index].stok < qty) return alert("Stok barang kurang");
+if(stokBotol < qty) return alert("Stok botol kurang");
+if(stokBox < qty) return alert("Stok box kurang");
 
 barang[index].stok -= qty;
 stokBotol -= qty;
@@ -235,7 +222,6 @@ render();
 function tambahPengeluaran(){
 let nominal = Number(document.getElementById("nominalKeluar").value);
 let ket = document.getElementById("ketKeluar").value;
-
 if(nominal<=0) return;
 
 pengeluaran.push({
@@ -246,22 +232,6 @@ keterangan:ket
 
 saveData();
 render();
-}
-
-function hapusPenjualan(index){
-if(confirm("Hapus penjualan?")){
-penjualan.splice(index,1);
-saveData();
-render();
-}
-}
-
-function hapusPengeluaran(index){
-if(confirm("Hapus pengeluaran?")){
-pengeluaran.splice(index,1);
-saveData();
-render();
-}
 }
 
 function resetData(){
@@ -276,62 +246,29 @@ document.getElementById("stokBotol").innerText = stokBotol;
 document.getElementById("stokBox").innerText = stokBox;
 document.getElementById("totalBarang").innerText = barang.length;
 
-let omzet = 0;
-penjualan.forEach(x => omzet += x.nominal);
+let omzet = penjualan.reduce((a,b)=>a+b.nominal,0);
+let keluar = pengeluaran.reduce((a,b)=>a+b.nominal,0);
 
-let keluar = 0;
-pengeluaran.forEach(x => keluar += x.nominal);
+document.getElementById("omzet").innerText = "Rp " + omzet.toLocaleString("id-ID");
+document.getElementById("pengeluaran").innerText = "Rp " + keluar.toLocaleString("id-ID");
+document.getElementById("laba").innerText = "Rp " + (omzet-keluar).toLocaleString("id-ID");
 
-document.getElementById("omzet").innerText =
-"Rp " + omzet.toLocaleString("id-ID");
-
-document.getElementById("pengeluaran").innerText =
-"Rp " + keluar.toLocaleString("id-ID");
-
-document.getElementById("laba").innerText =
-"Rp " + (omzet-keluar).toLocaleString("id-ID");
-
-let barangHTML = "";
-let optionHTML = "";
-
-barang.forEach((x,index)=>{
-barangHTML += `
-<p>
-${x.nama} - Stock: ${x.stok}
-<button class="action-btn edit-btn" onclick="editBarang(${index})">Edit</button>
-<button class="action-btn delete-btn" onclick="hapusBarang(${index})">Hapus</button>
+document.getElementById("listBarang").innerHTML =
+barang.map((x,i)=>`
+<p>${x.nama} - Stock: ${x.stok}
+<button onclick="editBarang(${i})">Edit</button>
+<button onclick="hapusBarang(${i})">Hapus</button>
 </p>
-`;
+`).join("");
 
-optionHTML += `<option value="${index}">${x.nama}</option>`;
-});
+document.getElementById("barangJual").innerHTML =
+barang.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 
-document.getElementById("listBarang").innerHTML = barangHTML;
-document.getElementById("barangJual").innerHTML = optionHTML;
+document.getElementById("riwayatJual").innerHTML =
+penjualan.map(x=>`<p>${x.barang} - ${x.qty} pcs - Rp ${x.nominal.toLocaleString("id-ID")}</p>`).join("");
 
-let jualHTML = "";
-penjualan.forEach((x,index)=>{
-jualHTML += `
-<p>
-${x.tanggal}<br>
-${x.barang} - ${x.qty} pcs - Rp ${x.nominal.toLocaleString("id-ID")}
-<button class="action-btn delete-btn" onclick="hapusPenjualan(${index})">Hapus</button>
-</p>
-`;
-});
-document.getElementById("riwayatJual").innerHTML = jualHTML;
-
-let keluarHTML = "";
-pengeluaran.forEach((x,index)=>{
-keluarHTML += `
-<p>
-${x.tanggal}<br>
-Rp ${x.nominal.toLocaleString("id-ID")} - ${x.keterangan}
-<button class="action-btn delete-btn" onclick="hapusPengeluaran(${index})">Hapus</button>
-</p>
-`;
-});
-document.getElementById("riwayatKeluar").innerHTML = keluarHTML;
+document.getElementById("riwayatKeluar").innerHTML =
+pengeluaran.map(x=>`<p>Rp ${x.nominal.toLocaleString("id-ID")} - ${x.keterangan}</p>`).join("");
 }
 
 render();
