@@ -85,57 +85,27 @@ color:white;
 <h3>Dashboard</h3>
 
 <div class="stats">
-<div class="stat">
-<h4>Botol</h4>
-<p id="stokBotol">0</p>
-</div>
-
-<div class="stat">
-<h4>Box</h4>
-<p id="stokBox">0</p>
-</div>
-
-<div class="stat">
-<h4>Total Barang</h4>
-<p id="totalBarang">0</p>
-</div>
-
-<div class="stat">
-<h4>Omzet</h4>
-<p id="omzet">Rp 0</p>
-</div>
-
-<div class="stat">
-<h4>Pengeluaran</h4>
-<p id="pengeluaran">Rp 0</p>
-</div>
-
-<div class="stat">
-<h4>Laba</h4>
-<p id="laba">Rp 0</p>
-</div>
+<div class="stat"><h4>Botol</h4><p id="stokBotol">0</p></div>
+<div class="stat"><h4>Box</h4><p id="stokBox">0</p></div>
+<div class="stat"><h4>Total Barang</h4><p id="totalBarang">0</p></div>
+<div class="stat"><h4>Omzet</h4><p id="omzet">Rp 0</p></div>
+<div class="stat"><h4>Pengeluaran</h4><p id="pengeluaran">Rp 0</p></div>
+<div class="stat"><h4>Laba</h4><p id="laba">Rp 0</p></div>
 </div>
 </div>
 
 <div class="card">
 <h3>Stock Barang</h3>
-
 <input id="botolInput" type="number" placeholder="Stok Botol">
 <input id="boxInput" type="number" placeholder="Stok Box">
-
-<button onclick="simpanStockBarang()">
-Simpan Stock
-</button>
+<button onclick="simpanStockBarang()">Simpan Stock</button>
 </div>
 
 <div class="card">
 <h3>Tambah Barang</h3>
-
 <input id="namaBarang" placeholder="Nama Barang">
-
-<button onclick="tambahBarang()">
-Tambah Barang
-</button>
+<input id="stokBarang" type="number" placeholder="Qty Stok">
+<button onclick="tambahBarang()">Tambah Barang</button>
 </div>
 
 <div class="card">
@@ -145,26 +115,17 @@ Tambah Barang
 
 <div class="card">
 <h3>Penjualan</h3>
-
 <select id="barangJual"></select>
-
 <input id="qtyJual" type="number" placeholder="Qty">
 <input id="nominalJual" type="number" placeholder="Nominal Rp">
-
-<button onclick="jualBarang()">
-Simpan Penjualan
-</button>
+<button onclick="jualBarang()">Simpan Penjualan</button>
 </div>
 
 <div class="card">
 <h3>Pengeluaran</h3>
-
 <input id="nominalKeluar" type="number" placeholder="Nominal">
 <input id="keteranganKeluar" placeholder="Keterangan">
-
-<button onclick="tambahPengeluaran()">
-Simpan Pengeluaran
-</button>
+<button onclick="tambahPengeluaran()">Simpan Pengeluaran</button>
 </div>
 
 <div class="card">
@@ -178,9 +139,7 @@ Simpan Pengeluaran
 </div>
 
 <div class="card">
-<button class="reset-btn" onclick="resetData()">
-RESET SEMUA DATA
-</button>
+<button class="reset-btn" onclick="resetData()">RESET SEMUA DATA</button>
 </div>
 
 <script>
@@ -207,9 +166,15 @@ render();
 
 function tambahBarang(){
 let nama = document.getElementById("namaBarang").value;
-if(!nama) return;
+let stok = Number(document.getElementById("stokBarang").value);
 
-barang.push({nama:nama});
+if(!nama || stok<=0) return;
+
+barang.push({
+nama:nama,
+stok:stok
+});
+
 saveData();
 render();
 }
@@ -218,7 +183,12 @@ function editBarang(index){
 let namaBaru = prompt("Nama Barang", barang[index].nama);
 if(namaBaru===null) return;
 
+let stokBaru = prompt("Qty Stok", barang[index].stok);
+if(stokBaru===null) return;
+
 barang[index].nama = namaBaru;
+barang[index].stok = Number(stokBaru);
+
 saveData();
 render();
 }
@@ -238,6 +208,11 @@ let nominal = Number(document.getElementById("nominalJual").value);
 
 if(qty<=0 || nominal<=0) return;
 
+if(barang[index].stok < qty){
+alert("Stok barang kurang");
+return;
+}
+
 if(stokBotol < qty){
 alert("Stok botol kurang");
 return;
@@ -248,6 +223,7 @@ alert("Stok box kurang");
 return;
 }
 
+barang[index].stok -= qty;
 stokBotol -= qty;
 stokBox -= qty;
 
@@ -279,7 +255,7 @@ render();
 }
 
 function hapusPenjualan(index){
-if(confirm("Hapus riwayat penjualan?")){
+if(confirm("Hapus penjualan?")){
 penjualan.splice(index,1);
 saveData();
 render();
@@ -287,7 +263,7 @@ render();
 }
 
 function hapusPengeluaran(index){
-if(confirm("Hapus riwayat pengeluaran?")){
+if(confirm("Hapus pengeluaran?")){
 pengeluaran.splice(index,1);
 saveData();
 render();
@@ -306,35 +282,38 @@ document.getElementById("stokBotol").innerText = stokBotol;
 document.getElementById("stokBox").innerText = stokBox;
 document.getElementById("totalBarang").innerText = barang.length;
 
-let totalOmzet = 0;
-penjualan.forEach(x => totalOmzet += x.nominal);
+let omzet = 0;
+penjualan.forEach(x => omzet += x.nominal);
 
-let totalPengeluaran = 0;
-pengeluaran.forEach(x => totalPengeluaran += x.nominal);
+let totalKeluar = 0;
+pengeluaran.forEach(x => totalKeluar += x.nominal);
 
 document.getElementById("omzet").innerText =
-"Rp " + totalOmzet.toLocaleString("id-ID");
+"Rp " + omzet.toLocaleString("id-ID");
 
 document.getElementById("pengeluaran").innerText =
-"Rp " + totalPengeluaran.toLocaleString("id-ID");
+"Rp " + totalKeluar.toLocaleString("id-ID");
 
 document.getElementById("laba").innerText =
-"Rp " + (totalOmzet-totalPengeluaran).toLocaleString("id-ID");
+"Rp " + (omzet-totalKeluar).toLocaleString("id-ID");
 
 let barangHTML = "";
 let optionHTML = "";
 
 barang.forEach((x,index)=>{
-
 barangHTML += `
 <p>
-${x.nama}
+${x.nama} - Stock: ${x.stok}
 <button class="action-btn edit-btn" onclick="editBarang(${index})">Edit</button>
 <button class="action-btn delete-btn" onclick="hapusBarang(${index})">Hapus</button>
 </p>
 `;
 
-optionHTML += `<option value="${index}">${x.nama}</option>`;
+optionHTML += `
+<option value="${index}">
+${x.nama}
+</option>
+`;
 });
 
 document.getElementById("listBarang").innerHTML = barangHTML;
@@ -350,7 +329,6 @@ ${x.barang} - ${x.qty} pcs - Rp ${x.nominal.toLocaleString("id-ID")}
 </p>
 `;
 });
-
 document.getElementById("riwayatJual").innerHTML = jualHTML;
 
 let keluarHTML = "";
@@ -363,7 +341,6 @@ Rp ${x.nominal.toLocaleString("id-ID")} - ${x.keterangan}
 </p>
 `;
 });
-
 document.getElementById("riwayatKeluar").innerHTML = keluarHTML;
 }
 
