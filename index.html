@@ -48,6 +48,15 @@ border-radius:10px;
 text-align:center;
 }
 
+.row-btn{
+display:flex;
+gap:8px;
+}
+
+.row-btn button{
+width:50%;
+}
+
 .grid-barang{
 display:flex;
 flex-wrap:wrap;
@@ -67,9 +76,7 @@ width:auto;
 padding:4px 8px;
 margin-top:6px;
 margin-right:4px;
-display:inline-block;
 font-size:11px;
-border-radius:6px;
 }
 
 .btn-edit{
@@ -91,13 +98,6 @@ gap:12px;
 .scroll-box{
 max-height:250px;
 overflow-y:auto;
-padding-right:5px;
-}
-
-@media(max-width:768px){
-.row-riwayat{
-grid-template-columns:1fr;
-}
 }
 </style>
 </head>
@@ -118,10 +118,19 @@ grid-template-columns:1fr;
 </div>
 
 <div class="card">
-<h3>Tambah Stock</h3>
-<input id="botolInput" type="number" placeholder="Tambah Stok Botol">
-<input id="boxInput" type="number" placeholder="Tambah Stok Box">
-<button onclick="simpanStock()">Simpan Stock</button>
+<h3>Stock Botol</h3>
+<input id="botolInput" type="number" placeholder="Qty Botol">
+<div class="row-btn">
+<button onclick="kurangBotol()">Kurang</button>
+<button onclick="tambahBotol()">Tambah</button>
+</div>
+
+<h3>Stock Box</h3>
+<input id="boxInput" type="number" placeholder="Qty Box">
+<div class="row-btn">
+<button onclick="kurangBox()">Kurang</button>
+<button onclick="tambahBox()">Tambah</button>
+</div>
 </div>
 
 <div class="card">
@@ -152,6 +161,7 @@ grid-template-columns:1fr;
 </div>
 
 <div class="row-riwayat">
+
 <div class="card">
 <h3>Riwayat Penjualan</h3>
 <div class="scroll-box">
@@ -165,6 +175,7 @@ grid-template-columns:1fr;
 <div id="riwayatKeluar"></div>
 </div>
 </div>
+
 </div>
 
 <div class="card">
@@ -186,16 +197,40 @@ localStorage.setItem("penjualan", JSON.stringify(penjualan));
 localStorage.setItem("pengeluaran", JSON.stringify(pengeluaran));
 }
 
-function simpanStock(){
-let botolInput = document.getElementById("botolInput").value;
-let boxInput = document.getElementById("boxInput").value;
+function tambahBotol(){
+let qty = Number(document.getElementById("botolInput").value);
+if(qty<=0) return;
+stokBotol += qty;
+document.getElementById("botolInput").value="";
+saveData();
+render();
+}
 
-if(botolInput !== "") stokBotol += Number(botolInput);
-if(boxInput !== "") stokBox += Number(boxInput);
+function kurangBotol(){
+let qty = Number(document.getElementById("botolInput").value);
+if(qty<=0) return;
+if(stokBotol < qty) return alert("Stok botol kurang");
+stokBotol -= qty;
+document.getElementById("botolInput").value="";
+saveData();
+render();
+}
 
-document.getElementById("botolInput").value = "";
-document.getElementById("boxInput").value = "";
+function tambahBox(){
+let qty = Number(document.getElementById("boxInput").value);
+if(qty<=0) return;
+stokBox += qty;
+document.getElementById("boxInput").value="";
+saveData();
+render();
+}
 
+function kurangBox(){
+let qty = Number(document.getElementById("boxInput").value);
+if(qty<=0) return;
+if(stokBox < qty) return alert("Stok box kurang");
+stokBox -= qty;
+document.getElementById("boxInput").value="";
 saveData();
 render();
 }
@@ -206,13 +241,10 @@ let qty = Number(document.getElementById("qtyBarang").value);
 
 if(!nama || qty<=0) return;
 
-barang.push({
-nama:nama,
-stok:qty
-});
+barang.push({ nama:nama, stok:qty });
 
-document.getElementById("namaBarang").value = "";
-document.getElementById("qtyBarang").value = "";
+document.getElementById("namaBarang").value="";
+document.getElementById("qtyBarang").value="";
 
 saveData();
 render();
@@ -264,8 +296,8 @@ qty:qty,
 nominal:nominal
 });
 
-document.getElementById("qtyJual").value = "";
-document.getElementById("nominalJual").value = "";
+document.getElementById("qtyJual").value="";
+document.getElementById("nominalJual").value="";
 
 saveData();
 render();
@@ -283,8 +315,8 @@ nominal:nominal,
 keterangan:ket
 });
 
-document.getElementById("nominalKeluar").value = "";
-document.getElementById("ketKeluar").value = "";
+document.getElementById("nominalKeluar").value="";
+document.getElementById("ketKeluar").value="";
 
 saveData();
 render();
@@ -305,18 +337,16 @@ document.getElementById("totalBarang").innerText = barang.length;
 let omzet = penjualan.reduce((a,b)=>a+b.nominal,0);
 let keluar = pengeluaran.reduce((a,b)=>a+b.nominal,0);
 
-document.getElementById("omzet").innerText =
-"Rp " + omzet.toLocaleString("id-ID");
-
-document.getElementById("pengeluaran").innerText =
-"Rp " + keluar.toLocaleString("id-ID");
-
-document.getElementById("laba").innerText =
-"Rp " + (omzet-keluar).toLocaleString("id-ID");
+document.getElementById("omzet").innerText = "Rp " + omzet.toLocaleString("id-ID");
+document.getElementById("pengeluaran").innerText = "Rp " + keluar.toLocaleString("id-ID");
+document.getElementById("laba").innerText = "Rp " + (omzet-keluar).toLocaleString("id-ID");
 
 document.getElementById("listBarang").innerHTML =
 barang.map((x,i)=>`
-<div class="item-barang">
+<div class="item-barang" style="
+background:${x.stok <= 5 ? '#5c1f1f' : '#222'};
+border:${x.stok <= 5 ? '1px solid #ef4444' : 'none'};
+">
 <b>${x.nama}</b><br>
 Stock: ${x.stok}<br>
 <button class="btn-edit" onclick="editBarang(${i})">Edit</button>
@@ -325,9 +355,7 @@ Stock: ${x.stok}<br>
 `).join("");
 
 document.getElementById("barangJual").innerHTML =
-barang.map((x,i)=>`
-<option value="${i}">${x.nama}</option>
-`).join("");
+barang.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 
 document.getElementById("riwayatJual").innerHTML =
 penjualan.map(x=>`
