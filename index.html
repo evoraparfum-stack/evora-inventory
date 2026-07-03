@@ -106,13 +106,6 @@ overflow-y:auto;
 <h1>EVORA</h1>
 
 <div class="card">
-<h3>Filter Bulan</h3>
-<select id="filterBulan" onchange="render()">
-<option value="all">Semua</option>
-</select>
-</div>
-
-<div class="card">
 <h3>Dashboard</h3>
 <div class="stats">
 <div class="stat">Botol<br><span id="stokBotol">0</span></div>
@@ -167,6 +160,13 @@ overflow-y:auto;
 <button onclick="tambahPengeluaran()">Simpan Pengeluaran</button>
 </div>
 
+<div class="card">
+<h3>Filter Bulan</h3>
+<select id="filterBulan" onchange="render()">
+<option value="all">Semua</option>
+</select>
+</div>
+
 <div class="row-riwayat">
 <div class="card">
 <h3>Riwayat Penjualan</h3>
@@ -208,7 +208,8 @@ localStorage.setItem("pengeluaran", JSON.stringify(pengeluaran));
 
 function getMonthKey(dateString){
 let d = new Date(dateString);
-return d.getFullYear() + "-" + (d.getMonth()+1);
+let month = String(d.getMonth()+1).padStart(2,'0');
+return `${d.getFullYear()}-${month}`;
 }
 
 function updateFilterBulan(){
@@ -217,6 +218,7 @@ let bulanSet = new Set();
 penjualan.forEach(x=>bulanSet.add(getMonthKey(x.tanggal)));
 pengeluaran.forEach(x=>bulanSet.add(getMonthKey(x.tanggal)));
 
+let selected = document.getElementById("filterBulan")?.value || "all";
 let html = `<option value="all">Semua</option>`;
 
 [...bulanSet].sort().forEach(b=>{
@@ -224,6 +226,7 @@ html += `<option value="${b}">${b}</option>`;
 });
 
 document.getElementById("filterBulan").innerHTML = html;
+document.getElementById("filterBulan").value = selected;
 }
 
 function tambahBotol(){
@@ -325,6 +328,9 @@ qty:qty,
 nominal:nominal
 });
 
+document.getElementById("qtyJual").value="";
+document.getElementById("nominalJual").value="";
+
 saveData();
 render();
 }
@@ -341,17 +347,20 @@ nominal:nominal,
 keterangan:ket
 });
 
+document.getElementById("nominalKeluar").value="";
+document.getElementById("ketKeluar").value="";
+
 saveData();
 render();
 }
 
 function exportLaporan(){
 let omzet = penjualan.reduce((a,b)=>a+b.nominal,0);
-let keluar = pengeluaran.reduce((a,b)=>a+b.nominal,0;
+let keluar = pengeluaran.reduce((a,b)=>a+b.nominal,0);
 let laba = omzet-keluar;
 
-let text = `
-LAPORAN EVORA
+let text = 
+`LAPORAN EVORA
 
 Omzet: Rp ${omzet.toLocaleString("id-ID")}
 Pengeluaran: Rp ${keluar.toLocaleString("id-ID")}
@@ -399,31 +408,42 @@ document.getElementById("laba").innerText = "Rp " + (omzet-keluar).toLocaleStrin
 let sortedBarang = [...barang].sort((a,b)=>a.stok-b.stok);
 
 document.getElementById("listBarang").innerHTML =
-sortedBarang.map(x=>`
+sortedBarang.map(x=>{
+let originalIndex = barang.findIndex(b=>b.nama===x.nama);
+return `
 <div class="item-barang" style="
 background:${x.stok <= 5 ? '#5c1f1f' : '#222'};
 border:${x.stok <= 5 ? '1px solid #ef4444' : 'none'};
 ">
 <b>${x.nama}</b><br>
-Stock: ${x.stok}
+Stock: ${x.stok}<br>
+<button class="btn-edit" onclick="editBarang(${originalIndex})">Edit</button>
+<button class="btn-delete" onclick="hapusBarang(${originalIndex})">Hapus</button>
 </div>
-`).join("");
+`;
+}).join("");
 
 document.getElementById("barangJual").innerHTML =
 barang.map((x,i)=>`<option value="${i}">${x.nama}</option>`).join("");
 
 document.getElementById("riwayatJual").innerHTML =
 filteredPenjualan.map(x=>`
-<p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
+<p>
+${new Date(x.tanggal).toLocaleString("id-ID")}<br>
 ${x.barang} - ${x.qty} pcs<br>
-Rp ${x.nominal.toLocaleString("id-ID")}</p>
+Rp ${x.nominal.toLocaleString("id-ID")}
+</p>
+<hr style="border:0;border-top:1px solid #333;">
 `).join("");
 
 document.getElementById("riwayatKeluar").innerHTML =
 filteredPengeluaran.map(x=>`
-<p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
+<p>
+${new Date(x.tanggal).toLocaleString("id-ID")}<br>
 Rp ${x.nominal.toLocaleString("id-ID")}<br>
-${x.keterangan}</p>
+${x.keterangan}
+</p>
+<hr style="border:0;border-top:1px solid #333;">
 `).join("");
 }
 
