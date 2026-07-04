@@ -3,12 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EVORA Tracker Pro</title>
+<title>EVORA Tracker</title>
 
 <style>
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 body{
 font-family:Arial,sans-serif;
@@ -25,16 +23,6 @@ border-radius:12px;
 margin-bottom:15px;
 }
 
-h1{
-text-align:center;
-letter-spacing:4px;
-font-size:24px;
-}
-
-h3{
-margin-top:0;
-}
-
 input,select,button,textarea{
 width:100%;
 padding:14px;
@@ -42,13 +30,11 @@ margin:6px 0;
 border:none;
 border-radius:10px;
 font-size:17px;
--webkit-appearance:none;
-appearance:none;
 }
 
 button{
-cursor:pointer;
 font-weight:bold;
+cursor:pointer;
 }
 
 .stats{
@@ -62,7 +48,6 @@ background:#222;
 padding:12px;
 border-radius:10px;
 text-align:center;
-font-size:14px;
 }
 
 .row-btn{
@@ -116,20 +101,12 @@ display:grid;
 grid-template-columns:1fr 1fr;
 gap:12px;
 }
-
-@media(max-width:768px){
-.row-2{
-grid-template-columns:1fr;
-}
-}
 </style>
 </head>
 <body>
 
-<h1>EVORA TRACKER</h1>
-
 <div class="card">
-<h3>Dashboard Bulan Aktif</h3>
+<h3>Dashboard</h3>
 <p id="bulanAktif"></p>
 
 <div class="stats">
@@ -171,11 +148,19 @@ grid-template-columns:1fr;
 </div>
 
 <div class="card">
-<h3>Penjualan</h3>
+<h3>Penjualan Manual</h3>
 <select id="barangJual"></select>
 <input id="qtyJual" type="number" placeholder="Qty">
 <input id="nominalJual" type="number" placeholder="Nominal Rp">
 <button onclick="jualBarang()">Simpan Penjualan</button>
+</div>
+
+<div class="card">
+<h3>AI Scan Import</h3>
+<textarea id="scanInput" rows="6" placeholder="Contoh:
+ICARUS:2
+MONRO:1"></textarea>
+<button onclick="prosesScan()">Proses Scan</button>
 </div>
 
 <div class="card">
@@ -215,7 +200,6 @@ grid-template-columns:1fr;
 <div class="card">
 <button onclick="resetData()">RESET SEMUA DATA</button>
 </div>
-
 <script>
 let stokBotol = Number(localStorage.getItem("stokBotol") || 0);
 let stokBox = Number(localStorage.getItem("stokBox") || 0);
@@ -237,9 +221,9 @@ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
 }
 
 function getMonthLabel(key){
-let arr = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+let bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 let [y,m] = key.split("-");
-return arr[Number(m)-1]+" "+y;
+return bulan[Number(m)-1]+" "+y;
 }
 
 function updateMonthSelect(){
@@ -294,7 +278,8 @@ if(!nama || qty<=0) return;
 barang.push({nama:nama, stok:qty});
 namaBarang.value="";
 qtyBarang.value="";
-saveData(); render();
+saveData();
+render();
 }
 
 function editBarang(i){
@@ -303,14 +288,20 @@ if(nama===null) return;
 let qty = prompt("Qty", barang[i].stok);
 if(qty===null) return;
 
-barang[i]={nama:nama, stok:Number(qty)};
-saveData(); render();
+barang[i] = {
+nama:nama,
+stok:Number(qty)
+};
+
+saveData();
+render();
 }
 
 function hapusBarang(i){
 if(confirm("Hapus barang?")){
 barang.splice(i,1);
-saveData(); render();
+saveData();
+render();
 }
 }
 
@@ -321,9 +312,9 @@ let nominal = Number(nominalJual.value);
 
 if(qty<=0 || nominal<=0) return;
 
-if(barang[i].stok<qty) return alert("Stok barang kurang");
-if(stokBotol<qty) return alert("Stok botol kurang");
-if(stokBox<qty) return alert("Stok box kurang");
+if(barang[i].stok < qty) return alert("Stok barang kurang");
+if(stokBotol < qty) return alert("Stok botol kurang");
+if(stokBox < qty) return alert("Stok box kurang");
 
 barang[i].stok -= qty;
 stokBotol -= qty;
@@ -338,7 +329,72 @@ nominal:nominal
 
 qtyJual.value="";
 nominalJual.value="";
-saveData(); render();
+saveData();
+render();
+}
+
+function prosesScan(){
+let text = scanInput.value.trim();
+if(!text) return;
+
+let lines = text.split("\n");
+let totalQty = 0;
+
+for(let line of lines){
+line = line.trim();
+
+if(!line || line.startsWith("TOTAL")) continue;
+
+let parts = line.split(":");
+if(parts.length !== 2) continue;
+
+let nama = parts[0].trim().toUpperCase();
+let qty = Number(parts[1].trim());
+
+if(qty<=0) continue;
+
+let index = barang.findIndex(x =>
+x.nama.toUpperCase().includes(nama)
+);
+
+if(index===-1){
+alert("Barang tidak ditemukan: " + nama);
+continue;
+}
+
+if(barang[index].stok < qty){
+alert("Stok kurang: " + barang[index].nama);
+continue;
+}
+
+barang[index].stok -= qty;
+totalQty += qty;
+
+penjualan.push({
+tanggal:new Date().toISOString(),
+barang:barang[index].nama,
+qty:qty,
+nominal:0
+});
+}
+
+if(stokBotol < totalQty){
+alert("Stok botol kurang");
+return;
+}
+
+if(stokBox < totalQty){
+alert("Stok box kurang");
+return;
+}
+
+stokBotol -= totalQty;
+stokBox -= totalQty;
+
+scanInput.value="";
+saveData();
+render();
+alert("Scan berhasil");
 }
 
 function tambahPengeluaran(){
@@ -355,7 +411,8 @@ keterangan:ket
 
 nominalKeluar.value="";
 ketKeluar.value="";
-saveData(); render();
+saveData();
+render();
 }
 
 function resetData(){
@@ -369,8 +426,7 @@ function render(){
 updateMonthSelect();
 
 let bulanAktif = getMonthKey(new Date());
-bulanAktifEl = document.getElementById("bulanAktif");
-bulanAktifEl.innerText = getMonthLabel(bulanAktif);
+bulanAktifText.innerText = getMonthLabel(bulanAktif);
 
 let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
 let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
@@ -378,17 +434,18 @@ let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
 let omzet = jualAktif.reduce((a,b)=>a+b.nominal,0);
 let keluar = keluarAktif.reduce((a,b)=>a+b.nominal,0);
 
-document.getElementById("stokBotol").innerText = stokBotol;
-document.getElementById("stokBox").innerText = stokBox;
-document.getElementById("totalBarang").innerText = barang.length;
-document.getElementById("omzet").innerText = "Rp "+omzet.toLocaleString("id-ID");
-document.getElementById("pengeluaran").innerText = "Rp "+keluar.toLocaleString("id-ID");
-document.getElementById("laba").innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
+stokBotolText.innerText = stokBotol;
+stokBoxText.innerText = stokBox;
+totalBarang.innerText = barang.length;
+omzetText.innerText = "Rp "+omzet.toLocaleString("id-ID");
+pengeluaranText.innerText = "Rp "+keluar.toLocaleString("id-ID");
+labaText.innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
 
 let sorted = [...barang].sort((a,b)=>a.stok-b.stok);
 
 listBarang.innerHTML = sorted.map(x=>{
 let idx = barang.findIndex(b=>b.nama===x.nama);
+
 return `
 <div class="item-barang" style="
 background:${x.stok<=5 ? '#5c1f1f' : '#222'};
@@ -423,7 +480,9 @@ jualBulanan.forEach(x=>{
 salesMap[x.barang]=(salesMap[x.barang]||0)+x.qty;
 });
 
-let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
+let ranking = Object.entries(salesMap)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,3);
 
 topSelling.innerHTML = ranking.length
 ? ranking.map((x,i)=>`${i+1}. ${x[0]} - ${x[1]} pcs`).join("<br>")
@@ -443,6 +502,13 @@ Rp ${x.nominal.toLocaleString("id-ID")}<br>
 ${x.keterangan}
 </p><hr>`).join("");
 }
+
+const bulanAktifText = document.getElementById("bulanAktif");
+const stokBotolText = document.getElementById("stokBotol");
+const stokBoxText = document.getElementById("stokBox");
+const omzetText = document.getElementById("omzet");
+const pengeluaranText = document.getElementById("pengeluaran");
+const labaText = document.getElementById("laba");
 
 render();
 </script>
