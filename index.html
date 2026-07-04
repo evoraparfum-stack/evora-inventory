@@ -284,7 +284,7 @@ saveData(); render();
 }
 
 function tambahBarang(){
-let nama = namaBarang.value.trim();
+let nama = namaBarang.value.trim().toUpperCase();
 let qty = Number(qtyBarang.value);
 
 if(!nama || qty<=0) return;
@@ -292,7 +292,6 @@ if(!nama || qty<=0) return;
 barang.push({nama:nama, stok:qty});
 namaBarang.value="";
 qtyBarang.value="";
-
 saveData();
 render();
 }
@@ -300,11 +299,14 @@ render();
 function editBarang(i){
 let nama = prompt("Nama Barang", barang[i].nama);
 if(nama===null) return;
-
 let qty = prompt("Qty", barang[i].stok);
 if(qty===null) return;
 
-barang[i] = {nama:nama, stok:Number(qty)};
+barang[i] = {
+nama:nama.toUpperCase(),
+stok:Number(qty)
+};
+
 saveData();
 render();
 }
@@ -360,9 +362,14 @@ if(parts.length!==2) continue;
 let nama = parts[0].trim().toUpperCase();
 let qty = Number(parts[1].trim());
 
+if(nama.length < 3){
+alert("Nama terlalu pendek: "+nama);
+continue;
+}
+
 if(qty<=0) continue;
 
-let index = barang.findIndex(x => x.nama.toUpperCase().includes(nama));
+let index = barang.findIndex(x => x.nama === nama);
 
 if(index===-1){
 alert("Barang tidak ditemukan: " + nama);
@@ -405,14 +412,14 @@ if(nominal<=0) return;
 
 penjualan.push({
 tanggal:new Date().toISOString(),
-barang:ket || "OMZET MANUAL",
-qty:1,
-nominal:nominal
+barang:"OMZET MANUAL",
+qty:0,
+nominal:nominal,
+keterangan:ket
 });
 
 manualOmzet.value="";
 manualKet.value="";
-
 saveData();
 render();
 }
@@ -454,19 +461,19 @@ let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
 let omzet = jualAktif.reduce((a,b)=>a+b.nominal,0);
 let keluar = keluarAktif.reduce((a,b)=>a+b.nominal,0);
 
-document.getElementById("stokBotol").innerText = stokBotol;
-document.getElementById("stokBox").innerText = stokBox;
-document.getElementById("totalBarang").innerText = barang.length;
-document.getElementById("omzet").innerText = "Rp "+omzet.toLocaleString("id-ID");
-document.getElementById("pengeluaran").innerText = "Rp "+keluar.toLocaleString("id-ID");
-document.getElementById("laba").innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
+stokBotolEl.innerText = stokBotol;
+stokBoxEl.innerText = stokBox;
+totalBarang.innerText = barang.length;
+omzetEl.innerText = "Rp "+omzet.toLocaleString("id-ID");
+pengeluaranEl.innerText = "Rp "+keluar.toLocaleString("id-ID");
+labaEl.innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
 
 let sorted = [...barang].sort((a,b)=>a.stok-b.stok);
 
 listBarang.innerHTML = sorted.map(x=>{
 let idx = barang.findIndex(b=>b.nama===x.nama);
 return `
-<div class="item-barang" style="background:${x.stok<=5 ? '#5c1f1f' : '#222'};">
+<div class="item-barang" style="background:${x.stok<=5 ? '#5c1f1f':'#222'};">
 <b>${x.nama}</b><br>
 Stock: ${x.stok}<br>
 <button class="btn-edit" onclick="editBarang(${idx})">Edit</button>
@@ -493,6 +500,8 @@ Laba: Rp ${(omzetBulanan-keluarBulananTotal).toLocaleString("id-ID")}
 
 let salesMap = {};
 jualBulanan.forEach(x=>{
+if(x.qty <= 0) return;
+if(x.barang === "OMZET MANUAL") return;
 salesMap[x.barang] = (salesMap[x.barang] || 0) + x.qty;
 });
 
@@ -506,7 +515,8 @@ topSelling.innerHTML = ranking.length
 
 riwayatJual.innerHTML = jualBulanan.map(x=>`
 <p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
-${x.barang} - ${x.qty} pcs<br>
+${x.barang}<br>
+Qty: ${x.qty}<br>
 Rp ${x.nominal.toLocaleString("id-ID")}</p><hr>`).join("");
 
 riwayatKeluar.innerHTML = keluarBulanan.map(x=>`
@@ -514,6 +524,12 @@ riwayatKeluar.innerHTML = keluarBulanan.map(x=>`
 Rp ${x.nominal.toLocaleString("id-ID")}<br>
 ${x.keterangan}</p><hr>`).join("");
 }
+
+const stokBotolEl = document.getElementById("stokBotol");
+const stokBoxEl = document.getElementById("stokBox");
+const omzetEl = document.getElementById("omzet");
+const pengeluaranEl = document.getElementById("pengeluaran");
+const labaEl = document.getElementById("laba");
 
 render();
 </script>
