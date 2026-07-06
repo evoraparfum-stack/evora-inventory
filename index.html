@@ -411,25 +411,18 @@ button:active {
   </div>
 </div>
 
-<!-- FITUR TRANSFER DATA BERBASIS BERKAS FILE (METODE 1) -->
+<!-- FITUR TRANSFER DATA (METODE TEKS COPY-PASTE) -->
 <div class="card" style="border: 1px solid var(--accent);">
   <h3 style="font-size:14px; border-color:var(--accent);">Transfer Data (Backup / Restore)</h3>
   
-  <p style="font-size:12px; margin-bottom:8px; font-weight:bold; color:#fff;">Metode 1: Menggunakan Berkas File (Rekomendasi)</p>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-    <button onclick="exportKeFile()" style="background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);">📥 Unduh File Backup</button>
-    <button onclick="triggerFileSelect()" style="background: linear-gradient(135deg, var(--success) 0%, #065f46 100%);">📤 Unggah File Backup</button>
-  </div>
-  <!-- Input File Tersembunyi -->
-  <input type="file" id="fileBackupInput" accept=".json,.evora" onchange="importDariFile(event)" style="display: none;">
-
-  <hr style="border:0; border-top: 1px solid rgba(255,255,255,0.1); margin:12px 0;">
-
-  <p style="font-size:11px; margin-bottom:4px; color:var(--text-muted);">Metode Alternatif: Salin Kode Teks Cadangan</p>
-  <textarea id="teksData" rows="2" placeholder="Teks data enkapsulasi sistem akan tampil di sini..." style="font-size: 10px; font-family: monospace; background: rgba(0,0,0,0.2);"></textarea>
+  <p style="font-size:12px; margin-bottom:8px; color:var(--text-muted);">Gunakan fitur salin dan tempel (copy-paste) kode di bawah ini untuk memindahkan data antar HP dengan mudah.</p>
+  
+  <textarea id="teksData" rows="3" placeholder="Teks data enkapsulasi sistem akan tampil otomatis saat tombol copy ditekan..." style="font-size: 10px; font-family: monospace; background: rgba(0,0,0,0.2); margin-bottom: 5px;"></textarea>
+  
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
-    <button onclick="copyDataLama()" style="background: #374151; font-size: 11px; padding: 6px;">Copy Teks</button>
-    <button onclick="pasteDataBaru()" style="background: #374151; font-size: 11px; padding: 6px;">Restore Teks</button>
+    <button onclick="copyDataLama()" style="background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%); font-size: 13px; padding: 12px; border-radius: 10px;">📋 1. Copy Teks<br><span style="font-size: 10px; font-weight: normal;">(Di HP Lama)</span></button>
+    
+    <button onclick="pasteDataBaru()" style="background: linear-gradient(135deg, var(--success) 0%, #065f46 100%); font-size: 13px; padding: 12px; border-radius: 10px;">📥 2. Restore Teks<br><span style="font-size: 10px; font-weight: normal;">(Di HP Baru)</span></button>
   </div>
 </div>
 
@@ -657,132 +650,57 @@ function salinLaporanHarian() {
 }
 
 // ==========================================
-// LOGIKA IMPLEMENTASI METODE 1: FILE-BASED
+// LOGIKA TEKS BACKUP (COPY-PASTE)
 // ==========================================
 
-function exportKeFile() {
-  try {
-    // Struktur JSON standar lengkap dengan metadata pengaman skema
-    let arsipData = {
-      metadata: {
-        app_name: "EVORA Tracker Pro",
-        database_version: 1,
-        export_date: new Date().toISOString()
-      },
-      payload: {
-        stokBotol: Number(localStorage.getItem("stokBotol") || 0),
-        stokBox: Number(localStorage.getItem("stokBox") || 0),
-        barang: JSON.parse(localStorage.getItem("barang") || "[]"),
-        penjualan: JSON.parse(localStorage.getItem("penjualan") || "[]"),
-        pengeluaran: JSON.parse(localStorage.getItem("pengeluaran") || "[]")
-      }
-    };
-
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(arsipData, null, 2));
-    let dlAnchorElem = document.createElement('a');
-    let tglTag = new Date().toISOString().split('T')[0];
-    
-    dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", `EVORA_BACKUP_${tglTag}.evora`);
-    document.body.appendChild(dlAnchorElem);
-    dlAnchorElem.click();
-    dlAnchorElem.remove();
-
-    // Isi fallback textarea juga untuk visual
-    document.getElementById("teksData").value = JSON.stringify(arsipData);
-  } catch(e) {
-    alert("Gagal mengekspor berkas file: " + e.message);
-  }
-}
-
-function triggerFileSelect() {
-  document.getElementById("fileBackupInput").click();
-}
-
-function importDariFile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      let parsed = JSON.parse(e.target.result);
-      let targetPayload = null;
-
-      // Cek struktur (Guard Clauses) mendukung format baru maupun mentah teks lama
-      if (parsed.metadata && parsed.payload) {
-        targetPayload = parsed.payload;
-      } else if (parsed.stokBotol !== undefined) {
-        targetPayload = parsed;
-      } else {
-        throw new Error("Format berkas tidak sesuai standar aplikasi EVORA.");
-      }
-
-      if (!confirm("Peringatan!\nProses ini akan menimpa seluruh database lokal saat ini secara permanen. Ingin melanjutkan?")) {
-        event.target.value = "";
-        return;
-      }
-
-      // Injeksi data baru ke localStorage aman dari tipe data string/objek campuran
-      localStorage.setItem("stokBotol", Number(targetPayload.stokBotol || 0));
-      localStorage.setItem("stokBox", Number(targetPayload.stokBox || 0));
-      
-      let strBarang = typeof targetPayload.barang === 'string' ? targetPayload.barang : JSON.stringify(targetPayload.barang || []);
-      let strPenjualan = typeof targetPayload.penjualan === 'string' ? targetPayload.penjualan : JSON.stringify(targetPayload.penjualan || []);
-      let strPengeluaran = typeof targetPayload.pengeluaran === 'string' ? targetPayload.pengeluaran : JSON.stringify(targetPayload.pengeluaran || []);
-
-      localStorage.setItem("barang", strBarang);
-      localStorage.setItem("penjualan", strPenjualan);
-      localStorage.setItem("pengeluaran", strPengeluaran);
-
-      alert("🎉 BERHASIL! Database sukses dipulihkan dari berkas. Halaman akan dimuat ulang.");
-      location.reload();
-    } catch(err) {
-      alert("❌ Gagal memulihkan file: " + err.message + "\nPastikan berkas tidak rusak atau terpotong.");
-      event.target.value = "";
+function copyDataLama() {
+  // Struktur JSON diseragamkan dengan format metadata agar aman dan terstruktur
+  let arsipData = {
+    metadata: {
+      app_name: "EVORA Tracker Pro",
+      database_version: 1,
+      export_date: new Date().toISOString()
+    },
+    payload: {
+      stokBotol: Number(localStorage.getItem("stokBotol") || 0),
+      stokBox: Number(localStorage.getItem("stokBox") || 0),
+      barang: JSON.parse(localStorage.getItem("barang") || "[]"),
+      penjualan: JSON.parse(localStorage.getItem("penjualan") || "[]"),
+      pengeluaran: JSON.parse(localStorage.getItem("pengeluaran") || "[]")
     }
   };
-  reader.readAsText(file);
-}
-
-// LOGIKA TEKS BACKUP LAMA (FALLBACK CADANGAN)
-function copyDataLama() {
-  let semuaData = {
-    stokBotol: localStorage.getItem("stokBotol") || 0,
-    stokBox: localStorage.getItem("stokBox") || 0,
-    barang: localStorage.getItem("barang") || "[]",
-    penjualan: localStorage.getItem("penjualan") || "[]",
-    pengeluaran: localStorage.getItem("pengeluaran") || "[]"
-  };
-  let teks = JSON.stringify(semuaData);
+  
+  let teks = JSON.stringify(arsipData);
   document.getElementById("teksData").value = teks;
   
   navigator.clipboard.writeText(teks).then(() => {
-    alert("✅ Data teks berhasil disalin!\nSekrung buka perangkat baru dan paste di kolom restore.");
+    alert("✅ Kode teks berhasil disalin!\nSekarang kirim kode ini, lalu paste di aplikasi EVORA di HP yang baru.");
   }).catch(() => {
-    alert("⚠️ Salin otomatis gagal. Silakan blok teks manual di dalam kotak.");
+    alert("⚠️ Salin otomatis gagal. Silakan blok dan copy teks manual di dalam kotak.");
   });
 }
 
 function pasteDataBaru() {
   let input = document.getElementById("teksData").value;
-  if(!input) return alert("Kotak teks masih kosong!");
-  if(!confirm("Yakin ingin menimpa data via teks?")) return;
+  if(!input) return alert("Kotak teks masih kosong! Silakan Paste kodenya ke kotak terlebih dahulu.");
+  if(!confirm("Yakin ingin menimpa seluruh database di HP ini dengan data teks tersebut?")) return;
   
   try {
     let parsed = JSON.parse(input);
+    
+    // Penanganan fleksibel untuk format data ber-metadata (baru) maupun data polos (lama)
     let dataData = parsed.payload ? parsed.payload : parsed;
 
-    localStorage.setItem("stokBotol", dataData.stokBotol);
-    localStorage.setItem("stokBox", dataData.stokBox);
-    localStorage.setItem("barang", typeof dataData.barang === 'string' ? dataData.barang : JSON.stringify(dataData.barang));
-    localStorage.setItem("penjualan", typeof dataData.penjualan === 'string' ? dataData.penjualan : JSON.stringify(dataData.penjualan));
-    localStorage.setItem("pengeluaran", typeof dataData.pengeluaran === 'string' ? dataData.pengeluaran : JSON.stringify(dataData.pengeluaran));
+    localStorage.setItem("stokBotol", Number(dataData.stokBotol || 0));
+    localStorage.setItem("stokBox", Number(dataData.stokBox || 0));
+    localStorage.setItem("barang", typeof dataData.barang === 'string' ? dataData.barang : JSON.stringify(dataData.barang || []));
+    localStorage.setItem("penjualan", typeof dataData.penjualan === 'string' ? dataData.penjualan : JSON.stringify(dataData.penjualan || []));
+    localStorage.setItem("pengeluaran", typeof dataData.pengeluaran === 'string' ? dataData.pengeluaran : JSON.stringify(dataData.pengeluaran || []));
     
-    alert("🎉 BERHASIL! Data via teks sukses dipulihkan.");
+    alert("🎉 BERHASIL! Data berhasil dipindahkan. Aplikasi akan dimuat ulang.");
     location.reload();
   } catch(e) {
-    alert("❌ Teks data tidak valid!");
+    alert("❌ Teks data tidak valid atau rusak! Pastikan kamu menyalin kodenya sampai penuh (tidak terpotong).");
   }
 }
 
