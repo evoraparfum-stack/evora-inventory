@@ -228,7 +228,7 @@ button:active {
 .btn-share { background: #25d366; color: #fff; font-size: 14px; }
 .btn-reset { background: #221313; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.1); }
 
-/* KAMERA SCANNER PRO */
+/* KAMERA SCANNER PRO & INTERACTIVE POPUP */
 #cameraArea {
   display: none;
   background: #000;
@@ -249,6 +249,39 @@ button:active {
   color: var(--accent);
   margin-top: 6px;
   font-weight: bold;
+}
+
+/* DESAIN POPUP KONFIRMASI INTERAKTIF */
+.interactive-popup {
+  display: none;
+  background: #1e1e2f;
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  text-align: center;
+}
+.popup-title {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.popup-data {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 8px 0;
+  background: rgba(255,255,255,0.05);
+  padding: 6px;
+  border-radius: 6px;
+}
+.popup-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 @keyframes blinker { 50% { opacity: 0.4; } }
@@ -297,7 +330,16 @@ button:active {
       <button id="btnAmbilFoto" onclick="ambilFotoDanScan()" style="background: var(--success); margin-top: 6px;">⚡ Ambil Foto & Scan</button>
     </div>
 
-    <textarea id="scanInput" rows="3" placeholder="Hasil manifest varian sukses masuk..."></textarea>
+    <div id="popupKonfirmasi" class="interactive-popup">
+      <div class="popup-title">Varian Terdeteksi</div>
+      <div id="popupTextData" class="popup-data">ICARUS:1</div>
+      <div class="popup-buttons">
+        <button id="btnPopProses" onclick="eksekusiHasilScan()" style="background: var(--success); margin:0;">Proses</button>
+        <button onclick="batalkanHasilScan()" style="background: var(--danger); margin:0;">Batalkan</button>
+      </div>
+    </div>
+
+    <textarea id="scanInput" rows="3" placeholder="Hasil manifest varian sukses masuk..." style="margin-top:10px;"></textarea>
     <button onclick="prosesScan()" style="background: var(--primary);">Proses Data Masuk Manual</button>
   </div>
   
@@ -398,6 +440,7 @@ let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 let instanceChartHarian = null;
 let instanceChartBulanan = null;
 let streamKamera = null;
+let dataHasilScanSementara = null; // Menyimpan data scan sebelum di-klik "Proses"
 
 document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
 
@@ -449,11 +492,13 @@ async function toggleKamera() {
     area.style.display = "none";
     btn.innerText = "📸 Buka Kamera HP";
     btn.style.background = "#4f46e5";
+    document.getElementById("popupKonfirmasi").style.display = "none";
   } else {
     area.style.display = "block";
     document.getElementById("ocrStatus").innerText = "Membuka modul lensa...";
     btn.innerText = "🛑 Tutup Kamera";
     btn.style.background = "var(--danger)";
+    document.getElementById("popupKonfirmasi").style.display = "none";
     
     try {
       streamKamera = await navigator.mediaDevices.getUserMedia({
@@ -470,14 +515,16 @@ async function toggleKamera() {
   }
 }
 
-// --- FIX AI CORE SCANNER DENGAN VALIDASI STOK KETAT ---
+// --- SCANNER INTERAKTIF DENGAN POPUP DI BAWAH KAMERA ---
 async function ambilFotoDanScan() {
   let video = document.getElementById("videoFeed");
   let status = document.getElementById("ocrStatus");
   let btnFoto = document.getElementById("btnAmbilFoto");
+  let popup = document.getElementById("popupKonfirmasi");
   
   if (!streamKamera) return;
 
+  popup.style.display = "none"; 
   status.style.color = "var(--accent)";
   status.innerText = "🔍 Mencari Varian Parfum & Qty...";
   btnFoto.disabled = true;
@@ -497,7 +544,6 @@ async function ambilFotoDanScan() {
     let barangDitemukan = [];
     let totalQtyMinta = 0;
 
-    // Filter Pintar: Cek hanya nama varian yang ada di database aplikasi
     barang.forEach((item, index) => {
       let namaAman = item.nama.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
       let regexPintar = new RegExp(namaAman + "[^a-zA-Z0-9]{0,10}(\\d+)", "i");
@@ -514,55 +560,21 @@ async function ambilFotoDanScan() {
     });
 
     if (barangDitemukan.length > 0) {
-      let logValid = true;
-      let pesanGagalStok = "";
+      // Simpan data sementara di memory, jangan langsung dimasukkan ke DB
+      dataHasilScanSementara = {
+        items: barangDitemukan,
+        totalQty: totalQtyMinta
+      };
 
-      // VALIDASI 1: Cek Stok Logistik
-      if (stokBotol < totalQtyMinta || stokBox < totalQtyMinta) {
-        logValid = false;
-        pesanGagalStok = "Stok Botol/Box Toko Habis!";
-      }
+      // Tampilkan popup tepat di bawah kamera
+      let teksVisual = barangDitemukan.map(it => `${it.nama}:${it.qty}`).join(", ");
+      document.getElementById("popupTextData").innerText = teksVisual;
+      document.getElementById("popupTextData").style.color = "#fff";
+      document.getElementById("btnPopProses").disabled = false;
+      popup.style.display = "block";
 
-      // VALIDASI 2: Cek Stok Fisik Varian Terkait
-      barangDitemukan.forEach(it => {
-        if (barang[it.index].stok < it.qty) {
-          logValid = false;
-          pesanGagalStok = `Stok varian ${it.nama} kurang!`;
-        }
-      });
-
-      if (logValid) {
-        // EKSEKUSI DATA MASUK
-        let visualText = [];
-        barangDitemukan.forEach(it => {
-          barang[it.index].stok -= it.qty;
-          penjualan.push({
-            tanggal: new Date().toISOString(),
-            barang: it.nama,
-            qty: it.qty,
-            nominal: it.qty * HARGA
-          });
-          visualText.push(`${it.nama}:${it.qty}`);
-        });
-
-        stokBotol -= totalQtyMinta;
-        stokBox -= totalQtyMinta;
-        
-        document.getElementById("scanInput").value = visualText.join("\n");
-        saveData();
-        render();
-
-        status.style.color = "var(--success)";
-        status.innerText = `✅ INPUT BERHASIL: ${visualText.join(", ")}`;
-        
-        // Auto Close Kamera setelah sukses input data
-        setTimeout(() => { toggleKamera(); }, 1500);
-      } else {
-        // JIKA STOK KURANG: Tampilkan error teks merah di bawah kamera (tanpa pop-up mengganggu)
-        status.style.color = "var(--danger)";
-        status.innerText = `❌ REJECTED: ${pesanGagalStok}`;
-      }
-
+      status.style.color = "var(--success)";
+      status.innerText = "✅ Hasil ditemukan! Pilih Proses atau Batalkan di bawah.";
     } else {
       status.style.color = "var(--danger)";
       status.innerText = "❌ VARIAN TIDAK COCOK! Posisikan tulisan varian lebih dekat ke lensa.";
@@ -572,9 +584,76 @@ async function ambilFotoDanScan() {
     status.style.color = "var(--danger)";
     status.innerText = "❌ Gagal memproses gambar.";
     console.error(error);
-  } finally {
+  } else {
     btnFoto.disabled = false;
   }
+}
+
+// FUNGSI JIKA TOMBOL "PROSES" DI POPUP DI-KLIK
+function eksekusiHasilScan() {
+  let status = document.getElementById("ocrStatus");
+  let popup = document.getElementById("popupKonfirmasi");
+
+  if (!dataHasilScanSementara) return;
+
+  let logValid = true;
+  let pesanGagalStok = "";
+
+  // VALIDASI STOK KURANG
+  if (stokBotol < dataHasilScanSementara.totalQty || stokBox < dataHasilScanSementara.totalQty) {
+    logValid = false;
+    pesanGagalStok = "Stok Botol/Box Toko Habis!";
+  }
+
+  dataHasilScanSementara.items.forEach(it => {
+    if (barang[it.index].stok < it.qty) {
+      logValid = false;
+      pesanGagalStok = `Stok varian ${it.nama} kurang!`;
+    }
+  });
+
+  if (logValid) {
+    // INPUT DATABASE
+    let visualText = [];
+    dataHasilScanSementara.items.forEach(it => {
+      barang[it.index].stok -= it.qty;
+      penjualan.push({
+        tanggal: new Date().toISOString(),
+        barang: it.nama,
+        qty: it.qty,
+        nominal: it.qty * HARGA
+      });
+      visualText.push(`${it.nama}:${it.qty}`);
+    });
+
+    stokBotol -= dataHasilScanSementara.totalQty;
+    stokBox -= dataHasilScanSementara.totalQty;
+    
+    document.getElementById("scanInput").value = visualText.join("\n");
+    saveData();
+    render();
+
+    status.style.color = "var(--success)";
+    status.innerText = `✅ INPUT BERHASIL: ${visualText.join(", ")}`;
+    
+    // Sembunyikan popup & Auto close kamera
+    popup.style.display = "none";
+    dataHasilScanSementara = null;
+    setTimeout(() => { toggleKamera(); }, 1200);
+  } else {
+    // JIKA STOK KURANG: Ubah teks teks popup menjadi merah & tampilkan pesan error
+    document.getElementById("popupTextData").innerText = `⚠️ ${pesanGagalStok}`;
+    document.getElementById("popupTextData").style.color = "var(--danger)";
+    document.getElementById("btnPopProses").disabled = true;
+  }
+}
+
+// FUNGSI JIKA TOMBOL "BATALKAN" DI POPUP DI-KLIK
+function batalkanHasilScan() {
+  document.getElementById("popupKonfirmasi").style.display = "none";
+  document.getElementById("ocrStatus").style.color = "var(--accent)";
+  document.getElementById("ocrStatus").innerText = "Scan dibatalkan. Kamera siap foto ulang.";
+  dataHasilScanSementara = null;
 }
 
 function tambahBotol(){
