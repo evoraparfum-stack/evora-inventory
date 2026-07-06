@@ -273,8 +273,14 @@ button:active {
       <span class="label" style="color: rgba(255,255,255,0.7)">Omzet Hari Ini</span>
       <div id="omzetHariIni" class="val">Rp 0</div>
     </div>
-    <div class="stat"><span class="label">Sisa Botol</span><div id="stokBotol" class="val">0</div></div>
-    <div class="stat"><span class="label">Sisa Box</span><div id="stokBox" class="val">0</div></div>
+    <div class="stat" onclick="editLogistik('botol')" style="cursor: pointer; background: rgba(59, 130, 246, 0.1); border: 1px dashed rgba(59, 130, 246, 0.5);">
+      <span class="label">Sisa Botol ✏️</span>
+      <div id="stokBotol" class="val">0</div>
+    </div>
+    <div class="stat" onclick="editLogistik('box')" style="cursor: pointer; background: rgba(59, 130, 246, 0.1); border: 1px dashed rgba(59, 130, 246, 0.5);">
+      <span class="label">Sisa Box ✏️</span>
+      <div id="stokBox" class="val">0</div>
+    </div>
     <div class="stat"><span class="label">Total Item</span><div id="totalBarang" class="val">0</div></div>
     <div class="stat"><span class="label">Omzet Bulan Ini</span><div id="omzet" class="val">Rp 0</div></div>
     <div class="stat"><span class="label">Pengeluaran</span><div id="pengeluaran" class="val">Rp 0</div></div>
@@ -300,29 +306,14 @@ button:active {
   <button onclick="jualBarang()">Simpan Penjualan</button>
 </div>
 
-<!-- PENGELOLA LOGISTIK & MASTER BARANG -->
-<div class="row-2">
-  <div class="card">
-    <h3>Logistik (Botol & Box)</h3>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-      <input id="botolInput" type="number" placeholder="+/- Botol">
-      <input id="boxInput" type="number" placeholder="+/- Box">
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
-      <button onclick="tambahBotol()" style="background:#374151;">+ Botol</button>
-      <button onclick="tambahBox()" style="background:#374151;">+ Box</button>
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
-      <button onclick="kurangBotol()" style="background:#221313; color:var(--danger);">- Botol</button>
-      <button onclick="kurangBox()" style="background:#221313; color:var(--danger);">- Box</button>
-    </div>
-  </div>
-  <div class="card">
-    <h3>Daftarkan Varian Baru</h3>
+<!-- MASTER BARANG -->
+<div class="card">
+  <h3>Daftarkan Varian Baru</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
     <input id="namaBarang" placeholder="Nama Varian Parfum Baru">
     <input id="qtyBarang" type="number" placeholder="Stok Awal">
-    <button onclick="tambahBarang()">+ Daftarkan Item</button>
   </div>
+  <button onclick="tambahBarang()" style="margin-top: 10px;">+ Daftarkan Item</button>
 </div>
 
 <!-- PEMBUKUAN MANUAL & BIAYA -->
@@ -455,11 +446,23 @@ function updateMonthSelect(){
   .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
-// LOGISTIK
-function tambahBotol(){ let qty = Number(botolInput.value); if(qty<=0) return; stokBotol += qty; botolInput.value=""; saveData(); render(); }
-function kurangBotol(){ let qty = Number(botolInput.value); if(qty<=0) return; if(stokBotol<qty) return alert("Stok botol kurang"); stokBotol -= qty; botolInput.value=""; saveData(); render(); }
-function tambahBox(){ let qty = Number(boxInput.value); if(qty<=0) return; stokBox += qty; boxInput.value=""; saveData(); render(); }
-function kurangBox(){ let qty = Number(boxInput.value); if(qty<=0) return; if(stokBox<qty) return alert("Stok box kurang"); stokBox -= qty; boxInput.value=""; saveData(); render(); }
+// EDIT LOGISTIK LANGSUNG DARI DASHBOARD
+function editLogistik(jenis) {
+  let nilaiSaatIni = jenis === 'botol' ? stokBotol : stokBox;
+  let inputBaru = prompt(`Ubah Total Stok ${jenis.toUpperCase()} saat ini:`, nilaiSaatIni);
+  
+  if (inputBaru !== null && inputBaru.trim() !== "") {
+    let angkaBaru = Number(inputBaru);
+    if (!isNaN(angkaBaru) && angkaBaru >= 0) {
+      if (jenis === 'botol') stokBotol = angkaBaru;
+      if (jenis === 'box') stokBox = angkaBaru;
+      saveData();
+      render();
+    } else {
+      alert("Masukkan angka yang valid!");
+    }
+  }
+}
 
 // MASTER BARANG
 function tambahBarang(){
