@@ -123,7 +123,23 @@ button:active {
   gap: 15px;
 }
 
-/* GRID DAFTAR BARANG INTERAKTIF */
+/* FIX: TAMPILAN KASIR RINGKAS DENGAN SCROLL INTERNAL */
+.box-kasir-container {
+  max-height: 290px; /* Membatasi tinggi vertikal kasir */
+  overflow-y: auto;  /* Memunculkan scroll mandiri */
+  padding-right: 5px;
+  margin-top: 5px;
+}
+
+/* Menghaluskan scrollbar di browser berbasis Webkit */
+.box-kasir-container::-webkit-scrollbar, .scroll-box::-webkit-scrollbar {
+  width: 4px;
+}
+.box-kasir-container::-webkit-scrollbar-thumb, .scroll-box::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
 .grid-barang {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
@@ -137,7 +153,7 @@ button:active {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 175px;
+  min-height: 130px; /* Sedikit dipadatkan tinggi itemnya */
 }
 .item-info b {
   font-size: 13px;
@@ -230,8 +246,11 @@ button:active {
 
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
-  <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 12px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
-  <div id="listBarang" class="grid-barang"></div>
+  <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
+  
+  <div class="box-kasir-container">
+    <div id="listBarang" class="grid-barang"></div>
+  </div>
 </div>
 
 <div class="row-2">
@@ -241,7 +260,7 @@ button:active {
     <button onclick="prosesScan()">Proses Data Scan</button>
   </div>
   <div class="card">
-    <h3>Penjualan Manual Khusus</h3>
+    <h3>Penjualan Manual Grosir</h3>
     <select id="barangJual"></select>
     <input id="qtyJual" type="number" placeholder="Jumlah Banyak Qty">
     <button onclick="jualBarang()">Simpan Penjualan</button>
@@ -680,7 +699,7 @@ listBarang.innerHTML = barangUrut.map((x)=>{
 barangJual.innerHTML = barang.map((x,i)=>
 `<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
-// --- CHART HARIAN ---
+// --- CHART & SUMMARY HARIAN ---
 let tglDipilih = document.getElementById("hariSelect").value;
 let dataJam = Array(24).fill(0);
 
@@ -731,7 +750,7 @@ instanceChartHarian = new Chart(ctxHarian, {
   }
 });
 
-// --- CHART BULANAN ---
+// --- CHART & SUMMARY BULANAN ---
 let bulan = bulanSelect.value || bulanAktif;
 let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
 let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
@@ -794,6 +813,15 @@ riwayatKeluar.innerHTML = keluarBulanan.length ? keluarBulanan.map(x=>`
 <p>⏱️ ${new Date(x.tanggal).toLocaleDateString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
 }
 render();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(function(registration) { console.log("SW Registered"); })
+      .catch(function(error) { console.log("SW Failed", error); });
+  });
+}
 </script>
 </body>
 </html>
