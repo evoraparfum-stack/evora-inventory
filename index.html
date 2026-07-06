@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <!-- FIX: Mengunci Zoom secara total di Android & iOS (user-scalable=no) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <title>EVORA Tracker Pro</title>
   <link rel="manifest" href="./manifest.json">
@@ -10,10 +11,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
   <link class="apple-touch-icon" href="./icon-192.png">
-  
+  <!-- Chart.js untuk Grafik -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-
 <style>
 :root {
   --bg-main: #0d0d12;
@@ -31,6 +30,7 @@
 * { 
   box-sizing: border-box; 
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+  /* FIX: Mematikan gesture zoom double-tap bawaan browser browser */
   touch-action: manipulation; 
 }
 
@@ -41,6 +41,7 @@ html, body {
   color: var(--text-main);
   margin: 0;
   padding: 15px;
+  /* FIX: Mengunci total geseran ke kanan/kiri (Anti-overflow horizontal) */
   overflow-x: hidden; 
   position: relative;
 }
@@ -135,6 +136,7 @@ button:active {
   gap: 15px;
 }
 
+/* FIX KASIR COMPACT */
 .box-kasir-container {
   max-height: 290px;
   overflow-y: auto;
@@ -228,29 +230,6 @@ button:active {
 .btn-share { background: #25d366; color: #fff; font-size: 14px; }
 .btn-reset { background: #221313; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.1); }
 
-/* KAMERA SCANNER PRO */
-#cameraArea {
-  display: none;
-  background: #000;
-  padding: 10px;
-  border-radius: 12px;
-  margin-top: 8px;
-  text-align: center;
-}
-#videoFeed {
-  width: 100%;
-  max-height: 240px;
-  object-fit: cover;
-  border-radius: 8px;
-  background: #222;
-}
-#ocrStatus {
-  font-size: 13px;
-  color: var(--accent);
-  margin-top: 6px;
-  font-weight: bold;
-}
-
 @keyframes blinker { 50% { opacity: 0.4; } }
 
 @media(max-width:768px){
@@ -260,6 +239,7 @@ button:active {
 </head>
 <body>
 
+<!-- BAGIAN 1: DASHBOARD UTAMA -->
 <div class="card dashboard-hero">
   <h3>Dashboard Finansial</h3>
   <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
@@ -277,6 +257,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 2: MESIN KASIR -->
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
   <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
@@ -286,21 +267,13 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 3: ELEMEN INPUT TRANSAKSI LAINNYA -->
 <div class="row-2">
-  <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3);">
-    <h3>AI Scan Import Resi</h3>
-    <button id="btnToggleKamera" onclick="toggleKamera()" style="background: #4f46e5; margin-bottom: 4px;">📸 Buka Kamera HP</button>
-    
-    <div id="cameraArea">
-      <video id="videoFeed" autoplay playsinline></video>
-      <div id="ocrStatus">Kamera siap... Bidik teks resi dengan jelas!</div>
-      <button id="btnAmbilFoto" onclick="ambilFotoDanScan()" style="background: var(--success); margin-top: 6px;">⚡ Ambil Foto & Scan</button>
-    </div>
-
-    <textarea id="scanInput" rows="3" placeholder="Hasil manifest varian sukses masuk..."></textarea>
-    <button onclick="prosesScan()" style="background: var(--primary);">Proses Data Masuk Manual</button>
+  <div class="card">
+    <h3>AI Scan Import</h3>
+    <textarea id="scanInput" rows="3" placeholder="Format: NAMA:QTY (Gunakan enter untuk baris baru)"></textarea>
+    <button onclick="prosesScan()">Proses Data Scan</button>
   </div>
-  
   <div class="card">
     <h3>Penjualan Manual Grosir</h3>
     <select id="barangJual"></select>
@@ -309,6 +282,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 4: PENGELOLA LOGISTIK & MASTER BARANG -->
 <div class="row-2">
   <div class="card">
     <h3>Logistik (Botol & Box)</h3>
@@ -333,6 +307,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 5: PEMBUKUAN MANUAL & BIAYA -->
 <div class="row-2">
   <div class="card">
     <h3>Omzet Masuk Manual</h3>
@@ -348,6 +323,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 6: AUDIT, ANALISIS DATA, & LAPORAN TREN -->
 <div class="card">
   <h3>Laporan & Riwayat Harian</h3>
   <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
@@ -397,10 +373,10 @@ let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 
 let instanceChartHarian = null;
 let instanceChartBulanan = null;
-let streamKamera = null;
 
 document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
 
+/* FIX: Mencegah zoom cubit (pinch zoom) via script Javascript di iOS Safari */
 document.addEventListener('touchmove', function (event) {
   if (event.scale !== 1) { event.preventDefault(); }
 }, { passive: false });
@@ -439,144 +415,6 @@ document.getElementById("bulanSelect").innerHTML =
 .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
-async function toggleKamera() {
-  let area = document.getElementById("cameraArea");
-  let btn = document.getElementById("btnToggleKamera");
-  let video = document.getElementById("videoFeed");
-
-  if (area.style.display === "block") {
-    if (streamKamera) { streamKamera.getTracks().forEach(track => track.stop()); }
-    area.style.display = "none";
-    btn.innerText = "📸 Buka Kamera HP";
-    btn.style.background = "#4f46e5";
-  } else {
-    area.style.display = "block";
-    document.getElementById("ocrStatus").innerText = "Membuka modul lensa...";
-    btn.innerText = "🛑 Tutup Kamera";
-    btn.style.background = "var(--danger)";
-    
-    try {
-      streamKamera = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-        audio: false
-      });
-      video.srcObject = streamKamera;
-      document.getElementById("ocrStatus").style.color = "var(--accent)";
-      document.getElementById("ocrStatus").innerText = "Kamera Aktif! Dekatkan ke tulisan varian resi.";
-    } catch (err) {
-      document.getElementById("ocrStatus").innerText = "Gagal akses kamera.";
-      console.error(err);
-    }
-  }
-}
-
-// --- FIX AI CORE SCANNER DENGAN VALIDASI STOK KETAT ---
-async function ambilFotoDanScan() {
-  let video = document.getElementById("videoFeed");
-  let status = document.getElementById("ocrStatus");
-  let btnFoto = document.getElementById("btnAmbilFoto");
-  
-  if (!streamKamera) return;
-
-  status.style.color = "var(--accent)";
-  status.innerText = "🔍 Mencari Varian Parfum & Qty...";
-  btnFoto.disabled = true;
-
-  let canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  let ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  try {
-    const result = await Tesseract.recognize(canvas, 'eng', {
-      logger: m => { if(m.status === 'recognizing text') status.innerText = `AI Membaca: ${Math.round(m.progress * 100)}%`; }
-    });
-    
-    let teksMentah = result.data.text.toUpperCase().replace(/\s+/g, ' ');
-    let barangDitemukan = [];
-    let totalQtyMinta = 0;
-
-    // Filter Pintar: Cek hanya nama varian yang ada di database aplikasi
-    barang.forEach((item, index) => {
-      let namaAman = item.nama.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-      let regexPintar = new RegExp(namaAman + "[^a-zA-Z0-9]{0,10}(\\d+)", "i");
-      let cocok = teksMentah.match(regexPintar);
-
-      if (teksMentah.includes(item.nama)) {
-        let qty = 1; 
-        if (cocok && cocok[1]) {
-          qty = parseInt(cocok[1]);
-        }
-        barangDitemukan.push({ index: index, nama: item.nama, qty: qty });
-        totalQtyMinta += qty;
-      }
-    });
-
-    if (barangDitemukan.length > 0) {
-      let logValid = true;
-      let pesanGagalStok = "";
-
-      // VALIDASI 1: Cek Stok Logistik
-      if (stokBotol < totalQtyMinta || stokBox < totalQtyMinta) {
-        logValid = false;
-        pesanGagalStok = "Stok Botol/Box Toko Habis!";
-      }
-
-      // VALIDASI 2: Cek Stok Fisik Varian Terkait
-      barangDitemukan.forEach(it => {
-        if (barang[it.index].stok < it.qty) {
-          logValid = false;
-          pesanGagalStok = `Stok varian ${it.nama} kurang!`;
-        }
-      });
-
-      if (logValid) {
-        // EKSEKUSI DATA MASUK
-        let visualText = [];
-        barangDitemukan.forEach(it => {
-          barang[it.index].stok -= it.qty;
-          penjualan.push({
-            tanggal: new Date().toISOString(),
-            barang: it.nama,
-            qty: it.qty,
-            nominal: it.qty * HARGA
-          });
-          visualText.push(`${it.nama}:${it.qty}`);
-        });
-
-        stokBotol -= totalQtyMinta;
-        stokBox -= totalQtyMinta;
-        
-        document.getElementById("scanInput").value = visualText.join("\n");
-        saveData();
-        render();
-
-        status.style.color = "var(--success)";
-        status.innerText = `✅ INPUT BERHASIL: ${visualText.join(", ")}`;
-        
-        // Auto Close Kamera setelah sukses input data
-        setTimeout(() => { toggleKamera(); }, 1500);
-      } else {
-        // JIKA STOK KURANG: Tampilkan error teks merah di bawah kamera (tanpa pop-up mengganggu)
-        status.style.color = "var(--danger)";
-        status.innerText = `❌ REJECTED: ${pesanGagalStok}`;
-      }
-
-    } else {
-      status.style.color = "var(--danger)";
-      status.innerText = "❌ VARIAN TIDAK COCOK! Posisikan tulisan varian lebih dekat ke lensa.";
-    }
-
-  } catch (error) {
-    status.style.color = "var(--danger)";
-    status.innerText = "❌ Gagal memproses gambar.";
-    console.error(error);
-  } finally {
-    btnFoto.disabled = false;
-  }
-}
-
 function tambahBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
@@ -588,7 +426,7 @@ saveData(); render();
 function kurangBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
-if(stokBotol<qty) return;
+if(stokBotol<qty) return alert("Stok botol kurang");
 stokBotol -= qty;
 botolInput.value="";
 saveData(); render();
@@ -605,7 +443,7 @@ saveData(); render();
 function kurangBox(){
 let qty = Number(boxInput.value);
 if(qty<=0) return;
-if(stokBox<qty) return;
+if(stokBox<qty) return alert("Stok box kurang");
 stokBox -= qty;
 boxInput.value="";
 saveData(); render();
@@ -641,9 +479,9 @@ render();
 }
 
 function quickJual(originalIndex) {
-  if(barang[originalIndex].stok < 1) return;
-  if(stokBotol < 1) return;
-  if(stokBox < 1) return;
+  if(barang[originalIndex].stok < 1) return alert("Stok barang ini sudah habis!");
+  if(stokBotol < 1) return alert("Stok botol kosong!");
+  if(stokBox < 1) return alert("Stok box kosong!");
   
   barang[originalIndex].stok -= 1;
   stokBotol -= 1;
@@ -664,9 +502,9 @@ function jualBarang(){
 let originalIndex = Number(barangJual.value);
 let qty = Number(qtyJual.value);
 if(qty<=0) return;
-if(barang[originalIndex].stok<qty) return;
-if(stokBotol<qty) return;
-if(stokBox<qty) return;
+if(barang[originalIndex].stok<qty) return alert("Stok barang kurang");
+if(stokBotol<qty) return alert("Stok botol kurang");
+if(stokBox<qty) return alert("Stok box kurang");
 barang[originalIndex].stok -= qty;
 stokBotol -= qty;
 stokBox -= qty;
@@ -690,14 +528,34 @@ let validScan = 0;
 for(let line of lines){
 line = line.trim();
 if(!line || line.startsWith("TOTAL")) continue;
-if(!line.includes(":")) return;
+if(!line.includes(":")){
+alert("Format scan tidak valid");
+return;
+}
 let parts = line.split(":");
-if(parts.length!==2) return;
+if(parts.length!==2){
+alert("Format scan tidak valid");
+return;
+}
 let nama = parts[0].trim().toUpperCase();
 let qty = Number(parts[1].trim());
-if(nama.length < 2 || qty<=0) return;
+if(nama.length < 3){
+alert("Nama terlalu pendek: " + nama);
+return;
+}
+if(qty<=0){
+alert("Qty tidak valid");
+return;
+}
 let index = barang.findIndex(x => x.nama === nama);
-if(index===-1 || barang[index].stok<qty) return;
+if(index===-1){
+alert("Barang tidak ditemukan: " + nama);
+return;
+}
+if(barang[index].stok<qty){
+alert("Stok kurang: " + barang[index].nama);
+return;
+}
 barang[index].stok -= qty;
 totalQty += qty;
 validScan++;
@@ -708,13 +566,18 @@ penjualan.push({
   nominal:qty*HARGA
 });
 }
-if(validScan===0) return;
-if(stokBotol<totalQty || stokBox<totalQty) return;
+if(validScan===0){
+alert("Format scan tidak valid");
+return;
+}
+if(stokBotol<totalQty) return alert("Stok botol kurang");
+if(stokBox<totalQty) return alert("Stok box kurang");
 stokBotol -= totalQty;
 stokBox -= totalQty;
 scanInput.value="";
 saveData();
 render();
+alert("Scan berhasil");
 }
 
 function tambahOmzetManual(){
@@ -784,7 +647,9 @@ function salinLaporanHarian() {
   }
 
   navigator.clipboard.writeText(teksLaporan).then(() => {
-    alert("Berhasil disalin! Sekarang tinggal paste ke WhatsApp.");
+    alert("Berhasil disalin! Sekarang tinggal paste ke WhatsApp mitra/tim.");
+  }).catch(() => {
+    alert("Browser tidak mengizinkan salin otomatis.");
   });
 }
 
@@ -857,6 +722,7 @@ listBarang.innerHTML = barangUrut.map((x)=>{
 barangJual.innerHTML = barang.map((x,i)=>
 `<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
+// --- CHART & SUMMARY HARIAN ---
 let tglDipilih = document.getElementById("hariSelect").value;
 let dataJam = Array(24).fill(0);
 
@@ -907,6 +773,7 @@ instanceChartHarian = new Chart(ctxHarian, {
   }
 });
 
+// --- CHART & SUMMARY BULANAN ---
 let bulan = bulanSelect.value || bulanAktif;
 let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
 let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
@@ -969,6 +836,15 @@ riwayatKeluar.innerHTML = keluarBulanan.length ? keluarBulanan.map(x=>`
 <p>⏱️ ${new Date(x.tanggal).toLocaleDateString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
 }
 render();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(function(registration) { console.log("SW Registered"); })
+      .catch(function(error) { console.log("SW Failed", error); });
+  });
+}
 </script>
 </body>
 </html>
