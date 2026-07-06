@@ -332,7 +332,7 @@ button:active {
 
     <div id="popupKonfirmasi" class="interactive-popup">
       <div class="popup-title">Varian Terdeteksi</div>
-      <div id="popupTextData" class="popup-data">ICARUS:1</div>
+      <div id="popupTextData" class="popup-data">Mencari...</div>
       <div class="popup-buttons">
         <button id="btnPopProses" onclick="eksekusiHasilScan()" style="background: var(--success); margin:0;">Proses</button>
         <button onclick="batalkanHasilScan()" style="background: var(--danger); margin:0;">Batalkan</button>
@@ -440,7 +440,7 @@ let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 let instanceChartHarian = null;
 let instanceChartBulanan = null;
 let streamKamera = null;
-let dataHasilScanSementara = null; // Menyimpan data scan sebelum di-klik "Proses"
+let dataHasilScanSementara = null;
 
 document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
 
@@ -515,7 +515,7 @@ async function toggleKamera() {
   }
 }
 
-// --- SCANNER INTERAKTIF DENGAN POPUP DI BAWAH KAMERA ---
+// --- FIX AI SCANNER DENGAN BLOK FINALLY YANG BENAR ---
 async function ambilFotoDanScan() {
   let video = document.getElementById("videoFeed");
   let status = document.getElementById("ocrStatus");
@@ -560,13 +560,11 @@ async function ambilFotoDanScan() {
     });
 
     if (barangDitemukan.length > 0) {
-      // Simpan data sementara di memory, jangan langsung dimasukkan ke DB
       dataHasilScanSementara = {
         items: barangDitemukan,
         totalQty: totalQtyMinta
       };
 
-      // Tampilkan popup tepat di bawah kamera
       let teksVisual = barangDitemukan.map(it => `${it.nama}:${it.qty}`).join(", ");
       document.getElementById("popupTextData").innerText = teksVisual;
       document.getElementById("popupTextData").style.color = "#fff";
@@ -584,12 +582,12 @@ async function ambilFotoDanScan() {
     status.style.color = "var(--danger)";
     status.innerText = "❌ Gagal memproses gambar.";
     console.error(error);
-  } else {
+  } finally {
+    // Memperbaiki structural syntax error yang membuat aplikasi beku kemarin
     btnFoto.disabled = false;
   }
 }
 
-// FUNGSI JIKA TOMBOL "PROSES" DI POPUP DI-KLIK
 function eksekusiHasilScan() {
   let status = document.getElementById("ocrStatus");
   let popup = document.getElementById("popupKonfirmasi");
@@ -599,7 +597,6 @@ function eksekusiHasilScan() {
   let logValid = true;
   let pesanGagalStok = "";
 
-  // VALIDASI STOK KURANG
   if (stokBotol < dataHasilScanSementara.totalQty || stokBox < dataHasilScanSementara.totalQty) {
     logValid = false;
     pesanGagalStok = "Stok Botol/Box Toko Habis!";
@@ -613,7 +610,6 @@ function eksekusiHasilScan() {
   });
 
   if (logValid) {
-    // INPUT DATABASE
     let visualText = [];
     dataHasilScanSementara.items.forEach(it => {
       barang[it.index].stok -= it.qty;
@@ -636,19 +632,16 @@ function eksekusiHasilScan() {
     status.style.color = "var(--success)";
     status.innerText = `✅ INPUT BERHASIL: ${visualText.join(", ")}`;
     
-    // Sembunyikan popup & Auto close kamera
     popup.style.display = "none";
     dataHasilScanSementara = null;
     setTimeout(() => { toggleKamera(); }, 1200);
   } else {
-    // JIKA STOK KURANG: Ubah teks teks popup menjadi merah & tampilkan pesan error
     document.getElementById("popupTextData").innerText = `⚠️ ${pesanGagalStok}`;
     document.getElementById("popupTextData").style.color = "var(--danger)";
     document.getElementById("btnPopProses").disabled = true;
   }
 }
 
-// FUNGSI JIKA TOMBOL "BATALKAN" DI POPUP DI-KLIK
 function batalkanHasilScan() {
   document.getElementById("popupKonfirmasi").style.display = "none";
   document.getElementById("ocrStatus").style.color = "var(--accent)";
