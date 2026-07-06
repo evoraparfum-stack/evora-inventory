@@ -5,223 +5,335 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EVORA Tracker</title>
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#111111">
+  <meta name="theme-color" content="#0d0d12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
   <link rel="apple-touch-icon" href="./icon-192.png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-*{box-sizing:border-box;}
-body{
-font-family:Arial,sans-serif;
-background:#111;
-color:#fff;
-padding:15px;
-margin:0;
+:root {
+  --bg-main: #0d0d12;
+  --bg-card: #161622;
+  --bg-input: #1f1f2e;
+  --primary: #3b82f6;
+  --accent: #f59e0b;
+  --danger: #ef4444;
+  --danger-bg: #3a1a22;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
 }
-.card{
-background:#1d1d1d;
-padding:15px;
-border-radius:12px;
-margin-bottom:15px;
+
+* { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+body {
+  background: var(--bg-main);
+  color: var(--text-main);
+  padding: 20px 15px;
+  margin: 0;
 }
-input,select,button,textarea{
-width:100%;
-padding:14px;
-margin:6px 0;
-border:none;
-border-radius:10px;
-font-size:17px;
+
+h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  border-left: 4px solid var(--primary);
+  padding-left: 10px;
 }
-button{
-font-weight:bold;
-cursor:pointer;
+
+.card {
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
-.stats{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
+
+/* Dashboard Khusus Gradasi */
+.dashboard-hero {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
-.stat{
-background:#222;
-padding:12px;
-border-radius:10px;
-text-align:center;
+
+input, select, button, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  margin: 8px 0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  font-size: 15px;
+  background: var(--bg-input);
+  color: #fff;
+  outline: none;
+  transition: all 0.2s;
 }
-.stat.highlight{
-background:#1e3a8a;
-border:1px solid #3b82f6;
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
-.row-btn{
-display:flex;
-gap:8px;
+
+button {
+  font-weight: bold;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  border: none;
 }
-.row-btn button{
-width:50%;
+button:active {
+  transform: scale(0.98);
 }
-.grid-barang{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
-.item-barang{
-background:#222;
-padding:10px;
-border-radius:10px;
-min-width:120px;
-font-size:12px;
-position:relative;
+.stat {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 14px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.02);
 }
-.item-barang button{
-width:auto;
-padding:5px 8px;
-font-size:11px;
-margin-top:5px;
-margin-right:4px;
+.stat .val {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 4px;
+  color: #fff;
 }
-.btn-edit{
-background:#f59e0b;
-color:white;
+.stat.highlight {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.btn-delete{
-background:#ef4444;
-color:white;
+.stat.highlight .val {
+  font-size: 24px;
 }
-.scroll-box{
-max-height:250px;
-overflow-y:auto;
+
+.row-btn {
+  display: flex;
+  gap: 10px;
 }
-.row-2{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
+.row-btn button {
+  width: 50%;
 }
-/* Efek teks peringatan berkedip untuk stok kritis */
+.row-btn button:first-child {
+  background: #374151;
+}
+
+/* GRID DAFTAR BARANG SAMA RATA */
+.grid-barang {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.item-barang {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Menjaga isi card seimbang atas bawah */
+  min-height: 145px; /* Memaksa semua tinggi kotak sama rata */
+}
+.item-info {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.item-info b {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 4px;
+  color: #fff;
+}
+.item-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.item-actions button {
+  margin: 0;
+  padding: 6px;
+  font-size: 12px;
+  flex: 1;
+}
+.btn-edit { background: var(--accent); color: #000; }
+.btn-delete { background: var(--danger); color: #fff; }
+
+.scroll-box {
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+.scroll-box p {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px;
+  border-radius: 8px;
+  margin: 6px 0;
+  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.01);
+}
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
 .badge-warning {
-color: #fca5a5;
-font-weight: bold;
-font-size: 11px;
-margin-top: 4px;
-display: inline-block;
-animation: blinker 1.5s linear infinite;
+  color: #f87171;
+  font-weight: bold;
+  font-size: 11px;
+  margin-top: 4px;
+  display: inline-block;
+  animation: blinker 1.5s linear infinite;
 }
-@keyframes blinker {
-50% { opacity: 0.3; }
+.chart-container {
+  position: relative;
+  margin-top: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 12px;
 }
+.btn-reset {
+  background: #311;
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.btn-reset:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+@keyframes blinker { 50% { opacity: 0.3; } }
+
 @media(max-width:768px){
-.row-2{
-grid-template-columns:1fr;
-}
+  .row-2 { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 
-<div class="card">
-<h3>Dashboard</h3>
-<p id="bulanAktif"></p>
-<div class="stats">
-<div class="stat highlight" style="grid-column: span 2;">
-  Omzet Hari Ini<br>
-  <span id="omzetHariIni" style="font-size: 20px; font-weight: bold;">Rp 0</span>
-</div>
-<div class="stat">Botol<br><span id="stokBotol">0</span></div>
-<div class="stat">Box<br><span id="stokBox">0</span></div>
-<div class="stat">Barang<br><span id="totalBarang">0</span></div>
-<div class="stat">Omzet Bulan Ini<br><span id="omzet">Rp 0</span></div>
-<div class="stat">Pengeluaran<br><span id="pengeluaran">Rp 0</span></div>
-<div class="stat">Laba Bulan Ini<br><span id="laba">Rp 0</span></div>
-</div>
-</div>
-
-<div class="card">
-<h3>Stock Botol</h3>
-<input id="botolInput" type="number" placeholder="Qty Botol">
-<div class="row-btn">
-<button onclick="kurangBotol()">Kurang</button>
-<button onclick="tambahBotol()">Tambah</button>
-</div>
-<h3>Stock Box</h3>
-<input id="boxInput" type="number" placeholder="Qty Box">
-<div class="row-btn">
-<button onclick="kurangBox()">Kurang</button>
-<button onclick="tambahBox()">Tambah</button>
-</div>
+<div class="card dashboard-hero">
+  <h3>Dashboard</h3>
+  <p id="bulanAktif" style="color: var(--text-muted); font-size: 14px; margin-top: -10px; margin-bottom: 15px;"></p>
+  <div class="stats">
+    <div class="stat highlight" style="grid-column: span 2;">
+      <span style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Omzet Hari Ini</span>
+      <div id="omzetHariIni" class="val">Rp 0</div>
+    </div>
+    <div class="stat"><span style="color:var(--text-muted); font-size:12px;">Botol</span><div id="stokBotol" class="val">0</div></div>
+    <div class="stat"><span style="color:var(--text-muted); font-size:12px;">Box</span><div id="stokBox" class="val">0</div></div>
+    <div class="stat"><span style="color:var(--text-muted); font-size:12px;">Barang</span><div id="totalBarang" class="val">0</div></div>
+    <div class="stat"><span style="color:var(--text-muted); font-size:12px;">Omzet Bulan Ini</span><div id="omzet" class="val">Rp 0</div></div>
+    <div class="stat"><span style="color:var(--text-muted); font-size:12px;">Pengeluaran</span><div id="pengeluaran" class="val">Rp 0</div></div>
+    <div class="stat"><span style="color:var(--text-muted); font-size:12px;">Laba Bulan Ini</span><div id="laba" class="val">Rp 0</div></div>
+  </div>
 </div>
 
 <div class="card">
-<h3>Tambah Barang</h3>
-<input id="namaBarang" placeholder="Nama Barang">
-<input id="qtyBarang" type="number" placeholder="Qty Stok">
-<button onclick="tambahBarang()">Tambah Barang</button>
+  <h3>Stok Botol & Box</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+    <div>
+      <input id="botolInput" type="number" placeholder="Qty Botol">
+      <div class="row-btn">
+        <button onclick="kurangBotol()">Kurang</button>
+        <button onclick="tambahBotol()">Tambah</button>
+      </div>
+    </div>
+    <div>
+      <input id="boxInput" type="number" placeholder="Qty Box">
+      <div class="row-btn">
+        <button onclick="kurangBox()">Kurang</button>
+        <button onclick="tambahBox()">Tambah</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="card">
-<h3>Daftar Barang</h3>
-<div id="listBarang" class="grid-barang"></div>
+  <h3>Tambah Barang Baru</h3>
+  <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
+    <input id="namaBarang" placeholder="Nama Barang">
+    <input id="qtyBarang" type="number" placeholder="Qty Stok">
+  </div>
+  <button onclick="tambahBarang()" style="margin-top: 4px;">+ Daftarkan Barang</button>
 </div>
 
 <div class="card">
-<h3>Penjualan Manual</h3>
-<select id="barangJual"></select>
-<input id="qtyJual" type="number" placeholder="Qty">
-<button onclick="jualBarang()">Simpan Penjualan</button>
+  <h3>Daftar Barang (Urut Stok Kritis)</h3>
+  <div id="listBarang" class="grid-barang"></div>
 </div>
 
 <div class="card">
-<h3>AI Scan Import</h3>
-<textarea id="scanInput" rows="6" placeholder="ICARUS:2"></textarea>
-<button onclick="prosesScan()">Proses Scan</button>
+  <h3>Penjualan Manual</h3>
+  <select id="barangJual"></select>
+  <input id="qtyJual" type="number" placeholder="Jumlah Qty">
+  <button onclick="jualBarang()">Simpan Penjualan</button>
 </div>
 
 <div class="card">
-<h3>Tambah Omzet Manual</h3>
-<input id="manualOmzet" type="number" placeholder="Nominal">
-<input id="manualKet" placeholder="Keterangan">
-<button onclick="tambahOmzetManual()">Simpan Omzet</button>
+  <h3>AI Scan Import</h3>
+  <textarea id="scanInput" rows="4" placeholder="Contoh format input:\nICARUS:2\nALPHA:1"></textarea>
+  <button onclick="prosesScan()">Proses Ambil Data Scan</button>
 </div>
 
 <div class="card">
-<h3>Pengeluaran</h3>
-<input id="nominalKeluar" type="number" placeholder="Nominal">
-<input id="ketKeluar" placeholder="Keterangan">
-<button onclick="tambahPengeluaran()">Simpan Pengeluaran</button>
+  <h3>Tambah Omzet Manual</h3>
+  <input id="manualOmzet" type="number" placeholder="Nominal Uang (Rp)">
+  <input id="manualKet" placeholder="Keterangan Tambahan">
+  <button onclick="tambahOmzetManual()" style="background: #10b981;">Simpan Omzet Masuk</button>
 </div>
 
 <div class="card">
-<h3>Cari Riwayat Harian</h3>
-<input id="hariSelect" type="date" onchange="render()" style="background:#222; color:#fff;">
-<div id="summaryHarian" style="margin-top:10px; padding:10px; background:#222; border-radius:8px;"></div>
+  <h3>Catat Pengeluaran</h3>
+  <input id="nominalKeluar" type="number" placeholder="Nominal Pengeluaran (Rp)">
+  <input id="ketKeluar" placeholder="Keperluan / Keterangan">
+  <button onclick="tambahPengeluaran()" style="background: #eb4444;">Simpan Pengeluaran Keluar</button>
 </div>
 
 <div class="card">
-<h3>Riwayat Bulanan</h3>
-<select id="bulanSelect" onchange="render()"></select>
+  <h3>Cari Riwayat Harian</h3>
+  <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff;">
+  <div id="summaryHarian" style="margin-top:10px; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px; font-size:14px;"></div>
+  <div class="chart-container">
+    <canvas id="chartHarian"></canvas>
+  </div>
 </div>
 
 <div class="card">
-<h3>Summary Bulanan</h3>
-<div id="summaryBulanan"></div>
+  <h3>Riwayat Bulanan</h3>
+  <select id="bulanSelect" onchange="render()"></select>
 </div>
 
 <div class="card">
-<h3>Top Selling</h3>
-<div id="topSelling"></div>
+  <h3>Summary Bulanan</h3>
+  <div id="summaryBulanan" style="font-size: 15px; line-height: 1.6; margin-bottom: 10px;"></div>
+  <div class="chart-container">
+    <canvas id="chartBulanan"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Top Selling (Bulan Ini)</h3>
+  <div id="topSelling" style="font-size: 15px; line-height: 1.6; color:#f59e0b; font-weight: 500;"></div>
 </div>
 
 <div class="row-2">
-<div class="card">
-<h3>Detail Penjualan (Bulanan)</h3>
-<div id="riwayatJual" class="scroll-box"></div>
-</div>
-<div class="card">
-<h3>Detail Pengeluaran (Bulanan)</h3>
-<div id="riwayatKeluar" class="scroll-box"></div>
-</div>
+  <div class="card">
+    <h3>Detail Penjualan Bulanan</h3>
+    <div id="riwayatJual" class="scroll-box"></div>
+  </div>
+  <div class="card">
+    <h3>Detail Pengeluaran Bulanan</h3>
+    <div id="riwayatKeluar" class="scroll-box"></div>
+  </div>
 </div>
 
-<div class="card">
-<button onclick="resetData()">RESET SEMUA DATA</button>
+<div style="margin: 20px 0 40px 0;">
+  <button class="btn-reset" onclick="resetData()">RESET SEMUA DATABASE APLIKASI</button>
 </div>
 
 <script>
@@ -232,7 +344,9 @@ let barang = JSON.parse(localStorage.getItem("barang") || "[]");
 let penjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
 let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 
-// Sinkronisasi kalender pencarian ke hari ini secara default
+let instanceChartHarian = null;
+let instanceChartBulanan = null;
+
 document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
 
 function saveData(){
@@ -277,6 +391,7 @@ botolInput.value="";
 saveData(); render();
 }
 
+// Logika batasan stok lama tetap aman terjaga
 function kurangBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
@@ -314,37 +429,37 @@ saveData();
 render();
 }
 
-function editBarang(i){
-let nama = prompt("Nama Barang", barang[i].nama);
+function editBarang(originalIndex){
+let nama = prompt("Nama Barang", barang[originalIndex].nama);
 if(nama===null) return;
-let qty = prompt("Qty", barang[i].stok);
+let qty = prompt("Qty", barang[originalIndex].stok);
 if(qty===null) return;
-barang[i] = {nama:nama.toUpperCase(), stok:Number(qty)};
+barang[originalIndex] = {nama:nama.toUpperCase(), stok:Number(qty)};
 saveData();
 render();
 }
 
-function hapusBarang(i){
-if(confirm("Hapus barang?")){
-barang.splice(i,1);
+function hapusBarang(originalIndex){
+if(confirm("Hapus barang ini?")){
+barang.splice(originalIndex,1);
 saveData();
 render();
 }
 }
 
 function jualBarang(){
-let i = Number(barangJual.value);
+let originalIndex = Number(barangJual.value);
 let qty = Number(qtyJual.value);
 if(qty<=0) return;
-if(barang[i].stok<qty) return alert("Stok barang kurang");
+if(barang[originalIndex].stok<qty) return alert("Stok barang kurang");
 if(stokBotol<qty) return alert("Stok botol kurang");
 if(stokBox<qty) return alert("Stok box kurang");
-barang[i].stok -= qty;
+barang[originalIndex].stok -= qty;
 stokBotol -= qty;
 stokBox -= qty;
 penjualan.push({
 tanggal:new Date().toISOString(),
-barang:barang[i].nama,
+barang:barang[originalIndex].nama,
 qty:qty,
 nominal:qty*HARGA
 });
@@ -447,7 +562,7 @@ render();
 }
 
 function resetData(){
-if(confirm("Reset semua data?")){
+if(confirm("Hapus seluruh database aplikasi secara permanen?")){
 localStorage.clear();
 location.reload();
 }
@@ -459,7 +574,6 @@ let hariIniKey = getDayKey(new Date());
 let bulanAktif = getMonthKey(new Date());
 document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
 
-// Kalkulasi Omzet Hari ini otomatis untuk Dashboard
 let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
 let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
 document.getElementById("omzetHariIni").innerText = "Rp "+totalOmzetHariIni.toLocaleString("id-ID");
@@ -476,30 +590,42 @@ document.getElementById("omzet").innerText = "Rp "+omzet.toLocaleString("id-ID")
 document.getElementById("pengeluaran").innerText = "Rp "+keluar.toLocaleString("id-ID");
 document.getElementById("laba").innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
 
-// Render Daftar Barang dengan Teks Peringatan Stok
-listBarang.innerHTML = barang.map((x,i)=>{
-  let tagPeringatan = "";
-  if(x.stok === 0) {
-    tagPeringatan = `<br><span class="badge-warning">❌ STOK HABIS!</span>`;
-  } else if(x.stok <= 5) {
-    tagPeringatan = `<br><span class="badge-warning">⚠️ STOK MAU HABIS!</span>`;
-  }
+// Logika Pengurutan Stok Kritis Terkecil -> Terbesar
+let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
+barangUrut.sort((a, b) => a.stok - b.stok);
 
+listBarang.innerHTML = barangUrut.map((x)=>{
+  let tagPeringatan = "";
+  let backgroundStyle = "background: rgba(255, 255, 255, 0.04);";
+  
+  if(x.stok === 0) {
+    tagPeringatan = `<br><span class="badge-warning">❌ HABIS!</span>`;
+    backgroundStyle = "background: var(--danger-bg); border-color: rgba(239, 68, 68, 0.2);";
+  } else if(x.stok <= 5) {
+    tagPeringatan = `<br><span class="badge-warning">⚠️ MAU HABIS!</span>`;
+    backgroundStyle = "background: var(--danger-bg); border-color: rgba(239, 68, 68, 0.2);";
+  }
   return `
-    <div class="item-barang" style="background:${x.stok<=5 ? '#5c1f1f':'#222'}">
-    <b>${x.nama}</b><br>
-    Stock: ${x.stok}${tagPeringatan}<br>
-    <button class="btn-edit" onclick="editBarang(${i})">Edit</button>
-    <button class="btn-delete" onclick="hapusBarang(${i})">Hapus</button>
+    <div class="item-barang" style="${backgroundStyle}">
+      <div class="item-info">
+        <b>${x.nama}</b>
+        Stok: ${x.stok}${tagPeringatan}
+      </div>
+      <div class="item-actions">
+        <button class="btn-edit" onclick="editBarang(${x.originalIndex})">Edit</button>
+        <button class="btn-delete" onclick="hapusBarang(${x.originalIndex})">Hapus</button>
+      </div>
     </div>
   `;
 }).join("");
 
 barangJual.innerHTML = barang.map((x,i)=>
-`<option value="${i}">${x.nama}</option>`).join("");
+`<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
-// Logika Box Pencarian Riwayat Harian Berdasarkan Input Kalender
+// --- CHART & SUMMARY HARIAN ---
 let tglDipilih = document.getElementById("hariSelect").value;
+let dataJam = Array(24).fill(0);
+
 if(tglDipilih){
   let jualHariDipilih = penjualan.filter(x=>getDayKey(x.tanggal)===getDayKey(tglDipilih));
   let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
@@ -511,22 +637,87 @@ if(tglDipilih){
   }).join("<br>");
   
   document.getElementById("summaryHarian").innerHTML = `
-    <b>Total Omzet Tanggal ${tglDipilih}:</b><br>
-    <span style="color:#3b82f6; font-size:18px; font-weight:bold;">Rp ${omzetHariDipilih.toLocaleString("id-ID")}</span><br>
-    <div style="margin-top:8px; font-size:13px; color:#aaa; line-height: 1.4;">${detailHariDipilih || 'Tidak ada penjualan pada tanggal ini.'}</div>
+    <b>Total Rincian Omzet:</b><br>
+    <span style="color:#60a5fa; font-size:18px; font-weight:bold;">Rp ${omzetHariDipilih.toLocaleString("id-ID")}</span><br>
+    <div style="margin-top:8px; font-size:13px; color:var(--text-muted); line-height: 1.5;">${detailHariDipilih || 'Tidak ada riwayat transaksi pada tanggal ini.'}</div>
   `;
+
+  jualHariDipilih.forEach(x => {
+    let jam = new Date(x.tanggal).getHours();
+    dataJam[jam] += x.nominal;
+  });
 }
 
+if(instanceChartHarian) instanceChartHarian.destroy();
+let ctxHarian = document.getElementById('chartHarian').getContext('2d');
+instanceChartHarian = new Chart(ctxHarian, {
+  type: 'line',
+  data: {
+    labels: Array.from({length: 24}, (_, i) => String(i).padStart(2, '0') + ':00'),
+    datasets: [{
+      label: 'Tren Jam (Rp)',
+      data: dataJam,
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59, 130, 246, 0.08)',
+      borderWidth: 2.5,
+      tension: 0.3,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#fff' } } },
+    scales: { 
+      x: { grid: { display: false }, ticks: { color: '#9ca3af' } }, 
+      y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } } 
+    }
+  }
+});
+
+// --- CHART & SUMMARY BULANAN ---
 let bulan = bulanSelect.value || bulanAktif;
 let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
 let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
 let omzetBulanan = jualBulanan.reduce((a,b)=>a+b.nominal,0);
 let keluarBulananTotal = keluarBulanan.reduce((a,b)=>a+b.nominal,0);
+
 summaryBulanan.innerHTML = `
-Omzet: Rp ${omzetBulanan.toLocaleString("id-ID")}<br>
-Pengeluaran: Rp ${keluarBulananTotal.toLocaleString("id-ID")}<br>
-Laba: Rp ${(omzetBulanan-keluarBulananTotal).toLocaleString("id-ID")}
+  • total Omzet: <span style="color:#fff; font-weight:600;">Rp ${omzetBulanan.toLocaleString("id-ID")}</span><br>
+  • Pengeluaran: <span style="color:#fff; font-weight:600;">Rp ${keluarBulananTotal.toLocaleString("id-ID")}</span><br>
+  • Bersih Bersih (Laba): <span style="color:#10b981; font-weight:700;">Rp ${(omzetBulanan-keluarBulananTotal).toLocaleString("id-ID")}</span>
 `;
+
+let [tahunUrut, bulanUrut] = bulan.split("-");
+let jumlahHari = new Date(tahunUrut, bulanUrut, 0).getDate();
+let dataTanggal = Array(jumlahHari).fill(0);
+
+jualBulanan.forEach(x => {
+  let tgl = new Date(x.tanggal).getDate();
+  dataTanggal[tgl - 1] += x.nominal;
+});
+
+if(instanceChartBulanan) instanceChartBulanan.destroy();
+let ctxBulanan = document.getElementById('chartBulanan').getContext('2d');
+instanceChartBulanan = new Chart(ctxBulanan, {
+  type: 'bar',
+  data: {
+    labels: Array.from({length: jumlahHari}, (_, i) => i + 1),
+    datasets: [{
+      label: 'Omzet per Tanggal (Rp)',
+      data: dataTanggal,
+      backgroundColor: '#f59e0b',
+      borderRadius: 5
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#fff' } } },
+    scales: { 
+      x: { grid: { display: false }, ticks: { color: '#9ca3af' } }, 
+      y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } } 
+    }
+  }
+});
 
 let salesMap = {};
 jualBulanan.forEach(x=>{
@@ -536,18 +727,18 @@ salesMap[x.barang]=(salesMap[x.barang]||0)+x.qty;
 });
 let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
 topSelling.innerHTML = ranking.length
-? ranking.map((x,i)=>`${i+1}. ${x[0]} - ${x[1]} pcs`).join("<br>")
-: "Belum ada data";
+? ranking.map((x,i)=>`🔥 Juara ${i+1}: ${x[0]} (${x[1]} pcs)`).join("<br>")
+: "Belum ada transaksi penjualan parfum bulan ini.";
 
-riwayatJual.innerHTML = jualBulanan.map(x=>`
-<p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
-${x.barang}<br>
-Qty: ${x.qty}<br>
-Rp ${x.nominal.toLocaleString("id-ID")}</p><hr>`).join("");
-riwayatKeluar.innerHTML = keluarBulanan.map(x=>`
-<p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
-Rp ${x.nominal.toLocaleString("id-ID")}<br>
-${x.keterangan}</p><hr>`).join("");
+riwayatJual.innerHTML = jualBulanan.length ? jualBulanan.map(x=>`
+<p>⏱️ ${new Date(x.tanggal).toLocaleString("id-ID")}<br>
+<b>${x.barang}</b> (Qty: ${x.qty})<br>
+<span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span></p>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
+
+riwayatKeluar.innerHTML = keluarBulanan.length ? keluarBulanan.map(x=>`
+<p>⏱️ ${new Date(x.tanggal).toLocaleString("id-ID")}<br>
+Nominal: <span style="color:#f87171">Rp ${x.nominal.toLocaleString("id-ID")}</span><br>
+Ket: ${x.keterangan || '-'}</p>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
 }
 render();
 </script>
