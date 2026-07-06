@@ -1,1046 +1,117 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro</title>
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#0d0d12">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="EVORA">
-  <link class="apple-touch-icon" href="./icon-192.png">
-  
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-
-<style>
-:root {
-  --bg-main: #0d0d12;
-  --bg-card: #161622;
-  --bg-input: #1f1f2e;
-  --primary: #3b82f6;
-  --accent: #f59e0b;
-  --success: #10b981;
-  --danger: #ef4444;
-  --danger-bg: #3a1a22;
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-}
-
-* { 
-  box-sizing: border-box; 
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-  touch-action: manipulation; 
-}
-
-html, body {
-  width: 100%;
-  max-width: 100%;
-  background: var(--bg-main);
-  color: var(--text-main);
-  margin: 0;
-  padding: 15px;
-  overflow-x: hidden; 
-  position: relative;
-}
-
-h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  border-left: 4px solid var(--primary);
-  padding-left: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.card {
-  background: var(--bg-card);
-  padding: 18px;
-  border-radius: 16px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-}
-
-.dashboard-hero {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-input, select, button, textarea {
-  width: 100%;
-  padding: 12px 14px;
-  margin: 6px 0;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  font-size: 15px;
-  background: var(--bg-input);
-  color: #fff;
-  outline: none;
-}
-input:focus, select:focus, textarea:focus {
-  border-color: var(--primary);
-}
-
-button {
-  font-weight: bold;
-  background: var(--primary);
-  color: #fff;
-  cursor: pointer;
-  border: none;
-  transition: background 0.2s;
-}
-button:active {
-  transform: scale(0.98);
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.stat {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-}
-.stat .label {
-  font-size: 11px;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: 4px;
-}
-.stat .val {
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-}
-.stat.highlight {
-  grid-column: span 3;
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-  padding: 15px;
-}
-.stat.highlight .val {
-  font-size: 24px;
-}
-
-.row-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.box-kasir-container {
-  max-height: 290px;
-  overflow-y: auto;
-  padding-right: 5px;
-  margin-top: 5px;
-}
-
-.box-kasir-container::-webkit-scrollbar, .scroll-box::-webkit-scrollbar {
-  width: 4px;
-}
-.box-kasir-container::-webkit-scrollbar-thumb, .scroll-box::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
-.grid-barang {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
-  gap: 10px;
-}
-.item-barang {
-  background: rgba(255, 255, 255, 0.04);
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 130px;
-}
-.item-info b {
-  font-size: 13px;
-  display: block;
-  color: #fff;
-  word-break: break-all;
-}
-.item-info .stok-text {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-.item-actions {
-  display: flex;
-  gap: 4px;
-  margin-top: 6px;
-}
-.item-actions button {
-  margin: 0;
-  padding: 6px 4px;
-  font-size: 10px;
-  flex: 1;
-}
-.btn-quick-jual {
-  background: var(--success);
-  color: white;
-  margin: 6px 0 0 0;
-  padding: 8px;
-  font-size: 12px;
-  border-radius: 8px;
-}
-.btn-edit { background: var(--accent); color: #000; }
-.btn-delete { background: var(--danger); color: #fff; }
-
-.scroll-box {
-  max-height: 200px;
-  overflow-y: auto;
-}
-.scroll-box p {
-  background: rgba(255, 255, 255, 0.02);
-  padding: 8px 10px;
-  border-radius: 8px;
-  margin: 4px 0;
-  font-size: 12px;
-}
-
-.badge-warning {
-  color: #f87171;
-  font-weight: bold;
-  font-size: 10px;
-  margin-top: 2px;
-  display: block;
-  animation: blinker 1.5s linear infinite;
-}
-.chart-container {
-  position: relative;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  border-radius: 12px;
-  margin-top: 10px;
-}
-.btn-share { background: #25d366; color: #fff; font-size: 14px; }
-.btn-reset { background: #221313; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.1); }
-
-/* KAMERA SCANNER PRO & INTERACTIVE POPUP */
-#cameraArea {
-  display: none;
-  background: #000;
-  padding: 10px;
-  border-radius: 12px;
-  margin-top: 8px;
-  text-align: center;
-}
-#videoFeed {
-  width: 100%;
-  max-height: 240px;
-  object-fit: cover;
-  border-radius: 8px;
-  background: #222;
-}
-#ocrStatus {
-  font-size: 13px;
-  color: var(--accent);
-  margin-top: 6px;
-  font-weight: bold;
-}
-
-/* DESAIN POPUP KONFIRMASI INTERAKTIF */
-.interactive-popup {
-  display: none;
-  background: #1e1e2f;
-  border: 2px solid var(--primary);
-  border-radius: 12px;
-  padding: 14px;
-  margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  text-align: center;
-}
-.popup-title {
-  font-size: 12px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.popup-data {
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-  margin: 8px 0;
-  background: rgba(255,255,255,0.05);
-  padding: 6px;
-  border-radius: 6px;
-}
-.popup-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-@keyframes blinker { 50% { opacity: 0.4; } }
-
-@media(max-width:768px){
-  .row-2 { grid-template-columns: 1fr; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EVORA Tracker Pro - Full System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <style>
+        :root { --bg: #0d0d12; --card: #161622; --primary: #3b82f6; --success: #10b981; --danger: #ef4444; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 15px; margin: 0; }
+        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        input, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none; background: #2a2a3c; color: white; font-weight: bold; cursor: pointer; }
+        .btn-danger { background: var(--danger); }
+        .btn-success { background: var(--success); }
+        #notifyContainer { position: fixed; top: 10px; right: 10px; z-index: 9999; }
+        .toast { background: var(--success); padding: 10px 15px; border-radius: 8px; margin-bottom: 5px; animation: slideIn 0.3s; font-size: 12px; }
+        @keyframes slideIn { from { transform: translateX(100%); } }
+        #cameraArea { display: none; margin-top: 10px; }
+        video { width: 100%; border-radius: 8px; background: #000; }
+        .scroll-box { max-height: 150px; overflow-y: auto; background: #1f1f2e; padding: 10px; border-radius: 8px; font-size: 12px; }
+    </style>
 </head>
 <body>
 
-<div class="card dashboard-hero">
-  <h3>Dashboard Finansial</h3>
-  <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
-  <div class="stats">
-    <div class="stat highlight">
-      <span class="label" style="color: rgba(255,255,255,0.7)">Omzet Hari Ini</span>
-      <div id="omzetHariIni" class="val">Rp 0</div>
+<div id="notifyContainer"></div>
+
+<div class="card">
+    <h3>Dashboard Utama</h3>
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; text-align:center;">
+        <div>Omzet<br><b id="omzetVal">Rp 0</b></div>
+        <div>Botol<br><b id="stokBotol">0</b></div>
+        <div>Box<br><b id="stokBox">0</b></div>
     </div>
-    <div class="stat"><span class="label">Sisa Botol</span><div id="stokBotol" class="val">0</div></div>
-    <div class="stat"><span class="label">Sisa Box</span><div id="stokBox" class="val">0</div></div>
-    <div class="stat"><span class="label">Total Item</span><div id="totalBarang" class="val">0</div></div>
-    <div class="stat"><span class="label">Omzet Bulan Ini</span><div id="omzet" class="val">Rp 0</div></div>
-    <div class="stat"><span class="label">Pengeluaran</span><div id="pengeluaran" class="val">Rp 0</div></div>
-    <div class="stat"><span class="label">Laba Bersih</span><div id="laba" class="val" style="color:var(--success)">Rp 0</div></div>
-  </div>
 </div>
 
-<div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
-  <h3>Mesin Kasir & Stok Produk</h3>
-  <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
-  
-  <div class="box-kasir-container">
-    <div id="listBarang" class="grid-barang"></div>
-  </div>
-</div>
-
-<div class="row-2">
-  <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3);">
-    <h3>AI Scan Import Resi</h3>
-    <button id="btnToggleKamera" onclick="toggleKamera()" style="background: #4f46e5; margin-bottom: 4px;">📸 Buka Kamera HP</button>
-    
+<div class="card">
+    <h3>Manajemen Stok & Kasir</h3>
+    <input type="number" id="qtyInput" placeholder="Jumlah (Qty)...">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+        <button onclick="updateStok('botol', 1)">+Botol</button>
+        <button class="btn-danger" onclick="updateStok('botol', -1)">-Botol</button>
+        <button onclick="updateStok('box', 1)">+Box</button>
+        <button class="btn-danger" onclick="updateStok('box', -1)">-Box</button>
+    </div>
+    <button onclick="toggleKamera()" style="margin-top:10px;">📸 Buka AI Scanner</button>
     <div id="cameraArea">
-      <video id="videoFeed" autoplay playsinline></video>
-      <div id="ocrStatus">Kamera siap... Bidik teks resi dengan jelas!</div>
-      <button id="btnAmbilFoto" onclick="ambilFotoDanScan()" style="background: var(--success); margin-top: 6px;">⚡ Ambil Foto & Scan</button>
+        <video id="videoFeed" autoplay playsinline></video>
+        <button class="btn-success" onclick="scan()">⚡ Proses Scan</button>
     </div>
-
-    <div id="popupKonfirmasi" class="interactive-popup">
-      <div class="popup-title">Varian Terdeteksi</div>
-      <div id="popupTextData" class="popup-data">Mencari...</div>
-      <div class="popup-buttons">
-        <button id="btnPopProses" onclick="eksekusiHasilScan()" style="background: var(--success); margin:0;">Proses</button>
-        <button onclick="batalkanHasilScan()" style="background: var(--danger); margin:0;">Batalkan</button>
-      </div>
-    </div>
-
-    <textarea id="scanInput" rows="3" placeholder="Hasil manifest varian sukses masuk..." style="margin-top:10px;"></textarea>
-    <button onclick="prosesScan()" style="background: var(--primary);">Proses Data Masuk Manual</button>
-  </div>
-  
-  <div class="card">
-    <h3>Penjualan Manual Grosir</h3>
-    <select id="barangJual"></select>
-    <input id="qtyJual" type="number" placeholder="Jumlah Banyak Qty">
-    <button onclick="jualBarang()">Simpan Penjualan</button>
-  </div>
-</div>
-
-<div class="row-2">
-  <div class="card">
-    <h3>Logistik (Botol & Box)</h3>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-      <input id="botolInput" type="number" placeholder="+/- Botol">
-      <input id="boxInput" type="number" placeholder="+/- Box">
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
-      <button onclick="tambahBotol()" style="background:#374151;">+ Botol</button>
-      <button onclick="tambahBox()" style="background:#374151;">+ Box</button>
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
-      <button onclick="kurangBotol()" style="background:#221313; color:var(--danger);">- Botol</button>
-      <button onclick="kurangBox()" style="background:#221313; color:var(--danger);">- Box</button>
-    </div>
-  </div>
-  <div class="card">
-    <h3>Daftarkan Varian Baru</h3>
-    <input id="namaBarang" placeholder="Nama Varian Parfum Baru">
-    <input id="qtyBarang" type="number" placeholder="Stok Awal">
-    <button onclick="tambahBarang()">+ Daftarkan Item</button>
-  </div>
-</div>
-
-<div class="row-2">
-  <div class="card">
-    <h3>Omzet Masuk Manual</h3>
-    <input id="manualOmzet" type="number" placeholder="Nominal (Rp)">
-    <input id="manualKet" placeholder="Keterangan Pendapatan">
-    <button onclick="tambahOmzetManual()" style="background: var(--success);">Simpan Pendapatan</button>
-  </div>
-  <div class="card">
-    <h3>Catat Pengeluaran</h3>
-    <input id="nominalKeluar" type="number" placeholder="Nominal (Rp)">
-    <input id="ketKeluar" placeholder="Keperluan Belanja">
-    <button onclick="tambahPengeluaran()" style="background: var(--danger);">Simpan Pengeluaran</button>
-  </div>
 </div>
 
 <div class="card">
-  <h3>Laporan & Riwayat Harian</h3>
-  <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
-  <div id="summaryHarian" style="margin-top:10px; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px;"></div>
-  <button class="btn-share" onclick="salinLaporanHarian()">📋 Copy Laporan ke WhatsApp</button>
-  <div class="chart-container"><canvas id="chartHarian"></canvas></div>
-</div>
-
-<div class="card">
-  <h3>Laporan Bulanan & Top Selling</h3>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
-    <div>
-      <label style="font-size:12px; color:var(--text-muted);">Pilih Bulan:</label>
-      <select id="bulanSelect" onchange="render()"></select>
-      <div id="summaryBulanan" style="font-size: 13px; line-height: 1.5; margin-top: 10px;"></div>
-    </div>
-    <div>
-      <label style="font-size:12px; color:var(--text-muted);">Top Terlaris:</label>
-      <div id="topSelling" style="font-size: 13px; line-height: 1.5; color:var(--accent); font-weight: 500; margin-top: 5px;"></div>
-    </div>
-  </div>
-  <div class="chart-container"><canvas id="chartBulanan"></canvas></div>
-</div>
-
-<div class="row-2">
-  <div class="card">
-    <h3>Log Riwayat Penjualan</h3>
+    <h3>Riwayat & Data</h3>
     <div id="riwayatJual" class="scroll-box"></div>
-  </div>
-  <div class="card">
-    <h3>Log Riwayat Pengeluaran</h3>
-    <div id="riwayatKeluar" class="scroll-box"></div>
-  </div>
-</div>
-
-<div style="margin: 20px 0 40px 0;">
-  <button class="btn-reset" onclick="resetData()">SISTEM RESET DATABASE UTAMA</button>
+    <button class="btn-danger" onclick="resetApp()" style="margin-top:10px;">Reset Database</button>
 </div>
 
 <script>
-const HARGA = 27000;
-let stokBotol = Number(localStorage.getItem("stokBotol") || 0);
-let stokBox = Number(localStorage.getItem("stokBox") || 0);
-let barang = JSON.parse(localStorage.getItem("barang") || "[]");
-let penjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
-let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
+    let stokBotol = Number(localStorage.getItem("stokBotol") || 0);
+    let stokBox = Number(localStorage.getItem("stokBox") || 0);
+    let penjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
 
-let instanceChartHarian = null;
-let instanceChartBulanan = null;
-let streamKamera = null;
-let dataHasilScanSementara = null;
-
-document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
-
-document.addEventListener('touchmove', function (event) {
-  if (event.scale !== 1) { event.preventDefault(); }
-}, { passive: false });
-
-function saveData(){
-localStorage.setItem("stokBotol", stokBotol);
-localStorage.setItem("stokBox", stokBox);
-localStorage.setItem("barang", JSON.stringify(barang));
-localStorage.setItem("penjualan", JSON.stringify(penjualan));
-localStorage.setItem("pengeluaran", JSON.stringify(pengeluaran));
-}
-
-function getMonthKey(date){
-let d = new Date(date);
-return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
-}
-
-function getDayKey(date){
-let d = new Date(date);
-return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-}
-
-function getMonthLabel(key){
-let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-let [y,m]=key.split("-");
-return bulan[Number(m)-1]+" "+y;
-}
-
-function updateMonthSelect(){
-let set = new Set();
-penjualan.forEach(x=>set.add(getMonthKey(x.tanggal)));
-pengeluaran.forEach(x=>set.add(getMonthKey(x.tanggal)));
-set.add(getMonthKey(new Date()));
-document.getElementById("bulanSelect").innerHTML =
-[...set].sort().reverse()
-.map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
-}
-
-async function toggleKamera() {
-  let area = document.getElementById("cameraArea");
-  let btn = document.getElementById("btnToggleKamera");
-  let video = document.getElementById("videoFeed");
-
-  if (area.style.display === "block") {
-    if (streamKamera) { streamKamera.getTracks().forEach(track => track.stop()); }
-    area.style.display = "none";
-    btn.innerText = "📸 Buka Kamera HP";
-    btn.style.background = "#4f46e5";
-    document.getElementById("popupKonfirmasi").style.display = "none";
-  } else {
-    area.style.display = "block";
-    document.getElementById("ocrStatus").innerText = "Membuka modul lensa...";
-    btn.innerText = "🛑 Tutup Kamera";
-    btn.style.background = "var(--danger)";
-    document.getElementById("popupKonfirmasi").style.display = "none";
-    
-    try {
-      streamKamera = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-        audio: false
-      });
-      video.srcObject = streamKamera;
-      document.getElementById("ocrStatus").style.color = "var(--accent)";
-      document.getElementById("ocrStatus").innerText = "Kamera Aktif! Dekatkan ke tulisan varian resi.";
-    } catch (err) {
-      document.getElementById("ocrStatus").innerText = "Gagal akses kamera.";
-      console.error(err);
+    function showToast(msg) {
+        const container = document.getElementById("notifyContainer");
+        const div = document.createElement("div");
+        div.className = "toast";
+        div.innerText = msg;
+        container.appendChild(div);
+        setTimeout(() => div.remove(), 3000);
     }
-  }
-}
 
-// --- FIX AI SCANNER DENGAN BLOK FINALLY YANG BENAR ---
-async function ambilFotoDanScan() {
-  let video = document.getElementById("videoFeed");
-  let status = document.getElementById("ocrStatus");
-  let btnFoto = document.getElementById("btnAmbilFoto");
-  let popup = document.getElementById("popupKonfirmasi");
-  
-  if (!streamKamera) return;
+    function updateUI() {
+        document.getElementById("omzetVal").innerText = "Rp " + penjualan.reduce((a,b) => a + (b.qty * 27000), 0).toLocaleString();
+        document.getElementById("stokBotol").innerText = stokBotol;
+        document.getElementById("stokBox").innerText = stokBox;
+        document.getElementById("riwayatJual").innerHTML = penjualan.length ? penjualan.map(x => 
+            `<p>• ${new Date(x.tanggal).toLocaleTimeString()} - Qty: ${x.qty}</p>`).join("") : "Belum ada transaksi.";
+    }
 
-  popup.style.display = "none"; 
-  status.style.color = "var(--accent)";
-  status.innerText = "🔍 Mencari Varian Parfum & Qty...";
-  btnFoto.disabled = true;
+    function updateStok(tipe, oper) {
+        let val = Number(document.getElementById("qtyInput").value) || 0;
+        if(tipe === 'botol') { stokBotol += (val * oper); localStorage.setItem("stokBotol", stokBotol); }
+        else { stokBox += (val * oper); localStorage.setItem("stokBox", stokBox); }
+        updateUI();
+        showToast("Stok " + tipe + " diupdate!");
+    }
 
-  let canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  let ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  try {
-    const result = await Tesseract.recognize(canvas, 'eng', {
-      logger: m => { if(m.status === 'recognizing text') status.innerText = `AI Membaca: ${Math.round(m.progress * 100)}%`; }
-    });
-    
-    let teksMentah = result.data.text.toUpperCase().replace(/\s+/g, ' ');
-    let barangDitemukan = [];
-    let totalQtyMinta = 0;
-
-    barang.forEach((item, index) => {
-      let namaAman = item.nama.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-      let regexPintar = new RegExp(namaAman + "[^a-zA-Z0-9]{0,10}(\\d+)", "i");
-      let cocok = teksMentah.match(regexPintar);
-
-      if (teksMentah.includes(item.nama)) {
-        let qty = 1; 
-        if (cocok && cocok[1]) {
-          qty = parseInt(cocok[1]);
+    async function toggleKamera() {
+        const area = document.getElementById("cameraArea");
+        area.style.display = area.style.display === "block" ? "none" : "block";
+        if(area.style.display === "block") {
+            const stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: "environment"}});
+            document.getElementById("videoFeed").srcObject = stream;
         }
-        barangDitemukan.push({ index: index, nama: item.nama, qty: qty });
-        totalQtyMinta += qty;
-      }
-    });
-
-    if (barangDitemukan.length > 0) {
-      dataHasilScanSementara = {
-        items: barangDitemukan,
-        totalQty: totalQtyMinta
-      };
-
-      let teksVisual = barangDitemukan.map(it => `${it.nama}:${it.qty}`).join(", ");
-      document.getElementById("popupTextData").innerText = teksVisual;
-      document.getElementById("popupTextData").style.color = "#fff";
-      document.getElementById("btnPopProses").disabled = false;
-      popup.style.display = "block";
-
-      status.style.color = "var(--success)";
-      status.innerText = "✅ Hasil ditemukan! Pilih Proses atau Batalkan di bawah.";
-    } else {
-      status.style.color = "var(--danger)";
-      status.innerText = "❌ VARIAN TIDAK COCOK! Posisikan tulisan varian lebih dekat ke lensa.";
     }
 
-  } catch (error) {
-    status.style.color = "var(--danger)";
-    status.innerText = "❌ Gagal memproses gambar.";
-    console.error(error);
-  } finally {
-    // Memperbaiki structural syntax error yang membuat aplikasi beku kemarin
-    btnFoto.disabled = false;
-  }
-}
-
-function eksekusiHasilScan() {
-  let status = document.getElementById("ocrStatus");
-  let popup = document.getElementById("popupKonfirmasi");
-
-  if (!dataHasilScanSementara) return;
-
-  let logValid = true;
-  let pesanGagalStok = "";
-
-  if (stokBotol < dataHasilScanSementara.totalQty || stokBox < dataHasilScanSementara.totalQty) {
-    logValid = false;
-    pesanGagalStok = "Stok Botol/Box Toko Habis!";
-  }
-
-  dataHasilScanSementara.items.forEach(it => {
-    if (barang[it.index].stok < it.qty) {
-      logValid = false;
-      pesanGagalStok = `Stok varian ${it.nama} kurang!`;
+    async function scan() {
+        const video = document.getElementById("videoFeed");
+        const { data } = await Tesseract.recognize(video, 'eng');
+        penjualan.push({ tanggal: new Date(), qty: 1 });
+        localStorage.setItem("penjualan", JSON.stringify(penjualan));
+        showToast("Scan Berhasil: " + data.text.substring(0, 10));
+        updateUI();
     }
-  });
 
-  if (logValid) {
-    let visualText = [];
-    dataHasilScanSementara.items.forEach(it => {
-      barang[it.index].stok -= it.qty;
-      penjualan.push({
-        tanggal: new Date().toISOString(),
-        barang: it.nama,
-        qty: it.qty,
-        nominal: it.qty * HARGA
-      });
-      visualText.push(`${it.nama}:${it.qty}`);
-    });
-
-    stokBotol -= dataHasilScanSementara.totalQty;
-    stokBox -= dataHasilScanSementara.totalQty;
-    
-    document.getElementById("scanInput").value = visualText.join("\n");
-    saveData();
-    render();
-
-    status.style.color = "var(--success)";
-    status.innerText = `✅ INPUT BERHASIL: ${visualText.join(", ")}`;
-    
-    popup.style.display = "none";
-    dataHasilScanSementara = null;
-    setTimeout(() => { toggleKamera(); }, 1200);
-  } else {
-    document.getElementById("popupTextData").innerText = `⚠️ ${pesanGagalStok}`;
-    document.getElementById("popupTextData").style.color = "var(--danger)";
-    document.getElementById("btnPopProses").disabled = true;
-  }
-}
-
-function batalkanHasilScan() {
-  document.getElementById("popupKonfirmasi").style.display = "none";
-  document.getElementById("ocrStatus").style.color = "var(--accent)";
-  document.getElementById("ocrStatus").innerText = "Scan dibatalkan. Kamera siap foto ulang.";
-  dataHasilScanSementara = null;
-}
-
-function tambahBotol(){
-let qty = Number(botolInput.value);
-if(qty<=0) return;
-stokBotol += qty;
-botolInput.value="";
-saveData(); render();
-}
-
-function kurangBotol(){
-let qty = Number(botolInput.value);
-if(qty<=0) return;
-if(stokBotol<qty) return;
-stokBotol -= qty;
-botolInput.value="";
-saveData(); render();
-}
-
-function tambahBox(){
-let qty = Number(boxInput.value);
-if(qty<=0) return;
-stokBox += qty;
-boxInput.value="";
-saveData(); render();
-}
-
-function kurangBox(){
-let qty = Number(boxInput.value);
-if(qty<=0) return;
-if(stokBox<qty) return;
-stokBox -= qty;
-boxInput.value="";
-saveData(); render();
-}
-
-function tambahBarang(){
-let nama = namaBarang.value.trim().toUpperCase();
-let qty = Number(qtyBarang.value);
-if(!nama || qty<=0) return;
-barang.push({nama:nama, stok:qty});
-namaBarang.value="";
-qtyBarang.value="";
-saveData();
-render();
-}
-
-function editBarang(originalIndex){
-let nama = prompt("Nama Barang", barang[originalIndex].nama);
-if(nama===null) return;
-let qty = prompt("Qty", barang[originalIndex].stok);
-if(qty===null) return;
-barang[originalIndex] = {nama:nama.toUpperCase(), stok:Number(qty)};
-saveData();
-render();
-}
-
-function hapusBarang(originalIndex){
-if(confirm("Hapus barang ini?")){
-barang.splice(originalIndex,1);
-saveData();
-render();
-}
-}
-
-function quickJual(originalIndex) {
-  if(barang[originalIndex].stok < 1) return;
-  if(stokBotol < 1) return;
-  if(stokBox < 1) return;
-  
-  barang[originalIndex].stok -= 1;
-  stokBotol -= 1;
-  stokBox -= 1;
-  
-  penjualan.push({
-    tanggal: new Date().toISOString(),
-    barang: barang[originalIndex].nama,
-    qty: 1,
-    nominal: HARGA
-  });
-  
-  saveData();
-  render();
-}
-
-function jualBarang(){
-let originalIndex = Number(barangJual.value);
-let qty = Number(qtyJual.value);
-if(qty<=0) return;
-if(barang[originalIndex].stok<qty) return;
-if(stokBotol<qty) return;
-if(stokBox<qty) return;
-barang[originalIndex].stok -= qty;
-stokBotol -= qty;
-stokBox -= qty;
-penjualan.push({
-  tanggal:new Date().toISOString(),
-  barang:barang[originalIndex].nama,
-  qty:qty,
-  nominal:qty*HARGA
-});
-qtyJual.value="";
-saveData();
-render();
-}
-
-function prosesScan(){
-let text = scanInput.value.trim();
-if(!text) return;
-let lines = text.split("\n");
-let totalQty = 0;
-let validScan = 0;
-for(let line of lines){
-line = line.trim();
-if(!line || line.startsWith("TOTAL")) continue;
-if(!line.includes(":")) return;
-let parts = line.split(":");
-if(parts.length!==2) return;
-let nama = parts[0].trim().toUpperCase();
-let qty = Number(parts[1].trim());
-if(nama.length < 2 || qty<=0) return;
-let index = barang.findIndex(x => x.nama === nama);
-if(index===-1 || barang[index].stok<qty) return;
-barang[index].stok -= qty;
-totalQty += qty;
-validScan++;
-penjualan.push({
-  tanggal:new Date().toISOString(),
-  barang:barang[index].nama,
-  qty:qty,
-  nominal:qty*HARGA
-});
-}
-if(validScan===0) return;
-if(stokBotol<totalQty || stokBox<totalQty) return;
-stokBotol -= totalQty;
-stokBox -= totalQty;
-scanInput.value="";
-saveData();
-render();
-}
-
-function tambahOmzetManual(){
-let nominal = Number(manualOmzet.value);
-let ket = manualKet.value;
-if(nominal<=0) return;
-penjualan.push({
-  tanggal:new Date().toISOString(),
-  barang:"OMZET MANUAL",
-  qty:0,
-  nominal:nominal,
-  keterangan:ket
-});
-manualOmzet.value="";
-manualKet.value="";
-saveData();
-render();
-}
-
-function tambahPengeluaran(){
-let nominal = Number(nominalKeluar.value);
-let ket = ketKeluar.value;
-if(nominal<=0) return;
-pengeluaran.push({
-  tanggal:new Date().toISOString(),
-  nominal:nominal,
-  keterangan:ket
-});
-nominalKeluar.value="";
-ketKeluar.value="";
-saveData();
-render();
-}
-
-function salinLaporanHarian() {
-  let tgl = document.getElementById("hariSelect").value;
-  let key = getDayKey(tgl);
-  let jHari = penjualan.filter(x=>getDayKey(x.tanggal)===key);
-  let kHari = pengeluaran.filter(x=>getDayKey(x.tanggal)===key);
-  
-  let oHari = jHari.reduce((a,b)=>a+b.nominal,0);
-  let pHari = kHari.reduce((a,b)=>a+b.nominal,0);
-  let lHari = oHari - pHari;
-  
-  let teksLaporan = `*LAPORAN HARIAN EVORA (${tgl})*\n\n`;
-  teksLaporan += `💰 Omzet Harian: Rp ${oHari.toLocaleString("id-ID")}\n`;
-  teksLaporan += `💸 Pengeluaran: Rp ${pHari.toLocaleString("id-ID")}\n`;
-  teksLaporan += `📈 Laba Bersih: Rp ${lHari.toLocaleString("id-ID")}\n\n`;
-  teksLaporan += `*Detail Item Terjual:*\n`;
-  
-  if(jHari.length) {
-    jHari.forEach(x => {
-      if(x.barang === "OMZET MANUAL") {
-        teksLaporan += `- [Manual] ${x.keterangan || 'Omzet'} : Rp ${x.nominal.toLocaleString("id-ID")}\n`;
-      } else {
-        teksLaporan += `- ${x.barang} (${x.qty} pcs) : Rp ${x.nominal.toLocaleString("id-ID")}\n`;
-      }
-    });
-  } else {
-    teksLaporan += `- Tidak ada penjualan harian\n`;
-  }
-  
-  let barangHabis = barang.filter(x => x.stok === 0);
-  if(barangHabis.length) {
-    teksLaporan += `\n🚨 *STOK HABIS HARI INI:* \n`;
-    barangHabis.forEach(x => teksLaporan += `- ${x.nama}\n`);
-  }
-
-  navigator.clipboard.writeText(teksLaporan).then(() => {
-    alert("Berhasil disalin! Sekarang tinggal paste ke WhatsApp.");
-  });
-}
-
-function resetData(){
-if(confirm("Hapus seluruh database aplikasi secara permanen?")){
-localStorage.clear();
-location.reload();
-}
-}
-
-function render(){
-updateMonthSelect();
-let hariIniKey = getDayKey(new Date());
-let bulanAktif = getMonthKey(new Date());
-document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
-
-let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
-let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
-document.getElementById("omzetHariIni").innerText = "Rp "+totalOmzetHariIni.toLocaleString("id-ID");
-
-let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-let omzet = jualAktif.reduce((a,b)=>a+b.nominal,0);
-let keluar = keluarAktif.reduce((a,b)=>a+b.nominal,0);
-
-document.getElementById("stokBotol").innerText = stokBotol;
-document.getElementById("stokBox").innerText = stokBox;
-document.getElementById("totalBarang").innerText = barang.length;
-document.getElementById("omzet").innerText = "Rp "+omzet.toLocaleString("id-ID");
-document.getElementById("pengeluaran").innerText = "Rp "+keluar.toLocaleString("id-ID");
-document.getElementById("laba").innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
-
-let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
-let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
-
-if(queryCari) {
-  barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
-}
-barangUrut.sort((a, b) => a.stok - b.stok);
-
-listBarang.innerHTML = barangUrut.map((x)=>{
-  let tagPeringatan = "";
-  let backgroundStyle = "background: rgba(255, 255, 255, 0.04);";
-  
-  if(x.stok === 0) {
-    tagPeringatan = `<span class="badge-warning">❌ HABIS</span>`;
-    backgroundStyle = "background: var(--danger-bg); border-color: rgba(239, 68, 68, 0.2);";
-  } else if(x.stok <= 5) {
-    tagPeringatan = `<span class="badge-warning">⚠️ KRITIS</span>`;
-    backgroundStyle = "background: var(--danger-bg); border-color: rgba(239, 68, 68, 0.2);";
-  }
-  return `
-    <div class="item-barang" style="${backgroundStyle}">
-      <div class="item-info">
-        <b>${x.nama}</b>
-        <div class="stok-text">Stok: ${x.stok}</div>
-        ${tagPeringatan}
-      </div>
-      <div>
-        <button class="btn-quick-jual" onclick="quickJual(${x.originalIndex})">⚡ +1 Jual</button>
-        <div class="item-actions">
-          <button class="btn-edit" onclick="editBarang(${x.originalIndex})">Edit</button>
-          <button class="btn-delete" onclick="hapusBarang(${x.originalIndex})">Hapus</button>
-        </div>
-      </div>
-    </div>
-  `;
-}).join("");
-
-barangJual.innerHTML = barang.map((x,i)=>
-`<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
-
-let tglDipilih = document.getElementById("hariSelect").value;
-let dataJam = Array(24).fill(0);
-
-if(tglDipilih){
-  let jualHariDipilih = penjualan.filter(x=>getDayKey(x.tanggal)===getDayKey(tglDipilih));
-  let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
-  let detailHariDipilih = jualHariDipilih.map(x=> {
-    if(x.barang === "OMZET MANUAL") {
-      return `• [Manual] ${x.keterangan || 'Tanpa Keterangan'} - Rp ${x.nominal.toLocaleString("id-ID")}`;
+    function resetApp() {
+        if(confirm("Hapus semua data?")) { localStorage.clear(); location.reload(); }
     }
-    return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
-  }).join("<br>");
-  
-  document.getElementById("summaryHarian").innerHTML = `
-    Rincian Omzet: <span style="color:#60a5fa; font-weight:bold;">Rp ${omzetHariDipilih.toLocaleString("id-ID")}</span><br>
-    <div style="margin-top:6px; font-size:12px; color:var(--text-muted); line-height: 1.4;">${detailHariDipilih || 'Belum ada transaksi.'}</div>
-  `;
 
-  jualHariDipilih.forEach(x => {
-    let jam = new Date(x.tanggal).getHours();
-    dataJam[jam] += x.nominal;
-  });
-}
-
-if(instanceChartHarian) instanceChartHarian.destroy();
-let ctxHarian = document.getElementById('chartHarian').getContext('2d');
-instanceChartHarian = new Chart(ctxHarian, {
-  type: 'line',
-  data: {
-    labels: Array.from({length: 24}, (_, i) => String(i).padStart(2, '0') + ':00'),
-    datasets: [{
-      label: 'Tren Jam (Rp)',
-      data: dataJam,
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59, 130, 246, 0.08)',
-      borderWidth: 2,
-      tension: 0.3,
-      fill: true
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { 
-      x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 10 } } }, 
-      y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#6b7280', font: { size: 10 } } } 
-    }
-  }
-});
-
-let bulan = bulanSelect.value || bulanAktif;
-let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
-let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
-let omzetBulanan = jualBulanan.reduce((a,b)=>a+b.nominal,0);
-let keluarBulananTotal = keluarBulanan.reduce((a,b)=>a+b.nominal,0);
-
-summaryBulanan.innerHTML = `
-  Omzet: <span style="color:#fff;">Rp ${omzetBulanan.toLocaleString("id-ID")}</span><br>
-  Keluar: <span style="color:#fff;">Rp ${keluarBulananTotal.toLocaleString("id-ID")}</span><br>
-  Laba: <span style="color:var(--success); font-weight:bold;">Rp ${(omzetBulanan-keluarBulananTotal).toLocaleString("id-ID")}</span>
-`;
-
-let [tahunUrut, bulanUrut] = bulan.split("-");
-let jumlahHari = new Date(tahunUrut, bulanUrut, 0).getDate();
-let dataTanggal = Array(jumlahHari).fill(0);
-
-jualBulanan.forEach(x => {
-  let tgl = new Date(x.tanggal).getDate();
-  dataTanggal[tgl - 1] += x.nominal;
-});
-
-if(instanceChartBulanan) instanceChartBulanan.destroy();
-let ctxBulanan = document.getElementById('chartBulanan').getContext('2d');
-instanceChartBulanan = new Chart(ctxBulanan, {
-  type: 'bar',
-  data: {
-    labels: Array.from({length: jumlahHari}, (_, i) => i + 1),
-    datasets: [{
-      label: 'Omzet Harian (Rp)',
-      data: dataTanggal,
-      backgroundColor: '#f59e0b',
-      borderRadius: 4
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { 
-      x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 9 } } }, 
-      y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { display: false } } 
-    }
-  }
-});
-
-let salesMap = {};
-jualBulanan.forEach(x=>{
-if(x.qty<=0) return;
-if(x.barang==="OMZET MANUAL") return;
-salesMap[x.barang]=(salesMap[x.barang]||0)+x.qty;
-});
-let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
-topSelling.innerHTML = ranking.length
-? ranking.map((x,i)=>`🥇 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>")
-: "Belum ada penjualan.";
-
-riwayatJual.innerHTML = jualBulanan.length ? jualBulanan.map(x=>`
-<p>⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")} - <b>${x.barang}</b> (${x.qty} pcs)<br><span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span></p>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
-
-riwayatKeluar.innerHTML = keluarBulanan.length ? keluarBulanan.map(x=>`
-<p>⏱️ ${new Date(x.tanggal).toLocaleDateString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
-}
-render();
+    // Notifikasi Awal
+    const now = new Date();
+    showToast("Sistem Diperbarui: " + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
+    updateUI();
 </script>
 </body>
 </html>
