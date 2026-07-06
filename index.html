@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
-  <link class="apple-touch-icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png.PNG">
   <!-- Chart.js untuk Grafik -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -41,6 +41,34 @@ html, body {
   padding: 15px;
   overflow-x: hidden; 
   position: relative;
+}
+
+/* BRANDING LOGO AREA */
+.brand-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  padding: 10px 0;
+}
+.brand-logo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+  background: #1f1f2e;
+}
+.brand-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #fff;
+  margin: 0;
+  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* NOTIFIKASI UPDATE */
@@ -262,6 +290,12 @@ button:active {
 <!-- TOAST NOTIFIKASI -->
 <div id="updateToast" class="toast-notification">
   ✨ EVORA Tracker berhasil diperbarui!
+</div>
+
+<!-- LOGO & LOGO BRAND AREA -->
+<div class="brand-header">
+  <img src="./icon-192.png.PNG" onerror="this.src='https://placehold.co/100x100/1f1f2e/ffffff?text=EVORA'" class="brand-logo" alt="EVORA Logo">
+  <h1 class="brand-title">EVORA TRACKER PRO</h1>
 </div>
 
 <!-- DASHBOARD UTAMA -->
