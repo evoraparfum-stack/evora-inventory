@@ -292,19 +292,12 @@ button:active {
   </div>
 </div>
 
-<!-- INPUT TRANSAKSI LAINNYA -->
-<div class="row-2">
-  <div class="card">
-    <h3>AI Scan Import</h3>
-    <textarea id="scanInput" rows="3" placeholder="Format: NAMA:QTY (Gunakan enter untuk baris baru)"></textarea>
-    <button onclick="prosesScan()">Proses Data Scan</button>
-  </div>
-  <div class="card">
-    <h3>Penjualan Manual Grosir</h3>
-    <select id="barangJual"></select>
-    <input id="qtyJual" type="number" placeholder="Jumlah Banyak Qty">
-    <button onclick="jualBarang()">Simpan Penjualan</button>
-  </div>
+<!-- TRANSAKSI MANUAL GROSIR -->
+<div class="card">
+  <h3>Penjualan Manual Grosir</h3>
+  <select id="barangJual"></select>
+  <input id="qtyJual" type="number" placeholder="Jumlah Banyak Qty">
+  <button onclick="jualBarang()">Simpan Penjualan</button>
 </div>
 
 <!-- PENGELOLA LOGISTIK & MASTER BARANG -->
@@ -373,14 +366,22 @@ button:active {
   <div class="chart-container"><canvas id="chartBulanan"></canvas></div>
 </div>
 
-<!-- LOG RIWAYAT & BATAL PESANAN -->
+<!-- LOG RIWAYAT HARIAN & BATAL PESANAN -->
+<div class="card" style="padding-bottom: 5px; border: 1px solid rgba(59, 130, 246, 0.3);">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h3 style="margin:0; border:none; padding:0;">Cari Riwayat Transaksi</h3>
+    <input id="tanggalRiwayat" type="date" onchange="render()" style="max-width:140px; margin:0; padding:8px; font-size:12px; background:var(--bg-input); color:#fff;">
+  </div>
+  <p style="font-size:11px; color:var(--text-muted); margin-top:8px;">Pilih tanggal di atas untuk melihat detail transaksi dan membatalkan pesanan (retur).</p>
+</div>
+
 <div class="row-2">
   <div class="card">
-    <h3>Log Riwayat Penjualan</h3>
+    <h3 style="font-size:14px;">Log Penjualan</h3>
     <div id="riwayatJual" class="scroll-box"></div>
   </div>
   <div class="card">
-    <h3>Log Riwayat Pengeluaran</h3>
+    <h3 style="font-size:14px;">Log Pengeluaran</h3>
     <div id="riwayatKeluar" class="scroll-box"></div>
   </div>
 </div>
@@ -411,7 +412,10 @@ let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 let instanceChartHarian = null;
 let instanceChartBulanan = null;
 
-document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
+// Set default tanggal hari ini untuk Laporan Harian dan Riwayat Transaksi
+let hariIniFull = new Date().toISOString().split('T')[0];
+document.getElementById("hariSelect").value = hariIniFull;
+document.getElementById("tanggalRiwayat").value = hariIniFull;
 
 document.addEventListener('touchmove', function (event) {
   if (event.scale !== 1) { event.preventDefault(); }
@@ -532,40 +536,6 @@ function batalkanPesanan(originalIndex) {
   saveData(); render();
 }
 
-function prosesScan(){
-  let text = scanInput.value.trim();
-  if(!text) return;
-  let lines = text.split("\n");
-  let totalQty = 0; let validScan = 0;
-  
-  for(let line of lines){
-    line = line.trim();
-    if(!line || line.startsWith("TOTAL")) continue;
-    let parts = line.split(":");
-    if(parts.length!==2) { alert("Format scan tidak valid"); return; }
-    
-    let nama = parts[0].trim().toUpperCase();
-    let qty = Number(parts[1].trim());
-    if(nama.length < 3) { alert("Nama terlalu pendek: " + nama); return; }
-    if(qty<=0) { alert("Qty tidak valid"); return; }
-    
-    let index = barang.findIndex(x => x.nama === nama);
-    if(index===-1) { alert("Barang tidak ditemukan: " + nama); return; }
-    if(barang[index].stok<qty) { alert("Stok kurang: " + barang[index].nama); return; }
-    
-    barang[index].stok -= qty;
-    totalQty += qty;
-    validScan++;
-    penjualan.push({ tanggal:new Date().toISOString(), barang:barang[index].nama, qty:qty, nominal:qty*HARGA });
-  }
-  if(validScan===0) { alert("Format scan tidak valid"); return; }
-  if(stokBotol<totalQty) return alert("Stok botol kurang");
-  if(stokBox<totalQty) return alert("Stok box kurang");
-  
-  stokBotol -= totalQty; stokBox -= totalQty;
-  scanInput.value=""; saveData(); render(); alert("Scan berhasil");
-}
-
 function tambahOmzetManual(){
   let nominal = Number(manualOmzet.value); let ket = manualKet.value;
   if(nominal<=0) return;
@@ -594,7 +564,6 @@ function salinLaporanHarian() {
   teksLaporan += `💸 Pengeluaran: Rp ${pHari.toLocaleString("id-ID")}\n`;
   teksLaporan += `📈 Laba Bersih: Rp ${lHari.toLocaleString("id-ID")}\n\n`;
   
-  // Menghitung Top Terlaris Harian untuk disalin ke WhatsApp
   let salesMapHari = {};
   jHari.forEach(x => {
     if(x.qty <= 0 || x.barang === "OMZET MANUAL") return;
@@ -686,7 +655,7 @@ function render(){
 
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
-  // CHART & SUMMARY HARIAN (DENGAN TOP SELLING HARIAN)
+  // CHART & SUMMARY HARIAN
   let tglDipilih = document.getElementById("hariSelect").value;
   let dataJam = Array(24).fill(0);
 
@@ -699,7 +668,6 @@ function render(){
       return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
     }).join("<br>");
 
-    // Hitung Top Selling Harian
     let salesMapHari = {};
     jualHariDipilih.forEach(x => {
       if(x.qty <= 0 || x.barang === "OMZET MANUAL") return;
@@ -730,12 +698,11 @@ function render(){
     options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 10 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#6b7280', font: { size: 10 } } } } }
   });
 
-  // CHART & SUMMARY BULANAN
+  // CHART BULANAN
   let bulan = bulanSelect.value || bulanAktif;
-  let penjualanDenganIndex = penjualan.map((x, i) => ({...x, originalIndex: i}));
-  let jualBulanan = penjualanDenganIndex.filter(x=>getMonthKey(x.tanggal)===bulan);
-  
+  let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
   let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
+  
   let omzetBulanan = jualBulanan.reduce((a,b)=>a+b.nominal,0);
   let keluarBulananTotal = keluarBulanan.reduce((a,b)=>a+b.nominal,0);
 
@@ -768,17 +735,25 @@ function render(){
   let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
   topSelling.innerHTML = ranking.length ? ranking.map((x,i)=>`🥇 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>") : "Belum ada penjualan.";
 
-  riwayatJual.innerHTML = jualBulanan.length ? jualBulanan.map(x=>`
+  // LOG RIWAYAT HARIAN (BERDASARKAN FILTER KALENDER RIWAYAT)
+  let tglRiwayat = document.getElementById("tanggalRiwayat").value;
+  let tglRiwayatKey = getDayKey(tglRiwayat);
+
+  let penjualanDenganIndex = penjualan.map((x, i) => ({...x, originalIndex: i}));
+  let riwayatJualHarian = penjualanDenganIndex.filter(x=>getDayKey(x.tanggal)===tglRiwayatKey);
+  let riwayatKeluarHarian = pengeluaran.filter(x=>getDayKey(x.tanggal)===tglRiwayatKey);
+
+  riwayatJual.innerHTML = riwayatJualHarian.length ? riwayatJualHarian.map(x=>`
   <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
       ⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")} - <b>${x.barang}</b> ${x.qty > 0 ? `(${x.qty} pcs)` : ''}<br>
       <span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span>
     </div>
     <button onclick="batalkanPesanan(${x.originalIndex})" style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
-  </div>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
+  </div>`).join("") : `<p style='color:var(--text-muted)'>Tidak ada penjualan pada ${tglRiwayat}</p>`;
 
-  riwayatKeluar.innerHTML = keluarBulanan.length ? keluarBulanan.map(x=>`
-  <p>⏱️ ${new Date(x.tanggal).toLocaleDateString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
+  riwayatKeluar.innerHTML = riwayatKeluarHarian.length ? riwayatKeluarHarian.map(x=>`
+  <p>⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : `<p style='color:var(--text-muted)'>Tidak ada pengeluaran pada ${tglRiwayat}</p>`;
 }
 
 render();
