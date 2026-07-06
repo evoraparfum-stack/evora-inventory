@@ -2,14 +2,16 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- FIX: Mengunci Zoom secara total di Android & iOS (user-scalable=no) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <title>EVORA Tracker Pro</title>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0d0d12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
-  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link class="apple-touch-icon" href="./icon-192.png">
+  <!-- Chart.js untuk Grafik -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
@@ -25,12 +27,23 @@
   --text-muted: #9ca3af;
 }
 
-* { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-body {
+* { 
+  box-sizing: border-box; 
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+  /* FIX: Mematikan gesture zoom double-tap bawaan browser browser */
+  touch-action: manipulation; 
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
   background: var(--bg-main);
   color: var(--text-main);
-  padding: 15px;
   margin: 0;
+  padding: 15px;
+  /* FIX: Mengunci total geseran ke kanan/kiri (Anti-overflow horizontal) */
+  overflow-x: hidden; 
+  position: relative;
 }
 
 h3 {
@@ -123,15 +136,14 @@ button:active {
   gap: 15px;
 }
 
-/* FIX: TAMPILAN KASIR RINGKAS DENGAN SCROLL INTERNAL */
+/* FIX KASIR COMPACT */
 .box-kasir-container {
-  max-height: 290px; /* Membatasi tinggi vertikal kasir */
-  overflow-y: auto;  /* Memunculkan scroll mandiri */
+  max-height: 290px;
+  overflow-y: auto;
   padding-right: 5px;
   margin-top: 5px;
 }
 
-/* Menghaluskan scrollbar di browser berbasis Webkit */
 .box-kasir-container::-webkit-scrollbar, .scroll-box::-webkit-scrollbar {
   width: 4px;
 }
@@ -153,7 +165,7 @@ button:active {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 130px; /* Sedikit dipadatkan tinggi itemnya */
+  min-height: 130px;
 }
 .item-info b {
   font-size: 13px;
@@ -227,6 +239,7 @@ button:active {
 </head>
 <body>
 
+<!-- BAGIAN 1: DASHBOARD UTAMA -->
 <div class="card dashboard-hero">
   <h3>Dashboard Finansial</h3>
   <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
@@ -244,6 +257,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 2: MESIN KASIR -->
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
   <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
@@ -253,6 +267,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 3: ELEMEN INPUT TRANSAKSI LAINNYA -->
 <div class="row-2">
   <div class="card">
     <h3>AI Scan Import</h3>
@@ -267,6 +282,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 4: PENGELOLA LOGISTIK & MASTER BARANG -->
 <div class="row-2">
   <div class="card">
     <h3>Logistik (Botol & Box)</h3>
@@ -291,6 +307,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 5: PEMBUKUAN MANUAL & BIAYA -->
 <div class="row-2">
   <div class="card">
     <h3>Omzet Masuk Manual</h3>
@@ -306,6 +323,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 6: AUDIT, ANALISIS DATA, & LAPORAN TREN -->
 <div class="card">
   <h3>Laporan & Riwayat Harian</h3>
   <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
@@ -357,6 +375,11 @@ let instanceChartHarian = null;
 let instanceChartBulanan = null;
 
 document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
+
+/* FIX: Mencegah zoom cubit (pinch zoom) via script Javascript di iOS Safari */
+document.addEventListener('touchmove', function (event) {
+  if (event.scale !== 1) { event.preventDefault(); }
+}, { passive: false });
 
 function saveData(){
 localStorage.setItem("stokBotol", stokBotol);
