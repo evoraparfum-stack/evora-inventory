@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
-  <link rel="apple-touch-icon" href="./icon-192.png.PNG">
+  <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <!-- Chart.js untuk Grafik -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -451,7 +451,10 @@ let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 let instanceChartHarian = null;
 let instanceChartBulanan = null;
 
-let hariIniFull = new Date().toISOString().split('T')[0];
+// PERBAIKAN BUG TIMEOFFSET (Menggunakan Tanggal Lokal HP Akurat Alih-alih UTC London)
+let dSkrg = new Date();
+let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padStart(2, "0") + "-" + String(dSkrg.getDate()).padStart(2, "0");
+
 document.getElementById("hariSelect").value = hariIniFull;
 document.getElementById("tanggalRiwayat").value = hariIniFull;
 
@@ -493,7 +496,6 @@ function updateMonthSelect(){
   .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
-// EDIT LOGISTIK LANGSUNG DARI DASHBOARD
 function editLogistik(jenis) {
   let nilaiSaatIni = jenis === 'botol' ? stokBotol : stokBox;
   let inputBaru = prompt(`Ubah Total Stok ${jenis.toUpperCase()} saat ini:`, nilaiSaatIni);
@@ -511,7 +513,6 @@ function editLogistik(jenis) {
   }
 }
 
-// MASTER BARANG
 function tambahBarang(){
   let nama = namaBarang.value.trim().toUpperCase();
   let qty = Number(qtyBarang.value);
@@ -537,7 +538,6 @@ function hapusBarang(originalIndex){
   }
 }
 
-// TRANSAKSI JUAL (DENGAN KONFIRMASI)
 function quickJual(originalIndex) {
   if(!confirm(`Jual instan 1 pcs ${barang[originalIndex].nama}?`)) return;
 
@@ -567,7 +567,6 @@ function jualBarang(){
   qtyJual.value=""; saveData(); render();
 }
 
-// BATAL PESANAN / RETUR
 function batalkanPesanan(originalIndex) {
   if(!confirm("Batalkan/Retur transaksi ini?\n\n- Omzet akan ditarik.\n- Stok Barang, Botol, dan Box akan dikembalikan secara otomatis.")) return;
   
@@ -649,12 +648,7 @@ function salinLaporanHarian() {
   }).catch(() => { alert("Browser tidak mengizinkan salin otomatis."); });
 }
 
-// ==========================================
-// LOGIKA TEKS BACKUP (COPY-PASTE)
-// ==========================================
-
 function copyDataLama() {
-  // Struktur JSON diseragamkan dengan format metadata agar aman dan terstruktur
   let arsipData = {
     metadata: {
       app_name: "EVORA Tracker Pro",
@@ -674,7 +668,7 @@ function copyDataLama() {
   document.getElementById("teksData").value = teks;
   
   navigator.clipboard.writeText(teks).then(() => {
-    alert("✅ Kode teks berhasil disalin!\nSekarang kirim kode ini, lalu paste di aplikasi EVORA di HP yang baru.");
+    alert("✅ Kode teks berhasil disalin!\nSekrawang kirim kode ini, lalu paste di aplikasi EVORA di HP yang baru.");
   }).catch(() => {
     alert("⚠️ Salin otomatis gagal. Silakan blok dan copy teks manual di dalam kotak.");
   });
@@ -687,8 +681,6 @@ function pasteDataBaru() {
   
   try {
     let parsed = JSON.parse(input);
-    
-    // Penanganan fleksibel untuk format data ber-metadata (baru) maupun data polos (lama)
     let dataData = parsed.payload ? parsed.payload : parsed;
 
     localStorage.setItem("stokBotol", Number(dataData.stokBotol || 0));
@@ -760,7 +752,6 @@ function render(){
 
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
-  // CHART & SUMMARY HARIAN
   let tglDipilih = document.getElementById("hariSelect").value;
   let dataJam = Array(24).fill(0);
 
@@ -803,7 +794,6 @@ function render(){
     options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 10 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#6b7280', font: { size: 10 } } } } }
   });
 
-  // CHART BULANAN
   let bulan = bulanSelect.value || bulanAktif;
   let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
   let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
@@ -840,7 +830,6 @@ function render(){
   let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
   topSelling.innerHTML = ranking.length ? ranking.map((x,i)=>`🥇 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>") : "Belum ada penjualan.";
 
-  // LOG RIWAYAT HARIAN (BERDASARKAN FILTER KALENDER RIWAYAT)
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   let tglRiwayatKey = getDayKey(tglRiwayat);
 
