@@ -70,6 +70,7 @@ padding:10px;
 border-radius:10px;
 min-width:120px;
 font-size:12px;
+position:relative;
 }
 .item-barang button{
 width:auto;
@@ -94,6 +95,18 @@ overflow-y:auto;
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:12px;
+}
+/* Efek teks peringatan berkedip untuk stok kritis */
+.badge-warning {
+color: #fca5a5;
+font-weight: bold;
+font-size: 11px;
+margin-top: 4px;
+display: inline-block;
+animation: blinker 1.5s linear infinite;
+}
+@keyframes blinker {
+50% { opacity: 0.3; }
 }
 @media(max-width:768px){
 .row-2{
@@ -219,7 +232,7 @@ let barang = JSON.parse(localStorage.getItem("barang") || "[]");
 let penjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
 let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 
-// Pasang tanggal kalender harian ke hari ini secara otomatis saat aplikasi dibuka
+// Sinkronisasi kalender pencarian ke hari ini secara default
 document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
 
 function saveData(){
@@ -446,7 +459,7 @@ let hariIniKey = getDayKey(new Date());
 let bulanAktif = getMonthKey(new Date());
 document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
 
-// LOGIKA OTOMATIS: Hitung omzet khusus tanggal hari ini untuk Dashboard
+// Kalkulasi Omzet Hari ini otomatis untuk Dashboard
 let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
 let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
 document.getElementById("omzetHariIni").innerText = "Rp "+totalOmzetHariIni.toLocaleString("id-ID");
@@ -463,26 +476,36 @@ document.getElementById("omzet").innerText = "Rp "+omzet.toLocaleString("id-ID")
 document.getElementById("pengeluaran").innerText = "Rp "+keluar.toLocaleString("id-ID");
 document.getElementById("laba").innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
 
-listBarang.innerHTML = barang.map((x,i)=>`
-<div class="item-barang" style="background:${x.stok<=5 ? '#5c1f1f':'#222'}">
-<b>${x.nama}</b><br>
-Stock: ${x.stok}<br>
-<button class="btn-edit" onclick="editBarang(${i})">Edit</button>
-<button class="btn-delete" onclick="hapusBarang(${i})">Hapus</button>
-</div>
-`).join("");
+// Render Daftar Barang dengan Teks Peringatan Stok
+listBarang.innerHTML = barang.map((x,i)=>{
+  let tagPeringatan = "";
+  if(x.stok === 0) {
+    tagPeringatan = `<br><span class="badge-warning">❌ STOK HABIS!</span>`;
+  } else if(x.stok <= 5) {
+    tagPeringatan = `<br><span class="badge-warning">⚠️ STOK MAU HABIS!</span>`;
+  }
+
+  return `
+    <div class="item-barang" style="background:${x.stok<=5 ? '#5c1f1f':'#222'}">
+    <b>${x.nama}</b><br>
+    Stock: ${x.stok}${tagPeringatan}<br>
+    <button class="btn-edit" onclick="editBarang(${i})">Edit</button>
+    <button class="btn-delete" onclick="hapusBarang(${i})">Hapus</button>
+    </div>
+  `;
+}).join("");
 
 barangJual.innerHTML = barang.map((x,i)=>
 `<option value="${i}">${x.nama}</option>`).join("");
 
-// LOGIKA RIWAYAT HARIAN BERDASARKAN KALENDER INPUT
+// Logika Box Pencarian Riwayat Harian Berdasarkan Input Kalender
 let tglDipilih = document.getElementById("hariSelect").value;
 if(tglDipilih){
   let jualHariDipilih = penjualan.filter(x=>getDayKey(x.tanggal)===getDayKey(tglDipilih));
   let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
   let detailHariDipilih = jualHariDipilih.map(x=> {
     if(x.barang === "OMZET MANUAL") {
-      return `• [Manual] ${x.keterangan || 'Tanpa Ket'} - Rp ${x.nominal.toLocaleString("id-ID")}`;
+      return `• [Manual] ${x.keterangan || 'Tanpa Keterangan'} - Rp ${x.nominal.toLocaleString("id-ID")}`;
     }
     return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
   }).join("<br>");
