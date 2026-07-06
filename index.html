@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
   <link class="apple-touch-icon" href="./icon-192.png">
+  <!-- Chart.js untuk Grafik -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
@@ -40,6 +41,30 @@ html, body {
   padding: 15px;
   overflow-x: hidden; 
   position: relative;
+}
+
+/* NOTIFIKASI UPDATE */
+.toast-notification {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 9999;
+  transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.toast-notification.show {
+  top: 20px;
 }
 
 h3 {
@@ -234,6 +259,12 @@ button:active {
 </head>
 <body>
 
+<!-- TOAST NOTIFIKASI -->
+<div id="updateToast" class="toast-notification">
+  ✨ EVORA Tracker berhasil diperbarui!
+</div>
+
+<!-- DASHBOARD UTAMA -->
 <div class="card dashboard-hero">
   <h3>Dashboard Finansial</h3>
   <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
@@ -251,6 +282,7 @@ button:active {
   </div>
 </div>
 
+<!-- MESIN KASIR -->
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
   <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
@@ -260,6 +292,7 @@ button:active {
   </div>
 </div>
 
+<!-- INPUT TRANSAKSI LAINNYA -->
 <div class="row-2">
   <div class="card">
     <h3>AI Scan Import</h3>
@@ -274,6 +307,7 @@ button:active {
   </div>
 </div>
 
+<!-- PENGELOLA LOGISTIK & MASTER BARANG -->
 <div class="row-2">
   <div class="card">
     <h3>Logistik (Botol & Box)</h3>
@@ -298,6 +332,7 @@ button:active {
   </div>
 </div>
 
+<!-- PEMBUKUAN MANUAL & BIAYA -->
 <div class="row-2">
   <div class="card">
     <h3>Omzet Masuk Manual</h3>
@@ -313,6 +348,7 @@ button:active {
   </div>
 </div>
 
+<!-- AUDIT, ANALISIS DATA, & LAPORAN TREN -->
 <div class="card">
   <h3>Laporan & Riwayat Harian</h3>
   <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
@@ -337,6 +373,7 @@ button:active {
   <div class="chart-container"><canvas id="chartBulanan"></canvas></div>
 </div>
 
+<!-- LOG RIWAYAT & BATAL PESANAN -->
 <div class="row-2">
   <div class="card">
     <h3>Log Riwayat Penjualan</h3>
@@ -353,6 +390,17 @@ button:active {
 </div>
 
 <script>
+// --- LOGIKA MENAMPILKAN NOTIFIKASI SAAT WEB DIBUKA ---
+window.addEventListener('load', () => {
+  const toast = document.getElementById('updateToast');
+  toast.classList.add('show');
+  
+  // Hilang otomatis setelah 3 detik
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+});
+
 const HARGA = 27000;
 let stokBotol = Number(localStorage.getItem("stokBotol") || 0);
 let stokBox = Number(localStorage.getItem("stokBox") || 0);
@@ -435,8 +483,11 @@ function hapusBarang(originalIndex){
   }
 }
 
-// TRANSAKSI JUAL
+// TRANSAKSI JUAL (DENGAN KONFIRMASI)
 function quickJual(originalIndex) {
+  // Tambahan fitur konfirmasi biar ga ga sengaja kepencet
+  if(!confirm(`Jual instan 1 pcs ${barang[originalIndex].nama}?`)) return;
+
   if(barang[originalIndex].stok < 1) return alert("Stok barang ini sudah habis!");
   if(stokBotol < 1) return alert("Stok botol kosong!");
   if(stokBox < 1) return alert("Stok box kosong!");
@@ -463,27 +514,23 @@ function jualBarang(){
   qtyJual.value=""; saveData(); render();
 }
 
-// FITUR BARU: BATAL PESANAN / RETUR
+// BATAL PESANAN / RETUR
 function batalkanPesanan(originalIndex) {
   if(!confirm("Batalkan/Retur transaksi ini?\n\n- Omzet akan ditarik.\n- Stok Barang, Botol, dan Box akan dikembalikan secara otomatis.")) return;
   
   let target = penjualan[originalIndex];
   
-  // Jika bukan omzet manual, maka kembalikan stok fisik
   if(target.barang !== "OMZET MANUAL") {
     let bIndex = barang.findIndex(x => x.nama === target.barang);
     if(bIndex !== -1) {
-      barang[bIndex].stok += target.qty; // Kembalikan stok parfum
+      barang[bIndex].stok += target.qty;
     }
-    stokBotol += target.qty; // Kembalikan stok botol
-    stokBox += target.qty;   // Kembalikan stok box
+    stokBotol += target.qty;
+    stokBox += target.qty;
   }
   
-  // Hapus data dari riwayat penjualan
   penjualan.splice(originalIndex, 1);
-  
-  saveData();
-  render();
+  saveData(); render();
 }
 
 function prosesScan(){
@@ -656,7 +703,6 @@ function render(){
 
   // CHART & SUMMARY BULANAN
   let bulan = bulanSelect.value || bulanAktif;
-  // Kita map array penjualan dengan index aslinya agar saat dibatalkan tidak salah sasaran
   let penjualanDenganIndex = penjualan.map((x, i) => ({...x, originalIndex: i}));
   let jualBulanan = penjualanDenganIndex.filter(x=>getMonthKey(x.tanggal)===bulan);
   
@@ -693,7 +739,6 @@ function render(){
   let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
   topSelling.innerHTML = ranking.length ? ranking.map((x,i)=>`🥇 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>") : "Belum ada penjualan.";
 
-  // RENDER RIWAYAT DENGAN TOMBOL BATAL (MEMANFAATKAN originalIndex)
   riwayatJual.innerHTML = jualBulanan.length ? jualBulanan.map(x=>`
   <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
