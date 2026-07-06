@@ -228,7 +228,7 @@ button:active {
 .btn-share { background: #25d366; color: #fff; font-size: 14px; }
 .btn-reset { background: #221313; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.1); }
 
-/* CSS ELEMEN KAMERA SCANNER */
+/* KAMERA SCANNER PRO */
 #cameraArea {
   display: none;
   background: #000;
@@ -289,7 +289,6 @@ button:active {
 <div class="row-2">
   <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3);">
     <h3>AI Scan Import Resi</h3>
-    
     <button id="btnToggleKamera" onclick="toggleKamera()" style="background: #4f46e5; margin-bottom: 4px;">📸 Buka Kamera HP</button>
     
     <div id="cameraArea">
@@ -298,8 +297,8 @@ button:active {
       <button id="btnAmbilFoto" onclick="ambilFotoDanScan()" style="background: var(--success); margin-top: 6px;">⚡ Ambil Foto & Scan</button>
     </div>
 
-    <textarea id="scanInput" rows="3" placeholder="Hasil ekstraksi teks resi pintar..."></textarea>
-    <button onclick="prosesScan()" style="background: var(--primary);">Proses Data Masuk</button>
+    <textarea id="scanInput" rows="3" placeholder="Hasil manifest varian sukses masuk..."></textarea>
+    <button onclick="prosesScan()" style="background: var(--primary);">Proses Data Masuk Manual</button>
   </div>
   
   <div class="card">
@@ -440,7 +439,6 @@ document.getElementById("bulanSelect").innerHTML =
 .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
-// --- BARU: UPGRADE LIVE CAMERA PENCARIAN PINTAR ---
 async function toggleKamera() {
   let area = document.getElementById("cameraArea");
   let btn = document.getElementById("btnToggleKamera");
@@ -464,7 +462,7 @@ async function toggleKamera() {
       });
       video.srcObject = streamKamera;
       document.getElementById("ocrStatus").style.color = "var(--accent)";
-      document.getElementById("ocrStatus").innerText = "Kamera Aktif! Bidik kertas bagian nama produk.";
+      document.getElementById("ocrStatus").innerText = "Kamera Aktif! Dekatkan ke tulisan varian resi.";
     } catch (err) {
       document.getElementById("ocrStatus").innerText = "Gagal akses kamera.";
       console.error(err);
@@ -472,15 +470,16 @@ async function toggleKamera() {
   }
 }
 
+// --- FIX AI CORE SCANNER DENGAN VALIDASI STOK KETAT ---
 async function ambilFotoDanScan() {
   let video = document.getElementById("videoFeed");
   let status = document.getElementById("ocrStatus");
   let btnFoto = document.getElementById("btnAmbilFoto");
   
-  if (!streamKamera) return alert("Kamera belum aktif!");
+  if (!streamKamera) return;
 
   status.style.color = "var(--accent)";
-  status.innerText = "🔍 Mencari Nama Varian di Resi...";
+  status.innerText = "🔍 Mencari Varian Parfum & Qty...";
   btnFoto.disabled = true;
 
   let canvas = document.createElement("canvas");
@@ -491,41 +490,40 @@ async function ambilFotoDanScan() {
 
   try {
     const result = await Tesseract.recognize(canvas, 'eng', {
-      logger: m => { if(m.status === 'recognizing text') status.innerText = `AI Membaca Tulisan: ${Math.round(m.progress * 100)}%`; }
+      logger: m => { if(m.status === 'recognizing text') status.innerText = `AI Membaca: ${Math.round(m.progress * 100)}%`; }
     });
     
-    let teksMentah = result.data.text.toUpperCase();
+    let teksMentah = result.data.text.toUpperCase().replace(/\s+/g, ' ');
     let barangDitemukan = [];
     let totalQtyMinta = 0;
 
-    // COCOKKAN LANGSUNG DENGAN DATABASE MASTER BARANG
+    // Filter Pintar: Cek hanya nama varian yang ada di database aplikasi
     barang.forEach((item, index) => {
-      if (teksMentah.includes(item.nama)) {
-        // Cari angka terdekat di sebelah kanan nama barang (maksimal 15 karakter setelahnya)
-        let regexAngka = new RegExp(item.nama + "[^\\d]{0,15}(\\d+)", "i");
-        let cocok = teksMentah.match(regexAngka);
-        let qty = 1; // Default jika hanya tertulis nama barang saja tanpa angka ekspresif
+      let namaAman = item.nama.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      let regexPintar = new RegExp(namaAman + "[^a-zA-Z0-9]{0,10}(\\d+)", "i");
+      let cocok = teksMentah.match(regexPintar);
 
+      if (teksMentah.includes(item.nama)) {
+        let qty = 1; 
         if (cocok && cocok[1]) {
           qty = parseInt(cocok[1]);
         }
-        
         barangDitemukan.push({ index: index, nama: item.nama, qty: qty });
         totalQtyMinta += qty;
       }
     });
 
-    // EVALUASI HASIL SCANNING
     if (barangDitemukan.length > 0) {
-      // Validasi kecukupan stok fisik aplikasi
       let logValid = true;
       let pesanGagalStok = "";
 
+      // VALIDASI 1: Cek Stok Logistik
       if (stokBotol < totalQtyMinta || stokBox < totalQtyMinta) {
         logValid = false;
-        pesanGagalStok = "Stok Logistik (Botol/Box) Kurang!";
+        pesanGagalStok = "Stok Botol/Box Toko Habis!";
       }
 
+      // VALIDASI 2: Cek Stok Fisik Varian Terkait
       barangDitemukan.forEach(it => {
         if (barang[it.index].stok < it.qty) {
           logValid = false;
@@ -534,7 +532,7 @@ async function ambilFotoDanScan() {
       });
 
       if (logValid) {
-        // --- TRANSAKSI DISETUJUI & MASUK DATABASE OTOMATIS ---
+        // EKSEKUSI DATA MASUK
         let visualText = [];
         barangDitemukan.forEach(it => {
           barang[it.index].stok -= it.qty;
@@ -555,26 +553,24 @@ async function ambilFotoDanScan() {
         render();
 
         status.style.color = "var(--success)";
-        status.innerText = "✅ SCAN TERBACA & INPUT OTOMATIS BERHASIL!";
+        status.innerText = `✅ INPUT BERHASIL: ${visualText.join(", ")}`;
         
-        // Tutup kamera otomatis setelah sukses
-        setTimeout(() => { toggleKamera(); }, 2000);
+        // Auto Close Kamera setelah sukses input data
+        setTimeout(() => { toggleKamera(); }, 1500);
       } else {
-        // Jika stok gagal, minta scan ulang/perbaikan data
+        // JIKA STOK KURANG: Tampilkan error teks merah di bawah kamera (tanpa pop-up mengganggu)
         status.style.color = "var(--danger)";
-        status.innerText = `❌ BARANG KETEMU TAPI GAGAL: ${pesanGagalStok}`;
+        status.innerText = `❌ REJECTED: ${pesanGagalStok}`;
       }
 
     } else {
-      // --- TIDAK TERBACA / TIDAK COCOK ---
-      document.getElementById("scanInput").value = teksMentah.substring(0, 50) + "... (Tidak ada varian cocok)";
       status.style.color = "var(--danger)";
-      status.innerText = "❌ SCAN TIDAK TERBACA! Nama produk tidak terdeteksi. Silakan arahkan ulang lebih dekat & klik Ambil Foto lagi.";
+      status.innerText = "❌ VARIAN TIDAK COCOK! Posisikan tulisan varian lebih dekat ke lensa.";
     }
 
   } catch (error) {
     status.style.color = "var(--danger)";
-    status.innerText = "❌ Gangguan Kamera/Koneksi Internet.";
+    status.innerText = "❌ Gagal memproses gambar.";
     console.error(error);
   } finally {
     btnFoto.disabled = false;
@@ -592,7 +588,7 @@ saveData(); render();
 function kurangBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
-if(stokBotol<qty) return alert("Stok botol kurang");
+if(stokBotol<qty) return;
 stokBotol -= qty;
 botolInput.value="";
 saveData(); render();
@@ -609,7 +605,7 @@ saveData(); render();
 function kurangBox(){
 let qty = Number(boxInput.value);
 if(qty<=0) return;
-if(stokBox<qty) return alert("Stok box kurang");
+if(stokBox<qty) return;
 stokBox -= qty;
 boxInput.value="";
 saveData(); render();
@@ -645,9 +641,9 @@ render();
 }
 
 function quickJual(originalIndex) {
-  if(barang[originalIndex].stok < 1) return alert("Stok barang ini sudah habis!");
-  if(stokBotol < 1) return alert("Stok botol kosong!");
-  if(stokBox < 1) return alert("Stok box kosong!");
+  if(barang[originalIndex].stok < 1) return;
+  if(stokBotol < 1) return;
+  if(stokBox < 1) return;
   
   barang[originalIndex].stok -= 1;
   stokBotol -= 1;
@@ -668,9 +664,9 @@ function jualBarang(){
 let originalIndex = Number(barangJual.value);
 let qty = Number(qtyJual.value);
 if(qty<=0) return;
-if(barang[originalIndex].stok<qty) return alert("Stok barang kurang");
-if(stokBotol<qty) return alert("Stok botol kurang");
-if(stokBox<qty) return alert("Stok box kurang");
+if(barang[originalIndex].stok<qty) return;
+if(stokBotol<qty) return;
+if(stokBox<qty) return;
 barang[originalIndex].stok -= qty;
 stokBotol -= qty;
 stokBox -= qty;
@@ -694,34 +690,14 @@ let validScan = 0;
 for(let line of lines){
 line = line.trim();
 if(!line || line.startsWith("TOTAL")) continue;
-if(!line.includes(":")){
-alert("Format data tidak valid. Harus NAMA:QTY");
-return;
-}
+if(!line.includes(":")) return;
 let parts = line.split(":");
-if(parts.length!==2){
-alert("Format data tidak valid");
-return;
-}
+if(parts.length!==2) return;
 let nama = parts[0].trim().toUpperCase();
 let qty = Number(parts[1].trim());
-if(nama.length < 2){
-alert("Nama terlalu pendek: " + nama);
-return;
-}
-if(qty<=0){
-alert("Qty tidak valid");
-return;
-}
+if(nama.length < 2 || qty<=0) return;
 let index = barang.findIndex(x => x.nama === nama);
-if(index===-1){
-alert("Barang tidak ditemukan di database: " + nama);
-return;
-}
-if(barang[index].stok<qty){
-alert("Stok kurang: " + barang[index].nama);
-return;
-}
+if(index===-1 || barang[index].stok<qty) return;
 barang[index].stok -= qty;
 totalQty += qty;
 validScan++;
@@ -732,18 +708,13 @@ penjualan.push({
   nominal:qty*HARGA
 });
 }
-if(validScan===0){
-alert("Format data tidak valid");
-return;
-}
-if(stokBotol<totalQty) return alert("Stok botol kurang");
-if(stokBox<totalQty) return alert("Stok box kurang");
+if(validScan===0) return;
+if(stokBotol<totalQty || stokBox<totalQty) return;
 stokBotol -= totalQty;
 stokBox -= totalQty;
 scanInput.value="";
 saveData();
 render();
-alert("Data manual Berhasil Dimasukkan!");
 }
 
 function tambahOmzetManual(){
@@ -814,8 +785,6 @@ function salinLaporanHarian() {
 
   navigator.clipboard.writeText(teksLaporan).then(() => {
     alert("Berhasil disalin! Sekarang tinggal paste ke WhatsApp.");
-  }).catch(() => {
-    alert("Browser tidak mengizinkan salin otomatis.");
   });
 }
 
@@ -888,7 +857,6 @@ listBarang.innerHTML = barangUrut.map((x)=>{
 barangJual.innerHTML = barang.map((x,i)=>
 `<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
-// --- CHART & SUMMARY HARIAN ---
 let tglDipilih = document.getElementById("hariSelect").value;
 let dataJam = Array(24).fill(0);
 
@@ -939,7 +907,6 @@ instanceChartHarian = new Chart(ctxHarian, {
   }
 });
 
-// --- CHART & SUMMARY BULANAN ---
 let bulan = bulanSelect.value || bulanAktif;
 let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
 let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
