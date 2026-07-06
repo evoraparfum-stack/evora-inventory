@@ -411,16 +411,6 @@ button:active {
   </div>
 </div>
 
-<!-- FITUR PENYELAMAT DATA -->
-<div class="card" style="border: 1px solid var(--accent);">
-  <h3 style="font-size:14px; border-color:var(--accent);">Transfer Data (Backup/Restore)</h3>
-  <textarea id="teksData" rows="4" placeholder="Teks kode data akan muncul di sini... Jangan diubah manual!" style="font-size: 10px; font-family: monospace;"></textarea>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
-    <button onclick="copyDataLama()" style="background: var(--primary);">1. Copy Data Lama</button>
-    <button onclick="pasteDataBaru()" style="background: var(--success);">2. Restore ke Baru</button>
-  </div>
-</div>
-
 <div style="margin: 20px 0 40px 0;">
   <button class="btn-reset" onclick="resetData()">SISTEM RESET DATABASE UTAMA</button>
 </div>
@@ -431,6 +421,7 @@ window.addEventListener('load', () => {
   const toast = document.getElementById('updateToast');
   toast.classList.add('show');
   
+  // Hilang otomatis setelah 3 detik
   setTimeout(() => {
     toast.classList.remove('show');
   }, 3000);
@@ -446,6 +437,7 @@ let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 let instanceChartHarian = null;
 let instanceChartBulanan = null;
 
+// Set default tanggal hari ini untuk Laporan Harian dan Riwayat Transaksi
 let hariIniFull = new Date().toISOString().split('T')[0];
 document.getElementById("hariSelect").value = hariIniFull;
 document.getElementById("tanggalRiwayat").value = hariIniFull;
@@ -642,44 +634,6 @@ function salinLaporanHarian() {
   navigator.clipboard.writeText(teksLaporan).then(() => {
     alert("Berhasil disalin! Sekarang tinggal paste ke WhatsApp mitra/tim.");
   }).catch(() => { alert("Browser tidak mengizinkan salin otomatis."); });
-}
-
-// LOGIKA BACKUP & RESTORE DATA
-function copyDataLama() {
-  let semuaData = {
-    stokBotol: localStorage.getItem("stokBotol") || 0,
-    stokBox: localStorage.getItem("stokBox") || 0,
-    barang: localStorage.getItem("barang") || "[]",
-    penjualan: localStorage.getItem("penjualan") || "[]",
-    pengeluaran: localStorage.getItem("pengeluaran") || "[]"
-  };
-  let teks = JSON.stringify(semuaData);
-  document.getElementById("teksData").value = teks;
-  
-  navigator.clipboard.writeText(teks).then(() => {
-    alert("✅ Data berhasil disalin!\nSekarang buka aplikasi yang BARU dan lakukan Restore.");
-  }).catch(() => {
-    alert("⚠️ Salin otomatis gagal. Silakan sentuh dan tahan (blok semua teks) di dalam kotak, lalu COPY/SALIN secara manual.");
-  });
-}
-
-function pasteDataBaru() {
-  let input = document.getElementById("teksData").value;
-  if(!input) return alert("Kotak teks masih kosong! Silakan Paste/Tempel dulu teks dari aplikasi lama.");
-  if(!confirm("Yakin ingin menimpa data di aplikasi ini dengan data yang baru saja Anda paste?")) return;
-  
-  try {
-    let parsed = JSON.parse(input);
-    localStorage.setItem("stokBotol", parsed.stokBotol);
-    localStorage.setItem("stokBox", parsed.stokBox);
-    localStorage.setItem("barang", parsed.barang);
-    localStorage.setItem("penjualan", parsed.penjualan);
-    localStorage.setItem("pengeluaran", parsed.pengeluaran);
-    alert("🎉 BERHASIL! Data sukses dipulihkan. Halaman akan dimuat ulang.");
-    location.reload();
-  } catch(e) {
-    alert("❌ Teks data tidak valid! Pastikan Anda mem-paste seluruh teks dengan benar tanpa ada yang terpotong.");
-  }
 }
 
 function resetData(){ if(confirm("Hapus seluruh database aplikasi secara permanen?")) { localStorage.clear(); location.reload(); } }
