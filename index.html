@@ -128,11 +128,29 @@ grid-template-columns:1fr;
 
 <div class="stats">
 <div class="stat">Botol<br><span id="stokBotol">0</span></div>
+
 <div class="stat">Box<br><span id="stokBox">0</span></div>
+
 <div class="stat">Barang<br><span id="totalBarang">0</span></div>
-<div class="stat">Omzet<br><span id="omzet">Rp 0</span></div>
-<div class="stat">Pengeluaran<br><span id="pengeluaran">Rp 0</span></div>
-<div class="stat">Laba<br><span id="laba">Rp 0</span></div>
+
+<div class="stat">
+Omzet Hari Ini<br>
+<span id="omzetHariIni">Rp 0</span>
+</div>
+
+<div class="stat">
+Omzet Bulan Ini<br>
+<span id="omzet">Rp 0</span>
+</div>
+
+<div class="stat">
+Pengeluaran<br>
+<span id="pengeluaran">Rp 0</span>
+</div>
+
+<div class="stat">
+Laba<br>
+<span id="laba">Rp 0</span>
 </div>
 </div>
 
@@ -161,7 +179,14 @@ grid-template-columns:1fr;
 
 <div class="card">
 <h3>Daftar Barang</h3>
+
+<input
+id="cariBarang"
+placeholder="Cari barang..."
+onkeyup="render()">
+
 <div id="listBarang" class="grid-barang"></div>
+
 </div>
 
 <div class="card">
@@ -199,6 +224,18 @@ grid-template-columns:1fr;
 <div class="card">
 <h3>Summary Bulanan</h3>
 <div id="summaryBulanan"></div>
+</div>
+
+<div class="card">
+<h3>Omzet Harian</h3>
+
+<input
+type="date"
+id="tanggalHarian"
+onchange="render()">
+
+<div id="summaryHarian"></div>
+
 </div>
 
 <div class="card">
@@ -474,6 +511,18 @@ location.reload();
 }
 }
 
+function editTransaksi(index){
+
+alert("Fitur edit akan dibuat pada langkah berikutnya.");
+
+}
+
+function hapusTransaksi(index){
+
+alert("Fitur hapus akan dibuat pada langkah berikutnya.");
+
+}
+
 function render(){
 updateMonthSelect();
 
@@ -484,16 +533,67 @@ let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
 let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
 
 let omzet = jualAktif.reduce((a,b)=>a+b.nominal,0);
+// =====================
+// OMZET HARI INI
+// =====================
+
+let hariIni = new Date().toISOString().slice(0,10);
+
+let jualHariIni = penjualan.filter(x =>
+    x.tanggal.slice(0,10) === hariIni
+);
+
+let omzetHariIni = jualHariIni.reduce(
+    (a,b)=>a+b.nominal,
+    0
+);
 let keluar = keluarAktif.reduce((a,b)=>a+b.nominal,0);
 
 document.getElementById("stokBotol").innerText = stokBotol;
 document.getElementById("stokBox").innerText = stokBox;
 document.getElementById("totalBarang").innerText = barang.length;
+document.getElementById("omzetHariIni").innerText =
+"Rp " + omzetHariIni.toLocaleString("id-ID");
 document.getElementById("omzet").innerText = "Rp "+omzet.toLocaleString("id-ID");
 document.getElementById("pengeluaran").innerText = "Rp "+keluar.toLocaleString("id-ID");
 document.getElementById("laba").innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
 
-listBarang.innerHTML = barang.map((x,i)=>`
+let keyword = document
+.getElementById("cariBarang")
+.value
+.toUpperCase();
+
+let barangFilter = barang.filter(x=>
+
+x.nama.includes(keyword)
+
+);
+
+listBarang.innerHTML = barangFilter.map(x=>{
+
+let i = barang.indexOf(x);
+
+return `
+<div class="item-barang" style="background:${x.stok<=5 ? '#5c1f1f':'#222'}">
+
+<b>${x.nama}</b><br>
+
+Stock : ${x.stok}<br>
+
+<button class="btn-edit"
+onclick="editBarang(${i})">
+Edit
+</button>
+
+<button class="btn-delete"
+onclick="hapusBarang(${i})">
+Hapus
+</button>
+
+</div>
+`;
+
+}).join("");
 <div class="item-barang" style="background:${x.stok<=5 ? '#5c1f1f':'#222'}">
 <b>${x.nama}</b><br>
 Stock: ${x.stok}<br>
@@ -532,16 +632,126 @@ topSelling.innerHTML = ranking.length
 ? ranking.map((x,i)=>`${i+1}. ${x[0]} - ${x[1]} pcs`).join("<br>")
 : "Belum ada data";
 
-riwayatJual.innerHTML = jualBulanan.map(x=>`
-<p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
+let dataRiwayat = tanggalDipilih
+? penjualan.filter(x=>x.tanggal.slice(0,10)===tanggalDipilih)
+: jualBulanan;
+
+riwayatJual.innerHTML = dataRiwayat.length
+? dataRiwayat.map((x,index)=>`
+<div style="
+background:#222;
+padding:10px;
+border-radius:10px;
+margin-bottom:10px;
+">
+
+<b>${new Date(x.tanggal).toLocaleString("id-ID")}</b><br>
+
 ${x.barang}<br>
-Qty: ${x.qty}<br>
-Rp ${x.nominal.toLocaleString("id-ID")}</p><hr>`).join("");
+
+Qty : ${x.qty}<br>
+
+Rp ${x.nominal.toLocaleString("id-ID")}
+
+${x.keterangan ? "<br>"+x.keterangan : ""}
+
+<div style="
+display:flex;
+gap:8px;
+margin-top:10px;
+">
+
+<button
+class="btn-edit"
+onclick="editTransaksi(${index})">
+
+Edit
+
+</button>
+
+<button
+class="btn-delete"
+onclick="hapusTransaksi(${index})">
+
+Hapus
+
+</button>
+
+</div>
+
+</div>
+`).join("")
+: "<p>Tidak ada transaksi pada tanggal ini.</p>";
 
 riwayatKeluar.innerHTML = keluarBulanan.map(x=>`
 <p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
 Rp ${x.nominal.toLocaleString("id-ID")}<br>
 ${x.keterangan}</p><hr>`).join("");
+// =====================
+// OMZET HARIAN
+// =====================
+
+let tanggalInput = document.getElementById("tanggalHarian");
+
+// Jika belum memilih tanggal, gunakan hari ini
+if(!tanggalInput.value){
+    tanggalInput.value = new Date().toISOString().split("T")[0];
+}
+
+let tanggalDipilih = tanggalInput.value;
+
+// Ambil penjualan sesuai tanggal
+let jualHarian = penjualan.filter(x =>
+    x.tanggal.slice(0,10) === tanggalDipilih
+);
+
+let omzetHarian = jualHarian.reduce((a,b)=>a+b.nominal,0);
+
+let totalPcs = jualHarian.reduce((a,b)=>a+b.qty,0);
+
+let totalTransaksi = jualHarian.length;
+// Rekap barang terjual
+let daftarBarang = {};
+
+jualHarian.forEach(x=>{
+
+    if(x.qty<=0) return;
+
+    if(!daftarBarang[x.barang]){
+        daftarBarang[x.barang]=0;
+    }
+
+    daftarBarang[x.barang]+=x.qty;
+
+});
+
+let htmlBarang = Object.entries(daftarBarang)
+.map(([nama,qty])=>
+`${nama} : ${qty} pcs`
+).join("<br>");
+
+if(htmlBarang===""){
+    htmlBarang="Tidak ada penjualan";
+}
+
+document.getElementById("summaryHarian").innerHTML = `
+<b>Tanggal:</b> ${new Date(tanggalDipilih).toLocaleDateString("id-ID")}<br><br>
+
+<b>Omzet:</b><br>
+Rp ${omzetHarian.toLocaleString("id-ID")}<br><br>
+
+<b>Total Terjual:</b><br>
+${totalPcs} pcs<br><br>
+
+<b>Jumlah Transaksi:</b><br>
+${totalTransaksi} transaksi
+
+<br><br>
+
+<b>Barang Terjual:</b><br>
+
+${htmlBarang}
+`;
 }
 
 render();
