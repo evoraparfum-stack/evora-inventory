@@ -485,7 +485,6 @@ function hapusBarang(originalIndex){
 
 // TRANSAKSI JUAL (DENGAN KONFIRMASI)
 function quickJual(originalIndex) {
-  // Tambahan fitur konfirmasi biar ga ga sengaja kepencet
   if(!confirm(`Jual instan 1 pcs ${barang[originalIndex].nama}?`)) return;
 
   if(barang[originalIndex].stok < 1) return alert("Stok barang ini sudah habis!");
@@ -594,8 +593,22 @@ function salinLaporanHarian() {
   teksLaporan += `💰 Omzet Harian: Rp ${oHari.toLocaleString("id-ID")}\n`;
   teksLaporan += `💸 Pengeluaran: Rp ${pHari.toLocaleString("id-ID")}\n`;
   teksLaporan += `📈 Laba Bersih: Rp ${lHari.toLocaleString("id-ID")}\n\n`;
-  teksLaporan += `*Detail Item Terjual:*\n`;
   
+  // Menghitung Top Terlaris Harian untuk disalin ke WhatsApp
+  let salesMapHari = {};
+  jHari.forEach(x => {
+    if(x.qty <= 0 || x.barang === "OMZET MANUAL") return;
+    salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty;
+  });
+  let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]).slice(0, 3);
+  
+  if(rankingHari.length > 0) {
+    teksLaporan += `🏆 *TOP TERLARIS HARI INI:*\n`;
+    rankingHari.forEach((x, i) => teksLaporan += `${i+1}. ${x[0]} (${x[1]} pcs)\n`);
+    teksLaporan += `\n`;
+  }
+
+  teksLaporan += `*Detail Item Terjual:*\n`;
   if(jHari.length) {
     jHari.forEach(x => {
       if(x.barang === "OMZET MANUAL") {
@@ -673,21 +686,37 @@ function render(){
 
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
-  // CHART & SUMMARY HARIAN
+  // CHART & SUMMARY HARIAN (DENGAN TOP SELLING HARIAN)
   let tglDipilih = document.getElementById("hariSelect").value;
   let dataJam = Array(24).fill(0);
 
   if(tglDipilih){
     let jualHariDipilih = penjualan.filter(x=>getDayKey(x.tanggal)===getDayKey(tglDipilih));
     let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
+    
     let detailHariDipilih = jualHariDipilih.map(x=> {
       if(x.barang === "OMZET MANUAL") { return `• [Manual] ${x.keterangan || 'Tanpa Keterangan'} - Rp ${x.nominal.toLocaleString("id-ID")}`; }
       return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
     }).join("<br>");
+
+    // Hitung Top Selling Harian
+    let salesMapHari = {};
+    jualHariDipilih.forEach(x => {
+      if(x.qty <= 0 || x.barang === "OMZET MANUAL") return;
+      salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty;
+    });
+    let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]).slice(0, 3);
+    let topSellingHariHTML = rankingHari.length 
+      ? rankingHari.map((x,i) => `🏆 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>") 
+      : "<span style='color:var(--text-muted);'>Belum ada penjualan</span>";
     
     document.getElementById("summaryHarian").innerHTML = `
       Rincian Omzet: <span style="color:#60a5fa; font-weight:bold;">Rp ${omzetHariDipilih.toLocaleString("id-ID")}</span><br>
       <div style="margin-top:6px; font-size:12px; color:var(--text-muted); line-height: 1.4;">${detailHariDipilih || 'Belum ada transaksi.'}</div>
+      <div style="margin-top:10px; font-size:12px; color:var(--accent); font-weight:500;">
+        Top Terlaris Hari Ini:<br>
+        <div style="margin-top:3px; color:#fff;">${topSellingHariHTML}</div>
+      </div>
     `;
 
     jualHariDipilih.forEach(x => { let jam = new Date(x.tanggal).getHours(); dataJam[jam] += x.nominal; });
