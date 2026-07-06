@@ -3,22 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>EVORA Tracker</title>
-
   <link rel="manifest" href="./manifest.json">
-
   <meta name="theme-color" content="#111111">
-
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
-
   <link rel="apple-touch-icon" href="./icon-192.png">
-
 <style>
 *{box-sizing:border-box;}
-
 body{
 font-family:Arial,sans-serif;
 background:#111;
@@ -26,14 +19,12 @@ color:#fff;
 padding:15px;
 margin:0;
 }
-
 .card{
 background:#1d1d1d;
 padding:15px;
 border-radius:12px;
 margin-bottom:15px;
 }
-
 input,select,button,textarea{
 width:100%;
 padding:14px;
@@ -42,40 +33,37 @@ border:none;
 border-radius:10px;
 font-size:17px;
 }
-
 button{
 font-weight:bold;
 cursor:pointer;
 }
-
 .stats{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:10px;
 }
-
 .stat{
 background:#222;
 padding:12px;
 border-radius:10px;
 text-align:center;
 }
-
+.stat.highlight{
+background:#1e3a8a;
+border:1px solid #3b82f6;
+}
 .row-btn{
 display:flex;
 gap:8px;
 }
-
 .row-btn button{
 width:50%;
 }
-
 .grid-barang{
 display:flex;
 flex-wrap:wrap;
 gap:8px;
 }
-
 .item-barang{
 background:#222;
 padding:10px;
@@ -83,7 +71,6 @@ border-radius:10px;
 min-width:120px;
 font-size:12px;
 }
-
 .item-barang button{
 width:auto;
 padding:5px 8px;
@@ -91,28 +78,23 @@ font-size:11px;
 margin-top:5px;
 margin-right:4px;
 }
-
 .btn-edit{
 background:#f59e0b;
 color:white;
 }
-
 .btn-delete{
 background:#ef4444;
 color:white;
 }
-
 .scroll-box{
 max-height:250px;
 overflow-y:auto;
 }
-
 .row-2{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:12px;
 }
-
 @media(max-width:768px){
 .row-2{
 grid-template-columns:1fr;
@@ -121,21 +103,19 @@ grid-template-columns:1fr;
 </style>
 </head>
 <body>
-
 <div class="card">
 <h3>Dashboard</h3>
 <p id="bulanAktif"></p>
-
 <div class="stats">
+<div class="stat highlight" style="grid-column: span 2;">Omzet Hari Ini<br><span id="omzetHariIni" style="font-size: 20px; font-weight: bold;">Rp 0</span></div>
 <div class="stat">Botol<br><span id="stokBotol">0</span></div>
 <div class="stat">Box<br><span id="stokBox">0</span></div>
 <div class="stat">Barang<br><span id="totalBarang">0</span></div>
-<div class="stat">Omzet<br><span id="omzet">Rp 0</span></div>
+<div class="stat">Omzet Bulan Ini<br><span id="omzet">Rp 0</span></div>
 <div class="stat">Pengeluaran<br><span id="pengeluaran">Rp 0</span></div>
-<div class="stat">Laba<br><span id="laba">Rp 0</span></div>
+<div class="stat">Laba Bulan Ini<br><span id="laba">Rp 0</span></div>
 </div>
 </div>
-
 <div class="card">
 <h3>Stock Botol</h3>
 <input id="botolInput" type="number" placeholder="Qty Botol">
@@ -143,7 +123,6 @@ grid-template-columns:1fr;
 <button onclick="kurangBotol()">Kurang</button>
 <button onclick="tambahBotol()">Tambah</button>
 </div>
-
 <h3>Stock Box</h3>
 <input id="boxInput" type="number" placeholder="Qty Box">
 <div class="row-btn">
@@ -151,84 +130,79 @@ grid-template-columns:1fr;
 <button onclick="tambahBox()">Tambah</button>
 </div>
 </div>
-
 <div class="card">
 <h3>Tambah Barang</h3>
 <input id="namaBarang" placeholder="Nama Barang">
 <input id="qtyBarang" type="number" placeholder="Qty Stok">
 <button onclick="tambahBarang()">Tambah Barang</button>
 </div>
-
 <div class="card">
 <h3>Daftar Barang</h3>
 <div id="listBarang" class="grid-barang"></div>
 </div>
-
 <div class="card">
 <h3>Penjualan Manual</h3>
 <select id="barangJual"></select>
 <input id="qtyJual" type="number" placeholder="Qty">
 <button onclick="jualBarang()">Simpan Penjualan</button>
 </div>
-
 <div class="card">
 <h3>AI Scan Import</h3>
 <textarea id="scanInput" rows="6" placeholder="ICARUS:2"></textarea>
 <button onclick="prosesScan()">Proses Scan</button>
 </div>
-
 <div class="card">
 <h3>Tambah Omzet Manual</h3>
 <input id="manualOmzet" type="number" placeholder="Nominal">
 <input id="manualKet" placeholder="Keterangan">
 <button onclick="tambahOmzetManual()">Simpan Omzet</button>
 </div>
-
 <div class="card">
 <h3>Pengeluaran</h3>
 <input id="nominalKeluar" type="number" placeholder="Nominal">
 <input id="ketKeluar" placeholder="Keterangan">
 <button onclick="tambahPengeluaran()">Simpan Pengeluaran</button>
 </div>
-
+<div class="card">
+<h3>Cari Riwayat Harian</h3>
+<input id="hariSelect" type="date" onchange="render()" style="background:#222; color:#fff;">
+<div id="summaryHarian" style="margin-top:10px; padding:10px; background:#222; border-radius:8px;"></div>
+</div>
 <div class="card">
 <h3>Riwayat Bulanan</h3>
 <select id="bulanSelect" onchange="render()"></select>
 </div>
-
 <div class="card">
 <h3>Summary Bulanan</h3>
 <div id="summaryBulanan"></div>
 </div>
-
 <div class="card">
 <h3>Top Selling</h3>
 <div id="topSelling"></div>
 </div>
-
 <div class="row-2">
 <div class="card">
-<h3>Detail Penjualan</h3>
+<h3>Detail Penjualan (Bulanan)</h3>
 <div id="riwayatJual" class="scroll-box"></div>
 </div>
-
 <div class="card">
-<h3>Detail Pengeluaran</h3>
+<h3>Detail Pengeluaran (Bulanan)</h3>
 <div id="riwayatKeluar" class="scroll-box"></div>
 </div>
 </div>
-
 <div class="card">
 <button onclick="resetData()">RESET SEMUA DATA</button>
 </div>
 <script>
 const HARGA = 27000;
-
 let stokBotol = Number(localStorage.getItem("stokBotol") || 0);
 let stokBox = Number(localStorage.getItem("stokBox") || 0);
 let barang = JSON.parse(localStorage.getItem("barang") || "[]");
 let penjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
 let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
+
+// Set default input tanggal pencarian harian ke hari ini saat pertama kali buka
+document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
 
 function saveData(){
 localStorage.setItem("stokBotol", stokBotol);
@@ -237,29 +211,28 @@ localStorage.setItem("barang", JSON.stringify(barang));
 localStorage.setItem("penjualan", JSON.stringify(penjualan));
 localStorage.setItem("pengeluaran", JSON.stringify(pengeluaran));
 }
-
 function getMonthKey(date){
 let d = new Date(date);
 return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
 }
-
+function getDayKey(date){
+let d = new Date(date);
+return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
 function getMonthLabel(key){
 let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 let [y,m]=key.split("-");
 return bulan[Number(m)-1]+" "+y;
 }
-
 function updateMonthSelect(){
 let set = new Set();
 penjualan.forEach(x=>set.add(getMonthKey(x.tanggal)));
 pengeluaran.forEach(x=>set.add(getMonthKey(x.tanggal)));
 set.add(getMonthKey(new Date()));
-
 document.getElementById("bulanSelect").innerHTML =
 [...set].sort().reverse()
 .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
-
 function tambahBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
@@ -267,7 +240,6 @@ stokBotol += qty;
 botolInput.value="";
 saveData(); render();
 }
-
 function kurangBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
@@ -276,7 +248,6 @@ stokBotol -= qty;
 botolInput.value="";
 saveData(); render();
 }
-
 function tambahBox(){
 let qty = Number(boxInput.value);
 if(qty<=0) return;
@@ -284,7 +255,6 @@ stokBox += qty;
 boxInput.value="";
 saveData(); render();
 }
-
 function kurangBox(){
 let qty = Number(boxInput.value);
 if(qty<=0) return;
@@ -293,31 +263,25 @@ stokBox -= qty;
 boxInput.value="";
 saveData(); render();
 }
-
 function tambahBarang(){
 let nama = namaBarang.value.trim().toUpperCase();
 let qty = Number(qtyBarang.value);
-
 if(!nama || qty<=0) return;
-
 barang.push({nama:nama, stok:qty});
 namaBarang.value="";
 qtyBarang.value="";
 saveData();
 render();
 }
-
 function editBarang(i){
 let nama = prompt("Nama Barang", barang[i].nama);
 if(nama===null) return;
 let qty = prompt("Qty", barang[i].stok);
 if(qty===null) return;
-
 barang[i] = {nama:nama.toUpperCase(), stok:Number(qty)};
 saveData();
 render();
 }
-
 function hapusBarang(i){
 if(confirm("Hapus barang?")){
 barang.splice(i,1);
@@ -325,85 +289,66 @@ saveData();
 render();
 }
 }
-
 function jualBarang(){
 let i = Number(barangJual.value);
 let qty = Number(qtyJual.value);
-
 if(qty<=0) return;
 if(barang[i].stok<qty) return alert("Stok barang kurang");
 if(stokBotol<qty) return alert("Stok botol kurang");
 if(stokBox<qty) return alert("Stok box kurang");
-
 barang[i].stok -= qty;
 stokBotol -= qty;
 stokBox -= qty;
-
 penjualan.push({
 tanggal:new Date().toISOString(),
 barang:barang[i].nama,
 qty:qty,
 nominal:qty*HARGA
 });
-
 qtyJual.value="";
 saveData();
 render();
 }
-
 function prosesScan(){
 let text = scanInput.value.trim();
 if(!text) return;
-
 let lines = text.split("\n");
 let totalQty = 0;
 let validScan = 0;
-
 for(let line of lines){
 line = line.trim();
-
 if(!line || line.startsWith("TOTAL")) continue;
-
 if(!line.includes(":")){
 alert("Format scan tidak valid");
 return;
 }
-
 let parts = line.split(":");
 if(parts.length!==2){
 alert("Format scan tidak valid");
 return;
 }
-
 let nama = parts[0].trim().toUpperCase();
 let qty = Number(parts[1].trim());
-
 if(nama.length < 3){
 alert("Nama terlalu pendek: " + nama);
 return;
 }
-
 if(qty<=0){
 alert("Qty tidak valid");
 return;
 }
-
 let index = barang.findIndex(x => x.nama === nama);
-
 if(index===-1){
 alert("Barang tidak ditemukan: " + nama);
 return;
 }
-
 if(barang[index].stok<qty){
 alert("Stok kurang: " + barang[index].nama);
 return;
 }
-
 barang[index].stok -= qty;
 totalQty += qty;
 validScan++;
-
 penjualan.push({
 tanggal:new Date().toISOString(),
 barang:barang[index].nama,
@@ -411,30 +356,23 @@ qty:qty,
 nominal:qty*HARGA
 });
 }
-
 if(validScan===0){
 alert("Format scan tidak valid");
 return;
 }
-
 if(stokBotol<totalQty) return alert("Stok botol kurang");
 if(stokBox<totalQty) return alert("Stok box kurang");
-
 stokBotol -= totalQty;
 stokBox -= totalQty;
-
 scanInput.value="";
 saveData();
 render();
 alert("Scan berhasil");
 }
-
 function tambahOmzetManual(){
 let nominal = Number(manualOmzet.value);
 let ket = manualKet.value;
-
 if(nominal<=0) return;
-
 penjualan.push({
 tanggal:new Date().toISOString(),
 barang:"OMZET MANUAL",
@@ -442,47 +380,44 @@ qty:0,
 nominal:nominal,
 keterangan:ket
 });
-
 manualOmzet.value="";
 manualKet.value="";
 saveData();
 render();
 }
-
 function tambahPengeluaran(){
 let nominal = Number(nominalKeluar.value);
 let ket = ketKeluar.value;
-
 if(nominal<=0) return;
-
 pengeluaran.push({
 tanggal:new Date().toISOString(),
 nominal:nominal,
 keterangan:ket
 });
-
 nominalKeluar.value="";
 ketKeluar.value="";
 saveData();
 render();
 }
-
 function resetData(){
 if(confirm("Reset semua data?")){
 localStorage.clear();
 location.reload();
 }
 }
-
 function render(){
 updateMonthSelect();
-
+let hariIniKey = getDayKey(new Date());
 let bulanAktif = getMonthKey(new Date());
 document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
 
+// Filter harian real-time untuk dashboard
+let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
+let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
+document.getElementById("omzetHariIni").innerText = "Rp "+totalOmzetHariIni.toLocaleString("id-ID");
+
 let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
 let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-
 let omzet = jualAktif.reduce((a,b)=>a+b.nominal,0);
 let keluar = keluarAktif.reduce((a,b)=>a+b.nominal,0);
 
@@ -505,14 +440,24 @@ Stock: ${x.stok}<br>
 barangJual.innerHTML = barang.map((x,i)=>
 `<option value="${i}">${x.nama}</option>`).join("");
 
-let bulan = bulanSelect.value || bulanAktif;
+// Logika Fitur Cari Riwayat Harian Berdasarkan Kalender Input
+let tglDipilih = document.getElementById("hariSelect").value;
+if(tglDipilih){
+  let jualHariDipilih = penjualan.filter(x=>getDayKey(x.tanggal)===getDayKey(tglDipilih));
+  let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
+  let detailHariDipilih = jualHariDipilih.map(x=>`• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`).join("<br>");
+  document.getElementById("summaryHarian").innerHTML = `
+    <b>Total Omzet Tanggal ${tglDipilih}:</b><br>
+    <span style="color:#3b82f6; font-size:18px; font-weight:bold;">Rp ${omzetHariDipilih.toLocaleString("id-ID")}</span><br>
+    <div style="margin-top:5px; font-size:13px; color:#aaa;">${detailHariDipilih || 'Tidak ada penjualan hari ini'}</div>
+  `;
+}
 
+let bulan = bulanSelect.value || bulanAktif;
 let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
 let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
-
 let omzetBulanan = jualBulanan.reduce((a,b)=>a+b.nominal,0);
 let keluarBulananTotal = keluarBulanan.reduce((a,b)=>a+b.nominal,0);
-
 summaryBulanan.innerHTML = `
 Omzet: Rp ${omzetBulanan.toLocaleString("id-ID")}<br>
 Pengeluaran: Rp ${keluarBulananTotal.toLocaleString("id-ID")}<br>
@@ -525,9 +470,7 @@ if(x.qty<=0) return;
 if(x.barang==="OMZET MANUAL") return;
 salesMap[x.barang]=(salesMap[x.barang]||0)+x.qty;
 });
-
 let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
-
 topSelling.innerHTML = ranking.length
 ? ranking.map((x,i)=>`${i+1}. ${x[0]} - ${x[1]} pcs`).join("<br>")
 : "Belum ada data";
@@ -537,16 +480,13 @@ riwayatJual.innerHTML = jualBulanan.map(x=>`
 ${x.barang}<br>
 Qty: ${x.qty}<br>
 Rp ${x.nominal.toLocaleString("id-ID")}</p><hr>`).join("");
-
 riwayatKeluar.innerHTML = keluarBulanan.map(x=>`
 <p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
 Rp ${x.nominal.toLocaleString("id-ID")}<br>
 ${x.keterangan}</p><hr>`).join("");
 }
-
 render();
 </script>
-
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
@@ -560,8 +500,5 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-
 </body>
 </html>
-
-saya mau upgrade ada omezet harian yg nantinya bakal reset setiap hari
