@@ -626,13 +626,6 @@ Hapus
 `;
 
 }).join("");
-<div class="item-barang" style="background:${x.stok<=5 ? '#5c1f1f':'#222'}">
-<b>${x.nama}</b><br>
-Stock: ${x.stok}<br>
-<button class="btn-edit" onclick="editBarang(${i})">Edit</button>
-<button class="btn-delete" onclick="hapusBarang(${i})">Hapus</button>
-</div>
-`).join("");
 
 barangJual.innerHTML = barang.map((x,i)=>
 `<option value="${i}">${x.nama}</option>`).join("");
@@ -695,7 +688,7 @@ margin-top:10px;
 
 <button
 class="btn-edit"
-onclick="editTransaksi('${x.tanggal}')"
+onclick="editTransaksi('${x.tanggal}')">
 
 Edit
 
@@ -703,7 +696,7 @@ Edit
 
 <button
 class="btn-delete"
-onclick="hapusTransaksi('${x.tanggal}')"
+onclick="hapusTransaksi('${x.tanggal}')">
 
 Hapus
 
@@ -719,69 +712,67 @@ riwayatKeluar.innerHTML = keluarBulanan.map(x=>`
 <p>${new Date(x.tanggal).toLocaleString("id-ID")}<br>
 Rp ${x.nominal.toLocaleString("id-ID")}<br>
 ${x.keterangan}</p><hr>`).join("");
+
+
 // =====================
 // OMZET HARIAN
 // =====================
 
-let tanggalInput = document.getElementById("tanggalHarian");
+const tanggalInput = document.getElementById("tanggalHarian");
 
-// Jika belum memilih tanggal, gunakan hari ini
-if(!tanggalInput.value){
+// Jika input tanggal masih kosong, isi dengan hari ini
+if(tanggalInput.value === ""){
     tanggalInput.value = new Date().toISOString().split("T")[0];
 }
 
-let tanggalDipilih = tanggalInput.value;
+const tanggalDipilih = tanggalInput.value;
 
-// Ambil penjualan sesuai tanggal
-let jualHarian = penjualan.filter(x =>
-    x.tanggal.slice(0,10) === tanggalDipilih
+// Filter transaksi sesuai tanggal
+const jualHarian = penjualan.filter(item =>
+    item.tanggal.slice(0,10) === tanggalDipilih
 );
 
-let omzetHarian = jualHarian.reduce((a,b)=>a+b.nominal,0);
+// Hitung omzet
+const omzetHarian = jualHarian.reduce((total,item)=> total + item.nominal,0);
 
-let totalPcs = jualHarian.reduce((a,b)=>a+b.qty,0);
+// Hitung total pcs
+const totalPcs = jualHarian.reduce((total,item)=> total + item.qty,0);
 
-let totalTransaksi = jualHarian.length;
-// Rekap barang terjual
-let daftarBarang = {};
+// Hitung jumlah transaksi
+const totalTransaksi = jualHarian.length;
 
-jualHarian.forEach(x=>{
+// Rekap barang
+const daftarBarang = {};
 
-    if(x.qty<=0) return;
+jualHarian.forEach(item=>{
 
-    if(!daftarBarang[x.barang]){
-        daftarBarang[x.barang]=0;
+    if(item.qty <= 0) return;
+
+    if(!daftarBarang[item.barang]){
+        daftarBarang[item.barang] = 0;
     }
 
-    daftarBarang[x.barang]+=x.qty;
+    daftarBarang[item.barang] += item.qty;
 
 });
 
-let htmlBarang = Object.entries(daftarBarang)
-.map(([nama,qty])=>
-`${nama} : ${qty} pcs`
-).join("<br>");
+const htmlBarang = Object.entries(daftarBarang)
+.map(([nama,qty])=>`${nama} : ${qty} pcs`)
+.join("<br>") || "Tidak ada penjualan";
 
-if(htmlBarang===""){
-    htmlBarang="Tidak ada penjualan";
-}
+summaryHarian.innerHTML = `
+<b>Tanggal :</b> ${new Date(tanggalDipilih).toLocaleDateString("id-ID")}<br><br>
 
-document.getElementById("summaryHarian").innerHTML = `
-<b>Tanggal:</b> ${new Date(tanggalDipilih).toLocaleDateString("id-ID")}<br><br>
-
-<b>Omzet:</b><br>
+<b>Omzet :</b><br>
 Rp ${omzetHarian.toLocaleString("id-ID")}<br><br>
 
-<b>Total Terjual:</b><br>
+<b>Total Terjual :</b><br>
 ${totalPcs} pcs<br><br>
 
-<b>Jumlah Transaksi:</b><br>
-${totalTransaksi} transaksi
+<b>Jumlah Transaksi :</b><br>
+${totalTransaksi} transaksi<br><br>
 
-<br><br>
-
-<b>Barang Terjual:</b><br>
-
+<b>Barang Terjual :</b><br>
 ${htmlBarang}
 `;
 }
