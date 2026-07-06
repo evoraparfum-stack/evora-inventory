@@ -103,11 +103,15 @@ grid-template-columns:1fr;
 </style>
 </head>
 <body>
+
 <div class="card">
 <h3>Dashboard</h3>
 <p id="bulanAktif"></p>
 <div class="stats">
-<div class="stat highlight" style="grid-column: span 2;">Omzet Hari Ini<br><span id="omzetHariIni" style="font-size: 20px; font-weight: bold;">Rp 0</span></div>
+<div class="stat highlight" style="grid-column: span 2;">
+  Omzet Hari Ini<br>
+  <span id="omzetHariIni" style="font-size: 20px; font-weight: bold;">Rp 0</span>
+</div>
 <div class="stat">Botol<br><span id="stokBotol">0</span></div>
 <div class="stat">Box<br><span id="stokBox">0</span></div>
 <div class="stat">Barang<br><span id="totalBarang">0</span></div>
@@ -116,6 +120,7 @@ grid-template-columns:1fr;
 <div class="stat">Laba Bulan Ini<br><span id="laba">Rp 0</span></div>
 </div>
 </div>
+
 <div class="card">
 <h3>Stock Botol</h3>
 <input id="botolInput" type="number" placeholder="Qty Botol">
@@ -130,56 +135,67 @@ grid-template-columns:1fr;
 <button onclick="tambahBox()">Tambah</button>
 </div>
 </div>
+
 <div class="card">
 <h3>Tambah Barang</h3>
 <input id="namaBarang" placeholder="Nama Barang">
 <input id="qtyBarang" type="number" placeholder="Qty Stok">
 <button onclick="tambahBarang()">Tambah Barang</button>
 </div>
+
 <div class="card">
 <h3>Daftar Barang</h3>
 <div id="listBarang" class="grid-barang"></div>
 </div>
+
 <div class="card">
 <h3>Penjualan Manual</h3>
 <select id="barangJual"></select>
 <input id="qtyJual" type="number" placeholder="Qty">
 <button onclick="jualBarang()">Simpan Penjualan</button>
 </div>
+
 <div class="card">
 <h3>AI Scan Import</h3>
 <textarea id="scanInput" rows="6" placeholder="ICARUS:2"></textarea>
 <button onclick="prosesScan()">Proses Scan</button>
 </div>
+
 <div class="card">
 <h3>Tambah Omzet Manual</h3>
 <input id="manualOmzet" type="number" placeholder="Nominal">
 <input id="manualKet" placeholder="Keterangan">
 <button onclick="tambahOmzetManual()">Simpan Omzet</button>
 </div>
+
 <div class="card">
 <h3>Pengeluaran</h3>
 <input id="nominalKeluar" type="number" placeholder="Nominal">
 <input id="ketKeluar" placeholder="Keterangan">
 <button onclick="tambahPengeluaran()">Simpan Pengeluaran</button>
 </div>
+
 <div class="card">
 <h3>Cari Riwayat Harian</h3>
 <input id="hariSelect" type="date" onchange="render()" style="background:#222; color:#fff;">
 <div id="summaryHarian" style="margin-top:10px; padding:10px; background:#222; border-radius:8px;"></div>
 </div>
+
 <div class="card">
 <h3>Riwayat Bulanan</h3>
 <select id="bulanSelect" onchange="render()"></select>
 </div>
+
 <div class="card">
 <h3>Summary Bulanan</h3>
 <div id="summaryBulanan"></div>
 </div>
+
 <div class="card">
 <h3>Top Selling</h3>
 <div id="topSelling"></div>
 </div>
+
 <div class="row-2">
 <div class="card">
 <h3>Detail Penjualan (Bulanan)</h3>
@@ -190,9 +206,11 @@ grid-template-columns:1fr;
 <div id="riwayatKeluar" class="scroll-box"></div>
 </div>
 </div>
+
 <div class="card">
 <button onclick="resetData()">RESET SEMUA DATA</button>
 </div>
+
 <script>
 const HARGA = 27000;
 let stokBotol = Number(localStorage.getItem("stokBotol") || 0);
@@ -201,7 +219,7 @@ let barang = JSON.parse(localStorage.getItem("barang") || "[]");
 let penjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
 let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 
-// Set default input tanggal pencarian harian ke hari ini saat pertama kali buka
+// Pasang tanggal kalender harian ke hari ini secara otomatis saat aplikasi dibuka
 document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
 
 function saveData(){
@@ -211,19 +229,23 @@ localStorage.setItem("barang", JSON.stringify(barang));
 localStorage.setItem("penjualan", JSON.stringify(penjualan));
 localStorage.setItem("pengeluaran", JSON.stringify(pengeluaran));
 }
+
 function getMonthKey(date){
 let d = new Date(date);
 return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
 }
+
 function getDayKey(date){
 let d = new Date(date);
 return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
+
 function getMonthLabel(key){
 let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 let [y,m]=key.split("-");
 return bulan[Number(m)-1]+" "+y;
 }
+
 function updateMonthSelect(){
 let set = new Set();
 penjualan.forEach(x=>set.add(getMonthKey(x.tanggal)));
@@ -233,6 +255,7 @@ document.getElementById("bulanSelect").innerHTML =
 [...set].sort().reverse()
 .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
+
 function tambahBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
@@ -240,6 +263,7 @@ stokBotol += qty;
 botolInput.value="";
 saveData(); render();
 }
+
 function kurangBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
@@ -248,6 +272,7 @@ stokBotol -= qty;
 botolInput.value="";
 saveData(); render();
 }
+
 function tambahBox(){
 let qty = Number(boxInput.value);
 if(qty<=0) return;
@@ -255,6 +280,7 @@ stokBox += qty;
 boxInput.value="";
 saveData(); render();
 }
+
 function kurangBox(){
 let qty = Number(boxInput.value);
 if(qty<=0) return;
@@ -263,6 +289,7 @@ stokBox -= qty;
 boxInput.value="";
 saveData(); render();
 }
+
 function tambahBarang(){
 let nama = namaBarang.value.trim().toUpperCase();
 let qty = Number(qtyBarang.value);
@@ -273,6 +300,7 @@ qtyBarang.value="";
 saveData();
 render();
 }
+
 function editBarang(i){
 let nama = prompt("Nama Barang", barang[i].nama);
 if(nama===null) return;
@@ -282,6 +310,7 @@ barang[i] = {nama:nama.toUpperCase(), stok:Number(qty)};
 saveData();
 render();
 }
+
 function hapusBarang(i){
 if(confirm("Hapus barang?")){
 barang.splice(i,1);
@@ -289,6 +318,7 @@ saveData();
 render();
 }
 }
+
 function jualBarang(){
 let i = Number(barangJual.value);
 let qty = Number(qtyJual.value);
@@ -309,6 +339,7 @@ qtyJual.value="";
 saveData();
 render();
 }
+
 function prosesScan(){
 let text = scanInput.value.trim();
 if(!text) return;
@@ -369,6 +400,7 @@ saveData();
 render();
 alert("Scan berhasil");
 }
+
 function tambahOmzetManual(){
 let nominal = Number(manualOmzet.value);
 let ket = manualKet.value;
@@ -385,6 +417,7 @@ manualKet.value="";
 saveData();
 render();
 }
+
 function tambahPengeluaran(){
 let nominal = Number(nominalKeluar.value);
 let ket = ketKeluar.value;
@@ -399,19 +432,21 @@ ketKeluar.value="";
 saveData();
 render();
 }
+
 function resetData(){
 if(confirm("Reset semua data?")){
 localStorage.clear();
 location.reload();
 }
 }
+
 function render(){
 updateMonthSelect();
 let hariIniKey = getDayKey(new Date());
 let bulanAktif = getMonthKey(new Date());
 document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
 
-// Filter harian real-time untuk dashboard
+// LOGIKA OTOMATIS: Hitung omzet khusus tanggal hari ini untuk Dashboard
 let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
 let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
 document.getElementById("omzetHariIni").innerText = "Rp "+totalOmzetHariIni.toLocaleString("id-ID");
@@ -440,16 +475,22 @@ Stock: ${x.stok}<br>
 barangJual.innerHTML = barang.map((x,i)=>
 `<option value="${i}">${x.nama}</option>`).join("");
 
-// Logika Fitur Cari Riwayat Harian Berdasarkan Kalender Input
+// LOGIKA RIWAYAT HARIAN BERDASARKAN KALENDER INPUT
 let tglDipilih = document.getElementById("hariSelect").value;
 if(tglDipilih){
   let jualHariDipilih = penjualan.filter(x=>getDayKey(x.tanggal)===getDayKey(tglDipilih));
   let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
-  let detailHariDipilih = jualHariDipilih.map(x=>`• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`).join("<br>");
+  let detailHariDipilih = jualHariDipilih.map(x=> {
+    if(x.barang === "OMZET MANUAL") {
+      return `• [Manual] ${x.keterangan || 'Tanpa Ket'} - Rp ${x.nominal.toLocaleString("id-ID")}`;
+    }
+    return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
+  }).join("<br>");
+  
   document.getElementById("summaryHarian").innerHTML = `
     <b>Total Omzet Tanggal ${tglDipilih}:</b><br>
     <span style="color:#3b82f6; font-size:18px; font-weight:bold;">Rp ${omzetHariDipilih.toLocaleString("id-ID")}</span><br>
-    <div style="margin-top:5px; font-size:13px; color:#aaa;">${detailHariDipilih || 'Tidak ada penjualan hari ini'}</div>
+    <div style="margin-top:8px; font-size:13px; color:#aaa; line-height: 1.4;">${detailHariDipilih || 'Tidak ada penjualan pada tanggal ini.'}</div>
   `;
 }
 
