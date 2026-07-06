@@ -123,7 +123,23 @@ button:active {
   gap: 15px;
 }
 
-/* GRID DAFTAR BARANG SAMA RATA */
+/* FIX: TAMPILAN KASIR RINGKAS DENGAN SCROLL INTERNAL */
+.box-kasir-container {
+  max-height: 290px; /* Membatasi tinggi vertikal kasir */
+  overflow-y: auto;  /* Memunculkan scroll mandiri */
+  padding-right: 5px;
+  margin-top: 5px;
+}
+
+/* Menghaluskan scrollbar di browser berbasis Webkit */
+.box-kasir-container::-webkit-scrollbar, .scroll-box::-webkit-scrollbar {
+  width: 4px;
+}
+.box-kasir-container::-webkit-scrollbar-thumb, .scroll-box::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
 .grid-barang {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
@@ -137,7 +153,7 @@ button:active {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 175px;
+  min-height: 130px; /* Sedikit dipadatkan tinggi itemnya */
 }
 .item-info b {
   font-size: 13px;
@@ -230,8 +246,11 @@ button:active {
 
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
-  <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 12px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
-  <div id="listBarang" class="grid-barang"></div>
+  <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
+  
+  <div class="box-kasir-container">
+    <div id="listBarang" class="grid-barang"></div>
+  </div>
 </div>
 
 <div class="row-2">
