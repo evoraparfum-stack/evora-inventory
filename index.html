@@ -11,7 +11,6 @@
   <meta name="apple-mobile-web-app-title" content="EVORA">
   <link class="apple-touch-icon" href="./icon-192.png">
   
-  <!-- Chart.js & Tesseract.js (AI OCR Kamera) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
@@ -229,7 +228,7 @@ button:active {
 .btn-share { background: #25d366; color: #fff; font-size: 14px; }
 .btn-reset { background: #221313; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.1); }
 
-/* CSS ELEMEN KAMERA SCANNER */
+/* KAMERA SCANNER PRO */
 #cameraArea {
   display: none;
   background: #000;
@@ -261,7 +260,6 @@ button:active {
 </head>
 <body>
 
-<!-- BAGIAN 1: DASHBOARD UTAMA -->
 <div class="card dashboard-hero">
   <h3>Dashboard Finansial</h3>
   <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
@@ -279,7 +277,6 @@ button:active {
   </div>
 </div>
 
-<!-- BAGIAN 2: MESIN KASIR -->
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
   <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
@@ -289,23 +286,19 @@ button:active {
   </div>
 </div>
 
-<!-- BAGIAN 3: ELEMEN INPUT TRANSAKSI + AI LIVE CAMERA OCR -->
 <div class="row-2">
   <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3);">
     <h3>AI Scan Import Resi</h3>
-    
-    <!-- Tombol Aktifkan Kamera HP -->
     <button id="btnToggleKamera" onclick="toggleKamera()" style="background: #4f46e5; margin-bottom: 4px;">📸 Buka Kamera HP</button>
     
-    <!-- Area Feed Video Kamera (Tersembunyi secara default) -->
     <div id="cameraArea">
       <video id="videoFeed" autoplay playsinline></video>
       <div id="ocrStatus">Kamera siap... Bidik teks resi dengan jelas!</div>
       <button id="btnAmbilFoto" onclick="ambilFotoDanScan()" style="background: var(--success); margin-top: 6px;">⚡ Ambil Foto & Scan</button>
     </div>
 
-    <textarea id="scanInput" rows="3" placeholder="Hasil scan resi otomatis atau ketik manual format: NAMA:QTY (Gunakan enter untuk baris baru)"></textarea>
-    <button onclick="prosesScan()" style="background: var(--primary);">Proses Data Masuk</button>
+    <textarea id="scanInput" rows="3" placeholder="Hasil manifest varian sukses masuk..."></textarea>
+    <button onclick="prosesScan()" style="background: var(--primary);">Proses Data Masuk Manual</button>
   </div>
   
   <div class="card">
@@ -316,7 +309,6 @@ button:active {
   </div>
 </div>
 
-<!-- BAGIAN 4: PENGELOLA LOGISTIK & MASTER BARANG -->
 <div class="row-2">
   <div class="card">
     <h3>Logistik (Botol & Box)</h3>
@@ -341,7 +333,6 @@ button:active {
   </div>
 </div>
 
-<!-- BAGIAN 5: PEMBUKUAN MANUAL & BIAYA -->
 <div class="row-2">
   <div class="card">
     <h3>Omzet Masuk Manual</h3>
@@ -357,7 +348,6 @@ button:active {
   </div>
 </div>
 
-<!-- BAGIAN 6: AUDIT, ANALISIS DATA, & LAPORAN TREN -->
 <div class="card">
   <h3>Laporan & Riwayat Harian</h3>
   <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
@@ -411,7 +401,6 @@ let streamKamera = null;
 
 document.getElementById("hariSelect").value = new Date().toISOString().split('T')[0];
 
-/* Mencegah zoom liar */
 document.addEventListener('touchmove', function (event) {
   if (event.scale !== 1) { event.preventDefault(); }
 }, { passive: false });
@@ -450,16 +439,13 @@ document.getElementById("bulanSelect").innerHTML =
 .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
-// --- FUNGSI LIVE CAMERA AI OCR AUTOMATION ---
 async function toggleKamera() {
   let area = document.getElementById("cameraArea");
   let btn = document.getElementById("btnToggleKamera");
   let video = document.getElementById("videoFeed");
 
   if (area.style.display === "block") {
-    if (streamKamera) {
-      streamKamera.getTracks().forEach(track => track.stop());
-    }
+    if (streamKamera) { streamKamera.getTracks().forEach(track => track.stop()); }
     area.style.display = "none";
     btn.innerText = "📸 Buka Kamera HP";
     btn.style.background = "#4f46e5";
@@ -476,23 +462,24 @@ async function toggleKamera() {
       });
       video.srcObject = streamKamera;
       document.getElementById("ocrStatus").style.color = "var(--accent)";
-      document.getElementById("ocrStatus").innerText = "Kamera Aktif! Bidik teks resi (Format: NAMA:QTY)";
+      document.getElementById("ocrStatus").innerText = "Kamera Aktif! Dekatkan ke tulisan varian resi.";
     } catch (err) {
-      document.getElementById("ocrStatus").innerText = "Gagal akses kamera. Periksa izin perangkat.";
+      document.getElementById("ocrStatus").innerText = "Gagal akses kamera.";
       console.error(err);
     }
   }
 }
 
+// --- FIX AI CORE SCANNER DENGAN VALIDASI STOK KETAT ---
 async function ambilFotoDanScan() {
   let video = document.getElementById("videoFeed");
   let status = document.getElementById("ocrStatus");
   let btnFoto = document.getElementById("btnAmbilFoto");
   
-  if (!streamKamera) return alert("Kamera belum aktif!");
+  if (!streamKamera) return;
 
   status.style.color = "var(--accent)";
-  status.innerText = "📸 Memotret & Membaca Data...";
+  status.innerText = "🔍 Mencari Varian Parfum & Qty...";
   btnFoto.disabled = true;
 
   let canvas = document.createElement("canvas");
@@ -503,80 +490,88 @@ async function ambilFotoDanScan() {
 
   try {
     const result = await Tesseract.recognize(canvas, 'eng', {
-      logger: m => { if(m.status === 'recognizing text') status.innerText = `Memproses AI: ${Math.round(m.progress * 100)}%`; }
+      logger: m => { if(m.status === 'recognizing text') status.innerText = `AI Membaca: ${Math.round(m.progress * 100)}%`; }
     });
     
-    let teksHasilScan = result.data.text;
-    
-    // Pembersihan teks dan pencarian format NAMA:QTY
-    let barisBersih = teksHasilScan.split("\n")
-      .map(line => line.replace(/\s+/g, '').trim().toUpperCase())
-      .filter(line => line.includes(":") && line.split(":")[1] !== "");
+    let teksMentah = result.data.text.toUpperCase().replace(/\s+/g, ' ');
+    let barangDitemukan = [];
+    let totalQtyMinta = 0;
 
-    // Validasi Kelayakan Data
-    if (barisBersih.length > 0) {
-      // Masukkan ke textarea visual sebagai bukti riwayat scan terbaru
-      document.getElementById("scanInput").value = barisBersih.join("\n");
-      
-      // LOGIKA AUTO-INPUT DATABASE LANGSUNG
-      let totalQty = 0;
-      let errorDitemukan = false;
-      let logProsesSementara = [];
+    // Filter Pintar: Cek hanya nama varian yang ada di database aplikasi
+    barang.forEach((item, index) => {
+      let namaAman = item.nama.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      let regexPintar = new RegExp(namaAman + "[^a-zA-Z0-9]{0,10}(\\d+)", "i");
+      let cocok = teksMentah.match(regexPintar);
 
-      for(let line of barisBersih){
-        let parts = line.split(":");
-        let nama = parts[0].trim();
-        let qty = Number(parts[1].trim());
+      if (teksMentah.includes(item.nama)) {
+        let qty = 1; 
+        if (cocok && cocok[1]) {
+          qty = parseInt(cocok[1]);
+        }
+        barangDitemukan.push({ index: index, nama: item.nama, qty: qty });
+        totalQtyMinta += qty;
+      }
+    });
 
-        if(!nama || isNaN(qty) || qty <= 0) { errorDitemukan = true; break; }
+    if (barangDitemukan.length > 0) {
+      let logValid = true;
+      let pesanGagalStok = "";
 
-        let index = barang.findIndex(x => x.nama === nama);
-        if(index === -1 || barang[index].stok < qty) { errorDitemukan = true; break; }
-
-        totalQty += qty;
-        logProsesSementara.push({ index, nama, qty });
+      // VALIDASI 1: Cek Stok Logistik
+      if (stokBotol < totalQtyMinta || stokBox < totalQtyMinta) {
+        logValid = false;
+        pesanGagalStok = "Stok Botol/Box Toko Habis!";
       }
 
-      // Jika logistik utama botol/box kurang, anggap error tidak terbaca sempurna
-      if(stokBotol < totalQty || stokBox < totalQty) errorDitemukan = true;
+      // VALIDASI 2: Cek Stok Fisik Varian Terkait
+      barangDitemukan.forEach(it => {
+        if (barang[it.index].stok < it.qty) {
+          logValid = false;
+          pesanGagalStok = `Stok varian ${it.nama} kurang!`;
+        }
+      });
 
-      if(!errorDitemukan && logProsesSementara.length > 0) {
-        // --- SCAN TERBACA SECARA SEMPURNA: LANGSUNG MASUK DATABASE ---
-        logProsesSementara.forEach(item => {
-          barang[item.index].stok -= item.qty;
+      if (logValid) {
+        // EKSEKUSI DATA MASUK
+        let visualText = [];
+        barangDitemukan.forEach(it => {
+          barang[it.index].stok -= it.qty;
           penjualan.push({
             tanggal: new Date().toISOString(),
-            barang: item.nama,
-            qty: item.qty,
-            nominal: item.qty * HARGA
+            barang: it.nama,
+            qty: it.qty,
+            nominal: it.qty * HARGA
           });
+          visualText.push(`${it.nama}:${it.qty}`);
         });
 
-        stokBotol -= totalQty;
-        stokBox -= totalQty;
+        stokBotol -= totalQtyMinta;
+        stokBox -= totalQtyMinta;
+        
+        document.getElementById("scanInput").value = visualText.join("\n");
         saveData();
         render();
 
         status.style.color = "var(--success)";
-        status.innerText = "✅ SCAN TERBACA & INPUT SUKSES! Database diperbarui.";
+        status.innerText = `✅ INPUT BERHASIL: ${visualText.join(", ")}`;
         
-        // Matikan kamera otomatis karena pekerjaan selesai
+        // Auto Close Kamera setelah sukses input data
         setTimeout(() => { toggleKamera(); }, 1500);
-
       } else {
-        // Data formatnya ada tapi isinya ngawur/stok kurang
-        throw new Error("Data tidak sesuai master barang");
+        // JIKA STOK KURANG: Tampilkan error teks merah di bawah kamera (tanpa pop-up mengganggu)
+        status.style.color = "var(--danger)";
+        status.innerText = `❌ REJECTED: ${pesanGagalStok}`;
       }
 
     } else {
-      // Tidak menemukan tanda titik dua sama sekali
-      throw new Error("Format tidak terbaca");
+      status.style.color = "var(--danger)";
+      status.innerText = "❌ VARIAN TIDAK COCOK! Posisikan tulisan varian lebih dekat ke lensa.";
     }
 
   } catch (error) {
-    // --- SCAN TIDAK TERBACA: UTUS SCAN ULANG ---
     status.style.color = "var(--danger)";
-    status.innerText = "❌ SCAN TIDAK TERBACA! Kertas kurang fokus. Silakan arahkan ulang lalu klik Ambil Foto lagi.";
+    status.innerText = "❌ Gagal memproses gambar.";
+    console.error(error);
   } finally {
     btnFoto.disabled = false;
   }
@@ -593,7 +588,7 @@ saveData(); render();
 function kurangBotol(){
 let qty = Number(botolInput.value);
 if(qty<=0) return;
-if(stokBotol<qty) return alert("Stok botol kurang");
+if(stokBotol<qty) return;
 stokBotol -= qty;
 botolInput.value="";
 saveData(); render();
@@ -610,7 +605,7 @@ saveData(); render();
 function kurangBox(){
 let qty = Number(boxInput.value);
 if(qty<=0) return;
-if(stokBox<qty) return alert("Stok box kurang");
+if(stokBox<qty) return;
 stokBox -= qty;
 boxInput.value="";
 saveData(); render();
@@ -646,9 +641,9 @@ render();
 }
 
 function quickJual(originalIndex) {
-  if(barang[originalIndex].stok < 1) return alert("Stok barang ini sudah habis!");
-  if(stokBotol < 1) return alert("Stok botol kosong!");
-  if(stokBox < 1) return alert("Stok box kosong!");
+  if(barang[originalIndex].stok < 1) return;
+  if(stokBotol < 1) return;
+  if(stokBox < 1) return;
   
   barang[originalIndex].stok -= 1;
   stokBotol -= 1;
@@ -669,9 +664,9 @@ function jualBarang(){
 let originalIndex = Number(barangJual.value);
 let qty = Number(qtyJual.value);
 if(qty<=0) return;
-if(barang[originalIndex].stok<qty) return alert("Stok barang kurang");
-if(stokBotol<qty) return alert("Stok botol kurang");
-if(stokBox<qty) return alert("Stok box kurang");
+if(barang[originalIndex].stok<qty) return;
+if(stokBotol<qty) return;
+if(stokBox<qty) return;
 barang[originalIndex].stok -= qty;
 stokBotol -= qty;
 stokBox -= qty;
@@ -695,34 +690,14 @@ let validScan = 0;
 for(let line of lines){
 line = line.trim();
 if(!line || line.startsWith("TOTAL")) continue;
-if(!line.includes(":")){
-alert("Format data tidak valid. Harus NAMA:QTY");
-return;
-}
+if(!line.includes(":")) return;
 let parts = line.split(":");
-if(parts.length!==2){
-alert("Format data tidak valid");
-return;
-}
+if(parts.length!==2) return;
 let nama = parts[0].trim().toUpperCase();
 let qty = Number(parts[1].trim());
-if(nama.length < 3){
-alert("Nama terlalu pendek: " + nama);
-return;
-}
-if(qty<=0){
-alert("Qty tidak valid");
-return;
-}
+if(nama.length < 2 || qty<=0) return;
 let index = barang.findIndex(x => x.nama === nama);
-if(index===-1){
-alert("Barang tidak ditemukan di database: " + nama);
-return;
-}
-if(barang[index].stok<qty){
-alert("Stok kurang: " + barang[index].nama);
-return;
-}
+if(index===-1 || barang[index].stok<qty) return;
 barang[index].stok -= qty;
 totalQty += qty;
 validScan++;
@@ -733,18 +708,13 @@ penjualan.push({
   nominal:qty*HARGA
 });
 }
-if(validScan===0){
-alert("Format data tidak valid");
-return;
-}
-if(stokBotol<totalQty) return alert("Stok botol kurang");
-if(stokBox<totalQty) return alert("Stok box kurang");
+if(validScan===0) return;
+if(stokBotol<totalQty || stokBox<totalQty) return;
 stokBotol -= totalQty;
 stokBox -= totalQty;
 scanInput.value="";
 saveData();
 render();
-alert("Data manual Berhasil Dimasukkan!");
 }
 
 function tambahOmzetManual(){
@@ -814,9 +784,7 @@ function salinLaporanHarian() {
   }
 
   navigator.clipboard.writeText(teksLaporan).then(() => {
-    alert("Berhasil disalin! Sekarang tinggal paste ke WhatsApp mitra/tim.");
-  }).catch(() => {
-    alert("Browser tidak mengizinkan salin otomatis.");
+    alert("Berhasil disalin! Sekarang tinggal paste ke WhatsApp.");
   });
 }
 
@@ -889,7 +857,6 @@ listBarang.innerHTML = barangUrut.map((x)=>{
 barangJual.innerHTML = barang.map((x,i)=>
 `<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
-// --- CHART & SUMMARY HARIAN ---
 let tglDipilih = document.getElementById("hariSelect").value;
 let dataJam = Array(24).fill(0);
 
@@ -940,7 +907,6 @@ instanceChartHarian = new Chart(ctxHarian, {
   }
 });
 
-// --- CHART & SUMMARY BULANAN ---
 let bulan = bulanSelect.value || bulanAktif;
 let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
 let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
@@ -1003,15 +969,6 @@ riwayatKeluar.innerHTML = keluarBulanan.length ? keluarBulanan.map(x=>`
 <p>⏱️ ${new Date(x.tanggal).toLocaleDateString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : "<p style='color:var(--text-muted)'>Kosong</p>";
 }
 render();
-</script>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js")
-      .then(function(registration) { console.log("SW Registered"); })
-      .catch(function(error) { console.log("SW Failed", error); });
-  });
-}
 </script>
 </body>
 </html>
