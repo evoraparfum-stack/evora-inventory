@@ -11,6 +11,7 @@
   <meta name="apple-mobile-web-app-title" content="EVORA">
   <link class="apple-touch-icon" href="./icon-192.png">
   
+  <!-- Chart.js & Tesseract.js (AI OCR Kamera) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
@@ -245,9 +246,10 @@ button:active {
   background: #222;
 }
 #ocrStatus {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--accent);
-  margin-top: 4px;
+  margin-top: 6px;
+  font-weight: bold;
 }
 
 @keyframes blinker { 50% { opacity: 0.4; } }
@@ -259,6 +261,7 @@ button:active {
 </head>
 <body>
 
+<!-- BAGIAN 1: DASHBOARD UTAMA -->
 <div class="card dashboard-hero">
   <h3>Dashboard Finansial</h3>
   <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
@@ -276,6 +279,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 2: MESIN KASIR -->
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
   <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
@@ -285,16 +289,19 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 3: ELEMEN INPUT TRANSAKSI + AI LIVE CAMERA OCR -->
 <div class="row-2">
   <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3);">
     <h3>AI Scan Import Resi</h3>
     
+    <!-- Tombol Aktifkan Kamera HP -->
     <button id="btnToggleKamera" onclick="toggleKamera()" style="background: #4f46e5; margin-bottom: 4px;">📸 Buka Kamera HP</button>
     
+    <!-- Area Feed Video Kamera (Tersembunyi secara default) -->
     <div id="cameraArea">
       <video id="videoFeed" autoplay playsinline></video>
       <div id="ocrStatus">Kamera siap... Bidik teks resi dengan jelas!</div>
-      <button onclick="ambilFotoDanScan()" style="background: var(--success); margin-top: 6px;">⚡ Ambil Foto & Ekstrak Teks</button>
+      <button id="btnAmbilFoto" onclick="ambilFotoDanScan()" style="background: var(--success); margin-top: 6px;">⚡ Ambil Foto & Scan</button>
     </div>
 
     <textarea id="scanInput" rows="3" placeholder="Hasil scan resi otomatis atau ketik manual format: NAMA:QTY (Gunakan enter untuk baris baru)"></textarea>
@@ -309,6 +316,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 4: PENGELOLA LOGISTIK & MASTER BARANG -->
 <div class="row-2">
   <div class="card">
     <h3>Logistik (Botol & Box)</h3>
@@ -333,6 +341,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 5: PEMBUKUAN MANUAL & BIAYA -->
 <div class="row-2">
   <div class="card">
     <h3>Omzet Masuk Manual</h3>
@@ -348,6 +357,7 @@ button:active {
   </div>
 </div>
 
+<!-- BAGIAN 6: AUDIT, ANALISIS DATA, & LAPORAN TREN -->
 <div class="card">
   <h3>Laporan & Riwayat Harian</h3>
   <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
@@ -440,14 +450,13 @@ document.getElementById("bulanSelect").innerHTML =
 .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
-// --- FUNGSI LIVE CAMERA AI OCR ---
+// --- FUNGSI LIVE CAMERA AI OCR AUTOMATION ---
 async function toggleKamera() {
   let area = document.getElementById("cameraArea");
   let btn = document.getElementById("btnToggleKamera");
   let video = document.getElementById("videoFeed");
 
   if (area.style.display === "block") {
-    // Matikan Kamera
     if (streamKamera) {
       streamKamera.getTracks().forEach(track => track.stop());
     }
@@ -455,11 +464,10 @@ async function toggleKamera() {
     btn.innerText = "📸 Buka Kamera HP";
     btn.style.background = "#4f46e5";
   } else {
-    // Hidupkan Kamera Belakang (environment)
     area.style.display = "block";
     document.getElementById("ocrStatus").innerText = "Membuka modul lensa...";
     btn.innerText = "🛑 Tutup Kamera";
-    btn.style.background = var(--danger);
+    btn.style.background = "var(--danger)";
     
     try {
       streamKamera = await navigator.mediaDevices.getUserMedia({
@@ -467,6 +475,7 @@ async function toggleKamera() {
         audio: false
       });
       video.srcObject = streamKamera;
+      document.getElementById("ocrStatus").style.color = "var(--accent)";
       document.getElementById("ocrStatus").innerText = "Kamera Aktif! Bidik teks resi (Format: NAMA:QTY)";
     } catch (err) {
       document.getElementById("ocrStatus").innerText = "Gagal akses kamera. Periksa izin perangkat.";
@@ -478,19 +487,20 @@ async function toggleKamera() {
 async function ambilFotoDanScan() {
   let video = document.getElementById("videoFeed");
   let status = document.getElementById("ocrStatus");
+  let btnFoto = document.getElementById("btnAmbilFoto");
   
   if (!streamKamera) return alert("Kamera belum aktif!");
 
-  status.innerText = "📸 Memotret & menganalisis teks (Mohon tunggu)...";
+  status.style.color = "var(--accent)";
+  status.innerText = "📸 Memotret & Membaca Data...";
+  btnFoto.disabled = true;
 
-  // Gambar feed video ke canvas tersembunyi
   let canvas = document.createElement("canvas");
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   let ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Proses Gambar Menggunakan Tesseract AI OCR
   try {
     const result = await Tesseract.recognize(canvas, 'eng', {
       logger: m => { if(m.status === 'recognizing text') status.innerText = `Memproses AI: ${Math.round(m.progress * 100)}%`; }
@@ -498,22 +508,77 @@ async function ambilFotoDanScan() {
     
     let teksHasilScan = result.data.text;
     
-    // Filter dan rapikan teks agar hanya mengambil baris yang mirip format NAMA:QTY
+    // Pembersihan teks dan pencarian format NAMA:QTY
     let barisBersih = teksHasilScan.split("\n")
       .map(line => line.replace(/\s+/g, '').trim().toUpperCase())
-      .filter(line => line.includes(":"));
+      .filter(line => line.includes(":") && line.split(":")[1] !== "");
 
+    // Validasi Kelayakan Data
     if (barisBersih.length > 0) {
+      // Masukkan ke textarea visual sebagai bukti riwayat scan terbaru
       document.getElementById("scanInput").value = barisBersih.join("\n");
-      status.innerText = "✅ Berhasil membaca resi! Silakan periksa kolom teks di bawah.";
-      // Tutup kamera otomatis setelah berhasil
-      toggleKamera();
+      
+      // LOGIKA AUTO-INPUT DATABASE LANGSUNG
+      let totalQty = 0;
+      let errorDitemukan = false;
+      let logProsesSementara = [];
+
+      for(let line of barisBersih){
+        let parts = line.split(":");
+        let nama = parts[0].trim();
+        let qty = Number(parts[1].trim());
+
+        if(!nama || isNaN(qty) || qty <= 0) { errorDitemukan = true; break; }
+
+        let index = barang.findIndex(x => x.nama === nama);
+        if(index === -1 || barang[index].stok < qty) { errorDitemukan = true; break; }
+
+        totalQty += qty;
+        logProsesSementara.push({ index, nama, qty });
+      }
+
+      // Jika logistik utama botol/box kurang, anggap error tidak terbaca sempurna
+      if(stokBotol < totalQty || stokBox < totalQty) errorDitemukan = true;
+
+      if(!errorDitemukan && logProsesSementara.length > 0) {
+        // --- SCAN TERBACA SECARA SEMPURNA: LANGSUNG MASUK DATABASE ---
+        logProsesSementara.forEach(item => {
+          barang[item.index].stok -= item.qty;
+          penjualan.push({
+            tanggal: new Date().toISOString(),
+            barang: item.nama,
+            qty: item.qty,
+            nominal: item.qty * HARGA
+          });
+        });
+
+        stokBotol -= totalQty;
+        stokBox -= totalQty;
+        saveData();
+        render();
+
+        status.style.color = "var(--success)";
+        status.innerText = "✅ SCAN TERBACA & INPUT SUKSES! Database diperbarui.";
+        
+        // Matikan kamera otomatis karena pekerjaan selesai
+        setTimeout(() => { toggleKamera(); }, 1500);
+
+      } else {
+        // Data formatnya ada tapi isinya ngawur/stok kurang
+        throw new Error("Data tidak sesuai master barang");
+      }
+
     } else {
-      status.innerText = "⚠️ Teks terdeteksi, tapi format 'NAMA:QTY' tidak ditemukan. Coba potret lebih dekat/jelas.";
+      // Tidak menemukan tanda titik dua sama sekali
+      throw new Error("Format tidak terbaca");
     }
+
   } catch (error) {
-    status.innerText = "❌ AI Gagal membaca gambar. Pastikan internet stabil & tulisan jelas.";
-    console.error(error);
+    // --- SCAN TIDAK TERBACA: UTUS SCAN ULANG ---
+    status.style.color = "var(--danger)";
+    status.innerText = "❌ SCAN TIDAK TERBACA! Kertas kurang fokus. Silakan arahkan ulang lalu klik Ambil Foto lagi.";
+  } finally {
+    btnFoto.disabled = false;
   }
 }
 
@@ -679,7 +744,7 @@ stokBox -= totalQty;
 scanInput.value="";
 saveData();
 render();
-alert("Data scan resi berhasil masuk pembukuan!");
+alert("Data manual Berhasil Dimasukkan!");
 }
 
 function tambahOmzetManual(){
