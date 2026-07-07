@@ -394,14 +394,6 @@ button:active {
   </div>
 </div>
 
-<!-- FITUR SUNTIK DATA KE CLOUD -->
-<div class="card" style="border: 1px dashed var(--accent);">
-  <h3 style="color: var(--accent);">⚠️ Suntik Data Lama ke Cloud</h3>
-  <p style="font-size: 11px; color: var(--text-muted);">Paste data JSON terakhir Anda di sini untuk diunggah paksa ke sistem Cloud Google Sheets.</p>
-  <textarea id="teksRestore" rows="4" style="font-size: 10px; font-family: monospace;" placeholder="Paste teks data Anda di sini..."></textarea>
-  <button onclick="restoreKeCloud()" style="background: var(--success); margin-top: 10px;">🚀 Push Data ke Cloud</button>
-</div>
-
 <div style="margin: 20px 0 40px 0;">
   <button class="btn-reset" onclick="resetData()">SISTEM RESET DATABASE UTAMA</button>
 </div>
@@ -656,40 +648,6 @@ function salinLaporanHarian() {
   navigator.clipboard.writeText(teksLaporan).then(() => {
     alert("Berhasil disalin! Tinggal paste ke WhatsApp.");
   }).catch(() => { alert("Gagal menyalin otomatis."); });
-}
-
-// LOGIKA SUNTIK DATA LAMA KE CLOUD
-async function restoreKeCloud() {
-  let input = document.getElementById("teksRestore").value;
-  if (!input) return alert("Kotak teks masih kosong!");
-  
-  if (!confirm("Yakin ingin menimpa database Cloud dengan data ini?")) return;
-
-  setSyncStatus("🔄 Sedang memproses suntikan data...");
-
-  try {
-    let parsed = JSON.parse(input);
-    // Mengambil bagian "payload" jika ada (sesuai format data lama EVORA Tracker)
-    let data = parsed.payload ? parsed.payload : parsed;
-    
-    stokBotol = Number(data.stokBotol || 0);
-    stokBox = Number(data.stokBox || 0);
-    barang = data.barang || [];
-    penjualan = data.penjualan || [];
-    pengeluaran = data.pengeluaran || [];
-    
-    alert("✅ Data berhasil terbaca! Menekan tombol OK akan mengunggah data ini ke Cloud.");
-    
-    // Panggil fungsi kirim ke cloud
-    await saveData(); 
-    
-    alert("🎉 Selesai! Data berhasil mendarat di Cloud. Halaman akan dimuat ulang.");
-    location.reload();
-  } catch (e) {
-    alert("❌ Teks JSON tidak valid atau ada yang terpotong!");
-    setSyncStatus("❌ Gagal menyuntik data.");
-    console.error(e);
-  }
 }
 
 async function resetData(){ 
