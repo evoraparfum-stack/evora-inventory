@@ -186,7 +186,7 @@ button:active {
 }
 
 .box-kasir-container {
-  max-height: 290px;
+  max-height: 320px;
   overflow-y: auto;
   padding-right: 5px;
   margin-top: 5px;
@@ -202,7 +202,7 @@ button:active {
 
 .grid-barang {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
 }
 .item-barang {
@@ -213,7 +213,7 @@ button:active {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 130px;
+  min-height: 150px;
 }
 .item-info b {
   font-size: 13px;
@@ -240,7 +240,7 @@ button:active {
 .btn-quick-jual {
   background: var(--success);
   color: white;
-  margin: 6px 0 0 0;
+  margin: 0;
   padding: 8px;
   font-size: 12px;
   border-radius: 8px;
@@ -451,7 +451,6 @@ let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
 let instanceChartHarian = null;
 let instanceChartBulanan = null;
 
-// PERBAIKAN BUG TIMEOFFSET (Menggunakan Tanggal Lokal HP Akurat Alih-alih UTC London)
 let dSkrg = new Date();
 let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padStart(2, "0") + "-" + String(dSkrg.getDate()).padStart(2, "0");
 
@@ -538,17 +537,21 @@ function hapusBarang(originalIndex){
   }
 }
 
+// PERBAIKAN FITUR BELI INSTAN DENGAN QUANTITY DROPDOWN (1-10)
 function quickJual(originalIndex) {
-  if(!confirm(`Jual instan 1 pcs ${barang[originalIndex].nama}?`)) return;
+  let elQty = document.getElementById(`qtyQuick-${originalIndex}`);
+  let qty = elQty ? Number(elQty.value) : 1;
 
-  if(barang[originalIndex].stok < 1) return alert("Stok barang ini sudah habis!");
-  if(stokBotol < 1) return alert("Stok botol kosong!");
-  if(stokBox < 1) return alert("Stok box kosong!");
+  if(!confirm(`Jual instan ${qty} pcs ${barang[originalIndex].nama}?`)) return;
+
+  if(barang[originalIndex].stok < qty) return alert(`Stok barang kurang! Sisa stok: ${barang[originalIndex].stok}`);
+  if(stokBotol < qty) return alert("Stok botol kurang!");
+  if(stokBox < qty) return alert("Stok box kurang!");
   
-  barang[originalIndex].stok -= 1;
-  stokBotol -= 1; stokBox -= 1;
+  barang[originalIndex].stok -= qty;
+  stokBotol -= qty; stokBox -= qty;
   
-  penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: 1, nominal: HARGA });
+  penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: qty * HARGA });
   saveData(); render();
 }
 
@@ -668,7 +671,7 @@ function copyDataLama() {
   document.getElementById("teksData").value = teks;
   
   navigator.clipboard.writeText(teks).then(() => {
-    alert("✅ Kode teks berhasil disalin!\nSekrawang kirim kode ini, lalu paste di aplikasi EVORA di HP yang baru.");
+    alert("✅ Kode teks berhasil disalin!\nSekarang kirim kode ini, lalu paste di aplikasi EVORA di HP yang baru.");
   }).catch(() => {
     alert("⚠️ Salin otomatis gagal. Silakan blok dan copy teks manual di dalam kotak.");
   });
@@ -740,7 +743,22 @@ function render(){
           ${tagPeringatan}
         </div>
         <div>
-          <button class="btn-quick-jual" onclick="quickJual(${x.originalIndex})">⚡ +1 Jual</button>
+          <!-- DROPDOWN BARU DAN TOMBOL JUAL CEPAT -->
+          <div style="display: flex; gap: 4px; margin-top: 6px;">
+            <select id="qtyQuick-${x.originalIndex}" style="margin: 0; padding: 6px; font-size: 12px; width: 52px; background: var(--bg-main); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center;">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+            <button class="btn-quick-jual" onclick="quickJual(${x.originalIndex})" style="flex: 1; padding: 8px 4px; font-size: 11px;">⚡ Jual</button>
+          </div>
           <div class="item-actions">
             <button class="btn-edit" onclick="editBarang(${x.originalIndex})">Edit</button>
             <button class="btn-delete" onclick="hapusBarang(${x.originalIndex})">Hapus</button>
