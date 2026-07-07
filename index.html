@@ -244,7 +244,7 @@ button:active {
 .btn-delete { background: var(--danger); color: #fff; }
 
 .scroll-box {
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
 }
 .scroll-box p, .scroll-box .riwayat-item {
@@ -420,9 +420,15 @@ button:active {
 </div>
 
 <div class="card" style="padding-bottom: 5px; border: 1px solid rgba(59, 130, 246, 0.3);">
-  <div style="display: flex; justify-content: space-between; align-items: center;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
     <h3 style="margin:0; border:none; padding:0;">Cari Riwayat Transaksi</h3>
-    <input id="tanggalRiwayat" type="date" onchange="render()" style="max-width:140px; margin:0; padding:8px; font-size:12px; background:var(--bg-input); color:#fff;">
+    <div style="display: flex; gap: 6px; width: auto;">
+      <select id="modeRiwayat" onchange="render()" style="max-width:100px; margin:0; padding:8px; font-size:12px; background:var(--bg-input); color:#fff;">
+        <option value="harian">Harian</option>
+        <option value="bulanan">Bulanan</option>
+      </select>
+      <input id="tanggalRiwayat" type="date" onchange="render()" style="max-width:130px; margin:0; padding:8px; font-size:12px; background:var(--bg-input); color:#fff;">
+    </div>
   </div>
 </div>
 
@@ -440,15 +446,12 @@ button:active {
 <div id="editModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 style="margin-top: 0; border-left-color: var(--accent);">Edit Varian & Stok</h3>
-    
     <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Nama Varian Parfum:</label>
     <input id="modalNamaBarang" type="text" style="margin-bottom: 12px;">
-    
     <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; text-align: center;">
       <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 2px;">Stok Akhir (Disimpan):</span>
       <b id="modalStokSekarang" style="color: var(--accent); font-size: 20px;">0</b> <span style="font-size:12px;">pcs</span>
     </div>
-    
     <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Tambah Cepat (Pcs):</label>
     <div class="btn-group-grid">
       <button type="button" class="btn-quick" onclick="adjustStokModal(10)">+10</button>
@@ -456,14 +459,12 @@ button:active {
       <button type="button" class="btn-quick" onclick="adjustStokModal(50)">+50</button>
       <button type="button" class="btn-quick" onclick="adjustStokModal(100)">+100</button>
     </div>
-    
     <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Input Penyesuaian Manual:</label>
     <input id="modalJumlahManual" type="number" placeholder="Ketik angka jumlah kuantitas..." style="margin-bottom: 8px;">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px;">
       <button type="button" onclick="eksekusiManualModal('tambah')" style="background: var(--success); margin: 0; padding: 10px; font-size: 13px;">+ Tambah</button>
       <button type="button" onclick="eksekusiManualModal('kurang')" style="background: var(--danger); margin: 0; padding: 10px; font-size: 13px;">- Kurang</button>
     </div>
-    
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
       <button type="button" onclick="tutupModalEdit()" style="background: #374151; margin: 0; font-size: 14px;">Batal</button>
       <button type="button" onclick="simpanModalEdit()" style="background: var(--primary); margin: 0; font-size: 14px;">Simpan</button>
@@ -474,21 +475,32 @@ button:active {
 <div id="logistikModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 id="logistikModalJudul" style="margin-top: 0; border-left-color: var(--primary);">Edit Stok Logistik</h3>
-    
     <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; text-align: center;">
       <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 2px;">Stok Saat Ini:</span>
       <b id="logistikStokSekarang" style="color: var(--primary); font-size: 20px;">0</b> <span style="font-size:12px;">pcs</span>
     </div>
-    
     <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Input Penyesuaian Manual:</label>
     <input id="logistikJumlahManual" type="number" placeholder="Ketik angka jumlah kuantitas..." style="margin-bottom: 20px;">
-    
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px;">
       <button type="button" onclick="eksekusiLogistik('tambah')" style="background: var(--success); margin: 0; padding: 10px; font-size: 13px;">+ Tambah</button>
       <button type="button" onclick="eksekusiLogistik('kurang')" style="background: var(--danger); margin: 0; padding: 10px; font-size: 13px;">- Kurang</button>
     </div>
-    
     <button type="button" onclick="tutupLogistikModal()" style="background: #374151; margin: 0; font-size: 14px;">Batal</button>
+  </div>
+</div>
+
+<!-- MODAL BARU: EDIT PENGELUARAN -->
+<div id="editPengeluaranModal" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <h3 style="margin-top: 0; border-left-color: var(--danger);">Edit Catatan Pengeluaran</h3>
+    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Nominal (Rp):</label>
+    <input id="modalNominalKeluar" type="number" style="margin-bottom: 12px;">
+    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Keperluan Belanja:</label>
+    <input id="modalKetKeluar" type="text" style="margin-bottom: 20px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <button type="button" onclick="tutupModalPengeluaran()" style="background: #374151; margin: 0; font-size: 14px;">Batal</button>
+      <button type="button" onclick="simpanModalPengeluaran()" style="background: var(--danger); margin: 0; font-size: 14px;">Simpan</button>
+    </div>
   </div>
 </div>
 
@@ -514,6 +526,7 @@ document.getElementById("tanggalRiwayat").value = hariIniFull;
 let currentEditIndex = null;
 let tempStok = 0;
 let currentLogistikJenis = null; 
+let currentEditPengeluaranIndex = null;
 
 async function loadDataFromCloud() {
   setSyncStatus("🔄 Menyinkronkan data...");
@@ -786,9 +799,6 @@ function tambahPengeluaran(){
   nominalKeluar.value=""; ketKeluar.value=""; saveData();
 }
 
-/* ======================================================== */
-/* PERUBAHAN BARU: PEMBATALAN TRANSAKSI INDIVIDUAL DI LOG   */
-/* ======================================================== */
 function batalkanPenjualan(originalIndex) {
   if(!confirm("Batalkan/Retur transaksi log penjualan ini?")) return;
   
@@ -803,6 +813,42 @@ function batalkanPenjualan(originalIndex) {
   }
   
   penjualan.splice(originalIndex, 1);
+  saveData();
+}
+
+/* ======================================================== */
+/* FUNGSI BARU: EDIT & HAPUS PENGELUARAN INDIVIDUAL          */
+/* ======================================================== */
+function editPengeluaran(originalIndex) {
+  currentEditPengeluaranIndex = originalIndex;
+  let target = pengeluaran[originalIndex];
+  document.getElementById("modalNominalKeluar").value = target.nominal;
+  document.getElementById("modalKetKeluar").value = target.keterangan || "";
+  document.getElementById("editPengeluaranModal").style.display = "flex";
+}
+
+function tutupModalPengeluaran() {
+  document.getElementById("editPengeluaranModal").style.display = "none";
+  currentEditPengeluaranIndex = null;
+}
+
+function simpanModalPengeluaran() {
+  if(currentEditPengeluaranIndex === null) return;
+  let nom = Number(document.getElementById("modalNominalKeluar").value);
+  let ket = document.getElementById("modalKetKeluar").value.trim();
+  if(nom <= 0 || !ket) {
+    alert("Nominal dan keperluan belanja harus valid!");
+    return;
+  }
+  pengeluaran[currentEditPengeluaranIndex].nominal = nom;
+  pengeluaran[currentEditPengeluaranIndex].keterangan = ket;
+  tutupModalPengeluaran();
+  saveData();
+}
+
+function hapusPengeluaran(originalIndex) {
+  if(!confirm("Hapus catatan pengeluaran ini secara permanen?")) return;
+  pengeluaran.splice(originalIndex, 1);
   saveData();
 }
 
@@ -1007,23 +1053,39 @@ function render(){
   let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
   topSelling.innerHTML = ranking.length ? ranking.map((x,i)=>`🥇 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>") : "Belum ada penjualan.";
 
+  /* ======================================================== */
+  /* PERUBAHAN SISTEM RIWAYAT: FILTER HARIAN & BULANAN LOGS    */
+  /* ======================================================== */
+  let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   let tglRiwayatKey = getDayKey(tglRiwayat);
+  let blnRiwayatKey = getMonthKey(tglRiwayat);
 
   let penjualanDenganIndex = penjualan.map((x, i) => ({...x, originalIndex: i}));
-  let riwayatJualHarian = penjualanDenganIndex.filter(x=>getDayKey(x.tanggal)===tglRiwayatKey);
-  let riwayatKeluarHarian = pengeluaran.filter(x=>getDayKey(x.tanggal)===tglRiwayatKey);
+  let pengeluaranDenganIndex = pengeluaran.map((x, i) => ({...x, originalIndex: i}));
 
-  /* ======================================================== */
-  /* FIX BARU: DI LOG PENJUALAN, DATA KEMBALI TIDAK DIAKUMULASI */
-  /* ======================================================== */
-  riwayatJual.innerHTML = riwayatJualHarian.length ? riwayatJualHarian.map(x => {
-    let waktu = new Date(x.tanggal).toLocaleTimeString("id-ID", {hour: '2-digit', minute:'2-digit'});
+  let riwayatJualFiltered = [];
+  let riwayatKeluarFiltered = [];
+
+  if (modeRiwayat === "harian") {
+    riwayatJualFiltered = penjualanDenganIndex.filter(x => getDayKey(x.tanggal) === tglRiwayatKey);
+    riwayatKeluarFiltered = pengeluaranDenganIndex.filter(x => getDayKey(x.tanggal) === tglRiwayatKey);
+  } else {
+    riwayatJualFiltered = penjualanDenganIndex.filter(x => getMonthKey(x.tanggal) === blnRiwayatKey);
+    riwayatKeluarFiltered = pengeluaranDenganIndex.filter(x => getMonthKey(x.tanggal) === blnRiwayatKey);
+  }
+
+  // Render Log Penjualan Individual
+  riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => {
+    let tglObj = new Date(x.tanggal);
+    let waktu = tglObj.toLocaleTimeString("id-ID", {hour: '2-digit', minute:'2-digit'});
+    let tglTeks = modeRiwayat === "bulanan" ? `${tglObj.getDate()}/${tglObj.getMonth()+1} ` : "";
+    
     if(x.barang === "OMZET MANUAL") {
       return `
       <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <span style="color:var(--text-muted)">⏱️ ${waktu}</span> - <b>[Manual] ${x.keterangan || 'Keterangan'}</b><br>
+          <span style="color:var(--text-muted)">⏱️ ${tglTeks}${waktu}</span> - <b>[Manual] ${x.keterangan || 'Keterangan'}</b><br>
           <span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span>
         </div>
         <button onclick='batalkanPenjualan(${x.originalIndex})' style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
@@ -1032,15 +1094,31 @@ function render(){
     return `
     <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
       <div>
-        <span style="color:var(--text-muted)">⏱️ ${waktu}</span> - <b>${x.barang}</b> (${x.qty} pcs)<br>
+        <span style="color:var(--text-muted)">⏱️ ${tglTeks}${waktu}</span> - <b>${x.barang}</b> (${x.qty} pcs)<br>
         <span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span>
       </div>
       <button onclick='batalkanPenjualan(${x.originalIndex})' style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
     </div>`;
-  }).join("") : `<p style='color:var(--text-muted)'>Tidak ada penjualan pada ${tglRiwayat}</p>`;
+  }).join("") : `<p style='color:var(--text-muted)'>Tidak ada data penjualan periode ini.</p>`;
 
-  riwayatKeluar.innerHTML = riwayatKeluarHarian.length ? riwayatKeluarHarian.map(x=>`
-  <p>⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : `<p style='color:var(--text-muted)'>Tidak ada pengeluaran pada ${tglRiwayat}</p>`;
+  // Render Log Pengeluaran Individual dengan Aksi Edit/Hapus
+  riwayatKeluar.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => {
+    let tglObj = new Date(x.tanggal);
+    let waktu = tglObj.toLocaleTimeString("id-ID", {hour: '2-digit', minute:'2-digit'});
+    let tglTeks = modeRiwayat === "bulanan" ? `${tglObj.getDate()}/${tglObj.getMonth()+1} ` : "";
+    
+    return `
+    <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center; margin: 4px 0;">
+      <div>
+        <span style="color:var(--text-muted)">⏱️ ${tglTeks}${waktu}</span> - <span style="color:var(--danger)">Rp ${x.nominal.toLocaleString("id-ID")}</span><br>
+        <b>${x.keterangan || '-'}</b>
+      </div>
+      <div style="display: flex; gap: 4px;">
+        <button onclick='editPengeluaran(${x.originalIndex})' class="btn-edit" style="padding: 4px 8px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Edit</button>
+        <button onclick='hapusPengeluaran(${x.originalIndex})' style="background: var(--danger); padding: 4px 8px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Hapus</button>
+      </div>
+    </div>`;
+  }).join("") : `<p style='color:var(--text-muted)'>Tidak ada pengeluaran pada periode ini.</p>`;
 }
 </script>
 </body>
