@@ -10,8 +10,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
-  
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root {
@@ -263,13 +261,7 @@ button:active {
   display: block;
   animation: blinker 1.5s linear infinite;
 }
-.chart-container {
-  position: relative;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  border-radius: 12px;
-  margin-top: 10px;
-}
+
 .btn-share { background: #25d366; color: #fff; font-size: 14px; }
 
 .modal-overlay {
@@ -400,11 +392,10 @@ button:active {
   <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
   <div id="summaryHarian" style="margin-top:10px; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px;"></div>
   <button class="btn-share" onclick="salinLaporanHarian()">📋 Copy Laporan ke WhatsApp</button>
-  <div class="chart-container"><canvas id="chartHarian"></canvas></div>
 </div>
 
 <div class="card">
-  <h3>Laporan Bulanan & Top Selling</h3>
+  <h3>Laporan Bulanan & Detail Produk</h3>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
     <div>
       <label style="font-size:12px; color:var(--text-muted);">Pilih Bulan:</label>
@@ -412,11 +403,10 @@ button:active {
       <div id="summaryBulanan" style="font-size: 13px; line-height: 1.5; margin-top: 10px;"></div>
     </div>
     <div>
-      <label style="font-size:12px; color:var(--text-muted);">Top Terlaris:</label>
-      <div id="topSelling" style="font-size: 13px; line-height: 1.5; color:var(--accent); font-weight: 500; margin-top: 5px;"></div>
+      <label style="font-size:12px; color:var(--text-muted);">Total Terjual Per Varian:</label>
+      <div id="topSelling" class="scroll-box" style="max-height: 110px; font-size: 13px; line-height: 1.6; color:var(--accent); font-weight: 500; margin-top: 5px; padding-right: 3px;"></div>
     </div>
   </div>
-  <div class="chart-container"><canvas id="chartBulanan"></canvas></div>
 </div>
 
 <div class="card" style="padding-bottom: 5px; border: 1px solid rgba(59, 130, 246, 0.3);">
@@ -514,9 +504,6 @@ let barang = [];
 let penjualan = [];
 let pengeluaran = [];
 
-let instanceChartHarian = null;
-let instanceChartBulanan = null;
-
 let dSkrg = new Date();
 let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padStart(2, "0") + "-" + String(dSkrg.getDate()).padStart(2, "0");
 
@@ -594,7 +581,7 @@ function simpanHargaBaru() {
   }
   
   let konfirmasi = confirm(`Apakah Anda yakin ingin mengubah harga per pcs dari Rp ${HARGA.toLocaleString("id-ID")} menjadi Rp ${hargaBaru.toLocaleString("id-ID")}?`);
-  if (confirmasi) {
+  if (konfirmasi) {
     HARGA = hargaBaru;
     saveData();
   } else {
@@ -635,7 +622,7 @@ function updateMonthSelect(){
 }
 
 function editLogistik(jenis) {
-  currentLogistikJenis = jenis;
+  currentLogistikJanis = jenis;
   let nilaiSaatIni = jenis === 'botol' ? stokBotol : stokBox;
   
   document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
@@ -652,7 +639,7 @@ function eksekusiLogistik(aksi) {
     return;
   }
   
-  let nilaiSaatIni = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
+  let nilaiSaatIni = currentLogistikJanis === 'botol' ? stokBotol : stokBox;
   
   if (aksi === 'tambah') {
     nilaiSaatIni += inputVal;
@@ -664,8 +651,8 @@ function eksekusiLogistik(aksi) {
     nilaiSaatIni -= inputVal;
   }
   
-  if (currentLogistikJenis === 'botol') stokBotol = nilaiSaatIni;
-  if (currentLogistikJenis === 'box') stokBox = nilaiSaatIni;
+  if (currentLogistikJanis === 'botol') stokBotol = nilaiSaatIni;
+  if (currentLogistikJanis === 'box') stokBox = nilaiSaatIni;
   
   tutupLogistikModal();
   saveData();
@@ -673,7 +660,7 @@ function eksekusiLogistik(aksi) {
 
 function tutupLogistikModal() {
   document.getElementById("logistikModal").style.display = "none";
-  currentLogistikJenis = null;
+  currentLogistikJanis = null;
 }
 
 function tambahBarang(){
@@ -963,11 +950,7 @@ function render(){
 
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
 
-  /* ======================================================== */
-  /* DATA LAPORAN HARIAN (MURNI TANPA PENGURANGAN LABA)       */
-  /* ======================================================== */
   let tglDipilih = document.getElementById("hariSelect").value;
-  let dataJam = Array(24).fill(0);
 
   if(tglDipilih){
     let keyHariDipilih = getDayKey(tglDipilih);
@@ -977,7 +960,6 @@ function render(){
     let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
     let pengeluaranHariDipilih = keluarHariDipilih.reduce((a,b)=>a+b.nominal,0);
     
-    // Kelompokkan pendapatan harian
     let grupJualHari = {};
     jualHariDipilih.forEach(x => {
       let keyGrup = x.barang === "OMZET MANUAL" ? `MANUAL: ${x.keterangan || 'Tanpa Keterangan'}` : x.barang;
@@ -993,12 +975,10 @@ function render(){
       return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
     }).join("<br>");
 
-    // Kelompokkan pengeluaran harian
     let detailKeluarHariDipilih = keluarHariDipilih.map(x => {
       return `• ${x.keterangan || 'Belanja'} - <span style="color:var(--danger)">Rp ${x.nominal.toLocaleString("id-ID")}</span>`;
     }).join("<br>");
 
-    // Ambil top 3 penjualan harian
     let salesMapHari = {};
     jualHariDipilih.forEach(x => {
       if(x.qty <= 0 || x.barang === "OMZET MANUAL") return;
@@ -1037,17 +1017,7 @@ function render(){
         <div style="margin-top:3px; color:#fff;">${topSellingHariHTML}</div>
       </div>
     `;
-
-    jualHariDipilih.forEach(x => { let jam = new Date(x.tanggal).getHours(); dataJam[jam] += x.nominal; });
   }
-
-  if(instanceChartHarian) instanceChartHarian.destroy();
-  let ctxHarian = document.getElementById('chartHarian').getContext('2d');
-  instanceChartHarian = new Chart(ctxHarian, {
-    type: 'line',
-    data: { labels: Array.from({length: 24}, (_, i) => String(i).padStart(2, '0') + ':00'), datasets: [{ label: 'Tren Jam (Rp)', data: dataJam, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.08)', borderWidth: 2, tension: 0.3, fill: true }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 10 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#6b7280', font: { size: 10 } } } } }
-  });
 
   let bulan = bulanSelect.value || bulanAktif;
   let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
@@ -1061,26 +1031,18 @@ function render(){
     Laba: <span style="color:var(--success); font-weight:bold;">Rp ${(omzetBulanan-keluarBulananTotal).toLocaleString("id-ID")}</span>
   `;
 
-  let [tahunUrut, bulanUrut] = bulan.split("-");
-  let jumlahHari = new Date(tahunUrut, bulanUrut, 0).getDate();
-  let dataTanggal = Array(jumlahHari).fill(0);
-  jualBulanan.forEach(x => { let tgl = new Date(x.tanggal).getDate(); dataTanggal[tgl - 1] += x.nominal; });
-
-  if(instanceChartBulanan) instanceChartBulanan.destroy();
-  let ctxBulanan = document.getElementById('chartBulanan').getContext('2d');
-  instanceChartBulanan = new Chart(ctxBulanan, {
-    type: 'bar',
-    data: { labels: Array.from({length: jumlahHari}, (_, i) => i + 1), datasets: [{ label: 'Omzet Harian (Rp)', data: dataTanggal, backgroundColor: '#f59e0b', borderRadius: 4 }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 9 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { display: false } } } }
-  });
-
   let salesMap = {};
   jualBulanan.forEach(x=> {
     if(x.qty<=0 || x.barang==="OMZET MANUAL") return;
     salesMap[x.barang]=(salesMap[x.barang]||0)+x.qty;
   });
-  let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  topSelling.innerHTML = ranking.length ? ranking.map((x,i)=>`🥇 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>") : "Belum ada penjualan.";
+  
+  let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]);
+  
+  topSelling.innerHTML = ranking.length ? ranking.map((x,i)=>{
+    let ikon = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "• ";
+    return `${ikon}${x[0]} : <b>${x[1]} pcs</b>`;
+  }).join("<br>") : "<span style='color:var(--text-muted)'>Belum ada penjualan.</span>";
 
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
