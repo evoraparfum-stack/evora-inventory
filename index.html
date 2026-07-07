@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro</title>
+  <title>EVORA Tracker Pro Cloud Sync</title>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0d0d12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
-  <!-- Chart.js untuk Grafik -->
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 :root {
   --bg-main: #0d0d12;
@@ -43,7 +44,6 @@ html, body {
   position: relative;
 }
 
-/* BRANDING LOGO AREA */
 .brand-header {
   display: flex;
   align-items: center;
@@ -71,28 +71,20 @@ html, body {
   -webkit-text-fill-color: transparent;
 }
 
-/* NOTIFIKASI UPDATE */
-.toast-notification {
-  position: fixed;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 30px;
-  font-size: 13px;
-  font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  z-index: 9999;
-  transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+/* Status Koneksi Sync */
+.sync-banner {
+  background: #1e3a8a;
+  color: #93c5fd;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: 500;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 8px;
-  white-space: nowrap;
-}
-.toast-notification.show {
-  top: 20px;
 }
 
 h3 {
@@ -287,18 +279,16 @@ button:active {
 </head>
 <body>
 
-<!-- TOAST NOTIFIKASI -->
-<div id="updateToast" class="toast-notification">
-  ✨ EVORA Tracker berhasil diperbarui!
-</div>
-
-<!-- LOGO & LOGO BRAND AREA -->
 <div class="brand-header">
   <img src="./icon-192.png.PNG" onerror="this.src='https://placehold.co/100x100/1f1f2e/ffffff?text=EVORA'" class="brand-logo" alt="EVORA Logo">
-  <h1 class="brand-title">EVORA TRACKER PRO</h1>
+  <h1 class="brand-title">EVORA TRACKER PRO CLOUD</h1>
 </div>
 
-<!-- DASHBOARD UTAMA -->
+<div class="sync-banner">
+  <span id="syncStatus">🔄 Menghubungkan ke Google Sheets Cloud...</span>
+  <button onclick="loadDataFromCloud()" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:rgba(255,255,255,0.2);">Refresh</button>
+</div>
+
 <div class="card dashboard-hero">
   <h3>Dashboard Finansial</h3>
   <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
@@ -322,7 +312,6 @@ button:active {
   </div>
 </div>
 
-<!-- MESIN KASIR -->
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
   <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
@@ -332,7 +321,6 @@ button:active {
   </div>
 </div>
 
-<!-- TRANSAKSI MANUAL GROSIR -->
 <div class="card">
   <h3>Penjualan Manual Grosir</h3>
   <select id="barangJual"></select>
@@ -340,7 +328,6 @@ button:active {
   <button onclick="jualBarang()">Simpan Penjualan</button>
 </div>
 
-<!-- MASTER BARANG -->
 <div class="card">
   <h3>Daftarkan Varian Baru</h3>
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -350,7 +337,6 @@ button:active {
   <button onclick="tambahBarang()" style="margin-top: 10px;">+ Daftarkan Item</button>
 </div>
 
-<!-- PEMBUKUAN MANUAL & BIAYA -->
 <div class="row-2">
   <div class="card">
     <h3>Omzet Masuk Manual</h3>
@@ -366,7 +352,6 @@ button:active {
   </div>
 </div>
 
-<!-- AUDIT, ANALISIS DATA, & LAPORAN TREN -->
 <div class="card">
   <h3>Laporan & Riwayat Harian</h3>
   <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
@@ -391,13 +376,11 @@ button:active {
   <div class="chart-container"><canvas id="chartBulanan"></canvas></div>
 </div>
 
-<!-- LOG RIWAYAT HARIAN & BATAL PESANAN -->
 <div class="card" style="padding-bottom: 5px; border: 1px solid rgba(59, 130, 246, 0.3);">
   <div style="display: flex; justify-content: space-between; align-items: center;">
     <h3 style="margin:0; border:none; padding:0;">Cari Riwayat Transaksi</h3>
     <input id="tanggalRiwayat" type="date" onchange="render()" style="max-width:140px; margin:0; padding:8px; font-size:12px; background:var(--bg-input); color:#fff;">
   </div>
-  <p style="font-size:11px; color:var(--text-muted); margin-top:8px;">Pilih tanggal di atas untuk melihat detail transaksi dan membatalkan pesanan (retur).</p>
 </div>
 
 <div class="row-2">
@@ -411,42 +394,22 @@ button:active {
   </div>
 </div>
 
-<!-- FITUR TRANSFER DATA (METODE TEKS COPY-PASTE) -->
-<div class="card" style="border: 1px solid var(--accent);">
-  <h3 style="font-size:14px; border-color:var(--accent);">Transfer Data (Backup / Restore)</h3>
-  
-  <p style="font-size:12px; margin-bottom:8px; color:var(--text-muted);">Gunakan fitur salin dan tempel (copy-paste) kode di bawah ini untuk memindahkan data antar HP dengan mudah.</p>
-  
-  <textarea id="teksData" rows="3" placeholder="Teks data enkapsulasi sistem akan tampil otomatis saat tombol copy ditekan..." style="font-size: 10px; font-family: monospace; background: rgba(0,0,0,0.2); margin-bottom: 5px;"></textarea>
-  
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
-    <button onclick="copyDataLama()" style="background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%); font-size: 13px; padding: 12px; border-radius: 10px;">📋 1. Copy Teks<br><span style="font-size: 10px; font-weight: normal;">(Di HP Lama)</span></button>
-    
-    <button onclick="pasteDataBaru()" style="background: linear-gradient(135deg, var(--success) 0%, #065f46 100%); font-size: 13px; padding: 12px; border-radius: 10px;">📥 2. Restore Teks<br><span style="font-size: 10px; font-weight: normal;">(Di HP Baru)</span></button>
-  </div>
-</div>
-
 <div style="margin: 20px 0 40px 0;">
   <button class="btn-reset" onclick="resetData()">SISTEM RESET DATABASE UTAMA</button>
 </div>
 
 <script>
-// --- LOGIKA MENAMPILKAN NOTIFIKASI SAAT WEB DIBUKA ---
-window.addEventListener('load', () => {
-  const toast = document.getElementById('updateToast');
-  toast.classList.add('show');
-  
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3000);
-});
+// =======================================================
+// KONFIGURASI LINK SHEETDB (PENGGANTI LOCALSTORAGE)
+// =======================================================
+const SHEETDB_URL = "https://sheetdb.io/api/v1/8sp606iyketck"; 
 
 const HARGA = 27000;
-let stokBotol = Number(localStorage.getItem("stokBotol") || 0);
-let stokBox = Number(localStorage.getItem("stokBox") || 0);
-let barang = JSON.parse(localStorage.getItem("barang") || "[]");
-let penjualan = JSON.parse(localStorage.getItem("penjualan") || "[]");
-let pengeluaran = JSON.parse(localStorage.getItem("pengeluaran") || "[]");
+let stokBotol = 0;
+let stokBox = 0;
+let barang = [];
+let penjualan = [];
+let pengeluaran = [];
 
 let instanceChartHarian = null;
 let instanceChartBulanan = null;
@@ -457,17 +420,65 @@ let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padSt
 document.getElementById("hariSelect").value = hariIniFull;
 document.getElementById("tanggalRiwayat").value = hariIniFull;
 
-document.addEventListener('touchmove', function (event) {
-  if (event.scale !== 1) { event.preventDefault(); }
-}, { passive: false });
-
-function saveData(){
-  localStorage.setItem("stokBotol", stokBotol);
-  localStorage.setItem("stokBox", stokBox);
-  localStorage.setItem("barang", JSON.stringify(barang));
-  localStorage.setItem("penjualan", JSON.stringify(penjualan));
-  localStorage.setItem("pengeluaran", JSON.stringify(pengeluaran));
+// AMBIL DATA DARI CLOUD SAAT APLIKASI DIKILK / DIBUKA
+async function loadDataFromCloud() {
+  setSyncStatus("🔄 Menyinkronkan data...");
+  try {
+    let respon = await fetch(SHEETDB_URL);
+    let hasil = await respon.json();
+    
+    if (hasil && hasil.length > 0 && hasil[0].konten) {
+      let dataUtama = JSON.parse(hasil[0].konten);
+      stokBotol = Number(dataUtama.stokBotol || 0);
+      stokBox = Number(dataUtama.stokBox || 0);
+      barang = dataUtama.barang || [];
+      penjualan = dataUtama.penjualan || [];
+      pengeluaran = dataUtama.pengeluaran || [];
+      setSyncStatus("✅ Data Terkoneksi & Sinkron!");
+    } else {
+      setSyncStatus("⚠️ Database kosong, siap diisi.");
+    }
+    render();
+  } catch (error) {
+    console.error(error);
+    setSyncStatus("❌ Gagal Sinkronisasi Internet!");
+  }
 }
+
+// KIRIM DATA KE CLOUD SETIAP ADA TRANSAKSI BARU
+async function saveData() {
+  setSyncStatus("⚡ Menyimpan data ke Cloud...");
+  let paketData = {
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran
+  };
+
+  try {
+    let respon = await fetch(`${SHEETDB_URL}/id/1`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: { konten: JSON.stringify(paketData) } })
+    });
+    if(respon.ok) {
+      setSyncStatus("✅ Perubahan Tersimpan Otomatis!");
+    } else {
+      setSyncStatus("⚠️ Gagal menyimpan ke cloud!");
+    }
+    render();
+  } catch (error) {
+    setSyncStatus("❌ Koneksi terputus saat menyimpan!");
+  }
+}
+
+function setSyncStatus(teks) {
+  document.getElementById("syncStatus").innerText = teks;
+}
+
+// Jalankan otomatis di awal buka aplikasi
+loadDataFromCloud();
 
 function getMonthKey(date){
   let d = new Date(date);
@@ -505,10 +516,7 @@ function editLogistik(jenis) {
       if (jenis === 'botol') stokBotol = angkaBaru;
       if (jenis === 'box') stokBox = angkaBaru;
       saveData();
-      render();
-    } else {
-      alert("Masukkan angka yang valid!");
-    }
+    } else { alert("Masukkan angka yang valid!"); }
   }
 }
 
@@ -518,7 +526,7 @@ function tambahBarang(){
   if(!nama || qty<=0) return;
   barang.push({nama:nama, stok:qty});
   namaBarang.value=""; qtyBarang.value="";
-  saveData(); render();
+  saveData();
 }
 
 function editBarang(originalIndex){
@@ -527,17 +535,16 @@ function editBarang(originalIndex){
   let qty = prompt("Qty", barang[originalIndex].stok);
   if(qty===null) return;
   barang[originalIndex] = {nama:nama.toUpperCase(), stok:Number(qty)};
-  saveData(); render();
+  saveData();
 }
 
 function hapusBarang(originalIndex){
   if(confirm("Hapus barang ini?")){
     barang.splice(originalIndex,1);
-    saveData(); render();
+    saveData();
   }
 }
 
-// PERBAIKAN FITUR BELI INSTAN DENGAN QUANTITY DROPDOWN (1-10)
 function quickJual(originalIndex) {
   let elQty = document.getElementById(`qtyQuick-${originalIndex}`);
   let qty = elQty ? Number(elQty.value) : 1;
@@ -552,7 +559,7 @@ function quickJual(originalIndex) {
   stokBotol -= qty; stokBox -= qty;
   
   penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: qty * HARGA });
-  saveData(); render();
+  saveData();
 }
 
 function jualBarang(){
@@ -567,39 +574,34 @@ function jualBarang(){
   stokBotol -= qty; stokBox -= qty;
   
   penjualan.push({ tanggal:new Date().toISOString(), barang:barang[originalIndex].nama, qty:qty, nominal:qty*HARGA });
-  qtyJual.value=""; saveData(); render();
+  qtyJual.value=""; saveData();
 }
 
 function batalkanPesanan(originalIndex) {
-  if(!confirm("Batalkan/Retur transaksi ini?\n\n- Omzet akan ditarik.\n- Stok Barang, Botol, dan Box akan dikembalikan secara otomatis.")) return;
+  if(!confirm("Batalkan/Retur transaksi ini?")) return;
   
   let target = penjualan[originalIndex];
-  
   if(target.barang !== "OMZET MANUAL") {
     let bIndex = barang.findIndex(x => x.nama === target.barang);
-    if(bIndex !== -1) {
-      barang[bIndex].stok += target.qty;
-    }
-    stokBotol += target.qty;
-    stokBox += target.qty;
+    if(bIndex !== -1) { barang[bIndex].stok += target.qty; }
+    stokBotol += target.qty; stokBox += target.qty;
   }
-  
   penjualan.splice(originalIndex, 1);
-  saveData(); render();
+  saveData();
 }
 
 function tambahOmzetManual(){
   let nominal = Number(manualOmzet.value); let ket = manualKet.value;
   if(nominal<=0) return;
   penjualan.push({ tanggal:new Date().toISOString(), barang:"OMZET MANUAL", qty:0, nominal:nominal, keterangan:ket });
-  manualOmzet.value=""; manualKet.value=""; saveData(); render();
+  manualOmzet.value=""; manualKet.value=""; saveData();
 }
 
 function tambahPengeluaran(){
   let nominal = Number(nominalKeluar.value); let ket = ketKeluar.value;
   if(nominal<=0) return;
   pengeluaran.push({ tanggal:new Date().toISOString(), nominal:nominal, keterangan:ket });
-  nominalKeluar.value=""; ketKeluar.value=""; saveData(); render();
+  nominalKeluar.value=""; ketKeluar.value=""; saveData();
 }
 
 function salinLaporanHarian() {
@@ -632,11 +634,8 @@ function salinLaporanHarian() {
   teksLaporan += `*Detail Item Terjual:*\n`;
   if(jHari.length) {
     jHari.forEach(x => {
-      if(x.barang === "OMZET MANUAL") {
-        teksLaporan += `- [Manual] ${x.keterangan || 'Omzet'} : Rp ${x.nominal.toLocaleString("id-ID")}\n`;
-      } else {
-        teksLaporan += `- ${x.barang} (${x.qty} pcs) : Rp ${x.nominal.toLocaleString("id-ID")}\n`;
-      }
+      if(x.barang === "OMZET MANUAL") { teksLaporan += `- [Manual] ${x.keterangan || 'Omzet'} : Rp ${x.nominal.toLocaleString("id-ID")}\n`; } 
+      else { teksLaporan += `- ${x.barang} (${x.qty} pcs) : Rp ${x.nominal.toLocaleString("id-ID")}\n`; }
     });
   } else { teksLaporan += `- Tidak ada penjualan harian\n`; }
   
@@ -647,59 +646,16 @@ function salinLaporanHarian() {
   }
 
   navigator.clipboard.writeText(teksLaporan).then(() => {
-    alert("Berhasil disalin! Sekarang tinggal paste ke WhatsApp mitra/tim.");
-  }).catch(() => { alert("Browser tidak mengizinkan salin otomatis."); });
+    alert("Berhasil disalin! Tinggal paste ke WhatsApp.");
+  }).catch(() => { alert("Gagal menyalin otomatis."); });
 }
 
-function copyDataLama() {
-  let arsipData = {
-    metadata: {
-      app_name: "EVORA Tracker Pro",
-      database_version: 1,
-      export_date: new Date().toISOString()
-    },
-    payload: {
-      stokBotol: Number(localStorage.getItem("stokBotol") || 0),
-      stokBox: Number(localStorage.getItem("stokBox") || 0),
-      barang: JSON.parse(localStorage.getItem("barang") || "[]"),
-      penjualan: JSON.parse(localStorage.getItem("penjualan") || "[]"),
-      pengeluaran: JSON.parse(localStorage.getItem("pengeluaran") || "[]")
-    }
-  };
-  
-  let teks = JSON.stringify(arsipData);
-  document.getElementById("teksData").value = teks;
-  
-  navigator.clipboard.writeText(teks).then(() => {
-    alert("✅ Kode teks berhasil disalin!\nSekarang kirim kode ini, lalu paste di aplikasi EVORA di HP yang baru.");
-  }).catch(() => {
-    alert("⚠️ Salin otomatis gagal. Silakan blok dan copy teks manual di dalam kotak.");
-  });
+async function resetData(){ 
+  if(confirm("Hapus seluruh database online secara permanen?")) { 
+    stokBotol = 0; stokBox = 0; barang = []; penjualan = []; pengeluaran = [];
+    saveData();
+  } 
 }
-
-function pasteDataBaru() {
-  let input = document.getElementById("teksData").value;
-  if(!input) return alert("Kotak teks masih kosong! Silakan Paste kodenya ke kotak terlebih dahulu.");
-  if(!confirm("Yakin ingin menimpa seluruh database di HP ini dengan data teks tersebut?")) return;
-  
-  try {
-    let parsed = JSON.parse(input);
-    let dataData = parsed.payload ? parsed.payload : parsed;
-
-    localStorage.setItem("stokBotol", Number(dataData.stokBotol || 0));
-    localStorage.setItem("stokBox", Number(dataData.stokBox || 0));
-    localStorage.setItem("barang", typeof dataData.barang === 'string' ? dataData.barang : JSON.stringify(dataData.barang || []));
-    localStorage.setItem("penjualan", typeof dataData.penjualan === 'string' ? dataData.penjualan : JSON.stringify(dataData.penjualan || []));
-    localStorage.setItem("pengeluaran", typeof dataData.pengeluaran === 'string' ? dataData.pengeluaran : JSON.stringify(dataData.pengeluaran || []));
-    
-    alert("🎉 BERHASIL! Data berhasil dipindahkan. Aplikasi akan dimuat ulang.");
-    location.reload();
-  } catch(e) {
-    alert("❌ Teks data tidak valid atau rusak! Pastikan kamu menyalin kodenya sampai penuh (tidak terpotong).");
-  }
-}
-
-function resetData(){ if(confirm("Hapus seluruh database aplikasi secara permanen?")) { localStorage.clear(); location.reload(); } }
 
 function render(){
   updateMonthSelect();
@@ -743,19 +699,9 @@ function render(){
           ${tagPeringatan}
         </div>
         <div>
-          <!-- DROPDOWN BARU DAN TOMBOL JUAL CEPAT -->
           <div style="display: flex; gap: 4px; margin-top: 6px;">
             <select id="qtyQuick-${x.originalIndex}" style="margin: 0; padding: 6px; font-size: 12px; width: 52px; background: var(--bg-main); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center;">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
+              ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join("")}
             </select>
             <button class="btn-quick-jual" onclick="quickJual(${x.originalIndex})" style="flex: 1; padding: 8px 4px; font-size: 11px;">⚡ Jual</button>
           </div>
@@ -815,7 +761,6 @@ function render(){
   let bulan = bulanSelect.value || bulanAktif;
   let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
   let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
-  
   let omzetBulanan = jualBulanan.reduce((a,b)=>a+b.nominal,0);
   let keluarBulananTotal = keluarBulanan.reduce((a,b)=>a+b.nominal,0);
 
@@ -828,7 +773,6 @@ function render(){
   let [tahunUrut, bulanUrut] = bulan.split("-");
   let jumlahHari = new Date(tahunUrut, bulanUrut, 0).getDate();
   let dataTanggal = Array(jumlahHari).fill(0);
-
   jualBulanan.forEach(x => { let tgl = new Date(x.tanggal).getDate(); dataTanggal[tgl - 1] += x.nominal; });
 
   if(instanceChartBulanan) instanceChartBulanan.destroy();
@@ -841,8 +785,7 @@ function render(){
 
   let salesMap = {};
   jualBulanan.forEach(x=>{
-    if(x.qty<=0) return;
-    if(x.barang==="OMZET MANUAL") return;
+    if(x.qty<=0 || x.barang==="OMZET MANUAL") return;
     salesMap[x.barang]=(salesMap[x.barang]||0)+x.qty;
   });
   let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
@@ -866,17 +809,6 @@ function render(){
 
   riwayatKeluar.innerHTML = riwayatKeluarHarian.length ? riwayatKeluarHarian.map(x=>`
   <p>⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : `<p style='color:var(--text-muted)'>Tidak ada pengeluaran pada ${tglRiwayat}</p>`;
-}
-
-render();
-</script>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js")
-      .then(function(registration) { console.log("SW Registered"); })
-      .catch(function(error) { console.log("SW Failed", error); });
-  });
 }
 </script>
 </body>
