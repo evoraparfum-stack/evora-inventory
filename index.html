@@ -207,18 +207,24 @@ button:active {
   justify-content: space-between;
   min-height: 150px;
 }
+
+/* ========================================== */
+/* PERUBAHAN UKURAN TEKS PARFUM & STOK (KASIR) */
+/* ========================================== */
 .item-info b {
-  font-size: 16px; 
-  font-weight: 700; 
+  font-size: 16px;       /* Ukuran teks parfum diperbesar dari 13px */
+  font-weight: 700;      /* Dibuat lebih tebal */
   display: block;
   color: #fff;
   word-break: break-all;
 }
 .item-info .stok-text {
-  font-size: 14px; 
-  color: #d1d5db; 
+  font-size: 14px;       /* Ukuran teks stok diperbesar dari 12px */
+  color: #e5e7eb;        /* Warna dibuat lebih terang agar kontras */
+  font-weight: 600;      /* Angka stok lebih tegas */
   margin-top: 4px;
 }
+
 .item-actions {
   display: flex;
   gap: 4px;
@@ -256,8 +262,8 @@ button:active {
 .badge-warning {
   color: #f87171;
   font-weight: bold;
-  font-size: 10px;
-  margin-top: 2px;
+  font-size: 11px;
+  margin-top: 4px;
   display: block;
   animation: blinker 1.5s linear infinite;
 }
@@ -351,6 +357,13 @@ button:active {
 
 <div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
+  
+  <!-- INPUT PENGUBAH HARGA SECARA REAL-TIME -->
+  <div style="margin-bottom: 10px; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px;">
+    <label style="font-size: 12px; color: var(--accent); display: block; margin-bottom: 2px; font-weight: bold;">💰 Harga Jual per Pcs (Bisa Diubah):</label>
+    <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="background: #111827; border: 1px solid var(--accent); padding: 8px 12px; font-size: 16px; font-weight: bold; color: #fff;">
+  </div>
+
   <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
   
   <div class="box-kasir-container">
@@ -502,7 +515,7 @@ button:active {
 // =======================================================
 const SHEETDB_URL = "https://sheetdb.io/api/v1/8sp606iyketck"; 
 
-const HARGA = 27000;
+let HARGA = 27000; // Sekarang bersifat dinamis (diambil dari cloud)
 let stokBotol = 0;
 let stokBox = 0;
 let barang = [];
@@ -537,6 +550,11 @@ async function loadDataFromCloud() {
       barang = dataUtama.barang || [];
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
+      
+      // Ambil data harga yang tersimpan di cloud jika ada, jika tidak default 27000
+      HARGA = Number(dataUtama.hargaGlobal || 27000);
+      document.getElementById("inputHargaGlobal").value = HARGA;
+
       setSyncStatus("✅ Data Terkoneksi & Sinkron!");
     } else {
       setSyncStatus("⚠️ Database kosong, siap diisi.");
@@ -556,7 +574,8 @@ async function saveData() {
     stokBox: stokBox,
     barang: barang,
     penjualan: penjualan,
-    pengeluaran: pengeluaran
+    pengeluaran: pengeluaran,
+    hargaGlobal: HARGA // Simpan nilai harga terbaru ke cloud
   };
 
   try {
@@ -574,6 +593,18 @@ async function saveData() {
   } catch (error) {
     setSyncStatus("❌ Koneksi terputus saat menyimpan!");
   }
+}
+
+// Fungsi untuk menyimpan harga saat diubah di input mesin kasir
+function simpanHargaBaru() {
+  let hargaBaru = Number(document.getElementById("inputHargaGlobal").value);
+  if(hargaBaru <= 0 || isNaN(hargaBaru)) {
+    alert("Masukkan nominal harga yang valid!");
+    document.getElementById("inputHargaGlobal").value = HARGA;
+    return;
+  }
+  HARGA = hargaBaru;
+  saveData();
 }
 
 function setSyncStatus(teks) {
@@ -609,9 +640,6 @@ function updateMonthSelect(){
   .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
-/* ========================================================= */
-/* FUNGSI UTAMA BARU UNTUK INPUT MANUAL BOTOL & BOX (MODAL) */
-/* ========================================================= */
 function editLogistik(jenis) {
   currentLogistikJenis = jenis;
   let nilaiSaatIni = jenis === 'botol' ? stokBotol : stokBox;
@@ -642,7 +670,6 @@ function eksekusiLogistik(aksi) {
     nilaiSaatIni -= inputVal;
   }
   
-  // Masukkan kembali nilainya ke variabel utama database
   if (currentLogistikJenis === 'botol') stokBotol = nilaiSaatIni;
   if (currentLogistikJenis === 'box') stokBox = nilaiSaatIni;
   
@@ -664,9 +691,6 @@ function tambahBarang(){
   saveData();
 }
 
-/* ========================================== */
-/* FUNGSI LOGIKA MODAL EDIT STOK PRODUK/VARIAN */
-/* ========================================== */
 function editBarang(originalIndex){
   currentEditIndex = originalIndex;
   let target = barang[originalIndex];
@@ -888,7 +912,7 @@ function render(){
           ${tagPeringatan}
         </div>
         <div>
-          <div style="display: flex; gap: 4px; margin-top: 6px;">
+          <div style="display: flex; gap: 4px; margin-top: 8px;">
             <select id="qtyQuick-${x.originalIndex}" style="margin: 0; padding: 6px; font-size: 12px; width: 52px; background: var(--bg-main); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center;">
               ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join("")}
             </select>
