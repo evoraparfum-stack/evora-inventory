@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <title>EVORA Tracker Pro Cloud Sync</title>
+  <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0d0d12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
-  <link class="apple-touch-icon" href="./icon-192.png.PNG">
   
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -71,7 +71,6 @@ html, body {
   -webkit-text-fill-color: transparent;
 }
 
-/* Status Koneksi Sync */
 .sync-banner {
   background: #1e3a8a;
   color: #93c5fd;
@@ -494,9 +493,6 @@ button:active {
 </div>
 
 <script>
-// =======================================================
-// KONFIGURASI LINK SHEETDB (PENGGANTI LOCALSTORAGE)
-// =======================================================
 const SHEETDB_URL = "https://sheetdb.io/api/v1/8sp606iyketck"; 
 
 let HARGA = 27000; 
@@ -575,9 +571,6 @@ async function saveData() {
   }
 }
 
-/* ========================================== */
-/* PERUBAHAN 1: KONFIRMASI UBAH HARGA JUAL */
-/* ========================================== */
 function simpanHargaBaru() {
   let elHarga = document.getElementById("inputHargaGlobal");
   let hargaBaru = Number(elHarga.value);
@@ -777,31 +770,42 @@ function jualBarang(){
   qtyJual.value=""; saveData();
 }
 
+function tambahOmzetManual() {
+  let nom = Number(manualOmzet.value);
+  let ket = manualKet.value.trim() || "Omzet Manual";
+  if(nom <= 0) return alert("Nominal salah!");
+  penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket });
+  manualOmzet.value = ""; manualKet.value = ""; saveData();
+}
+
+function tambahPengeluaran(){
+  let nom = Number(nominalKeluar.value);
+  let ket = ketKeluar.value.trim();
+  if(nom<=0 || !ket) return;
+  pengeluaran.push({ tanggal:new Date().toISOString(), nominal:nom, keterangan:ket });
+  nominalKeluar.value=""; ketKeluar.value=""; saveData();
+}
+
 /* ======================================================== */
-/* PERUBAHAN 2B: FUNGSI PEMBATALAN TRANSAKSI YANG DIGABUNG */
+/* PERUBAHAN BARU: PEMBATALAN TRANSAKSI INDIVIDUAL DI LOG   */
 /* ======================================================== */
-function batalkanPesananGrup(arrayIndices) {
-  if(!confirm("Batalkan/Retur seluruh akumulasi transaksi item ini pada hari tersebut?")) return;
+function batalkanPenjualan(originalIndex) {
+  if(!confirm("Batalkan/Retur transaksi log penjualan ini?")) return;
   
-  // Urutkan index dari yang paling besar agar tidak merusak urutan splice array global
-  arrayIndices.sort((a, b) => b - a);
-  
-  arrayIndices.forEach(originalIndex => {
-    let target = penjualan[originalIndex];
-    if(target.barang !== "OMZET MANUAL") {
-      let bIndex = barang.findIndex(x => x.nama === target.barang);
-      if(bIndex !== -1) { barang[bIndex].stok += target.qty; }
-      stokBotol += target.qty; stokBox += target.qty;
+  let target = penjualan[originalIndex];
+  if(target.barang !== "OMZET MANUAL") {
+    let bIndex = barang.findIndex(x => x.nama === target.barang);
+    if(bIndex !== -1) { 
+      barang[bIndex].stok += target.qty; 
     }
-    penjualan.splice(originalIndex, 1);
-  });
+    stokBotol += target.qty; 
+    stokBox += target.qty;
+  }
   
+  penjualan.splice(originalIndex, 1);
   saveData();
 }
 
-/* ========================================== */
-/* PERUBAHAN 2C: LAPORAN WHATSAPP DIKUMPULKAN */
-/* ========================================== */
 function salinLaporanHarian() {
   let tgl = document.getElementById("hariSelect").value;
   let key = getDayKey(tgl);
@@ -925,9 +929,6 @@ function render(){
     let jualHariDipilih = penjualan.filter(x=>getDayKey(x.tanggal)===getDayKey(tglDipilih));
     let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
     
-    /* ======================================================== */
-    /* PERUBAHAN 2A: AKUMULASI GRUP DI RINCIAN DASHBOARD HARIAN */
-    /* ======================================================== */
     let grupJualHari = {};
     jualHariDipilih.forEach(x => {
       let keyGrup = x.barang === "OMZET MANUAL" ? `MANUAL: ${x.keterangan || 'Tanpa Keterangan'}` : x.barang;
@@ -1014,38 +1015,27 @@ function render(){
   let riwayatKeluarHarian = pengeluaran.filter(x=>getDayKey(x.tanggal)===tglRiwayatKey);
 
   /* ======================================================== */
-  /* PERUBAHAN 2D: AKUMULASI GRUP PADA KOTAK LOG PENJUALAN UI */
+  /* FIX BARU: DI LOG PENJUALAN, DATA KEMBALI TIDAK DIAKUMULASI */
   /* ======================================================== */
-  let grupRiwayatJual = {};
-  riwayatJualHarian.forEach(x => {
-    let keyGrup = x.barang === "OMZET MANUAL" ? `MANUAL: ${x.keterangan || 'Tanpa Keterangan'}` : x.barang;
-    if(!grupRiwayatJual[keyGrup]) {
-      grupRiwayatJual[keyGrup] = { barang: x.barang, qty: 0, nominal: 0, keterangan: x.keterangan || '', indices: [] };
-    }
-    grupRiwayatJual[keyGrup].qty += x.qty;
-    grupRiwayatJual[keyGrup].nominal += x.nominal;
-    grupRiwayatJual[keyGrup].indices.push(x.originalIndex); 
-  });
-
-  riwayatJual.innerHTML = Object.keys(grupRiwayatJual).length ? Object.values(grupRiwayatJual).map(x => {
-    let jsonIndices = JSON.stringify(x.indices);
+  riwayatJual.innerHTML = riwayatJualHarian.length ? riwayatJualHarian.map(x => {
+    let waktu = new Date(x.tanggal).toLocaleTimeString("id-ID", {hour: '2-digit', minute:'2-digit'});
     if(x.barang === "OMZET MANUAL") {
       return `
       <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <b>[Manual] ${x.keterangan || 'Tanpa Keterangan'}</b><br>
+          <span style="color:var(--text-muted)">⏱️ ${waktu}</span> - <b>[Manual] ${x.keterangan || 'Keterangan'}</b><br>
           <span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span>
         </div>
-        <button onclick='batalkanPesananGrup(${jsonIndices})' style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
+        <button onclick='batalkanPenjualan(${x.originalIndex})' style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
       </div>`;
     }
     return `
     <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
       <div>
-        <b>${x.barang}</b> (${x.qty} pcs)<br>
+        <span style="color:var(--text-muted)">⏱️ ${waktu}</span> - <b>${x.barang}</b> (${x.qty} pcs)<br>
         <span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span>
       </div>
-      <button onclick='batalkanPesananGrup(${jsonIndices})' style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
+      <button onclick='batalkanPenjualan(${x.originalIndex})' style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
     </div>`;
   }).join("") : `<p style='color:var(--text-muted)'>Tidak ada penjualan pada ${tglRiwayat}</p>`;
 
