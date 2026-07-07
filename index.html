@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <title>EVORA Tracker Pro Cloud Sync</title>
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#09090b">
+  <meta name="theme-color" content="#0d0d12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
@@ -15,26 +15,22 @@
 
 <style>
 :root {
-  --bg-main: #09090b;
-  --bg-card: #121214;
-  --bg-input: #18181b;
-  --bg-input-focus: #202024;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
+  --bg-main: #0d0d12;
+  --bg-card: #161622;
+  --bg-input: #1f1f2e;
+  --primary: #3b82f6;
   --accent: #f59e0b;
   --success: #10b981;
   --danger: #ef4444;
-  --danger-bg: #271418;
-  --text-main: #f4f4f5;
-  --text-muted: #a1a1aa;
-  --border-color: rgba(255, 255, 255, 0.06);
+  --danger-bg: #3a1a22;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
 }
 
 * { 
   box-sizing: border-box; 
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
   touch-action: manipulation; 
-  letter-spacing: -0.01em;
 }
 
 html, body {
@@ -43,129 +39,115 @@ html, body {
   background: var(--bg-main);
   color: var(--text-main);
   margin: 0;
-  padding: 20px;
+  padding: 15px;
   overflow-x: hidden; 
   position: relative;
-}
-
-@media (max-width: 480px) {
-  body { padding: 12px; }
 }
 
 .brand-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 15px;
   padding: 10px 0;
 }
 .brand-logo {
-  width: 48px;
-  height: 48px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--primary);
-  box-shadow: 0 0 15px rgba(37, 99, 235, 0.2);
+  background: #1f1f2e;
 }
 .brand-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   color: #fff;
   margin: 0;
-  background: linear-gradient(135deg, #ffffff 30%, #a1a1aa 100%);
+  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+/* Status Koneksi Sync */
 .sync-banner {
-  background: rgba(37, 99, 235, 0.1);
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: #1e3a8a;
   color: #93c5fd;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   font-weight: 500;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 8px;
-}
-.sync-banner button {
-  width: auto; margin: 0; padding: 6px 14px; font-size: 12px;
-  background: var(--primary); border-radius: 8px;
 }
 
 h3 {
   margin-top: 0;
-  margin-bottom: 16px;
-  font-size: 15px;
-  font-weight: 700;
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
   color: #fff;
-  border-left: 3px solid var(--primary);
+  border-left: 4px solid var(--primary);
   padding-left: 10px;
-  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .card {
   background: var(--bg-card);
-  padding: 20px;
-  border-radius: 14px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 18px;
+  border-radius: 16px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .dashboard-hero {
-  background: linear-gradient(145deg, #131927 0%, #0c0f17 100%);
-  border: 1px solid rgba(37, 99, 235, 0.15);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
-input, select, textarea {
+input, select, button, textarea {
   width: 100%;
   padding: 12px 14px;
-  margin: 6px 0 12px 0;
-  border: 1px solid var(--border-color);
+  margin: 6px 0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 15px;
   background: var(--bg-input);
   color: #fff;
   outline: none;
-  transition: all 0.2s;
 }
 input:focus, select:focus, textarea:focus {
   border-color: var(--primary);
-  background: var(--bg-input-focus);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 button {
-  width: 100%;
-  padding: 12px 14px;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: bold;
   background: var(--primary);
   color: #fff;
   cursor: pointer;
   border: none;
-  border-radius: 10px;
-  transition: all 0.2s;
+  transition: background 0.2s;
 }
-button:hover { background: var(--primary-hover); }
-button:active { transform: scale(0.98); }
+button:active {
+  transform: scale(0.98);
+}
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 .stat {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.02);
-  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
   border-radius: 10px;
   text-align: center;
 }
@@ -174,7 +156,6 @@ button:active { transform: scale(0.98); }
   color: var(--text-muted);
   display: block;
   margin-bottom: 4px;
-  font-weight: 500;
 }
 .stat .val {
   font-size: 14px;
@@ -183,164 +164,193 @@ button:active { transform: scale(0.98); }
 }
 .stat.highlight {
   grid-column: span 3;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  border: none;
-  padding: 18px;
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  padding: 15px;
 }
 .stat.highlight .val {
-  font-size: 26px;
+  font-size: 24px;
 }
 
 .row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 15px;
 }
 
 .box-kasir-container {
-  max-height: 360px;
+  max-height: 320px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 5px;
+  margin-top: 5px;
 }
-.box-kasir-container::-webkit-scrollbar, .scroll-box::-webkit-scrollbar { width: 5px; }
+
+.box-kasir-container::-webkit-scrollbar, .scroll-box::-webkit-scrollbar {
+  width: 4px;
+}
 .box-kasir-container::-webkit-scrollbar-thumb, .scroll-box::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08); border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
 }
 
 .grid-barang {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
 }
 .item-barang {
-  background: #16161a;
-  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px;
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.03);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 160px;
+  min-height: 150px;
 }
 .item-info b {
-  font-size: 14px;
+  font-size: 13px;
   display: block;
   color: #fff;
   word-break: break-all;
-  line-height: 1.3;
 }
 .item-info .stok-text {
   font-size: 12px;
   color: var(--text-muted);
-  margin-top: 4px;
-  font-weight: 500;
+  margin-top: 2px;
 }
 .item-actions {
   display: flex;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 4px;
+  margin-top: 6px;
 }
 .item-actions button {
-  margin: 0; padding: 8px 4px; font-size: 11px; flex: 1; border-radius: 6px;
+  margin: 0;
+  padding: 6px 4px;
+  font-size: 10px;
+  flex: 1;
 }
 .btn-quick-jual {
-  background: var(--success); color: white; margin: 0; padding: 10px; font-size: 13px; border-radius: 8px;
+  background: var(--success);
+  color: white;
+  margin: 0;
+  padding: 8px;
+  font-size: 12px;
+  border-radius: 8px;
 }
-.btn-quick-jual:hover { background: #059669; }
-.btn-edit { background: rgba(245, 158, 11, 0.1); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.2); }
-.btn-edit:hover { background: rgba(245, 158, 11, 0.2); }
-.btn-delete { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.15); }
-.btn-delete:hover { background: rgba(239, 68, 68, 0.2); }
+.btn-edit { background: var(--accent); color: #000; }
+.btn-delete { background: var(--danger); color: #fff; }
 
 .scroll-box {
-  max-height: 220px; overflow-y: auto;
+  max-height: 200px;
+  overflow-y: auto;
 }
 .scroll-box p, .scroll-box .riwayat-item {
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  padding: 10px 12px; border-radius: 8px; margin: 6px 0; font-size: 13px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin: 4px 0;
+  font-size: 12px;
 }
 
 .badge-warning {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171; font-weight: 700; font-size: 10px; margin-top: 6px; padding: 2px 6px;
-  border-radius: 4px; display: inline-block; animation: blinker 2s linear infinite;
+  color: #f87171;
+  font-weight: bold;
+  font-size: 10px;
+  margin-top: 2px;
+  display: block;
+  animation: blinker 1.5s linear infinite;
 }
 .chart-container {
-  position: relative; background: rgba(0, 0, 0, 0.15); padding: 12px; border-radius: 12px; margin-top: 14px;
+  position: relative;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 12px;
+  margin-top: 10px;
 }
-.btn-share { background: #16a34a; color: #fff; font-size: 14px; margin-top: 5px;}
-.btn-share:hover { background: #15803d; }
-.btn-reset { background: transparent; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 13px; }
-.btn-reset:hover { background: rgba(239, 68, 68, 0.05); }
+.btn-share { background: #25d366; color: #fff; font-size: 14px; }
+.btn-reset { background: #221313; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.1); }
 
-/* --- MODAL EDIT STOK PREMIUM DESIGN --- */
+/* --- CSS TAMBAHAN UNTUK MODAL EDIT STOK UTAMA --- */
 .modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(9, 9, 11, 0.85); backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(13, 13, 18, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  padding: 15px;
 }
 .modal-content {
-  background: #121214; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;
-  padding: 24px; width: 100%; max-width: 380px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 .btn-group-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 6px 0 16px 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 8px 0 15px 0;
 }
 .btn-quick {
-  background: var(--bg-input); color: #fff; border: 1px solid var(--border-color);
-  padding: 12px 4px; font-size: 13px; font-weight: 600; border-radius: 8px; margin: 0;
+  background: var(--bg-input);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 5px;
+  font-size: 12px;
+  border-radius: 8px;
+  margin: 0;
 }
-.btn-quick:hover { background: var(--bg-input-focus); border-color: rgba(255,255,255,0.15); }
-.btn-quick:active { background: var(--primary); color: #fff; }
+.btn-quick:active { background: var(--primary); }
 
-@keyframes blinker { 50% { opacity: 0.5; } }
+@keyframes blinker { 50% { opacity: 0.4; } }
 
 @media(max-width:768px){
-  .row-2 { grid-template-columns: 1fr; gap: 12px; }
-  .card { padding: 16px; margin-bottom: 12px; }
+  .row-2 { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 
 <div class="brand-header">
-  <img src="./icon-192.png.PNG" onerror="this.src='https://placehold.co/100x100/18181b/ffffff?text=EVORA'" class="brand-logo" alt="EVORA Logo">
-  <h1 class="brand-title">EVORA TRACKER PRO</h1>
+  <img src="./icon-192.png.PNG" onerror="this.src='https://placehold.co/100x100/1f1f2e/ffffff?text=EVORA'" class="brand-logo" alt="EVORA Logo">
+  <h1 class="brand-title">EVORA TRACKER PRO CLOUD</h1>
 </div>
 
 <div class="sync-banner">
-  <span id="syncStatus">🔄 Sinkronisasi cloud...</span>
-  <button onclick="loadDataFromCloud()">Refresh</button>
+  <span id="syncStatus">🔄 Menghubungkan ke Google Sheets Cloud...</span>
+  <button onclick="loadDataFromCloud()" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:rgba(255,255,255,0.2);">Refresh</button>
 </div>
 
 <div class="card dashboard-hero">
   <h3>Dashboard Finansial</h3>
-  <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 16px 0; font-weight: 500;"></p>
+  <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
   <div class="stats">
     <div class="stat highlight">
       <span class="label" style="color: rgba(255,255,255,0.7)">Omzet Hari Ini</span>
       <div id="omzetHariIni" class="val">Rp 0</div>
     </div>
-    <div class="stat" onclick="editLogistik('botol')" style="cursor: pointer; background: rgba(37, 99, 235, 0.06); border: 1px dashed rgba(37, 99, 235, 0.4);">
+    <div class="stat" onclick="editLogistik('botol')" style="cursor: pointer; background: rgba(59, 130, 246, 0.1); border: 1px dashed rgba(59, 130, 246, 0.5);">
       <span class="label">Sisa Botol ✏️</span>
       <div id="stokBotol" class="val">0</div>
     </div>
-    <div class="stat" onclick="editLogistik('box')" style="cursor: pointer; background: rgba(37, 99, 235, 0.06); border: 1px dashed rgba(37, 99, 235, 0.4);">
+    <div class="stat" onclick="editLogistik('box')" style="cursor: pointer; background: rgba(59, 130, 246, 0.1); border: 1px dashed rgba(59, 130, 246, 0.5);">
       <span class="label">Sisa Box ✏️</span>
       <div id="stokBox" class="val">0</div>
     </div>
     <div class="stat"><span class="label">Total Item</span><div id="totalBarang" class="val">0</div></div>
     <div class="stat"><span class="label">Omzet Bulan Ini</span><div id="omzet" class="val">Rp 0</div></div>
     <div class="stat"><span class="label">Pengeluaran</span><div id="pengeluaran" class="val">Rp 0</div></div>
-    <div class="stat" style="grid-column: span 3; background: rgba(16, 185, 129, 0.04); border-color: rgba(16, 185, 129, 0.1);"><span class="label">Laba Bersih</span><div id="laba" class="val" style="color:var(--success); font-size: 18px;">Rp 0</div></div>
+    <div class="stat"><span class="label">Laba Bersih</span><div id="laba" class="val" style="color:var(--success)">Rp 0</div></div>
   </div>
 </div>
 
-<div class="card" style="border-color: rgba(16, 185, 129, 0.15);">
+<div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
   <h3>Mesin Kasir & Stok Produk</h3>
-  <input id="cariBarangInput" placeholder="🔍 Cari nama varian parfum..." oninput="render()" style="margin-bottom: 12px; background: #0f1715; border-color: rgba(16, 185, 129, 0.2)">
+  <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
   
   <div class="box-kasir-container">
     <div id="listBarang" class="grid-barang"></div>
@@ -349,26 +359,18 @@ button:active { transform: scale(0.98); }
 
 <div class="card">
   <h3>Penjualan Manual Grosir</h3>
-  <label style="font-size: 12px; color: var(--text-muted);">Pilih Produk:</label>
   <select id="barangJual"></select>
-  <label style="font-size: 12px; color: var(--text-muted);">Jumlah Kuantitas (Qty):</label>
-  <input id="qtyJual" type="number" placeholder="Contoh: 50">
-  <button onclick="jualBarang()">Simpan Penjualan Grosir</button>
+  <input id="qtyJual" type="number" placeholder="Jumlah Banyak Qty">
+  <button onclick="jualBarang()">Simpan Penjualan</button>
 </div>
 
 <div class="card">
   <h3>Daftarkan Varian Baru</h3>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-    <div>
-      <label style="font-size: 12px; color: var(--text-muted);">Nama Varian:</label>
-      <input id="namaBarang" placeholder="Nama Parfum">
-    </div>
-    <div>
-      <label style="font-size: 12px; color: var(--text-muted);">Stok Awal:</label>
-      <input id="qtyBarang" type="number" placeholder="Pcs">
-    </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+    <input id="namaBarang" placeholder="Nama Varian Parfum Baru">
+    <input id="qtyBarang" type="number" placeholder="Stok Awal">
   </div>
-  <button onclick="tambahBarang()">+ Daftarkan Item Baru</button>
+  <button onclick="tambahBarang()" style="margin-top: 10px;">+ Daftarkan Item</button>
 </div>
 
 <div class="row-2">
@@ -388,32 +390,32 @@ button:active { transform: scale(0.98); }
 
 <div class="card">
   <h3>Laporan & Riwayat Harian</h3>
-  <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:180px;">
-  <div id="summaryHarian" style="margin-top:10px; padding:14px; background:rgba(0,0,0,0.2); border-radius:12px; border: 1px solid var(--border-color);"></div>
+  <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
+  <div id="summaryHarian" style="margin-top:10px; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px;"></div>
   <button class="btn-share" onclick="salinLaporanHarian()">📋 Copy Laporan ke WhatsApp</button>
   <div class="chart-container"><canvas id="chartHarian"></canvas></div>
 </div>
 
 <div class="card">
   <h3>Laporan Bulanan & Top Selling</h3>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
     <div>
       <label style="font-size:12px; color:var(--text-muted);">Pilih Bulan:</label>
-      <select id="bulanSelect" onchange="render()" style="margin-bottom:0;"></select>
-      <div id="summaryBulanan" style="font-size: 13px; line-height: 1.6; margin-top: 12px; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px;"></div>
+      <select id="bulanSelect" onchange="render()"></select>
+      <div id="summaryBulanan" style="font-size: 13px; line-height: 1.5; margin-top: 10px;"></div>
     </div>
     <div>
-      <label style="font-size:12px; color:var(--text-muted);">Top Terlaris Bulan Ini:</label>
-      <div id="topSelling" style="font-size: 13px; line-height: 1.6; color:var(--accent); font-weight: 600; margin-top: 8px;"></div>
+      <label style="font-size:12px; color:var(--text-muted);">Top Terlaris:</label>
+      <div id="topSelling" style="font-size: 13px; line-height: 1.5; color:var(--accent); font-weight: 500; margin-top: 5px;"></div>
     </div>
   </div>
   <div class="chart-container"><canvas id="chartBulanan"></canvas></div>
 </div>
 
-<div class="card" style="padding-bottom: 5px; border-color: rgba(37, 99, 235, 0.2);">
-  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+<div class="card" style="padding-bottom: 5px; border: 1px solid rgba(59, 130, 246, 0.3);">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
     <h3 style="margin:0; border:none; padding:0;">Cari Riwayat Transaksi</h3>
-    <input id="tanggalRiwayat" type="date" onchange="render()" style="max-width:150px; margin:0; padding:8px 12px; font-size:13px;">
+    <input id="tanggalRiwayat" type="date" onchange="render()" style="max-width:140px; margin:0; padding:8px; font-size:12px; background:var(--bg-input); color:#fff;">
   </div>
 </div>
 
@@ -429,21 +431,21 @@ button:active { transform: scale(0.98); }
 </div>
 
 <!-- ========================================== -->
-<!-- DIALOG POP-UP MODAL EDIT STOK PREMIUM -->
+<!-- STRUKTUR MODAL EDIT STOK DAN PRODUK BARU -->
 <!-- ========================================== -->
 <div id="editModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 style="margin-top: 0; border-left-color: var(--accent); margin-bottom: 20px;">Penyesuaian Varian & Stok</h3>
+    <h3 style="margin-top: 0; border-left-color: var(--accent);">Edit Varian & Stok</h3>
     
-    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500;">Nama Varian Parfum:</label>
-    <input id="modalNamaBarang" type="text" style="margin-bottom: 16px;">
+    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Nama Varian Parfum:</label>
+    <input id="modalNamaBarang" type="text" style="margin-bottom: 12px;">
     
-    <div style="margin-bottom: 16px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color);">
-      <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 2px;">Jumlah Stok Akhir:</span>
-      <b id="modalStokSekarang" style="color: var(--accent); font-size: 24px;">0</b> <span style="font-size:13px; color: var(--text-muted);">Pcs</span>
+    <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; text-align: center;">
+      <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 2px;">Stok Akhir (Disimpan):</span>
+      <b id="modalStokSekarang" style="color: var(--accent); font-size: 20px;">0</b> <span style="font-size:12px;">pcs</span>
     </div>
     
-    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500;">Tambah Instan:</label>
+    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Tambah Cepat (Pcs):</label>
     <div class="btn-group-grid">
       <button type="button" class="btn-quick" onclick="adjustStokModal(10)">+10</button>
       <button type="button" class="btn-quick" onclick="adjustStokModal(25)">+25</button>
@@ -451,25 +453,28 @@ button:active { transform: scale(0.98); }
       <button type="button" class="btn-quick" onclick="adjustStokModal(100)">+100</button>
     </div>
     
-    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500;">Kuantitas Manual:</label>
-    <input id="modalJumlahManual" type="number" placeholder="Masukkan jumlah angka..." style="margin-bottom: 8px;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px;">
-      <button type="button" onclick="eksekusiManualModal('tambah')" style="background: var(--success); margin: 0; padding: 10px;">+ Tambah</button>
-      <button type="button" onclick="eksekusiManualModal('kurang')" style="background: var(--danger); margin: 0; padding: 10px;">- Kurang</button>
+    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Input Penyesuaian Manual:</label>
+    <input id="modalJumlahManual" type="number" placeholder="Ketik angka jumlah kuantitas..." style="margin-bottom: 8px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px;">
+      <button type="button" onclick="eksekusiManualModal('tambah')" style="background: var(--success); margin: 0; padding: 10px; font-size: 13px;">+ Tambah</button>
+      <button type="button" onclick="eksekusiManualModal('kurang')" style="background: var(--danger); margin: 0; padding: 10px; font-size: 13px;">- Kurang</button>
     </div>
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <button type="button" onclick="tutupModalEdit()" style="background: #27272a; margin: 0; color: #e4e4e7;">Batal</button>
-      <button type="button" onclick="simpanModalEdit()" style="background: var(--primary); margin: 0;">Simpan Perubahan</button>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <button type="button" onclick="tutupModalEdit()" style="background: #374151; margin: 0; font-size: 14px;">Batal</button>
+      <button type="button" onclick="simpanModalEdit()" style="background: var(--primary); margin: 0; font-size: 14px;">Simpan</button>
     </div>
   </div>
 </div>
 
-<div style="margin: 20px 0 40px 0; text-align: center;">
-  <button class="btn-reset" onclick="resetData()" style="width: auto; padding: 10px 20px;">SISTEM RESET DATABASE UTAMA</button>
+<div style="margin: 20px 0 40px 0;">
+  <button class="btn-reset" onclick="resetData()">SISTEM RESET DATABASE UTAMA</button>
 </div>
 
 <script>
+// =======================================================
+// KONFIGURASI LINK SHEETDB (PENGGANTI LOCALSTORAGE)
+// =======================================================
 const SHEETDB_URL = "https://sheetdb.io/api/v1/8sp606iyketck"; 
 
 const HARGA = 27000;
@@ -488,9 +493,11 @@ let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padSt
 document.getElementById("hariSelect").value = hariIniFull;
 document.getElementById("tanggalRiwayat").value = hariIniFull;
 
+// Variabel Global Pembantu Modal Edit
 let currentEditIndex = null;
 let tempStok = 0;
 
+// AMBIL DATA DARI CLOUD SAAT APLIKASI DIKILK / DIBUKA
 async function loadDataFromCloud() {
   setSyncStatus("🔄 Menyinkronkan data...");
   try {
@@ -504,9 +511,9 @@ async function loadDataFromCloud() {
       barang = dataUtama.barang || [];
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
-      setSyncStatus("✅ Data Sinkron!");
+      setSyncStatus("✅ Data Terkoneksi & Sinkron!");
     } else {
-      setSyncStatus("⚠️ Database kosong.");
+      setSyncStatus("⚠️ Database kosong, siap diisi.");
     }
     render();
   } catch (error) {
@@ -515,8 +522,9 @@ async function loadDataFromCloud() {
   }
 }
 
+// KIRIM DATA KE CLOUD SETIAP ADA TRANSAKSI BARU
 async function saveData() {
-  setSyncStatus("⚡ Menyimpan ke Cloud...");
+  setSyncStatus("⚡ Menyimpan data ke Cloud...");
   let paketData = {
     stokBotol: stokBotol,
     stokBox: stokBox,
@@ -532,9 +540,9 @@ async function saveData() {
       body: JSON.stringify({ data: { konten: JSON.stringify(paketData) } })
     });
     if(respon.ok) {
-      setSyncStatus("✅ Tersimpan Otomatis!");
+      setSyncStatus("✅ Perubahan Tersimpan Otomatis!");
     } else {
-      setSyncStatus("⚠️ Gagal menyimpan!");
+      setSyncStatus("⚠️ Gagal menyimpan ke cloud!");
     }
     render();
   } catch (error) {
@@ -546,6 +554,7 @@ function setSyncStatus(teks) {
   document.getElementById("syncStatus").innerText = teks;
 }
 
+// Jalankan otomatis di awal buka aplikasi
 loadDataFromCloud();
 
 function getMonthKey(date){
@@ -597,6 +606,9 @@ function tambahBarang(){
   saveData();
 }
 
+/* ========================================== */
+/* FUNGSI LOGIKA MODAL EDIT STOK BARU */
+/* ========================================== */
 function editBarang(originalIndex){
   currentEditIndex = originalIndex;
   let target = barang[originalIndex];
@@ -617,7 +629,7 @@ function adjustStokModal(jumlah) {
 function eksekusiManualModal(aksi) {
   let inputVal = Number(document.getElementById("modalJumlahManual").value);
   if (inputVal <= 0 || isNaN(inputVal)) {
-    alert("Masukkan angka manual yang valid!");
+    alert("Masukkan angka manual yang valid (lebih dari 0)!");
     return;
   }
   
@@ -625,7 +637,7 @@ function eksekusiManualModal(aksi) {
     tempStok += inputVal;
   } else if (aksi === 'kurang') {
     if (tempStok - inputVal < 0) {
-      alert("Stok tidak boleh bernilai negatif!");
+      alert("Stok tidak boleh bernilai negatif (di bawah 0)!");
       return;
     }
     tempStok -= inputVal;
@@ -645,7 +657,7 @@ function simpanModalEdit() {
   
   let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
   if(!namaBaru) {
-    alert("Nama varian tidak boleh kosong!");
+    alert("Nama varian tidak boleh dikosongkan!");
     return;
   }
   
@@ -764,7 +776,7 @@ function salinLaporanHarian() {
   }
 
   navigator.clipboard.writeText(teksLaporan).then(() => {
-    alert("Berhasil disalin ke Clipboard WhatsApp.");
+    alert("Berhasil disalin! Tinggal paste ke WhatsApp.");
   }).catch(() => { alert("Gagal menyalin otomatis."); });
 }
 
@@ -806,7 +818,7 @@ function render(){
 
   listBarang.innerHTML = barangUrut.map((x)=>{
     let tagPeringatan = "";
-    let backgroundStyle = "";
+    let backgroundStyle = "background: rgba(255, 255, 255, 0.04);";
     if(x.stok === 0) { tagPeringatan = `<span class="badge-warning">❌ HABIS</span>`; backgroundStyle = "background: var(--danger-bg); border-color: rgba(239, 68, 68, 0.2);"; } 
     else if(x.stok <= 5) { tagPeringatan = `<span class="badge-warning">⚠️ KRITIS</span>`; backgroundStyle = "background: var(--danger-bg); border-color: rgba(239, 68, 68, 0.2);"; }
     
@@ -814,15 +826,15 @@ function render(){
       <div class="item-barang" style="${backgroundStyle}">
         <div class="item-info">
           <b>${x.nama}</b>
-          <div class="stok-text">Stok: ${x.stok} Pcs</div>
+          <div class="stok-text">Stok: ${x.stok}</div>
           ${tagPeringatan}
         </div>
         <div>
-          <div style="display: flex; gap: 4px; margin-top: 8px;">
-            <select id="qtyQuick-${x.originalIndex}" style="margin: 0; padding: 6px; font-size: 13px; width: 55px; background: var(--bg-main); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center;">
+          <div style="display: flex; gap: 4px; margin-top: 6px;">
+            <select id="qtyQuick-${x.originalIndex}" style="margin: 0; padding: 6px; font-size: 12px; width: 52px; background: var(--bg-main); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center;">
               ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join("")}
             </select>
-            <button class="btn-quick-jual" onclick="quickJual(${x.originalIndex})" style="flex: 1; padding: 8px 4px; font-size: 12px;">⚡ Jual</button>
+            <button class="btn-quick-jual" onclick="quickJual(${x.originalIndex})" style="flex: 1; padding: 8px 4px; font-size: 11px;">⚡ Jual</button>
           </div>
           <div class="item-actions">
             <button class="btn-edit" onclick="editBarang(${x.originalIndex})">Edit</button>
@@ -859,7 +871,7 @@ function render(){
     
     document.getElementById("summaryHarian").innerHTML = `
       Rincian Omzet: <span style="color:#60a5fa; font-weight:bold;">Rp ${omzetHariDipilih.toLocaleString("id-ID")}</span><br>
-      <div style="margin-top:6px; font-size:12px; color:var(--text-muted); line-height: 1.5;">${detailHariDipilih || 'Belum ada transaksi.'}</div>
+      <div style="margin-top:6px; font-size:12px; color:var(--text-muted); line-height: 1.4;">${detailHariDipilih || 'Belum ada transaksi.'}</div>
       <div style="margin-top:10px; font-size:12px; color:var(--accent); font-weight:500;">
         Top Terlaris Hari Ini:<br>
         <div style="margin-top:3px; color:#fff;">${topSellingHariHTML}</div>
@@ -873,8 +885,8 @@ function render(){
   let ctxHarian = document.getElementById('chartHarian').getContext('2d');
   instanceChartHarian = new Chart(ctxHarian, {
     type: 'line',
-    data: { labels: Array.from({length: 24}, (_, i) => String(i).padStart(2, '0') + ':00'), datasets: [{ label: 'Tren Jam (Rp)', data: dataJam, borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.05)', borderWidth: 2, tension: 0.3, fill: true }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 10 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#71717a', font: { size: 10 } } } } }
+    data: { labels: Array.from({length: 24}, (_, i) => String(i).padStart(2, '0') + ':00'), datasets: [{ label: 'Tren Jam (Rp)', data: dataJam, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.08)', borderWidth: 2, tension: 0.3, fill: true }] },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 10 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#6b7280', font: { size: 10 } } } } }
   });
 
   let bulan = bulanSelect.value || bulanAktif;
@@ -899,7 +911,7 @@ function render(){
   instanceChartBulanan = new Chart(ctxBulanan, {
     type: 'bar',
     data: { labels: Array.from({length: jumlahHari}, (_, i) => i + 1), datasets: [{ label: 'Omzet Harian (Rp)', data: dataTanggal, backgroundColor: '#f59e0b', borderRadius: 4 }] },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 9 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { display: false } } } }
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 9 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { display: false } } } }
   });
 
   let salesMap = {};
@@ -918,17 +930,16 @@ function render(){
   let riwayatKeluarHarian = pengeluaran.filter(x=>getDayKey(x.tanggal)===tglRiwayatKey);
 
   riwayatJual.innerHTML = riwayatJualHarian.length ? riwayatJualHarian.map(x=>`
-  <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
+  <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
-      <span style="color:var(--text-muted); font-size:11px;">⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")}</span><br>
-      <b>${x.barang}</b> ${x.qty > 0 ? `(${x.qty} pcs)` : ''}<br>
-      <span style="color:#60a5fa; font-weight:600;">Rp ${x.nominal.toLocaleString("id-ID")}</span>
+      ⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")} - <b>${x.barang}</b> ${x.qty > 0 ? `(${x.qty} pcs)` : ''}<br>
+      <span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span>
     </div>
-    <button onclick="batalkanPesanan(${x.originalIndex})" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 6px 12px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
+    <button onclick="batalkanPesanan(${x.originalIndex})" style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
   </div>`).join("") : `<p style='color:var(--text-muted)'>Tidak ada penjualan pada ${tglRiwayat}</p>`;
 
   riwayatKeluar.innerHTML = riwayatKeluarHarian.length ? riwayatKeluarHarian.map(x=>`
-  <p>⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")} - <span style="font-weight:600; color:var(--danger)">Rp ${x.nominal.toLocaleString("id-ID")}</span><br><span style="color:var(--text-muted); font-size:12px;">${x.keterangan || '-'}</span></p>`).join("") : `<p style='color:var(--text-muted)'>Tidak ada pengeluaran pada ${tglRiwayat}</p>`;
+  <p>⏱️ ${new Date(x.tanggal).toLocaleTimeString("id-ID")} - Rp ${x.nominal.toLocaleString("id-ID")}<br><span style="color:var(--text-muted)">${x.keterangan || '-'}</span></p>`).join("") : `<p style='color:var(--text-muted)'>Tidak ada pengeluaran pada ${tglRiwayat}</p>`;
 }
 </script>
 </body>
