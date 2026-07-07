@@ -467,6 +467,30 @@ button:active {
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODAL BARU: EDIT STOK LOGISTIK (BOTOL / BOX) -->
+<!-- ========================================== -->
+<div id="logistikModal" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <h3 id="logistikModalJudul" style="margin-top: 0; border-left-color: var(--primary);">Edit Stok Logistik</h3>
+    
+    <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; text-align: center;">
+      <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 2px;">Stok Saat Ini:</span>
+      <b id="logistikStokSekarang" style="color: var(--primary); font-size: 20px;">0</b> <span style="font-size:12px;">pcs</span>
+    </div>
+    
+    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Input Penyesuaian Manual:</label>
+    <input id="logistikJumlahManual" type="number" placeholder="Ketik angka jumlah kuantitas..." style="margin-bottom: 20px;">
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px;">
+      <button type="button" onclick="eksekusiLogistik('tambah')" style="background: var(--success); margin: 0; padding: 10px; font-size: 13px;">+ Tambah</button>
+      <button type="button" onclick="eksekusiLogistik('kurang')" style="background: var(--danger); margin: 0; padding: 10px; font-size: 13px;">- Kurang</button>
+    </div>
+    
+    <button type="button" onclick="tutupLogistikModal()" style="background: #374151; margin: 0; font-size: 14px;">Batal</button>
+  </div>
+</div>
+
 <div style="margin: 20px 0 40px 0;">
   <button class="btn-reset" onclick="resetData()">SISTEM RESET DATABASE UTAMA</button>
 </div>
@@ -496,6 +520,7 @@ document.getElementById("tanggalRiwayat").value = hariIniFull;
 // Variabel Global Pembantu Modal Edit
 let currentEditIndex = null;
 let tempStok = 0;
+let currentLogistikJenis = null; // Penanda botol atau box yang sedang diedit
 
 // AMBIL DATA DARI CLOUD SAAT APLIKASI DIKILK / DIBUKA
 async function loadDataFromCloud() {
@@ -583,18 +608,50 @@ function updateMonthSelect(){
   .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
+/* ========================================================= */
+/* FUNGSI UTAMA BARU UNTUK INPUT MANUAL BOTOL & BOX (MODAL) */
+/* ========================================================= */
 function editLogistik(jenis) {
+  currentLogistikJenis = jenis;
   let nilaiSaatIni = jenis === 'botol' ? stokBotol : stokBox;
-  let inputBaru = prompt(`Ubah Total Stok ${jenis.toUpperCase()} saat ini:`, nilaiSaatIni);
   
-  if (inputBaru !== null && inputBaru.trim() !== "") {
-    let angkaBaru = Number(inputBaru);
-    if (!isNaN(angkaBaru) && angkaBaru >= 0) {
-      if (jenis === 'botol') stokBotol = angkaBaru;
-      if (jenis === 'box') stokBox = angkaBaru;
-      saveData();
-    } else { alert("Masukkan angka yang valid!"); }
+  document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
+  document.getElementById("logistikStokSekarang").innerText = nilaiSaatIni;
+  document.getElementById("logistikJumlahManual").value = "";
+  
+  document.getElementById("logistikModal").style.display = "flex";
+}
+
+function eksekusiLogistik(aksi) {
+  let inputVal = Number(document.getElementById("logistikJumlahManual").value);
+  if (inputVal <= 0 || isNaN(inputVal)) {
+    alert("Masukkan angka manual yang valid (lebih dari 0)!");
+    return;
   }
+  
+  let nilaiSaatIni = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
+  
+  if (aksi === 'tambah') {
+    nilaiSaatIni += inputVal;
+  } else if (aksi === 'kurang') {
+    if (nilaiSaatIni - inputVal < 0) {
+      alert("Stok tidak boleh bernilai negatif (di bawah 0)!");
+      return;
+    }
+    nilaiSaatIni -= inputVal;
+  }
+  
+  // Masukkan kembali nilainya ke variabel utama database
+  if (currentLogistikJenis === 'botol') stokBotol = nilaiSaatIni;
+  if (currentLogistikJenis === 'box') stokBox = nilaiSaatIni;
+  
+  tutupLogistikModal();
+  saveData();
+}
+
+function tutupLogistikModal() {
+  document.getElementById("logistikModal").style.display = "none";
+  currentLogistikJenis = null;
 }
 
 function tambahBarang(){
@@ -607,7 +664,7 @@ function tambahBarang(){
 }
 
 /* ========================================== */
-/* FUNGSI LOGIKA MODAL EDIT STOK BARU */
+/* FUNGSI LOGIKA MODAL EDIT STOK PRODUK/VARIAN */
 /* ========================================== */
 function editBarang(originalIndex){
   currentEditIndex = originalIndex;
