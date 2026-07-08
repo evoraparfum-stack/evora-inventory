@@ -379,7 +379,6 @@ button {
 </head>
 <body>
 
-<!-- PREMIUM MAIN EXPENSE & WALLET HEADER -->
 <div class="premium-header">
   <div class="header-top">
     <div class="brand-title">EVORA Tracker Pro</div>
@@ -393,11 +392,10 @@ button {
       <div id="bulanAktif" class="sub-balance">Juli 2026</div>
     </div>
     <div>
-      <button class="btn-sync-icon" onclick="triggerSyncWithConfirm()">🔄</button>
+      <button class="btn-sync-icon" onclick="loadDataFromCloud()">🔄</button>
     </div>
   </div>
 
-  <!-- FLOATING PILLS - TEXT ONLY -->
   <div class="pills-container">
     <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol">0</span> ✏️</button>
     <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox">0</span> ✏️</button>
@@ -405,13 +403,10 @@ button {
   </div>
 </div>
 
-<!-- CONTAINER SHEET FOR BODY CONTENT -->
 <div class="main-sheet">
 
-  <!-- ================= TAB 1: BERANDA ================= -->
   <div id="tab-beranda" class="tab-content active">
     
-    <!-- NEW SECTION: PERFORMA REAL-TIME HARI INI -->
     <div class="card" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0;">
       <h3>⚡ PERFORMA HARI INI</h3>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:10px;">
@@ -423,15 +418,12 @@ button {
       </div>
     </div>
 
-    <!-- MODERN SELLING CARDS ROW -->
     <div class="card">
       <h3>🏆 TOP VARIAN BULAN INI</h3>
       <div id="topVarianAvatars" class="top-product-grid">
-        <!-- Generated Dynamically -->
-      </div>
+        </div>
     </div>
 
-    <!-- DOUBLE ACTION CARDS ROW -->
     <div class="action-grid">
       <div class="action-card">
         <h4 style="margin:0 0 8px 0; font-size:12px; color:var(--success); text-transform:uppercase; letter-spacing:0.5px;">💰 Omzet Manual</h4>
@@ -447,7 +439,6 @@ button {
       </div>
     </div>
 
-    <!-- MAIN MONTHLY PERFORMANCE CARD -->
     <div class="card" style="margin-top:16px; background: linear-gradient(135deg, #f0fdfa 0%, #fff 100%); border: 1px solid #ccfbf1;">
       <h3>📊 RINGKASAN PERFORMA BULANAN</h3>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px; font-weight:600;">
@@ -460,7 +451,6 @@ button {
     </div>
   </div>
 
-  <!-- ================= TAB 2: KASIR & MANAJEMEN ================= -->
   <div id="tab-kasir" class="tab-content">
     <div class="card">
       <h3>⚙️ KONFIGURASI HARGA GLOBAL</h3>
@@ -491,13 +481,11 @@ button {
     </div>
   </div>
 
-  <!-- ================= TAB 3: ANALISIS LAPORAN ================= -->
   <div id="tab-laporan" class="tab-content">
     <div class="card">
       <h3>📅 LAPORAN HARIAN (INFO)</h3>
       <input id="hariSelect" type="date" onchange="render()">
       <div id="summaryHarian" style="margin-top:10px; padding:14px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
-      <button onclick="salinLaporanHarian()" style="background:#0f766e; margin-top:12px;">📋 Salin Laporan ke WhatsApp</button>
     </div>
 
     <div class="card">
@@ -507,7 +495,6 @@ button {
     </div>
   </div>
 
-  <!-- ================= TAB 4: RIWAYAT & AUDIT ================= -->
   <div id="tab-riwayat" class="tab-content">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
@@ -533,7 +520,6 @@ button {
 
 </div>
 
-<!-- COMPACT ELEGANT BOTTOM NAV BAR -->
 <div class="bottom-nav">
   <button id="nav-beranda" class="nav-item active" onclick="switchTab('beranda')">
     <div class="nav-icon">🏠</div>
@@ -553,7 +539,6 @@ button {
   </button>
 </div>
 
-<!-- ================= MODAL WINDOW SYSTEM ================= -->
 <div id="editModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 style="color:var(--primary)">Edit Item & Stok</h3>
@@ -625,12 +610,6 @@ function switchTab(tabName) {
   document.getElementById(`nav-${tabName}`).classList.add('active');
 }
 
-function triggerSyncWithConfirm() {
-  if (confirm("Apakah Anda ingin menyinkronkan data ulang dengan cloud database?")) {
-    loadDataFromCloud();
-  }
-}
-
 async function loadDataFromCloud() {
   setSyncStatus("🔄 Sync...");
   try {
@@ -694,6 +673,7 @@ function setSyncStatus(teks) {
   document.getElementById("syncStatus").innerText = teks;
 }
 
+// ... (logika getMonthKey, getDayKey, getMonthLabel, dan updateMonthSelect tetap sama)
 function getMonthKey(date){
   let d = new Date(date);
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
@@ -864,45 +844,13 @@ function hapusPengeluaran(originalIndex) {
   }
 }
 
-// FORMAT BARU: SALIN KE WHATSAPP (HARIAN)
-function salinLaporanHarian() {
-  if(!confirm("Salin ringkasan teks laporan ke clipboard?")) return;
-  let tgl = document.getElementById("hariSelect").value;
-  let key = getDayKey(tgl);
-  let jH = penjualan.filter(x=>getDayKey(x.tanggal)===key);
-  let eH = pengeluaran.filter(x=>getDayKey(x.tanggal)===key);
-  
-  // Penjualan Harian
-  let salesMap = {};
-  jH.forEach(x => {
-    if(x.qty > 0 || x.barang === "OMZET MANUAL") {
-      if(!salesMap[x.barang]) salesMap[x.barang] = {qty: 0, nom: 0, ket: x.keterangan || ""};
-      salesMap[x.barang].qty += x.qty;
-      salesMap[x.barang].nom += x.nominal;
-    }
-  });
-  
-  let rankingHarian = Object.entries(salesMap).sort((a,b) => b[1].qty - a[1].qty);
-  let listJual = rankingHarian.length ? rankingHarian.map(x => {
-    if(x[0] === "OMZET MANUAL") return `- Tambahan: Rp ${x[1].nom.toLocaleString("id-ID")} (${x[1].ket})`;
-    return `- ${x[0]}: ${x[1].qty} pcs`;
-  }).join("\n") : "- Belum ada penjualan";
-  
-  // Pengeluaran Harian (Info)
-  let listKeluar = eH.length ? eH.map(x => `- ${x.keterangan}: Rp ${x.nominal.toLocaleString("id-ID")}`).join("\n") : "- Tidak ada pengeluaran";
-
-  let teks = `*LAPORAN HARIAN EVORA*\nTanggal: ${tgl}\n\n*📋 Performa Hari Ini:*\n${listJual}\n\n*💸 Catatan Pengeluaran (Info):*\n${listKeluar}`;
-  
-  navigator.clipboard.writeText(teks).then(() => alert("Laporan berhasil disalin!"));
-}
-
 function render(){
   updateMonthSelect();
   let hariIniKey = getDayKey(new Date());
   let bulanAktif = getMonthKey(new Date());
   document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
 
-  // LOGIC & DATA CALCULATION FOR TODAY (BERANDA INTEGRATION)
+  // LOGIC & DATA CALCULATION FOR TODAY
   let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
   let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
   let totalTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
@@ -915,7 +863,7 @@ function render(){
   let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
   document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
 
-  // MONTHLY OVERVIEW (BERANDA)
+  // MONTHLY OVERVIEW
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
@@ -928,7 +876,7 @@ function render(){
   document.getElementById("pengeluaran").innerText = "Rp "+keluarVal.toLocaleString("id-ID");
   document.getElementById("laba").innerText = "Rp "+(omzetVal-keluarVal).toLocaleString("id-ID");
 
-  // RENDER DYNAMIC CARD BADGES (PREMIUM BLOCK STYLE)
+  // RENDER DYNAMIC CARD BADGES
   let salesMapBln = {};
   jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
   let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
@@ -984,7 +932,6 @@ function render(){
     let jH = penjualan.filter(x=>getDayKey(x.tanggal)===kH);
     let eH = pengeluaran.filter(x=>getDayKey(x.tanggal)===kH);
     
-    // Kelompokkan barang yg terjual hari itu
     let mapHarian = {};
     jH.forEach(x => {
       if(x.qty > 0 || x.barang === "OMZET MANUAL") {
@@ -1027,7 +974,6 @@ function render(){
   let pB = kB.reduce((a,b)=>a+b.nominal,0);
   let labaB = oB - pB;
 
-  // Grup Penjualan
   let mapBulanan = {};
   jB.forEach(x => {
     if(!mapBulanan[x.barang]) mapBulanan[x.barang] = {qty: 0, nominal: 0};
