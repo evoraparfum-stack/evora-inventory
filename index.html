@@ -338,9 +338,16 @@ button:active {
     <div class="stat"><span class="label">Omzet Bulan Ini</span><div id="omzet" class="val">Rp 0</div></div>
     <div class="stat"><span class="label">Pengeluaran</span><div id="pengeluaran" class="val">Rp 0</div></div>
     <div class="stat"><span class="label">Laba Bersih</span><div id="laba" class="val" style="color:var(--success)">Rp 0</div></div>
-    <div class="stat" style="grid-column: span 3; background: rgba(255, 255, 255, 0.05); margin-top: 4px; border: 1px solid rgba(245, 158, 11, 0.2);">
-      <span class="label" style="color: var(--accent);">📊 Total Botol Terjual (Bulan Ini)</span>
-      <div id="botolTerjualBln" class="val" style="color: var(--accent); font-size: 16px;">0 pcs</div>
+    
+    <div class="stat" style="grid-column: span 3; background: rgba(255, 255, 255, 0.05); margin-top: 4px; border: 1px solid rgba(245, 158, 11, 0.25); display: flex; justify-content: space-around; align-items: center; padding: 12px 6px;">
+      <div style="text-align: center; flex: 1; border-right: 1px solid rgba(255,255,255,0.08);">
+        <span class="label" style="color: #60a5fa; font-weight: 500;">📊 Terjual Hari Ini</span>
+        <div id="botolTerjualHari" class="val" style="color: #60a5fa; font-size: 16px;">0 pcs</div>
+      </div>
+      <div style="text-align: center; flex: 1;">
+        <span class="label" style="color: var(--accent); font-weight: 500;">📊 Terjual Bulan Ini</span>
+        <div id="botolTerjualBln" class="val" style="color: var(--accent); font-size: 16px;">0 pcs</div>
+      </div>
     </div>
   </div>
 </div>
@@ -398,19 +405,12 @@ button:active {
   <button class="btn-share" onclick="salinLaporanHarian()">📋 Copy Laporan ke WhatsApp</button>
 </div>
 
+<!-- UPDATE: Laporan bulanan dibuat full-width dengan model kontainer ringkas & detail yang rapi -->
 <div class="card">
   <h3>Laporan Bulanan & Detail Produk</h3>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
-    <div>
-      <label style="font-size:12px; color:var(--text-muted); font-weight: 600;">Pilih Bulan:</label>
-      <select id="bulanSelect" onchange="render()"></select>
-      <div id="summaryBulanan" style="font-size: 13px; line-height: 1.6; margin-top: 10px;"></div>
-    </div>
-    <div>
-      <label style="font-size:12px; color:var(--text-muted);">Total Terjual Per Varian:</label>
-      <div id="topSelling" class="scroll-box" style="max-height: 110px; font-size: 13px; line-height: 1.6; color:var(--accent); font-weight: 500; margin-top: 5px; padding-right: 3px;"></div>
-    </div>
-  </div>
+  <label style="font-size:12px; color:var(--text-muted); font-weight: 600;">Pilih Periode Bulan:</label>
+  <select id="bulanSelect" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px; margin-bottom: 10px;"></select>
+  <div id="summaryBulanan" style="margin-top:10px; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px;"></div>
 </div>
 
 <div class="card" style="padding-bottom: 5px; border: 1px solid rgba(59, 130, 246, 0.3);">
@@ -625,7 +625,7 @@ function updateMonthSelect(){
 }
 
 function editLogistik(jenis) {
-  currentLogistikJanis = jenis;
+  currentLogistikJenis = jenis;
   let nilaiSaatIni = jenis === 'botol' ? stokBotol : stokBox;
   
   document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
@@ -642,7 +642,7 @@ function eksekusiLogistik(aksi) {
     return;
   }
   
-  let nilaiSaatIni = currentLogistikJanis === 'botol' ? stokBotol : stokBox;
+  let nilaiSaatIni = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
   
   if (aksi === 'tambah') {
     nilaiSaatIni += inputVal;
@@ -654,8 +654,8 @@ function eksekusiLogistik(aksi) {
     nilaiSaatIni -= inputVal;
   }
   
-  if (currentLogistikJanis === 'botol') stokBotol = nilaiSaatIni;
-  if (currentLogistikJanis === 'box') stokBox = nilaiSaatIni;
+  if (currentLogistikJenis === 'botol') stokBotol = nilaiSaatIni;
+  if (currentLogistikJenis === 'box') stokBox = nilaiSaatIni;
   
   tutupLogistikModal();
   saveData();
@@ -663,7 +663,7 @@ function eksekusiLogistik(aksi) {
 
 function tutupLogistikModal() {
   document.getElementById("logistikModal").style.display = "none";
-  currentLogistikJanis = null;
+  currentLogistikJenis = null;
 }
 
 function tambahBarang(){
@@ -846,7 +846,6 @@ function salinLaporanHarian() {
   let kHari = pengeluaran.filter(x=>getDayKey(x.tanggal)===key);
   let oHari = jHari.reduce((a,b)=>a+b.nominal,0);
   let pHari = kHari.reduce((a,b)=>a+b.nominal,0);
-  // UPDATE: Akumulasi botol hari tersebut untuk WhatsApp teks
   let bHari = jHari.reduce((a,b)=>a+b.qty,0); 
   
   let teksLaporan = `*LAPORAN HARIAN EVORA (${tgl})*\n\n`;
@@ -919,8 +918,10 @@ function render(){
   document.getElementById("pengeluaran").innerText = "Rp "+keluar.toLocaleString("id-ID");
   document.getElementById("laba").innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
 
-  // UPDATE: Hitung total botol terjual di dashboard utama (bulan aktif)
+  let botolTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
   let botolTerjualBlnIni = jualAktif.reduce((a,b)=>a+b.qty,0);
+  
+  document.getElementById("botolTerjualHari").innerText = botolTerjualHariIni + " pcs";
   document.getElementById("botolTerjualBln").innerText = botolTerjualBlnIni + " pcs";
 
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
@@ -969,7 +970,6 @@ function render(){
     
     let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
     let pengeluaranHariDipilih = keluarHariDipilih.reduce((a,b)=>a+b.nominal,0);
-    // UPDATE: Hitung total botol terjual hari yang dipilih
     let botolHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.qty,0); 
     
     let grupJualHari = {};
@@ -1001,7 +1001,6 @@ function render(){
       ? rankingHari.map((x,i) => `🏆 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>") 
       : "<span style='color:var(--text-muted);'>Belum ada penjualan</span>";
     
-    // UPDATE: Penyesuaian layout agar botol terjual masuk grid 3 kolom di Laporan Harian
     document.getElementById("summaryHarian").innerHTML = `
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; margin-bottom: 12px;">
         <div style="background: rgba(255,255,255,0.02); padding: 6px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.1);">
@@ -1036,21 +1035,35 @@ function render(){
     `;
   }
 
+  // UPDATE: Logika Pemrosesan Render Laporan Bulanan Detail Modern (Mirip Harian)
   let bulan = bulanSelect.value || bulanAktif;
   let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
   let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
+  
   let omzetBulanan = jualBulanan.reduce((a,b)=>a+b.nominal,0);
   let keluarBulananTotal = keluarBulanan.reduce((a,b)=>a+b.nominal,0);
-  // UPDATE: Hitung total botol terjual pada bulan yang dipilih
   let botolBulananTotal = jualBulanan.reduce((a,b)=>a+b.qty,0); 
 
-  // UPDATE: Menambahkan baris Terjual di Laporan Bulanan
-  summaryBulanan.innerHTML = `
-    Omzet: <span style="color:#fff;">Rp ${omzetBulanan.toLocaleString("id-ID")}</span><br>
-    Keluar: <span style="color:#fff;">Rp ${keluarBulananTotal.toLocaleString("id-ID")}</span><br>
-    Laba: <span style="color:var(--success); font-weight:bold;">Rp ${(omzetBulanan-keluarBulananTotal).toLocaleString("id-ID")}</span><br>
-    Terjual: <span style="color:var(--accent); font-weight:bold;">${botolBulananTotal} pcs</span>
-  `;
+  let grupJualBulan = {};
+  jualBulanan.forEach(x => {
+    let keyGrup = x.barang === "OMZET MANUAL" ? `MANUAL: ${x.keterangan || 'Tanpa Keterangan'}` : x.barang;
+    if(!grupJualBulan[keyGrup]) {
+      grupJualBulan[keyGrup] = { barang: x.barang, qty: 0, nominal: 0, keterangan: x.keterangan || '' };
+    }
+    grupJualBulan[keyGrup].qty += x.qty;
+    grupJualBulan[keyGrup].nominal += x.nominal;
+  });
+
+  let detailBulanDipilih = Object.values(grupJualBulan).map(x => {
+    if(x.barang === "OMZET MANUAL") { return `• [Manual] ${x.keterangan || 'Tanpa Keterangan'} - Rp ${x.nominal.toLocaleString("id-ID")}`; }
+    return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
+  }).join("<br>");
+
+  let detailKeluarBulanDipilih = keluarBulanan.map(x => {
+    let dObj = new Date(x.tanggal);
+    let tglCap = `${dObj.getDate()}/${dObj.getMonth()+1}`;
+    return `• [${tglCap}] ${x.keterangan || 'Belanja'} - <span style="color:var(--danger)">Rp ${x.nominal.toLocaleString("id-ID")}</span>`;
+  }).join("<br>");
 
   let salesMap = {};
   jualBulanan.forEach(x=> {
@@ -1059,11 +1072,47 @@ function render(){
   });
   
   let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]);
-  
-  topSelling.innerHTML = ranking.length ? ranking.map((x,i)=>{
+  let topSellingBulanHTML = ranking.length ? ranking.map((x,i)=>{
     let ikon = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "• ";
     return `${ikon}${x[0]} : <b>${x[1]} pcs</b>`;
-  }).join("<br>") : "<span style='color:var(--text-muted)'>Belum ada penjualan.</span>";
+  }).join("<br>") : "<span style='color:var(--text-muted)'>Belum ada penjualan di bulan ini.</span>";
+
+  summaryBulanan.innerHTML = `
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; text-align: center; margin-bottom: 12px;">
+      <div style="background: rgba(255,255,255,0.02); padding: 8px 4px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.15);">
+        <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Total Omzet</span>
+        <div style="color:#60a5fa; font-weight:bold; font-size:13px;">Rp ${omzetBulanan.toLocaleString("id-ID")}</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.02); padding: 8px 4px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.15);">
+        <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Total Pengeluaran</span>
+        <div style="color:var(--danger); font-weight:bold; font-size:13px;">Rp ${keluarBulananTotal.toLocaleString("id-ID")}</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.02); padding: 8px 4px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.15);">
+        <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Laba Bersih</span>
+        <div style="color:var(--success); font-weight:bold; font-size:13px;">Rp ${(omzetBulanan - keluarBulananTotal).toLocaleString("id-ID")}</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.02); padding: 8px 4px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.15);">
+        <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Total Terjual</span>
+        <div style="color:var(--accent); font-weight:bold; font-size:13px;">${botolBulananTotal} pcs</div>
+      </div>
+    </div>
+    
+    <div style="font-size: 12px; line-height: 1.4; display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px;">
+      <div>
+        <b style="color:#60a5fa; display:block; margin-bottom:4px;">💰 Akumulasi Produk Terjual:</b>
+        <div class="scroll-box" style="color:var(--text-muted); background:rgba(0,0,0,0.15); padding:8px; border-radius:6px; max-height:100px;">${detailBulanDipilih || 'Tidak ada pendapatan.'}</div>
+      </div>
+      <div>
+        <b style="color:var(--danger); display:block; margin-bottom:4px;">💸 Detail Log Pengeluaran Bulanan:</b>
+        <div class="scroll-box" style="color:var(--text-muted); background:rgba(0,0,0,0.15); padding:8px; border-radius:6px; max-height:100px;">${detailKeluarBulanDipilih || 'Tidak ada pengeluaran.'}</div>
+      </div>
+    </div>
+
+    <div style="font-size:12px; color:var(--accent); font-weight:500; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 8px;">
+      📊 Peringkat Varian Terlaris (Bulan Ini):<br>
+      <div class="scroll-box" style="margin-top:5px; color:#fff; max-height:110px; font-weight: normal;">${topSellingBulanHTML}</div>
+    </div>
+  `;
 
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
