@@ -11,9 +11,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
 
-  <!-- MENYUNTIKKAN MESIN PEMBACA TEKS RESI (TESSERACT OCR) ASLI -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
 <style>
 :root {
   --premium-gradient: linear-gradient(135deg, #063e46 0%, #0f616d 100%);
@@ -130,7 +127,7 @@ html, body {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* GLASSMORPHISM PILLS */
+/* GLASSMORPHISM PILLS - TEXT ONLY */
 .pills-container {
   display: flex;
   gap: 10px;
@@ -454,7 +451,6 @@ button:active {
   </div>
 
   <div class="pills-container">
-    <button class="premium-pill" style="background: var(--success); border-color:#0d9488;" onclick="bukaScanOcr()">📷 SCAN RESI</button>
     <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol">0</span> ✏️</button>
     <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox">0</span> ✏️</button>
     <div class="premium-pill" style="background: rgba(0,0,0,0.2); border-color: rgba(0,0,0,0.1)">Total Varian: <span id="totalBarang">0</span></div>
@@ -464,6 +460,7 @@ button:active {
 <div class="main-sheet">
 
   <div id="tab-beranda" class="tab-content active">
+    
     <div class="card" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0;">
       <h3>⚡ PERFORMA HARI INI</h3>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:12px;">
@@ -477,7 +474,8 @@ button:active {
 
     <div class="card">
       <h3>🏆 TOP VARIAN BULAN INI</h3>
-      <div id="topVarianAvatars" class="top-product-grid"></div>
+      <div id="topVarianAvatars" class="top-product-grid">
+        </div>
     </div>
 
     <div class="action-grid">
@@ -515,7 +513,6 @@ button:active {
 
     <div class="card">
       <h3>🛒 PANEL KASIR INSTAN</h3>
-      <button onclick="bukaScanOcr()" style="background:var(--success); margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:8px;">📷 PINDAI RESI OTOMATIS (OCR)</button>
       <div class="search-container">
         <input id="cariBarangInput" placeholder="🔍 Cari nama varian parfum..." oninput="handleSearchInput()">
         <button id="btnClearSearch" class="btn-clear-search" onclick="clearSearchField()">✕</button>
@@ -596,45 +593,6 @@ button:active {
   </button>
 </div>
 
-<!-- MODAL SCAN RESI (UPDATED LINE FOCUS ENGINE) -->
-<div id="scanOcrModal" class="modal-overlay" style="display: none;">
-  <div class="modal-content" style="max-width: 360px; text-align: center;">
-    <h3 style="color:var(--primary); justify-content: center; margin-bottom: 15px;">📷 PEMINDAI RESI OTOMATIS</h3>
-    
-    <div id="cameraPreview" style="position:relative; width: 100%; height: 180px; background: #0f172a; border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 15px; font-weight: 600; font-size:12px; color: #64748b; border: 2px dashed #cbd5e1; overflow: hidden;">
-      <video id="videoStream" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; display: none;"></video>
-      <div id="cameraLoadingText" style="position: absolute; text-align: center; padding:10px;">
-        <span style="font-size: 20px; display: block; margin-bottom:4px;">📷</span>
-        Membuka Kamera Belakang HP...
-      </div>
-      <canvas id="captureCanvas" style="display: none;"></canvas>
-    </div>
-
-    <!-- Status Pembacaan Teks -->
-    <div id="ocrStatusText" style="font-size: 13px; font-weight: 700; margin: 10px 0; padding: 12px; border-radius: 10px; background: #f1f5f9; color: var(--text-main); line-height:1.4;">
-      Membidik teks resi...
-    </div>
-
-    <!-- Aksi Tombol Hasil Scan -->
-    <div id="ocrActionContainer" style="display: none; margin-top: 12px;">
-      <button id="btnKonfirmasiOcr" style="background: var(--success); padding: 12px; font-size: 13px;">
-        YA, KONFIRMASI TRANSAKSI RESI
-      </button>
-    </div>
-
-    <div style="margin: 12px 0; padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">
-      <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 5px; font-weight:700;">Simulasi Penguji Cepat:</div>
-      <div style="display: flex; flex-direction:column; gap: 4px;">
-        <button onclick="forceStopStream(); sinyalScanTerbaca([{namaVarian:'ICARUS', qty:2}, {namaVarian:'MONACO', qty:1}, {namaVarian:'CALIFORNIA', qty:1}])" style="font-size:10px; padding:6px; background:#0f616d; box-shadow:none;">🧪 Tes Paket (Icarus 2, Monaco 1, California 1)</button>
-        <button onclick="forceStopStream(); sinyalScanTidakTerbaca()" style="font-size:10px; padding:6px; background:#e11d48; box-shadow:none;">Tes Gagal</button>
-      </div>
-    </div>
-
-    <button onclick="tutupScanOcr()" style="background:#94a3b8; box-shadow:none; padding:10px; font-size:13px;">Tutup Kotak Scanner</button>
-  </div>
-</div>
-
-<!-- MODAL EDIT STOK VARIAN -->
 <div id="editModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 style="color:var(--primary)">Edit Item & Stok</h3>
@@ -652,7 +610,6 @@ button:active {
   </div>
 </div>
 
-<!-- MODAL EDIT LOGISTIK -->
 <div id="logistikModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 id="logistikModalJudul" style="color:var(--primary)">Edit Logistik</h3>
@@ -666,7 +623,6 @@ button:active {
   </div>
 </div>
 
-<!-- MODAL EDIT PENGELUARAN -->
 <div id="editPengeluaranModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 style="color:var(--danger)">Edit Catatan Log</h3>
@@ -699,10 +655,6 @@ let currentEditIndex = null;
 let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
-
-let localStream = null;
-let pemindaiAktif = false;
-let dataScanSementara = [];
 
 function switchTab(tabName) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -779,13 +731,9 @@ function getMonthKey(date){
   let d = new Date(date);
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
 }
-// Sinkronisasi perbaikan zona waktu lokal agar tanggal rekapitulasi presisi
 function getDayKey(date){
   let d = new Date(date);
-  let y = d.getFullYear();
-  let m = String(d.getMonth() + 1).padStart(2, "0");
-  let r = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${r}`;
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
 function getMonthLabel(key){
   let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -949,202 +897,13 @@ function hapusPengeluaran(originalIndex) {
   }
 }
 
-// ==================== ENGINE SCANNER MULTI-ITEM (FOKUS BARIS) ====================
-async function bukaScanOcr() {
-  document.getElementById("scanOcrModal").style.display = "flex";
-  resetKeadaanMembidik();
-
-  let video = document.getElementById("videoStream");
-  let loadingText = document.getElementById("cameraLoadingText");
-
-  try {
-    let stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
-    
-    video.srcObject = stream;
-    localStream = stream;
-    video.style.display = "block";
-    loadingText.style.display = "none";
-
-    pemindaiAktif = true;
-    mulaiSiklusPenangkapanResi();
-
-  } catch (err) {
-    console.error(err);
-    let statusEl = document.getElementById("ocrStatusText");
-    statusEl.innerText = "❌ GAGAL AKSES KAMERA (Izin Diblokir)";
-    statusEl.style.background = "#ffe4e6";
-    statusEl.style.color = "#be123c";
-  }
-}
-
-function tutupScanOcr() {
-  forceStopStream();
-  document.getElementById("scanOcrModal").style.display = "none";
-}
-
-function forceStopStream() {
-  pemindaiAktif = false;
-  if (localStream) {
-    localStream.getTracks().forEach(track => track.stop());
-    localStream = null;
-  }
-  let video = document.getElementById("videoStream");
-  video.srcObject = null;
-  video.style.display = "none";
-  document.getElementById("cameraLoadingText").style.display = "block";
-}
-
-function resetKeadaanMembidik() {
-  let elStatus = document.getElementById("ocrStatusText");
-  elStatus.innerText = "Membidik teks resi...";
-  elStatus.style.background = "#f1f5f9";
-  elStatus.style.color = "var(--text-main)";
-  document.getElementById("ocrActionContainer").style.display = "none";
-}
-
-function mulaiSiklusPenangkapanResi() {
-  if (!pemindaiAktif) return;
-
-  let elStatus = document.getElementById("ocrStatusText");
-  if (elStatus.innerText.includes("TERBACA") || elStatus.innerText.includes("TIDAK TERBACA")) {
-    return;
-  }
-
-  let video = document.getElementById("videoStream");
-  let canvas = document.getElementById("captureCanvas");
-
-  if (!video.srcObject || video.readyState !== video.HAVE_ENOUGH_DATA) {
-    setTimeout(mulaiSiklusPenangkapanResi, 400);
-    return;
-  }
-
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  let ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  elStatus.innerText = "⏳ Membaca susunan teks resi...";
-  elStatus.style.background = "#eef8f9";
-
-  Tesseract.recognize(canvas, 'eng')
-    .then(result => {
-      let textResi = result.data.text.toUpperCase();
-      console.log("OCR Stream:", textResi);
-
-      let lines = textResi.split('\n');
-      let matchesMap = {}; 
-
-      for (let line of lines) {
-        for (let b of barang) {
-          if (line.includes(b.nama)) {
-            // Isolasi teks dari nama parfum ke kanan
-            let cleanLine = line.substring(line.indexOf(b.nama));
-            // Singkirkan gangguan teks ukuran botol '30ML'
-            cleanLine = cleanLine.replace(/\d+\s*ML/g, ''); 
-            
-            // Bidik angka kuantitas (Qty) yang tersisa di baris tersebut
-            let qty = 1;
-            let numMatch = cleanLine.match(/\d+/);
-            if (numMatch) {
-              qty = parseInt(numMatch[0]);
-            }
-            
-            matchesMap[b.nama] = (matchesMap[b.nama] || 0) + qty;
-          }
-        }
-      }
-
-      let itemsFound = Object.entries(matchesMap).map(([nama, qty]) => ({ namaVarian: nama, qty: qty }));
-
-      if (itemsFound.length > 0) {
-        sinyalScanTerbaca(itemsFound);
-      } else {
-        sinyalScanTidakTerbaca();
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      sinyalScanTidakTerbaca();
-    });
-}
-
-function sinyalScanTerbaca(itemsFound) {
-  let elStatus = document.getElementById("ocrStatusText");
-  dataScanSementara = itemsFound;
-  
-  let listHtml = itemsFound.map(x => `• EVORA ${x.namaVarian} (${x.qty} Pcs)`).join("<br>");
-  elStatus.innerHTML = `<div style="text-align:left;">🟢 <b>TERBACA MULTI-ITEM:</b><br>${listHtml}</div>`;
-  elStatus.style.background = "#ccfbf1"; 
-  elStatus.style.color = "#0f766e";      
-  
-  document.getElementById("btnKonfirmasiOcr").onclick = function() {
-    eksekusiPenjualanDariOcr();
-  };
-  document.getElementById("ocrActionContainer").style.display = "block";
-}
-
-function sinyalScanTidakTerbaca() {
-  let elStatus = document.getElementById("ocrStatusText");
-  elStatus.innerText = "❌ TEKS RESI TIDAK TERCOCOKKAN";
-  elStatus.style.background = "#ffe4e6"; 
-  elStatus.style.color = "#be123c";      
-  
-  document.getElementById("ocrActionContainer").style.display = "none";
-
-  setTimeout(() => {
-    if (pemindaiAktif) {
-      resetKeadaanMembidik();
-      mulaiSiklusPenangkapanResi();
-    }
-  }, 2500); 
-}
-
-function eksekusiPenjualanDariOcr() {
-  for (let item of dataScanSementara) {
-    let idx = barang.findIndex(x => x.nama === item.namaVarian);
-    if (idx === -1) {
-      alert(`Gagal: Varian "${item.namaVarian}" tidak ada di database.`);
-      return melanjutkanMembidik();
-    }
-    if (barang[idx].stok < item.qty || stokBotol < item.qty || stokBox < item.qty) {
-      alert(`🚨 Stok ${item.namaVarian}, Botol, atau Box tidak mencukupi!`);
-      return melanjutkanMembidik();
-    }
-  }
-
-  for (let item of dataScanSementara) {
-    let idx = barang.findIndex(x => x.nama === item.namaVarian);
-    barang[idx].stok -= item.qty;
-    stokBotol -= item.qty;
-    stokBox -= item.qty;
-
-    penjualan.push({
-      tanggal: new Date().toISOString(),
-      barang: item.namaVarian,
-      qty: item.qty,
-      nominal: item.qty * HARGA,
-      keterangan: "Scan Resi Multi-Item"
-    });
-  }
-
-  tutupScanOcr();
-  saveData(); 
-  alert(`Berhasil! ${dataScanSementara.length} jenis parfum dipotong dari database.`);
-}
-
-function meningkatkanMembidik() {
-  resetKeadaanMembidik();
-  mulaiSiklusPenangkapanResi();
-}
-
 function render(){
   updateMonthSelect();
   let hariIniKey = getDayKey(new Date());
   let bulanAktif = getMonthKey(new Date());
   document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
 
+  // LOGIC & DATA CALCULATION FOR TODAY
   let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
   let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
   let totalTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
@@ -1157,6 +916,7 @@ function render(){
   let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
   document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
 
+  // MONTHLY OVERVIEW
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
@@ -1169,6 +929,7 @@ function render(){
   document.getElementById("pengeluaran").innerText = "Rp "+keluarVal.toLocaleString("id-ID");
   document.getElementById("laba").innerText = "Rp "+(omzetVal-keluarVal).toLocaleString("id-ID");
 
+  // RENDER DYNAMIC CARD BADGES
   let salesMapBln = {};
   jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
   let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
@@ -1181,6 +942,7 @@ function render(){
     </div>
   `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
 
+  // RENDER GRID KASIR
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
@@ -1214,6 +976,9 @@ function render(){
   }).join("");
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
+  // ==========================================
+  // 1. UPDATE LAPORAN HARIAN (INFO SAJA)
+  // ==========================================
   let tglDipilih = document.getElementById("hariSelect").value;
   if(tglDipilih){
     let kH = getDayKey(tglDipilih);
@@ -1251,6 +1016,9 @@ function render(){
     `;
   }
 
+  // ==========================================
+  // 2. UPDATE REKAPITULASI BULANAN (DETAIL)
+  // ==========================================
   let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
   let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
@@ -1331,6 +1099,7 @@ function render(){
     </div>
   `;
 
+  // LOGS MANAGEMENT
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
