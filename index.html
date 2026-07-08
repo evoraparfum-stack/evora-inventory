@@ -160,30 +160,31 @@ html, body {
   transition: all 0.2s;
 }
 
-/* GLASSMORPHISM PILLS - TEXT ONLY */
+/* PILLS CONTAINER - GRID 3 KOLOM SIMETRIS */
 .pills-container {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
   margin-top: 25px;
-  overflow-x: auto;
   padding-bottom: 5px;
 }
-.pills-container::-webkit-scrollbar { display: none; }
 .premium-pill {
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: white;
-  padding: 10px 16px;
+  padding: 10px 4px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  width: 100%;
 }
 
 /* MAIN BODY SHEET */
@@ -320,9 +321,26 @@ button:active {
 .product-badge-name { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .product-badge-qty { font-size: 12px; color: var(--success); font-weight: 700; margin-top: 4px; }
 
+/* PERBAIKAN GLOBAL INPUT AGAR SIMETRIS DAN TIDAK MELEBAR DI HP */
 input, select, textarea {
-  width: 100%; padding: 12px 14px; margin: 8px 0; border: 1px solid #cbd5e1;
-  border-radius: 12px; font-size: 14px; background: #f8fafc; color: var(--text-main); outline: none; transition: all 0.2s ease;
+  width: 100%; 
+  max-width: 100%;
+  display: block;
+  box-sizing: border-box;
+  padding: 12px 14px; 
+  margin: 8px 0; 
+  border: 1px solid #cbd5e1;
+  border-radius: 12px; 
+  font-size: 14px; 
+  background: #f8fafc; 
+  color: var(--text-main); 
+  outline: none; 
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  text-align: center;
+  text-align-last: center; 
 }
 input:focus, select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(15, 97, 109, 0.12); }
 .grid-barang { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -376,7 +394,6 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
     <div>
       <div class="balance-label">Omzet Hari Ini</div>
       <div id="omzetHariIni" class="balance-value shimmer-text">Rp 0</div>
-      <!-- BADGE % DI SINI (SEKARANG DINAMIS OTOMATIS) -->
       <div id="trendBadge" class="trend-badge neutral">0%</div>
     </div>
     <div>
@@ -384,10 +401,11 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
     </div>
   </div>
 
+  <!-- KOTAK ATAS SEKARANG SUDAH SIMETRIS PERFECT -->
   <div class="pills-container">
-    <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol" class="shimmer-text">0</span> </button>
-    <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox" class="shimmer-text">0</span> </button>
-    <div class="premium-pill" style="background: rgba(0,0,0,0.2); border-color: rgba(0,0,0,0.1)">Total Varian: <span id="totalBarang">0</span></div>
+    <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol" class="shimmer-text">0</span></button>
+    <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox" class="shimmer-text">0</span></button>
+    <div class="premium-pill">Total Varian: <span id="totalBarang">0</span></div>
   </div>
 </div>
 
@@ -585,7 +603,7 @@ let barang = [];
 let penjualan = [];
 let pengeluaran = [];
 let chartInstance = null;
-let currentValuesRegistry = {}; // Track numerical records for Count-Up
+let currentValuesRegistry = {}; 
 
 let dSkrg = new Date();
 let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padStart(2, "0") + "-" + String(dSkrg.getDate()).padStart(2, "0");
@@ -648,7 +666,7 @@ function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
   function step(now) {
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    const easeQuadOut = progress * (2 - progress); // Linear clean easing
+    const easeQuadOut = progress * (2 - progress); 
     
     const currentFrameVal = Math.floor(startValue + (targetValue - startValue) * easeQuadOut);
     
@@ -890,7 +908,6 @@ function simpanModalEdit() {
   saveData();
 }
 
-// EKSEKUSI JUAL CEPAT KASIR
 function quickJual(originalIndex) {
   let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`);
   let qty = Number(qtySelect.value || 1);
@@ -976,17 +993,14 @@ function render(){
   let hariIniKey = getDayKey(new Date());
   let bulanAktif = getMonthKey(new Date());
 
-  // DATA CALCULATIONS
   let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
   let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
   let totalTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
   
-  // COUNT-UP TRIGGERS
   runCountUp("omzetHariIni", totalOmzetHariIni, true);
   runCountUp("hariIniOmzetText", totalOmzetHariIni, true);
   runCountUp("hariIniQtyText", totalTerjualHariIni, false, " Pcs");
 
-  // LOGIK REKAP % TREN DIBANDINGKAN DENGAN KEMARIN (SISTEM SMART BANKING)
   let dKemarin = new Date();
   dKemarin.setDate(dKemarin.getDate() - 1);
   let kemarinKey = getDayKey(dKemarin);
@@ -1007,7 +1021,6 @@ function render(){
       elTrendBadge.className = "trend-badge neutral";
     }
   } else {
-    // Jika kemarin 0, tapi hari ini ada omzet, hitung naik 100%
     if (totalOmzetHariIni > 0) {
       elTrendBadge.innerText = `↑ 100%`;
       elTrendBadge.className = "trend-badge up";
@@ -1035,27 +1048,24 @@ function render(){
   runCountUp("pengeluaran", keluarVal, true);
   runCountUp("laba", (omzetVal - keluarVal), true);
 
-  // RENDER DYNAMIC CARD BADGES
   let salesMapBln = {};
   jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
   let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
   
   topVarianAvatars.innerHTML = rankingBln.length ? rankingBln.map((x, i) => `
     <div class="product-badge-card">
-      <div class="product-badge-rank">Rank #${i+1}</div>
+      <div class="product-badge-rank">Rank #<span>${i+1}</span></div>
       <div class="product-badge-name">${x[0]}</div>
       <div class="product-badge-qty">${x[1]} Pcs</div>
     </div>
   `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
 
-  // RENDER GRID KASIR INSTAN WITH PREMIUM THREE-STATE BADGES
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
   barangUrut.sort((a, b) => a.stok - b.stok);
 
   listBarang.innerHTML = barangUrut.map(x => {
-    // 3-State Logic Rule implementation
     let badgeTag = "";
     if (x.stok < 5) {
       badgeTag = `<span class="badge-status status-critical blinking-alert">HAMPIR HABIS (${x.stok})</span>`;
@@ -1091,7 +1101,6 @@ function render(){
   }).join("");
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
-  // DAILY LOG BREAKDOWN REPORTING
   let tglDipilih = document.getElementById("hariSelect").value;
   if(tglDipilih){
     let kH = getDayKey(tglDipilih);
@@ -1133,7 +1142,6 @@ function render(){
     `;
   }
 
-  // MONTHLY RECAP breakdown DATA LAYOUTS
   let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
   let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
@@ -1215,7 +1223,6 @@ function render(){
     </div>
   `;
 
-  // HISTORY FILTERS MANAGEMENT LOGS
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
