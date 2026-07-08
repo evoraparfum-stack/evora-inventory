@@ -11,6 +11,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 :root {
   --premium-gradient: linear-gradient(135deg, #063e46 0%, #0f616d 100%);
@@ -473,9 +475,15 @@ button:active {
     </div>
 
     <div class="card">
+      <h3>📈 GRAFIK PENJUALAN 7 HARI TERAKHIR</h3>
+      <div style="position: relative; height:200px; width:100%;">
+        <canvas id="grafikMingguan"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
       <h3>🏆 TOP VARIAN BULAN INI</h3>
-      <div id="topVarianAvatars" class="top-product-grid">
-        </div>
+      <div id="topVarianAvatars" class="top-product-grid"></div>
     </div>
 
     <div class="action-grid">
@@ -543,7 +551,7 @@ button:active {
     </div>
 
     <div class="card">
-      <h3>📆 REKAPITULASI BULANAN (DETAIL)</h3>
+      <h3>qk REKAPITULASI BULANAN (DETAIL)</h3>
       <select id="bulanSelect" onchange="render()"></select>
       <div id="summaryBulanan" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
     </div>
@@ -644,6 +652,7 @@ let stokBox = 0;
 let barang = [];
 let penjualan = [];
 let pengeluaran = [];
+let chartInstance = null; // Menyimpan objek grafik Chart.js
 
 let dSkrg = new Date();
 let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padStart(2, "0") + "-" + String(dSkrg.getDate()).padStart(2, "0");
@@ -761,6 +770,65 @@ function clearSearchField() {
   document.getElementById("cariBarangInput").value = "";
   document.getElementById("btnClearSearch").style.display = "none";
   render();
+}
+
+// UPDATE 1: Fungsi pengolahan data dan render Grafik Mingguan
+function renderWeeklyChart() {
+  let labels = [];
+  let dataOmzet = [];
+  
+  // Mengambil data 7 hari ke belakang dari hari ini
+  for(let i = 6; i >= 0; i--) {
+    let d = new Date();
+    d.setDate(d.getDate() - i);
+    let key = getDayKey(d);
+    
+    let labelStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+    labels.push(labelStr);
+    
+    let transaksiHariIni = penjualan.filter(x => getDayKey(x.tanggal) === key);
+    let omzetHariIni = transaksiHariIni.reduce((a, b) => a + b.nominal, 0);
+    dataOmzet.push(omzetHariIni);
+  }
+
+  let ctx = document.getElementById('grafikMingguan').getContext('2d');
+  
+  if(chartInstance) {
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = dataOmzet;
+    chartInstance.update();
+  } else {
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Omzet',
+          data: dataOmzet,
+          borderColor: '#0f616d',
+          backgroundColor: 'rgba(15, 97, 109, 0.1)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); },
+              font: { size: 9 }
+            }
+          },
+          x: { ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+  }
 }
 
 function editLogistik(jenis) {
@@ -899,6 +967,7 @@ function hapusPengeluaran(originalIndex) {
 
 function render(){
   updateMonthSelect();
+  renderWeeklyChart(); // Render grafik mingguan
   let hariIniKey = getDayKey(new Date());
   let bulanAktif = getMonthKey(new Date());
   document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
@@ -977,7 +1046,7 @@ function render(){
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
   // ==========================================
-  // 1. UPDATE LAPORAN HARIAN (INFO SAJA)
+  // 1. UPDATE LAPORAN HARIAN (UPDATE INFO TOTAL TERJUAL)
   // ==========================================
   let tglDipilih = document.getElementById("hariSelect").value;
   if(tglDipilih){
@@ -985,6 +1054,9 @@ function render(){
     let jH = penjualan.filter(x=>getDayKey(x.tanggal)===kH);
     let eH = pengeluaran.filter(x=>getDayKey(x.tanggal)===kH);
     
+    // UPDATE 2: Hitung akumulasi total kuantitas (Pcs) terjual pada hari yang dipilih
+    let totalPcsHarian = jH.reduce((sum, item) => sum + item.qty, 0);
+
     let mapHarian = {};
     jH.forEach(x => {
       if(x.qty > 0 || x.barang === "OMZET MANUAL") {
@@ -1005,6 +1077,10 @@ function render(){
       : '<li>Tidak ada pengeluaran</li>';
 
     summaryHarian.innerHTML = `
+      <div style="background: var(--primary-light); padding:10px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; justify-content:space-between;">
+        <span>📦 Total Terjual Hari Ini:</span>
+        <span>${totalPcsHarian} Pcs</span>
+      </div>
       <div style="margin-bottom:12px;">
         <strong style="color:var(--primary); font-size:14px;">📋 Performa Hari Ini</strong>
         <ul style="margin:6px 0 10px 18px; padding:0; line-height: 1.6;">${htmlPenjualan}</ul>
@@ -1017,7 +1093,7 @@ function render(){
   }
 
   // ==========================================
-  // 2. UPDATE REKAPITULASI BULANAN (DETAIL)
+  // 2. UPDATE REKAPITULASI BULANAN (UPDATE INFO TOTAL TERJUAL)
   // ==========================================
   let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
@@ -1026,6 +1102,9 @@ function render(){
   let oB = jB.reduce((a,b)=>a+b.nominal,0);
   let pB = kB.reduce((a,b)=>a+b.nominal,0);
   let labaB = oB - pB;
+
+  // UPDATE 2: Hitung total kuantitas (Pcs) terjual pada bulan yang dipilih
+  let totalPcsBulanan = jB.reduce((sum, item) => sum + item.qty, 0);
 
   let mapBulanan = {};
   jB.forEach(x => {
@@ -1067,7 +1146,8 @@ function render(){
         <tbody>
           ${htmlTabelJual || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
           <tr style="font-weight:bold; background:#f8fafc; border-top:2px solid #cbd5e1; font-size:13px;">
-            <td colspan="2" style="padding:12px 8px;">TOTAL PENJUALAN</td>
+            <td style="padding:12px 8px;">TOTAL PENJUALAN</td>
+            <td style="padding:12px 8px; text-align:center; color:var(--primary); font-weight:800;">${totalPcsBulanan} Pcs</td>
             <td style="padding:12px 8px; text-align:right; color:var(--primary); font-weight:800;">Rp ${oB.toLocaleString('id-ID')}</td>
           </tr>
         </tbody>
