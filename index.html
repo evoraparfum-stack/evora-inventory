@@ -107,7 +107,7 @@ html, body {
   transition: background 0.2s;
 }
 
-/* GLASSMORPHISM PILLS */
+/* GLASSMORPHISM PILLS - TEXT ONLY */
 .pills-container {
   display: flex;
   gap: 10px;
@@ -126,7 +126,7 @@ html, body {
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
@@ -156,6 +156,30 @@ h3 {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+/* SEARCH FIELD WRAPPER WITH CLEAR BUTTON */
+.search-container {
+  position: relative;
+  width: 100%;
+}
+.search-container input {
+  padding-right: 40px;
+}
+.btn-clear-search {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none !important;
+  border: none !important;
+  color: var(--text-muted);
+  width: auto !important;
+  padding: 0 !important;
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+  z-index: 5;
 }
 
 /* MODERN TOP PRODUCT SELLING CARDS */
@@ -369,15 +393,15 @@ button {
       <div id="bulanAktif" class="sub-balance">Juli 2026</div>
     </div>
     <div>
-      <button class="btn-sync-icon" onclick="loadDataFromCloud()">🔄</button>
+      <button class="btn-sync-icon" onclick="triggerSyncWithConfirm()">🔄</button>
     </div>
   </div>
 
-  <!-- FLOATING GLASSMORPHISM PILLS -->
+  <!-- FLOATING PILLS - TEXT ONLY -->
   <div class="pills-container">
-    <button class="premium-pill" onclick="editLogistik('botol')">🍼 Sisa Botol: <span id="stokBotol">0</span> ✏️</button>
-    <button class="premium-pill" onclick="editLogistik('box')">📦 Sisa Box: <span id="stokBox">0</span> ✏️</button>
-    <div class="premium-pill" style="background: rgba(0,0,0,0.15);">🛍️ Varian: <span id="totalBarang">0</span></div>
+    <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol">0</span> ✏️</button>
+    <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox">0</span> ✏️</button>
+    <div class="premium-pill" style="background: rgba(0,0,0,0.15);">Total Varian: <span id="totalBarang">0</span></div>
   </div>
 </div>
 
@@ -386,6 +410,19 @@ button {
 
   <!-- ================= TAB 1: BERANDA ================= -->
   <div id="tab-beranda" class="tab-content active">
+    
+    <!-- NEW SECTION: PERFORMA REAL-TIME HARI INI -->
+    <div class="card" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0;">
+      <h3>⚡ PERFORMA HARI INI</h3>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:10px;">
+        <div>Pendapatan Hari Ini:<br><span id="hariIniOmzetText" style="color:var(--success); font-weight:700; font-size:15px;">Rp 0</span></div>
+        <div>Total Terjual Hari Ini:<br><span id="hariIniQtyText" style="color:var(--primary); font-weight:700; font-size:15px;">0 Pcs</span></div>
+      </div>
+      <div style="font-size:12px; border-top:1px dashed #cbd5e1; padding-top:8px; font-weight:600; color:var(--text-main);">
+        🥇 Varian Terlaris Hari Ini: <span id="topVarianHariIniText" style="color:var(--accent);">Belum ada</span>
+      </div>
+    </div>
+
     <!-- MODERN SELLING CARDS ROW -->
     <div class="card">
       <h3>🏆 TOP VARIAN BULAN INI</h3>
@@ -412,7 +449,7 @@ button {
 
     <!-- MAIN MONTHLY PERFORMANCE CARD -->
     <div class="card" style="margin-top:16px; background: linear-gradient(135deg, #f0fdfa 0%, #fff 100%); border: 1px solid #ccfbf1;">
-      <h3 style="color:var(--success); margin-bottom:8px;">📊 RINGKASAN PERFORMA BULANAN</h3>
+      <h3>📊 RINGKASAN PERFORMA BULANAN</h3>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px; font-weight:600;">
         <div>Total Omzet: <br><span id="omzet" style="color:var(--primary); font-size:15px; font-weight:700;">Rp 0</span></div>
         <div>Total Belanja: <br><span id="pengeluaran" style="color:var(--danger); font-size:15px; font-weight:700;">Rp 0</span></div>
@@ -432,7 +469,10 @@ button {
 
     <div class="card">
       <h3>🛒 PANEL KASIR INSTAN</h3>
-      <input id="cariBarangInput" placeholder="🔍 Cari nama varian parfum..." oninput="render()">
+      <div class="search-container">
+        <input id="cariBarangInput" placeholder="🔍 Cari nama varian parfum..." oninput="handleSearchInput()">
+        <button id="btnClearSearch" class="btn-clear-search" onclick="clearSearchField()">✕</button>
+      </div>
       <div id="listBarang" class="grid-barang" style="margin-top:12px;"></div>
     </div>
 
@@ -456,14 +496,14 @@ button {
     <div class="card">
       <h3>📅 LAPORAN HARIAN</h3>
       <input id="hariSelect" type="date" onchange="render()">
-      <div id="summaryHarian" style="margin-top:10px; padding:12px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; line-height:1.6;"></div>
-      <button onclick="salinLaporanHarian()" style="background:#0f766e; margin-top:12px;">📋 Salin Ringkasan ke WhatsApp</button>
+      <div id="summaryHarian" style="margin-top:10px; padding:14px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
+      <button onclick="salinLaporanHarian()" style="background:#0f766e; margin-top:12px;">📋 Salin Laporan ke WhatsApp</button>
     </div>
 
     <div class="card">
       <h3>📆 REKAPITULASI BULANAN</h3>
       <select id="bulanSelect" onchange="render()"></select>
-      <div id="summaryBulanan" style="margin-top:10px; padding:12px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; line-height:1.6;"></div>
+      <div id="summaryBulanan" style="margin-top:10px; padding:14px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
     </div>
   </div>
 
@@ -471,7 +511,7 @@ button {
   <div id="tab-riwayat" class="tab-content">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-        <h3 style="margin:0; flex:1;">🔍 FILTER LOG</h3>
+        <h3>🔍 FILTER LOG</h3>
         <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:8px;">
           <option value="harian">Hari</option>
           <option value="bulanan">Bulan</option>
@@ -585,6 +625,12 @@ function switchTab(tabName) {
   document.getElementById(`nav-${tabName}`).classList.add('active');
 }
 
+function triggerSyncWithConfirm() {
+  if (confirm("Apakah Anda ingin menyinkronkan data ulang dengan cloud database?")) {
+    loadDataFromCloud();
+  }
+}
+
 async function loadDataFromCloud() {
   setSyncStatus("🔄 Sync...");
   try {
@@ -636,6 +682,10 @@ function simpanHargaBaru() {
   let elHarga = document.getElementById("inputHargaGlobal");
   let hargaBaru = Number(elHarga.value);
   if(hargaBaru <= 0 || isNaN(hargaBaru)) return;
+  if(!confirm(`Apakah Anda yakin ingin mengubah harga global produk menjadi Rp ${hargaBaru.toLocaleString("id-ID")}?`)) {
+    elHarga.value = HARGA;
+    return;
+  }
   HARGA = hargaBaru;
   saveData();
 }
@@ -668,6 +718,18 @@ function updateMonthSelect(){
   .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
+function handleSearchInput() {
+  let q = document.getElementById("cariBarangInput").value;
+  document.getElementById("btnClearSearch").style.display = q ? "block" : "none";
+  render();
+}
+
+function clearSearchField() {
+  document.getElementById("cariBarangInput").value = "";
+  document.getElementById("btnClearSearch").style.display = "none";
+  render();
+}
+
 function editLogistik(jenis) {
   currentLogistikJenis = jenis;
   document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
@@ -678,6 +740,8 @@ function editLogistik(jenis) {
 function eksekusiLogistik(aksi) {
   let inputVal = Number(document.getElementById("logistikJumlahManual").value);
   if (inputVal <= 0) return;
+  if (!confirm(`Apakah Anda yakin ingin ${aksi} stok logistik sebanyak ${inputVal}?`)) return;
+  
   let nilai = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
   nilai = aksi === 'tambah' ? nilai + inputVal : Math.max(0, nilai - inputVal);
   if (currentLogistikJenis === 'botol') stokBotol = nilai;
@@ -691,6 +755,7 @@ function tambahBarang(){
   let nama = namaBarang.value.trim().toUpperCase();
   let qty = Number(qtyBarang.value);
   if(!nama || qty<=0) return;
+  if(!confirm(`Daftarkan varian parfum baru "${nama}" dengan stok awal ${qty} pcs?`)) return;
   barang.push({nama:nama, stok:qty});
   namaBarang.value=""; qtyBarang.value="";
   saveData();
@@ -714,19 +779,19 @@ function tutupModalEdit() { document.getElementById("editModal").style.display =
 function simpanModalEdit() {
   let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
   if(!namaBaru) return;
+  if(!confirm(`Simpan penyesuaian untuk varian ini?`)) return;
   barang[currentEditIndex].nama = namaBaru;
   barang[currentEditIndex].stok = tempStok;
   tutupModalEdit();
   saveData();
 }
 
-function hapusBarang(originalIndex){
-  if(confirm("Hapus item?")){ barang.splice(originalIndex,1); saveData(); }
-}
-
 function quickJual(originalIndex) {
-  let qty = 1;
-  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) return alert("Stok kurang!");
+  let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`);
+  let qty = Number(qtySelect.value || 1);
+  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) return alert("Gagal: Sisa stok logistik tidak mencukupi kuantitas ini!");
+  if(!confirm(`Konfirmasi Transaksi:\nJual ${qty} pcs ${barang[originalIndex].nama}?\nTotal Nilai: Rp ${(qty * HARGA).toLocaleString("id-ID")}`)) return;
+  
   barang[originalIndex].stok -= qty;
   stokBotol -= qty; stokBox -= qty;
   penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: qty * HARGA });
@@ -737,6 +802,8 @@ function jualBarang(){
   let idx = Number(barangJual.value);
   let qty = Number(qtyJual.value);
   if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) return alert("Stok tidak memadai!");
+  if(!confirm(`Konfirmasi Transaksi Grosir:\nJual ${qty} pcs ${barang[idx].nama}?\nTotal Nilai: Rp ${(qty * HARGA).toLocaleString("id-ID")}`)) return;
+  
   barang[idx].stok -= qty;
   stokBotol -= qty; stokBox -= qty;
   penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:qty*HARGA });
@@ -747,6 +814,7 @@ function tambahOmzetManual() {
   let nom = Number(manualOmzet.value);
   let ket = manualKet.value.trim() || "Manual";
   if(nom <= 0) return;
+  if(!confirm(`Simpan pendapatan manual sebesar Rp ${nom.toLocaleString("id-ID")} (${ket})?`)) return;
   penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket });
   manualOmzet.value = ""; manualKet.value = ""; saveData();
 }
@@ -755,12 +823,13 @@ function tambahPengeluaran(){
   let nom = Number(nominalKeluar.value);
   let ket = ketKeluar.value.trim();
   if(nom<=0 || !ket) return;
+  if(!confirm(`Simpan log pengeluaran sebesar Rp ${nom.toLocaleString("id-ID")} untuk keperluan: ${ket}?`)) return;
   pengeluaran.push({ tanggal:new Date().toISOString(), nominal:nom, keterangan:ket });
   nominalKeluar.value=""; ketKeluar.value=""; saveData();
 }
 
 function batalkanPenjualan(originalIndex) {
-  if(!confirm("Batalkan transaksi ini?")) return;
+  if(!confirm("Apakah Anda yakin ingin membatalkan transaksi penjualan ini? Stok logistik akan dikembalikan otomatis.")) return;
   let target = penjualan[originalIndex];
   if(target.barang !== "OMZET MANUAL") {
     let bIndex = barang.findIndex(x => x.nama === target.barang);
@@ -782,22 +851,32 @@ function simpanModalPengeluaran() {
   let nom = Number(document.getElementById("modalNominalKeluar").value);
   let ket = document.getElementById("modalKetKeluar").value.trim();
   if(nom <= 0 || !ket) return;
+  if(!confirm("Simpan perubahan data log pengeluaran ini?")) return;
   pengeluaran[currentEditPengeluaranIndex].nominal = nom;
   pengeluaran[currentEditPengeluaranIndex].keterangan = ket;
   tutupModalPengeluaran();
   saveData();
 }
 function hapusPengeluaran(originalIndex) {
-  if(confirm("Hapus?")) { pengeluaran.splice(originalIndex, 1); saveData(); }
+  if(confirm("Hapus catatan log pengeluaran ini secara permanen?")) { 
+    pengeluaran.splice(originalIndex, 1); 
+    saveData(); 
+  }
 }
 
 function salinLaporanHarian() {
+  if(!confirm("Salin ringkasan teks laporan ke clipboard?")) return;
   let tgl = document.getElementById("hariSelect").value;
   let key = getDayKey(tgl);
   let jHari = penjualan.filter(x=>getDayKey(x.tanggal)===key);
+  let kHari = pengeluaran.filter(x=>getDayKey(x.tanggal)===key);
+  
   let oHari = jHari.reduce((a,b)=>a+b.nominal,0);
-  let teks = `*LAPORAN EVORA (${tgl})*\n💰 Omzet: Rp ${oHari.toLocaleString("id-ID")}\n`;
-  navigator.clipboard.writeText(teks).then(() => alert("Disalin!"));
+  let pHari = kHari.reduce((a,b)=>a+b.nominal,0);
+  let bHari = jHari.reduce((a,b)=>a+b.qty,0);
+  
+  let teks = `*LAPORAN EVORA (${tgl})*\n💰 Pendapatan: Rp ${oHari.toLocaleString("id-ID")}\n💸 Pengeluaran: Rp ${pHari.toLocaleString("id-ID")}\n🍼 Botol Terjual: ${bHari} pcs\n📈 Laba Bersih: Rp ${(oHari - pHari).toLocaleString("id-ID")}`;
+  navigator.clipboard.writeText(teks).then(() => alert("Laporan berhasil disalin!"));
 }
 
 function render(){
@@ -806,10 +885,20 @@ function render(){
   let bulanAktif = getMonthKey(new Date());
   document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
 
+  // LOGIC & DATA CALCULATION FOR TODAY (BERANDA INTEGRATION)
   let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
   let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
+  let totalTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
   document.getElementById("omzetHariIni").innerText = "Rp "+totalOmzetHariIni.toLocaleString("id-ID");
+  document.getElementById("hariIniOmzetText").innerText = "Rp "+totalOmzetHariIni.toLocaleString("id-ID");
+  document.getElementById("hariIniQtyText").innerText = totalTerjualHariIni + " Pcs";
 
+  let salesMapHari = {};
+  jualHariIni.forEach(x => { if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; });
+  let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
+  document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
+
+  // MONTHLY OVERVIEW
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
@@ -835,7 +924,7 @@ function render(){
     </div>
   `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
 
-  // RENDER GRID KASIR
+  // RENDER GRID KASIR + DROPDOWN 1-10
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
@@ -843,6 +932,12 @@ function render(){
 
   listBarang.innerHTML = barangUrut.map(x => {
     let tag = x.stok <= 5 ? `<span class="badge-status status-critical">HAMPIR HABIS</span>` : `<span class="badge-status status-ready">AMAN</span>`;
+    
+    let dropdownOptions = "";
+    for(let i=1; i<=10; i++) {
+      dropdownOptions += `<option value="${i}">${i}</option>`;
+    }
+
     return `
       <div class="item-barang">
         <div class="item-info">
@@ -850,9 +945,17 @@ function render(){
           <div class="stok-text">Sisa: ${x.stok} pcs</div>
           ${tag}
         </div>
-        <div style="margin-top:12px; display:flex; gap:6px;">
-          <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--primary);">⚡ Jual</button>
-          <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent);">Edit</button>
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; gap:4px; align-items:center;">
+            <span style="font-size:11px; color:var(--text-muted);">Qty:</span>
+            <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">
+              ${dropdownOptions}
+            </select>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1;">⚡ Jual</button>
+            <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px;">Edit</button>
+          </div>
         </div>
       </div>
     `;
@@ -860,29 +963,67 @@ function render(){
 
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
-  // RENDER LAPORAN
+  // FIX AND UPDATE DETAILED DAILY REPORTS (POINT 1)
   let tglDipilih = document.getElementById("hariSelect").value;
   if(tglDipilih){
     let kH = getDayKey(tglDipilih);
     let jH = penjualan.filter(x=>getDayKey(x.tanggal)===kH);
+    let eH = pengeluaran.filter(x=>getDayKey(x.tanggal)===kH);
+    
     let oH = jH.reduce((a,b)=>a+b.nominal,0);
-    summaryHarian.innerHTML = `<b>Omzet Hari Ini:</b> Rp ${oH.toLocaleString("id-ID")}<br><b>Item Terjual:</b> ${jH.reduce((a,b)=>a+b.qty,0)} pcs`;
+    let pH = eH.reduce((a,b)=>a+b.nominal,0);
+    let bH = jH.reduce((a,b)=>a+b.qty,0);
+    let labaH = oH - pH;
+
+    summaryHarian.innerHTML = `
+      <strong>💰 Total Pendapatan:</strong> Rp ${oH.toLocaleString("id-ID")}<br>
+      <strong>💸 Total Pengeluaran:</strong> Rp ${pH.toLocaleString("id-ID")}<br>
+      <strong>🍼 Total Botol Terjual:</strong> ${bH} pcs<br>
+      <div style="margin-top:6px; padding-top:6px; border-top:1px dashed #cbd5e1; font-weight:700; color:${labaH >= 0 ? 'var(--success)' : 'var(--danger)'}">
+        📈 Laba Bersih Harian: Rp ${labaH.toLocaleString("id-ID")}
+      </div>
+    `;
   }
 
-  let blnDipilih = bulanSelect.value || bulanAktif;
+  // FIX AND SYNCHRONIZE MONTHLY REPORTS VIEW (POINT 2)
+  let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
+  let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
+  
   let oB = jB.reduce((a,b)=>a+b.nominal,0);
-  summaryBulanan.innerHTML = `<b>Total Omzet Bulanan:</b> Rp ${oB.toLocaleString("id-ID")}<br><b>Akumulasi Produk:</b> ${jB.reduce((a,b)=>a+b.qty,0)} pcs`;
+  let pB = kB.reduce((a,b)=>a+b.nominal,0);
+  let bB = jB.reduce((a,b)=>a+b.qty,0);
+  let labaB = oB - pB;
+
+  summaryBulanan.innerHTML = `
+    <strong>💰 Total Pendapatan:</strong> Rp ${oB.toLocaleString("id-ID")}<br>
+    <strong>💸 Total Pengeluaran (Sinkron):</strong> Rp ${pB.toLocaleString("id-ID")}<br>
+    <strong>🍼 Total Botol Terjual:</strong> ${bB} pcs<br>
+    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed #cbd5e1; font-weight:700; color:${labaB >= 0 ? 'var(--success)' : 'var(--danger)'}">
+      📈 Laba Bersih Bulanan: Rp ${labaB.toLocaleString("id-ID")}
+    </div>
+  `;
 
   // LOGS MANAGEMENT
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
-  
+  let riwayatKeluarFiltered = pengeluaran.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
+
   riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
     <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
       <div><b>${x.barang}</b> (${x.qty} pcs)<br><span style="color:var(--primary); font-weight:600;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
       <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:4px 10px; font-size:11px; background:var(--danger)">Batal</button>
+    </div>
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted)">Kosong</p>`;
+
+  riwayatKeluar.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => `
+    <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div><b>${x.keterangan || "Pengeluaran"}</b><br><span style="color:var(--danger); font-weight:600;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <div style="display:flex; gap:4px;">
+        <button onclick="editPengeluaran(${x.idx})" style="width:auto; padding:4px 8px; font-size:11px; background:var(--accent)">Edit</button>
+        <button onclick="hapusPengeluaran(${x.idx})" style="width:auto; padding:4px 8px; font-size:11px; background:var(--danger)">Hapus</button>
+      </div>
     </div>
   `).join("") : `<p style="font-size:12px; color:var(--text-muted)">Kosong</p>`;
 }
