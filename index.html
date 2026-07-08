@@ -116,18 +116,34 @@ html, body {
   margin: 4px 0;
   letter-spacing: -1px;
 }
+
+/* DYNAMIC BANK GROWTH BADGES */
 .trend-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: rgba(20, 184, 166, 0.25);
-  color: #2dd4bf;
   font-size: 12px;
   font-weight: 700;
   padding: 4px 12px;
   border-radius: 20px;
+  transition: all 0.3s ease;
+}
+.trend-badge.up {
+  background: rgba(20, 184, 166, 0.25);
+  color: #2dd4bf;
   border: 1px solid rgba(45, 212, 191, 0.2);
 }
+.trend-badge.down {
+  background: rgba(225, 29, 72, 0.2);
+  color: #fda4af;
+  border: 1px solid rgba(225, 29, 72, 0.15);
+}
+.trend-badge.neutral {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .btn-sync-icon {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(5px);
@@ -360,9 +376,8 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
     <div>
       <div class="balance-label">Omzet Hari Ini</div>
       <div id="omzetHariIni" class="balance-value shimmer-text">Rp 0</div>
-      <div class="trend-badge">
-        <span>↑ 15%</span>
-      </div>
+      <!-- BADGE % DI SINI (SEKARANG DINAMIS OTOMATIS) -->
+      <div id="trendBadge" class="trend-badge neutral">0%</div>
     </div>
     <div>
       <button class="btn-sync-icon" onclick="loadDataFromCloud()">🔄</button>
@@ -370,8 +385,8 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   </div>
 
   <div class="pills-container">
-    <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol" class="shimmer-text">0</span> ✏️</button>
-    <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox" class="shimmer-text">0</span> ✏️</button>
+    <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol" class="shimmer-text">0</span> </button>
+    <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox" class="shimmer-text">0</span> </button>
     <div class="premium-pill" style="background: rgba(0,0,0,0.2); border-color: rgba(0,0,0,0.1)">Total Varian: <span id="totalBarang">0</span></div>
   </div>
 </div>
@@ -875,6 +890,7 @@ function simpanModalEdit() {
   saveData();
 }
 
+// EKSEKUSI JUAL CEPAT KASIR
 function quickJual(originalIndex) {
   let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`);
   let qty = Number(qtySelect.value || 1);
@@ -969,6 +985,37 @@ function render(){
   runCountUp("omzetHariIni", totalOmzetHariIni, true);
   runCountUp("hariIniOmzetText", totalOmzetHariIni, true);
   runCountUp("hariIniQtyText", totalTerjualHariIni, false, " Pcs");
+
+  // LOGIK REKAP % TREN DIBANDINGKAN DENGAN KEMARIN (SISTEM SMART BANKING)
+  let dKemarin = new Date();
+  dKemarin.setDate(dKemarin.getDate() - 1);
+  let kemarinKey = getDayKey(dKemarin);
+  let jualKemarin = penjualan.filter(x => getDayKey(x.tanggal) === kemarinKey);
+  let totalOmzetKemarin = jualKemarin.reduce((a, b) => a + b.nominal, 0);
+
+  let elTrendBadge = document.getElementById("trendBadge");
+  if (totalOmzetKemarin > 0) {
+    let selisihPersen = ((totalOmzetHariIni - totalOmzetKemarin) / totalOmzetKemarin) * 100;
+    if (selisihPersen > 0) {
+      elTrendBadge.innerText = `↑ ${selisihPersen.toFixed(0)}%`;
+      elTrendBadge.className = "trend-badge up";
+    } else if (selisihPersen < 0) {
+      elTrendBadge.innerText = `↓ ${Math.abs(selisihPersen).toFixed(0)}%`;
+      elTrendBadge.className = "trend-badge down";
+    } else {
+      elTrendBadge.innerText = `0%`;
+      elTrendBadge.className = "trend-badge neutral";
+    }
+  } else {
+    // Jika kemarin 0, tapi hari ini ada omzet, hitung naik 100%
+    if (totalOmzetHariIni > 0) {
+      elTrendBadge.innerText = `↑ 100%`;
+      elTrendBadge.className = "trend-badge up";
+    } else {
+      elTrendBadge.innerText = `0%`;
+      elTrendBadge.className = "trend-badge neutral";
+    }
+  }
 
   let salesMapHari = {};
   jualHariIni.forEach(x => { if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; });
