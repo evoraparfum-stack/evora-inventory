@@ -3,31 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro Cloud Sync</title>
+  <title>EVORA Tracker Pro - Wallet Edition</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#0d0d12">
+  <meta name="theme-color" content="#005cbb">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
 
 <style>
 :root {
-  --bg-main: #0d0d12;
-  --bg-card: #161622;
-  --bg-input: #1f1f2e;
-  --primary: #3b82f6;
-  --accent: #f59e0b;
+  --gopay-blue: linear-gradient(180deg, #005cbb 0%, #0077ee 100%);
+  --bg-main: #f6f8fb;
+  --bg-card: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --primary: #0077ee;
   --success: #10b981;
   --danger: #ef4444;
-  --danger-bg: #3a1a22;
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
+  --accent: #f59e0b;
 }
 
 * { 
   box-sizing: border-box; 
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
   touch-action: manipulation; 
 }
 
@@ -37,462 +36,498 @@ html, body {
   background: var(--bg-main);
   color: var(--text-main);
   margin: 0;
-  padding: 15px;
-  overflow-x: hidden; 
+  padding: 0;
+  overflow-x: hidden;
+  padding-bottom: 90px; /* Ruang untuk bottom nav */
+}
+
+/* HEADER STYLE - GOPAY VIBE */
+.gopay-header {
+  background: var(--gopay-blue);
+  padding: 25px 20px 45px 20px;
+  color: #fff;
   position: relative;
 }
-
-.brand-header {
+.header-top {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 15px;
-  padding: 10px 0;
-}
-.brand-logo {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--primary);
-  background: #1f1f2e;
+  margin-bottom: 20px;
 }
 .brand-title {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 800;
-  letter-spacing: 1px;
-  color: #fff;
-  margin: 0;
-  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
 }
-
-.sync-banner {
-  background: #1e3a8a;
-  color: #93c5fd;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 12px;
-  text-align: center;
-  margin-bottom: 15px;
-  font-weight: 500;
+.sync-badge {
+  font-size: 11px;
+  background: rgba(255,255,255,0.15);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.balance-section {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.balance-label {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.balance-value {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 4px 0;
+}
+.sub-balance {
+  font-size: 12px;
+  opacity: 0.9;
+}
+.header-actions {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
+.btn-topaction {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
 
-h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 16px;
+/* FLOATING PILLS */
+.pills-container {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.pills-container::-webkit-scrollbar { display: none; }
+.gopay-pill {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
   font-weight: 600;
-  color: #fff;
-  border-left: 4px solid var(--primary);
-  padding-left: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+}
+
+/* MAIN CONTAINER (WHITE SHEET) */
+.main-sheet {
+  background: var(--bg-main);
+  margin-top: -25px;
+  border-radius: 24px 24px 0 0;
+  position: relative;
+  padding: 20px 16px;
+  min-height: 500px;
 }
 
 .card {
   background: var(--bg-card);
-  padding: 18px;
+  padding: 16px;
   border-radius: 16px;
   margin-bottom: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.dashboard-hero {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
 }
 
-input, select, button, textarea {
+/* AVATAR LIST (TOP PRODUCT ALA RECENT TRANSFERS) */
+.avatar-list {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 5px 0;
+}
+.avatar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 65px;
+}
+.avatar-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0369a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.avatar-name {
+  font-size: 11px;
+  color: var(--text-main);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   width: 100%;
-  padding: 12px 14px;
+}
+.avatar-qty {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* INPUT & CONTROLS */
+input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
   margin: 6px 0;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid #e5e7eb;
   border-radius: 10px;
-  font-size: 15px;
-  background: var(--bg-input);
-  color: #fff;
+  font-size: 14px;
+  background: #f9fafb;
+  color: var(--text-main);
   outline: none;
 }
-input:focus, select:focus, textarea:focus {
+input:focus, select:focus {
   border-color: var(--primary);
+  background: #fff;
 }
-
 button {
+  width: 100%;
+  padding: 12px;
   font-weight: bold;
   background: var(--primary);
   color: #fff;
-  cursor: pointer;
+  border-radius: 10px;
   border: none;
-  transition: background 0.2s;
-}
-button:active {
-  transform: scale(0.98);
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.stat {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-}
-.stat .label {
-  font-size: 11px;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: 4px;
-}
-.stat .val {
   font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-}
-.stat.highlight {
-  grid-column: span 3;
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-  padding: 15px;
-}
-.stat.highlight .val {
-  font-size: 24px;
 }
 
-.row-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.box-kasir-container {
-  max-height: 320px;
-  overflow-y: auto;
-  padding-right: 5px;
-  margin-top: 5px;
-}
-
-.box-kasir-container::-webkit-scrollbar, .scroll-box::-webkit-scrollbar {
-  width: 4px;
-}
-.box-kasir-container::-webkit-scrollbar-thumb, .scroll-box::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
+/* GRID BARANG STYLE */
 .grid-barang {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 .item-barang {
-  background: rgba(255, 255, 255, 0.04);
+  background: #fff;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid #f3f4f6;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 150px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-
 .item-info b {
-  font-size: 16px;       
-  font-weight: 700;      
-  display: block;
-  color: #fff;
-  word-break: break-all;
+  font-size: 14px;
+  color: #1f2937;
 }
-.item-info .stok-text {
-  font-size: 14px;       
-  color: #e5e7eb;        
-  font-weight: 600;      
+.stok-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.badge-warning {
+  background: #fee2e2;
+  color: #ef4444;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: bold;
+  display: inline-block;
   margin-top: 4px;
 }
+.badge-promo {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: bold;
+  display: inline-block;
+}
 
-.item-actions {
+/* PROMO CARD TWIN STYLE */
+.promo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.promo-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+/* BOTTOM NAV BAR BAR */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #ffffff;
+  height: 68px;
   display: flex;
-  gap: 4px;
-  margin-top: 6px;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+  z-index: 999;
 }
-.item-actions button {
-  margin: 0;
-  padding: 6px 4px;
-  font-size: 10px;
-  flex: 1;
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  width: auto;
 }
-.btn-quick-jual {
-  background: var(--success);
-  color: white;
-  margin: 0;
-  padding: 8px;
-  font-size: 12px;
-  border-radius: 8px;
+.nav-item.active {
+  color: var(--primary);
+  font-weight: 700;
 }
-.btn-edit { background: var(--accent); color: #000; }
-.btn-delete { background: var(--danger); color: #fff; }
+.nav-icon {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
 
 .scroll-box {
-  max-height: 250px;
+  max-height: 200px;
   overflow-y: auto;
 }
-.scroll-box p, .scroll-box .riwayat-item {
-  background: rgba(255, 255, 255, 0.02);
+.riwayat-item {
+  background: #f9fafb;
   padding: 8px 10px;
   border-radius: 8px;
   margin: 4px 0;
   font-size: 12px;
 }
 
-.badge-warning {
-  color: #f87171;
-  font-weight: bold;
-  font-size: 11px;
-  margin-top: 4px;
-  display: block;
-  animation: blinker 1.5s linear infinite;
-}
+/* TAB VISIBILITY */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
-.btn-share { background: #25d366; color: #fff; font-size: 14px; }
-
+/* MODAL OVERLAY */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(13, 13, 18, 0.85);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
   display: flex; align-items: center; justify-content: center;
-  z-index: 9999;
-  padding: 15px;
+  z-index: 9999; padding: 15px;
 }
 .modal-content {
-  background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #fff;
   border-radius: 16px;
   padding: 20px;
   width: 100%;
-  max-width: 360px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-}
-.btn-group-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin: 8px 0 15px 0;
-}
-.btn-quick {
-  background: var(--bg-input);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 5px;
-  font-size: 12px;
-  border-radius: 8px;
-  margin: 0;
-}
-.btn-quick:active { background: var(--primary); }
-
-@keyframes blinker { 50% { opacity: 0.4; } }
-
-@media(max-width:768px){
-  .row-2 { grid-template-columns: 1fr; }
+  max-width: 340px;
 }
 </style>
 </head>
 <body>
 
-<div class="brand-header">
-  <img src="./icon-192.png.PNG" onerror="this.src='https://placehold.co/100x100/1f1f2e/ffffff?text=EVORA'" class="brand-logo" alt="EVORA Logo">
-  <h1 class="brand-title">EVORA TRACKER PRO CLOUD</h1>
-</div>
-
-<div class="sync-banner">
-  <span id="syncStatus">🔄 Menghubungkan ke Google Sheets Cloud...</span>
-  <button onclick="loadDataFromCloud()" style="width:auto; margin:0; padding:4px 10px; font-size:11px; background:rgba(255,255,255,0.2);">Refresh</button>
-</div>
-
-<div class="card dashboard-hero">
-  <h3>Dashboard Finansial</h3>
-  <p id="bulanAktif" style="color: var(--text-muted); font-size: 13px; margin: -10px 0 12px 0;"></p>
-  <div class="stats">
-    <div class="stat highlight">
-      <span class="label" style="color: rgba(255,255,255,0.7)">Omzet Hari Ini</span>
-      <div id="omzetHariIni" class="val">Rp 0</div>
-    </div>
-    <div class="stat" onclick="editLogistik('botol')" style="cursor: pointer; background: rgba(59, 130, 246, 0.1); border: 1px dashed rgba(59, 130, 246, 0.5);">
-      <span class="label">Sisa Botol ✏️</span>
-      <div id="stokBotol" class="val">0</div>
-    </div>
-    <div class="stat" onclick="editLogistik('box')" style="cursor: pointer; background: rgba(59, 130, 246, 0.1); border: 1px dashed rgba(59, 130, 246, 0.5);">
-      <span class="label">Sisa Box ✏️</span>
-      <div id="stokBox" class="val">0</div>
-    </div>
-    <div class="stat"><span class="label">Total Item</span><div id="totalBarang" class="val">0</div></div>
-    <div class="stat"><span class="label">Omzet Bulan Ini</span><div id="omzet" class="val">Rp 0</div></div>
-    <div class="stat"><span class="label">Pengeluaran</span><div id="pengeluaran" class="val">Rp 0</div></div>
-    <div class="stat"><span class="label">Laba Bersih</span><div id="laba" class="val" style="color:var(--success)">Rp 0</div></div>
-    
-    <div class="stat" style="grid-column: span 3; background: rgba(255, 255, 255, 0.05); margin-top: 4px; border: 1px solid rgba(245, 158, 11, 0.25); display: flex; justify-content: space-around; align-items: center; padding: 12px 6px;">
-      <div style="text-align: center; flex: 1; border-right: 1px solid rgba(255,255,255,0.08);">
-        <span class="label" style="color: #60a5fa; font-weight: 500;">📊 Terjual Hari Ini</span>
-        <div id="botolTerjualHari" class="val" style="color: #60a5fa; font-size: 16px;">0 pcs</div>
-      </div>
-      <div style="text-align: center; flex: 1;">
-        <span class="label" style="color: var(--accent); font-weight: 500;">📊 Terjual Bulan Ini</span>
-        <div id="botolTerjualBln" class="val" style="color: var(--accent); font-size: 16px;">0 pcs</div>
-      </div>
-    </div>
+<div class="gopay-header">
+  <div class="header-top">
+    <div class="brand-title">EVORA TRACKER PRO</div>
+    <div id="syncStatus" class="sync-badge">🔄 Loading...</div>
   </div>
-</div>
-
-<div class="card" style="border: 1px solid rgba(16, 185, 129, 0.2);">
-  <h3>Mesin Kasir & Stok Produk</h3>
   
-  <div style="margin-bottom: 10px; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 8px;">
-    <label style="font-size: 12px; color: var(--accent); display: block; margin-bottom: 2px; font-weight: bold;">💰 Harga Jual per Pcs (Bisa Diubah):</label>
-    <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="background: #111827; border: 1px solid var(--accent); padding: 8px 12px; font-size: 16px; font-weight: bold; color: #fff;">
-  </div>
-
-  <input id="cariBarangInput" placeholder="🔍 Ketik nama varian untuk cari cepat..." oninput="render()" style="margin-bottom: 5px; background: #1a2e26; border-color: rgba(16, 185, 129, 0.3)">
-  
-  <div class="box-kasir-container">
-    <div id="listBarang" class="grid-barang"></div>
-  </div>
-</div>
-
-<div class="card">
-  <h3>Penjualan Manual Grosir</h3>
-  <select id="barangJual"></select>
-  <input id="qtyJual" type="number" placeholder="Jumlah Banyak Qty">
-  <button onclick="jualBarang()">Simpan Penjualan</button>
-</div>
-
-<div class="card">
-  <h3>Daftarkan Varian Baru</h3>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-    <input id="namaBarang" placeholder="Nama Varian Parfum Baru">
-    <input id="qtyBarang" type="number" placeholder="Stok Awal">
-  </div>
-  <button onclick="tambahBarang()" style="margin-top: 10px;">+ Daftarkan Item</button>
-</div>
-
-<div class="row-2">
-  <div class="card">
-    <h3>Omzet Masuk Manual</h3>
-    <input id="manualOmzet" type="number" placeholder="Nominal (Rp)">
-    <input id="manualKet" placeholder="Keterangan Pendapatan">
-    <button onclick="tambahOmzetManual()" style="background: var(--success);">Simpan Pendapatan</button>
-  </div>
-  <div class="card">
-    <h3>Catat Pengeluaran</h3>
-    <input id="nominalKeluar" type="number" placeholder="Nominal (Rp)">
-    <input id="ketKeluar" placeholder="Keperluan Belanja">
-    <button onclick="tambahPengeluaran()" style="background: var(--danger);">Simpan Pengeluaran</button>
-  </div>
-</div>
-
-<div class="card">
-  <h3>Laporan & Riwayat Harian</h3>
-  <input id="hariSelect" type="date" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px;">
-  <div id="summaryHarian" style="margin-top:10px; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px;"></div>
-  <button class="btn-share" onclick="salinLaporanHarian()">📋 Copy Laporan ke WhatsApp</button>
-</div>
-
-<!-- UPDATE: Laporan bulanan dibuat full-width dengan model kontainer ringkas & detail yang rapi -->
-<div class="card">
-  <h3>Laporan Bulanan & Detail Produk</h3>
-  <label style="font-size:12px; color:var(--text-muted); font-weight: 600;">Pilih Periode Bulan:</label>
-  <select id="bulanSelect" onchange="render()" style="background:var(--bg-input); color:#fff; max-width:200px; margin-bottom: 10px;"></select>
-  <div id="summaryBulanan" style="margin-top:10px; padding:12px; background:rgba(0,0,0,0.2); border-radius:10px;"></div>
-</div>
-
-<div class="card" style="padding-bottom: 5px; border: 1px solid rgba(59, 130, 246, 0.3);">
-  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-    <h3 style="margin:0; border:none; padding:0;">Cari Riwayat Transaksi</h3>
-    <div style="display: flex; gap: 6px; width: auto;">
-      <select id="modeRiwayat" onchange="render()" style="max-width:100px; margin:0; padding:8px; font-size:12px; background:var(--bg-input); color:#fff;">
-        <option value="harian">Harian</option>
-        <option value="bulanan">Bulanan</option>
-      </select>
-      <input id="tanggalRiwayat" type="date" onchange="render()" style="max-width:130px; margin:0; padding:8px; font-size:12px; background:var(--bg-input); color:#fff;">
+  <div class="balance-section">
+    <div>
+      <div class="balance-label">Omzet Hari Ini</div>
+      <div id="omzetHariIni" class="balance-value">Rp 0</div>
+      <div id="bulanAktif" class="sub-balance">Juli 2026</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-topaction" onclick="loadDataFromCloud()">🔄 Sync</button>
     </div>
   </div>
+
+  <div class="pills-container">
+    <button class="gopay-pill" onclick="editLogistik('botol')">🍼 Sisa Botol: <span id="stokBotol">0</span> ✏️</button>
+    <button class="gopay-pill" onclick="editLogistik('box')">📦 Sisa Box: <span id="stokBox">0</span> ✏️</button>
+    <div class="gopay-pill" style="background:rgba(0,0,0,0.2);">🛍️ Total Item: <span id="totalBarang">0</span></div>
+  </div>
 </div>
 
-<div class="row-2">
-  <div class="card">
-    <h3 style="font-size:14px;">Log Penjualan</h3>
-    <div id="riwayatJual" class="scroll-box"></div>
+<div class="main-sheet">
+
+  <div id="tab-beranda" class="tab-content active">
+    <div class="card">
+      <h3>🏆 Varian Terlaris Bulan Ini</h3>
+      <div id="topVarianAvatars" class="avatar-list">
+        </div>
+    </div>
+
+    <div class="promo-grid">
+      <div class="promo-card">
+        <h4 style="margin:0 0 6px 0; font-size:12px; color:var(--success);">💰 Omzet Manual</h4>
+        <input id="manualOmzet" type="number" placeholder="Nominal" style="padding:6px; font-size:12px;">
+        <input id="manualKet" placeholder="Keterangan" style="padding:6px; font-size:12px;">
+        <button onclick="tambahOmzetManual()" style="background:var(--success); padding:6px; font-size:11px;">Simpan</button>
+      </div>
+      <div class="promo-card">
+        <h4 style="margin:0 0 6px 0; font-size:12px; color:var(--danger);">💸 Pengeluaran</h4>
+        <input id="nominalKeluar" type="number" placeholder="Nominal" style="padding:6px; font-size:12px;">
+        <input id="ketKeluar" placeholder="Keperluan" style="padding:6px; font-size:12px;">
+        <button onclick="tambahPengeluaran()" style="background:var(--danger); padding:6px; font-size:11px;">Simpan</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:15px; background:linear-gradient(135deg, #e0f2fe 0%, #fff 100%); border:1px solid #bae6fd;">
+      <h3 style="color:#0369a1; margin-bottom:6px;">📊 Performa Bulanan</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px; font-weight:600;">
+        <div>Omzet: <span id="omzet" style="color:var(--primary)">Rp 0</span></div>
+        <div>Belanja: <span id="pengeluaran" style="color:var(--danger)">Rp 0</span></div>
+        <div style="grid-column:span 2; margin-top:4px; padding-top:4px; border-top:1px dashed #bae6fd; font-size:14px;">
+          Laba Bersih: <span id="laba" style="color:var(--success)">Rp 0</span>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="card">
-    <h3 style="font-size:14px;">Log Pengeluaran</h3>
-    <div id="riwayatKeluar" class="scroll-box"></div>
+
+  <div id="tab-kasir" class="tab-content">
+    <div class="card">
+      <h3>💰 Set Harga Global</h3>
+      <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:bold; color:var(--primary);">
+    </div>
+
+    <div class="card">
+      <h3>🛒 Mesin Kasir & Stok</h3>
+      <input id="cariBarangInput" placeholder="🔍 Cari nama varian parfum..." oninput="render()">
+      <div id="listBarang" class="grid-barang" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <h3>📦 Penjualan Manual Grosir</h3>
+      <select id="barangJual"></select>
+      <input id="qtyJual" type="number" placeholder="Jumlah Qty Banyak">
+      <button onclick="jualBarang()">Simpan Penjualan Grosir</button>
+    </div>
+
+    <div class="card">
+      <h3>➕ Daftarkan Varian Baru</h3>
+      <input id="namaBarang" placeholder="Nama Varian Parfum">
+      <input id="qtyBarang" type="number" placeholder="Stok Awal">
+      <button onclick="tambahBarang()">+ Daftarkan Item</button>
+    </div>
   </div>
+
+  <div id="tab-laporan" class="tab-content">
+    <div class="card">
+      <h3>📅 Laporan Harian</h3>
+      <input id="hariSelect" type="date" onchange="render()">
+      <div id="summaryHarian" style="margin-top:10px; padding:10px; background:#f9fafb; border-radius:8px;"></div>
+      <button onclick="salinLaporanHarian()" style="background:#25d366; margin-top:10px;">📋 Salin Laporan ke WhatsApp</button>
+    </div>
+
+    <div class="card">
+      <h3>📆 Laporan Bulanan</h3>
+      <select id="bulanSelect" onchange="render()"></select>
+      <div id="summaryBulanan" style="margin-top:10px; padding:10px; background:#f9fafb; border-radius:8px;"></div>
+    </div>
+  </div>
+
+  <div id="tab-riwayat" class="tab-content">
+    <div class="card">
+      <div style="display:flex; justify-content:between; align-items:center; gap:8px;">
+        <h3 style="margin:0; flex:1;">🔍 Filter Transaksi</h3>
+        <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:6px;">
+          <option value="harian">Hari</option>
+          <option value="bulanan">Bulan</option>
+        </select>
+        <input id="tanggalRiwayat" type="date" onchange="render()" style="width:130px; margin:0; padding:6px;">
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📝 Log Penjualan</h3>
+      <div id="riwayatJual" class="scroll-box"></div>
+    </div>
+
+    <div class="card">
+      <h3>📉 Log Pengeluaran</h3>
+      <div id="riwayatKeluar" class="scroll-box"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-nav">
+  <button id="nav-beranda" class="nav-item active" onclick="switchTab('beranda')">
+    <div class="nav-icon">🏠</div>
+    <div>Beranda</div>
+  </button>
+  <button id="nav-kasir" class="nav-item" onclick="switchTab('kasir')">
+    <div class="nav-icon">🛍️</div>
+    <div>Kasir</div>
+  </button>
+  <button id="nav-laporan" class="nav-item" onclick="switchTab('laporan')">
+    <div class="nav-icon">📊</div>
+    <div>Laporan</div>
+  </button>
+  <button id="nav-riwayat" class="nav-item" onclick="switchTab('riwayat')">
+    <div class="nav-icon">📜</div>
+    <div>Riwayat</div>
+  </button>
 </div>
 
 <div id="editModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 style="margin-top: 0; border-left-color: var(--accent);">Edit Varian & Stok</h3>
-    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Nama Varian Parfum:</label>
-    <input id="modalNamaBarang" type="text" style="margin-bottom: 12px;">
-    <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; text-align: center;">
-      <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 2px;">Stok Akhir (Disimpan):</span>
-      <b id="modalStokSekarang" style="color: var(--accent); font-size: 20px;">0</b> <span style="font-size:12px;">pcs</span>
+    <h3>Edit Varian & Stok</h3>
+    <input id="modalNamaBarang" type="text">
+    <p style="font-size:13px; text-align:center;">Stok Sekarang: <b id="modalStokSekarang" style="color:var(--accent)">0</b> pcs</p>
+    <input id="modalJumlahManual" type="number" placeholder="Jumlah penyesuaian">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px;">
+      <button onclick="eksekusiManualModal('tambah')" style="background:var(--success); padding:8px;">+ Tambah</button>
+      <button onclick="eksekusiManualModal('kurang')" style="background:var(--danger); padding:8px;">- Kurang</button>
     </div>
-    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Tambah Cepat (Pcs):</label>
-    <div class="btn-group-grid">
-      <button type="button" class="btn-quick" onclick="adjustStokModal(10)">+10</button>
-      <button type="button" class="btn-quick" onclick="adjustStokModal(25)">+25</button>
-      <button type="button" class="btn-quick" onclick="adjustStokModal(50)">+50</button>
-      <button type="button" class="btn-quick" onclick="adjustStokModal(100)">+100</button>
-    </div>
-    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Input Penyesuaian Manual:</label>
-    <input id="modalJumlahManual" type="number" placeholder="Ketik angka jumlah kuantitas..." style="margin-bottom: 8px;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px;">
-      <button type="button" onclick="eksekusiManualModal('tambah')" style="background: var(--success); margin: 0; padding: 10px; font-size: 13px;">+ Tambah</button>
-      <button type="button" onclick="eksekusiManualModal('kurang')" style="background: var(--danger); margin: 0; padding: 10px; font-size: 13px;">- Kurang</button>
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-      <button type="button" onclick="tutupModalEdit()" style="background: #374151; margin: 0; font-size: 14px;">Batal</button>
-      <button type="button" onclick="simpanModalEdit()" style="background: var(--primary); margin: 0; font-size: 14px;">Simpan</button>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+      <button onclick="tutupModalEdit()" style="background:#9ca3af;">Batal</button>
+      <button onclick="simpanModalEdit()">Simpan</button>
     </div>
   </div>
 </div>
 
 <div id="logistikModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 id="logistikModalJudul" style="margin-top: 0; border-left-color: var(--primary);">Edit Stok Logistik</h3>
-    <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; text-align: center;">
-      <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 2px;">Stok Saat Ini:</span>
-      <b id="logistikStokSekarang" style="color: var(--primary); font-size: 20px;">0</b> <span style="font-size:12px;">pcs</span>
+    <h3 id="logistikModalJudul">Edit Stok Logistik</h3>
+    <p style="font-size:13px; text-align:center;">Stok Logistik Saat Ini: <b id="logistikStokSekarang" style="color:var(--primary)">0</b></p>
+    <input id="logistikJumlahManual" type="number" placeholder="Ketik kuantitas...">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px;">
+      <button onclick="eksekusiLogistik('tambah')" style="background:var(--success); padding:8px;">+ Tambah</button>
+      <button onclick="eksekusiLogistik('kurang')" style="background:var(--danger); padding:8px;">- Kurang</button>
     </div>
-    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Input Penyesuaian Manual:</label>
-    <input id="logistikJumlahManual" type="number" placeholder="Ketik angka jumlah kuantitas..." style="margin-bottom: 20px;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px;">
-      <button type="button" onclick="eksekusiLogistik('tambah')" style="background: var(--success); margin: 0; padding: 10px; font-size: 13px;">+ Tambah</button>
-      <button type="button" onclick="eksekusiLogistik('kurang')" style="background: var(--danger); margin: 0; padding: 10px; font-size: 13px;">- Kurang</button>
-    </div>
-    <button type="button" onclick="tutupLogistikModal()" style="background: #374151; margin: 0; font-size: 14px;">Batal</button>
+    <button onclick="tutupLogistikModal()" style="background:#9ca3af;">Batal</button>
   </div>
 </div>
 
 <div id="editPengeluaranModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 style="margin-top: 0; border-left-color: var(--danger);">Edit Catatan Pengeluaran</h3>
-    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Nominal (Rp):</label>
-    <input id="modalNominalKeluar" type="number" style="margin-bottom: 12px;">
-    <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 2px;">Keperluan Belanja:</label>
-    <input id="modalKetKeluar" type="text" style="margin-bottom: 20px;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-      <button type="button" onclick="tutupModalPengeluaran()" style="background: #374151; margin: 0; font-size: 14px;">Batal</button>
-      <button type="button" onclick="simpanModalPengeluaran()" style="background: var(--danger); margin: 0; font-size: 14px;">Simpan</button>
+    <h3>Edit Catatan Pengeluaran</h3>
+    <input id="modalNominalKeluar" type="number">
+    <input id="modalKetKeluar" type="text">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+      <button onclick="tutupModalPengeluaran()" style="background:#9ca3af;">Batal</button>
+      <button onclick="simpanModalPengeluaran()" style="background:var(--danger);">Simpan</button>
     </div>
   </div>
 </div>
@@ -518,12 +553,20 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
+// APP TAB SYSTEM
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+  document.getElementById(`nav-${tabName}`).classList.add('active');
+}
+
 async function loadDataFromCloud() {
-  setSyncStatus("🔄 Menyinkronkan data...");
+  setSyncStatus("🔄 Sync...");
   try {
     let respon = await fetch(SHEETDB_URL);
     let hasil = await respon.json();
-    
     if (hasil && hasil.length > 0 && hasil[0].konten) {
       let dataUtama = JSON.parse(hasil[0].konten);
       stokBotol = Number(dataUtama.stokBotol || 0);
@@ -531,23 +574,20 @@ async function loadDataFromCloud() {
       barang = dataUtama.barang || [];
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
-      
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       document.getElementById("inputHargaGlobal").value = HARGA;
-
-      setSyncStatus("✅ Data Terkoneksi & Sinkron!");
+      setSyncStatus("✅ Terhubung");
     } else {
-      setSyncStatus("⚠️ Database kosong, siap diisi.");
+      setSyncStatus("⚠️ Kosong");
     }
     render();
   } catch (error) {
-    console.error(error);
-    setSyncStatus("❌ Gagal Sinkronisasi Internet!");
+    setSyncStatus("❌ Offline");
   }
 }
 
 async function saveData() {
-  setSyncStatus("⚡ Menyimpan data ke Cloud...");
+  setSyncStatus("⚡ Menyimpan...");
   let paketData = {
     stokBotol: stokBotol,
     stokBox: stokBox,
@@ -556,58 +596,39 @@ async function saveData() {
     pengeluaran: pengeluaran,
     hargaGlobal: HARGA 
   };
-
   try {
     let respon = await fetch(`${SHEETDB_URL}/id/1`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ data: { konten: JSON.stringify(paketData) } })
     });
-    if(respon.ok) {
-      setSyncStatus("✅ Perubahan Tersimpan Otomatis!");
-    } else {
-      setSyncStatus("⚠️ Gagal menyimpan ke cloud!");
-    }
+    if(respon.ok) setSyncStatus("✅ Tersimpan");
     render();
   } catch (error) {
-    setSyncStatus("❌ Koneksi terputus saat menyimpan!");
+    setSyncStatus("❌ Gagal Simpan");
   }
 }
 
 function simpanHargaBaru() {
   let elHarga = document.getElementById("inputHargaGlobal");
   let hargaBaru = Number(elHarga.value);
-  if(hargaBaru <= 0 || isNaN(hargaBaru)) {
-    alert("Masukkan nominal harga yang valid!");
-    elHarga.value = HARGA;
-    return;
-  }
-  
-  let konfirmasi = confirm(`Apakah Anda yakin ingin mengubah harga per pcs dari Rp ${HARGA.toLocaleString("id-ID")} menjadi Rp ${hargaBaru.toLocaleString("id-ID")}?`);
-  if (konfirmasi) {
-    HARGA = hargaBaru;
-    saveData();
-  } else {
-    elHarga.value = HARGA; 
-  }
+  if(hargaBaru <= 0 || isNaN(hargaBaru)) return;
+  HARGA = hargaBaru;
+  saveData();
 }
 
 function setSyncStatus(teks) {
   document.getElementById("syncStatus").innerText = teks;
 }
 
-loadDataFromCloud();
-
 function getMonthKey(date){
   let d = new Date(date);
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
 }
-
 function getDayKey(date){
   let d = new Date(date);
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
-
 function getMonthLabel(key){
   let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
   let [y,m]=key.split("-");
@@ -626,45 +647,22 @@ function updateMonthSelect(){
 
 function editLogistik(jenis) {
   currentLogistikJenis = jenis;
-  let nilaiSaatIni = jenis === 'botol' ? stokBotol : stokBox;
-  
   document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
-  document.getElementById("logistikStokSekarang").innerText = nilaiSaatIni;
+  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ? stokBotol : stokBox;
   document.getElementById("logistikJumlahManual").value = "";
-  
   document.getElementById("logistikModal").style.display = "flex";
 }
-
 function eksekusiLogistik(aksi) {
   let inputVal = Number(document.getElementById("logistikJumlahManual").value);
-  if (inputVal <= 0 || isNaN(inputVal)) {
-    alert("Masukkan angka manual yang valid (lebih dari 0)!");
-    return;
-  }
-  
-  let nilaiSaatIni = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
-  
-  if (aksi === 'tambah') {
-    nilaiSaatIni += inputVal;
-  } else if (aksi === 'kurang') {
-    if (nilaiSaatIni - inputVal < 0) {
-      alert("Stok tidak boleh bernilai negatif (di bawah 0)!");
-      return;
-    }
-    nilaiSaatIni -= inputVal;
-  }
-  
-  if (currentLogistikJenis === 'botol') stokBotol = nilaiSaatIni;
-  if (currentLogistikJenis === 'box') stokBox = nilaiSaatIni;
-  
+  if (inputVal <= 0) return;
+  let nilai = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
+  nilai = aksi === 'tambah' ? nilai + inputVal : Math.max(0, nilai - inputVal);
+  if (currentLogistikJenis === 'botol') stokBotol = nilai;
+  else stokBox = nilai;
   tutupLogistikModal();
   saveData();
 }
-
-function tutupLogistikModal() {
-  document.getElementById("logistikModal").style.display = "none";
-  currentLogistikJenis = null;
-}
+function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none"; }
 
 function tambahBarang(){
   let nama = namaBarang.value.trim().toUpperCase();
@@ -677,106 +675,55 @@ function tambahBarang(){
 
 function editBarang(originalIndex){
   currentEditIndex = originalIndex;
-  let target = barang[originalIndex];
-  
-  document.getElementById("modalNamaBarang").value = target.nama;
-  tempStok = Number(target.stok || 0);
+  document.getElementById("modalNamaBarang").value = barang[originalIndex].nama;
+  tempStok = Number(barang[originalIndex].stok || 0);
   document.getElementById("modalStokSekarang").innerText = tempStok;
   document.getElementById("modalJumlahManual").value = "";
-  
   document.getElementById("editModal").style.display = "flex";
 }
-
-function adjustStokModal(jumlah) {
-  tempStok += jumlah;
-  document.getElementById("modalStokSekarang").innerText = tempStok;
-}
-
 function eksekusiManualModal(aksi) {
   let inputVal = Number(document.getElementById("modalJumlahManual").value);
-  if (inputVal <= 0 || isNaN(inputVal)) {
-    alert("Masukkan angka manual yang valid (lebih dari 0)!");
-    return;
-  }
-  
-  if (aksi === 'tambah') {
-    tempStok += inputVal;
-  } else if (aksi === 'kurang') {
-    if (tempStok - inputVal < 0) {
-      alert("Stok tidak boleh bernilai negatif (di bawah 0)!");
-      return;
-    }
-    tempStok -= inputVal;
-  }
-  
+  if (inputVal <= 0) return;
+  tempStok = aksi === 'tambah' ? tempStok + inputVal : Math.max(0, tempStok - inputVal);
   document.getElementById("modalStokSekarang").innerText = tempStok;
-  document.getElementById("modalJumlahManual").value = ""; 
 }
-
-function tutupModalEdit() {
-  document.getElementById("editModal").style.display = "none";
-  currentEditIndex = null;
-}
-
+function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
 function simpanModalEdit() {
-  if(currentEditIndex === null) return;
-  
   let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
-  if(!namaBaru) {
-    alert("Nama varian tidak boleh dikosongkan!");
-    return;
-  }
-  
+  if(!namaBaru) return;
   barang[currentEditIndex].nama = namaBaru;
   barang[currentEditIndex].stok = tempStok;
-  
   tutupModalEdit();
   saveData();
 }
 
 function hapusBarang(originalIndex){
-  if(confirm("Hapus barang ini?")){
-    barang.splice(originalIndex,1);
-    saveData();
-  }
+  if(confirm("Hapus item?")){ barang.splice(originalIndex,1); saveData(); }
 }
 
 function quickJual(originalIndex) {
-  let elQty = document.getElementById(`qtyQuick-${originalIndex}`);
-  let qty = elQty ? Number(elQty.value) : 1;
-
-  if(!confirm(`Jual instan ${qty} pcs ${barang[originalIndex].nama}?`)) return;
-
-  if(barang[originalIndex].stok < qty) return alert(`Stok barang kurang! Sisa stok: ${barang[originalIndex].stok}`);
-  if(stokBotol < qty) return alert("Stok botol kurang!");
-  if(stokBox < qty) return alert("Stok box kurang!");
-  
+  let qty = 1;
+  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) return alert("Stok kurang!");
   barang[originalIndex].stok -= qty;
   stokBotol -= qty; stokBox -= qty;
-  
   penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: qty * HARGA });
   saveData();
 }
 
 function jualBarang(){
-  let originalIndex = Number(barangJual.value);
+  let idx = Number(barangJual.value);
   let qty = Number(qtyJual.value);
-  if(qty<=0) return;
-  if(barang[originalIndex].stok<qty) return alert("Stok barang kurang");
-  if(stokBotol<qty) return alert("Stok botol kurang");
-  if(stokBox<qty) return alert("Stok box kurang");
-  
-  barang[originalIndex].stok -= qty;
+  if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) return alert("Stok tidak memadai!");
+  barang[idx].stok -= qty;
   stokBotol -= qty; stokBox -= qty;
-  
-  penjualan.push({ tanggal:new Date().toISOString(), barang:barang[originalIndex].nama, qty:qty, nominal:qty*HARGA });
+  penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:qty*HARGA });
   qtyJual.value=""; saveData();
 }
 
 function tambahOmzetManual() {
   let nom = Number(manualOmzet.value);
-  let ket = manualKet.value.trim() || "Omzet Manual";
-  if(nom <= 0) return alert("Nominal salah!");
+  let ket = manualKet.value.trim() || "Manual";
+  if(nom <= 0) return;
   penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket });
   manualOmzet.value = ""; manualKet.value = ""; saveData();
 }
@@ -790,110 +737,44 @@ function tambahPengeluaran(){
 }
 
 function batalkanPenjualan(originalIndex) {
-  if(!confirm("Batalkan/Retur transaksi log penjualan ini?")) return;
-  
+  if(!confirm("Batalkan transaksi ini?")) return;
   let target = penjualan[originalIndex];
   if(target.barang !== "OMZET MANUAL") {
     let bIndex = barang.findIndex(x => x.nama === target.barang);
-    if(bIndex !== -1) { 
-      barang[bIndex].stok += target.qty; 
-    }
-    stokBotol += target.qty; 
-    stokBox += target.qty;
+    if(bIndex !== -1) barang[bIndex].stok += target.qty;
+    stokBotol += target.qty; stokBox += target.qty;
   }
-  
   penjualan.splice(originalIndex, 1);
   saveData();
 }
 
 function editPengeluaran(originalIndex) {
   currentEditPengeluaranIndex = originalIndex;
-  let target = pengeluaran[originalIndex];
-  document.getElementById("modalNominalKeluar").value = target.nominal;
-  document.getElementById("modalKetKeluar").value = target.keterangan || "";
+  document.getElementById("modalNominalKeluar").value = pengeluaran[originalIndex].nominal;
+  document.getElementById("modalKetKeluar").value = pengeluaran[originalIndex].keterangan || "";
   document.getElementById("editPengeluaranModal").style.display = "flex";
 }
-
-function tutupModalPengeluaran() {
-  document.getElementById("editPengeluaranModal").style.display = "none";
-  currentEditPengeluaranIndex = null;
-}
-
+function tutupModalPengeluaran() { document.getElementById("editPengeluaranModal").style.display = "none"; }
 function simpanModalPengeluaran() {
-  if(currentEditPengeluaranIndex === null) return;
   let nom = Number(document.getElementById("modalNominalKeluar").value);
   let ket = document.getElementById("modalKetKeluar").value.trim();
-  if(nom <= 0 || !ket) {
-    alert("Nominal dan keperluan belanja harus valid!");
-    return;
-  }
+  if(nom <= 0 || !ket) return;
   pengeluaran[currentEditPengeluaranIndex].nominal = nom;
   pengeluaran[currentEditPengeluaranIndex].keterangan = ket;
   tutupModalPengeluaran();
   saveData();
 }
-
 function hapusPengeluaran(originalIndex) {
-  if(!confirm("Hapus catatan pengeluaran ini secara permanen?")) return;
-  pengeluaran.splice(originalIndex, 1);
-  saveData();
+  if(confirm("Hapus?")) { pengeluaran.splice(originalIndex, 1); saveData(); }
 }
 
 function salinLaporanHarian() {
   let tgl = document.getElementById("hariSelect").value;
   let key = getDayKey(tgl);
   let jHari = penjualan.filter(x=>getDayKey(x.tanggal)===key);
-  let kHari = pengeluaran.filter(x=>getDayKey(x.tanggal)===key);
   let oHari = jHari.reduce((a,b)=>a+b.nominal,0);
-  let pHari = kHari.reduce((a,b)=>a+b.nominal,0);
-  let bHari = jHari.reduce((a,b)=>a+b.qty,0); 
-  
-  let teksLaporan = `*LAPORAN HARIAN EVORA (${tgl})*\n\n`;
-  teksLaporan += `💰 Total Omzet Harian: Rp ${oHari.toLocaleString("id-ID")}\n`;
-  teksLaporan += `💸 Total Pengeluaran Harian: Rp ${pHari.toLocaleString("id-ID")}\n`;
-  teksLaporan += `📦 Total Botol Terjual: ${bHari} pcs\n\n`;
-  
-  let salesMapHari = {};
-  jHari.forEach(x => {
-    if(x.qty <= 0 || x.barang === "OMZET MANUAL") return;
-    salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty;
-  });
-  let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]).slice(0, 3);
-  
-  if(rankingHari.length > 0) {
-    teksLaporan += `🏆 *TOP TERLARIS HARI INI:*\n`;
-    rankingHari.forEach((x, i) => teksLaporan += `${i+1}. ${x[0]} (${x[1]} pcs)\n`);
-    teksLaporan += `\n`;
-  }
-
-  teksLaporan += `*Detail Item Terjual:*\n`;
-  if(jHari.length) {
-    let grupCopyWA = {};
-    jHari.forEach(x => {
-      let k = x.barang === "OMZET MANUAL" ? `MANUAL: ${x.keterangan || 'Omzet'}` : x.barang;
-      if(!grupCopyWA[k]) grupCopyWA[k] = { barang: x.barang, qty: 0, nominal: 0, keterangan: x.keterangan || 'Omzet' };
-      grupCopyWA[k].qty += x.qty;
-      grupCopyWA[k].nominal += x.nominal;
-    });
-
-    Object.values(grupCopyWA).forEach(item => {
-      if(item.barang === "OMZET MANUAL") { 
-        teksLaporan += `- [Manual] ${item.keterangan} : Rp ${item.nominal.toLocaleString("id-ID")}\n`; 
-      } else { 
-        teksLaporan += `- ${item.barang} (${item.qty} pcs) : Rp ${item.nominal.toLocaleString("id-ID")}\n`; 
-      }
-    });
-  } else { teksLaporan += `- Tidak ada penjualan harian\n`; }
-  
-  let barangHabis = barang.filter(x => x.stok === 0);
-  if(barangHabis.length) {
-    teksLaporan += `\n🚨 *STOK HABIS HARI INI:* \n`;
-    barangHabis.forEach(x => teksLaporan += `- ${x.nama}\n`);
-  }
-
-  navigator.clipboard.writeText(teksLaporan).then(() => {
-    alert("Berhasil disalin! Tinggal paste ke WhatsApp.");
-  }).catch(() => { alert("Gagal menyalin otomatis."); });
+  let teks = `*LAPORAN EVORA (${tgl})*\n💰 Omzet: Rp ${oHari.toLocaleString("id-ID")}\n`;
+  navigator.clipboard.writeText(teks).then(() => alert("Disalin!"));
 }
 
 function render(){
@@ -908,274 +789,82 @@ function render(){
 
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-  let omzet = jualAktif.reduce((a,b)=>a+b.nominal,0);
-  let keluar = keluarAktif.reduce((a,b)=>a+b.nominal,0);
+  let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
+  let keluarVal = keluarAktif.reduce((a,b)=>a+b.nominal,0);
 
   document.getElementById("stokBotol").innerText = stokBotol;
   document.getElementById("stokBox").innerText = stokBox;
   document.getElementById("totalBarang").innerText = barang.length;
-  document.getElementById("omzet").innerText = "Rp "+omzet.toLocaleString("id-ID");
-  document.getElementById("pengeluaran").innerText = "Rp "+keluar.toLocaleString("id-ID");
-  document.getElementById("laba").innerText = "Rp "+(omzet-keluar).toLocaleString("id-ID");
+  document.getElementById("omzet").innerText = "Rp "+omzetVal.toLocaleString("id-ID");
+  document.getElementById("pengeluaran").innerText = "Rp "+keluarVal.toLocaleString("id-ID");
+  document.getElementById("laba").innerText = "Rp "+(omzetVal-keluarVal).toLocaleString("id-ID");
 
-  let botolTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
-  let botolTerjualBlnIni = jualAktif.reduce((a,b)=>a+b.qty,0);
+  // RENDER DYNAMIC AVATARS FOR TOP SELLING (GOPAY CONTACTS STYLE)
+  let salesMapBln = {};
+  jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
+  let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
   
-  document.getElementById("botolTerjualHari").innerText = botolTerjualHariIni + " pcs";
-  document.getElementById("botolTerjualBln").innerText = botolTerjualBlnIni + " pcs";
+  topVarianAvatars.innerHTML = rankingBln.length ? rankingBln.map(x => `
+    <div class="avatar-item">
+      <div class="avatar-circle">${x[0].charAt(0)}</div>
+      <div class="avatar-name">${x[0]}</div>
+      <div class="avatar-qty">${x[1]} pcs</div>
+    </div>
+  `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
 
+  // RENDER GRID KASIR
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
-
-  if(queryCari) { barangUrut = barangUrut.filter(x => x.nama.includes(queryCari)); }
+  if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
   barangUrut.sort((a, b) => a.stok - b.stok);
 
-  listBarang.innerHTML = barangUrut.map((x)=>{
-    let tagPeringatan = "";
-    let backgroundStyle = "background: rgba(255, 255, 255, 0.04);";
-    if(x.stok === 0) { tagPeringatan = `<span class="badge-warning">❌ HABIS</span>`; backgroundStyle = "background: var(--danger-bg); border-color: rgba(239, 68, 68, 0.2);"; } 
-    else if(x.stok <= 5) { tagPeringatan = `<span class="badge-warning">⚠️ KRITIS</span>`; backgroundStyle = "background: var(--danger-bg); border-color: rgba(239, 68, 68, 0.2);"; }
-    
+  listBarang.innerHTML = barangUrut.map(x => {
+    let tag = x.stok <= 5 ? `<span class="badge-warning">KRITIS</span>` : `<span class="badge-promo">READY</span>`;
     return `
-      <div class="item-barang" style="${backgroundStyle}">
+      <div class="item-barang">
         <div class="item-info">
           <b>${x.nama}</b>
-          <div class="stok-text">Stok: ${x.stok}</div>
-          ${tagPeringatan}
+          <div class="stok-text">Sisa: ${x.stok} pcs</div>
+          ${tag}
         </div>
-        <div>
-          <div style="display: flex; gap: 4px; margin-top: 8px;">
-            <select id="qtyQuick-${x.originalIndex}" style="margin: 0; padding: 6px; font-size: 12px; width: 52px; background: var(--bg-main); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center;">
-              ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join("")}
-            </select>
-            <button class="btn-quick-jual" onclick="quickJual(${x.originalIndex})" style="flex: 1; padding: 8px 4px; font-size: 11px;">⚡ Jual</button>
-          </div>
-          <div class="item-actions">
-            <button class="btn-edit" onclick="editBarang(${x.originalIndex})">Edit</button>
-            <button class="btn-delete" onclick="hapusBarang(${x.originalIndex})">Hapus</button>
-          </div>
+        <div style="margin-top:10px; display:flex; gap:4px;">
+          <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success);">⚡ Jual</button>
+          <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); color:#000;">Edit</button>
         </div>
       </div>
     `;
   }).join("");
 
-  barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
+  barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
+  // RENDER LAPORAN DETAIL MODERN
   let tglDipilih = document.getElementById("hariSelect").value;
-
   if(tglDipilih){
-    let keyHariDipilih = getDayKey(tglDipilih);
-    let jualHariDipilih = penjualan.filter(x=>getDayKey(x.tanggal)===keyHariDipilih);
-    let keluarHariDipilih = pengeluaran.filter(x=>getDayKey(x.tanggal)===keyHariDipilih);
-    
-    let omzetHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.nominal,0);
-    let pengeluaranHariDipilih = keluarHariDipilih.reduce((a,b)=>a+b.nominal,0);
-    let botolHariDipilih = jualHariDipilih.reduce((a,b)=>a+b.qty,0); 
-    
-    let grupJualHari = {};
-    jualHariDipilih.forEach(x => {
-      let keyGrup = x.barang === "OMZET MANUAL" ? `MANUAL: ${x.keterangan || 'Tanpa Keterangan'}` : x.barang;
-      if(!grupJualHari[keyGrup]) {
-        grupJualHari[keyGrup] = { barang: x.barang, qty: 0, nominal: 0, keterangan: x.keterangan || '' };
-      }
-      grupJualHari[keyGrup].qty += x.qty;
-      grupJualHari[keyGrup].nominal += x.nominal;
-    });
-
-    let detailHariDipilih = Object.values(grupJualHari).map(x => {
-      if(x.barang === "OMZET MANUAL") { return `• [Manual] ${x.keterangan || 'Tanpa Keterangan'} - Rp ${x.nominal.toLocaleString("id-ID")}`; }
-      return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
-    }).join("<br>");
-
-    let detailKeluarHariDipilih = keluarHariDipilih.map(x => {
-      return `• ${x.keterangan || 'Belanja'} - <span style="color:var(--danger)">Rp ${x.nominal.toLocaleString("id-ID")}</span>`;
-    }).join("<br>");
-
-    let salesMapHari = {};
-    jualHariDipilih.forEach(x => {
-      if(x.qty <= 0 || x.barang === "OMZET MANUAL") return;
-      salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty;
-    });
-    let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]).slice(0, 3);
-    let topSellingHariHTML = rankingHari.length 
-      ? rankingHari.map((x,i) => `🏆 #${i+1} ${x[0]} (${x[1]} pcs)`).join("<br>") 
-      : "<span style='color:var(--text-muted);'>Belum ada penjualan</span>";
-    
-    document.getElementById("summaryHarian").innerHTML = `
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center; margin-bottom: 12px;">
-        <div style="background: rgba(255,255,255,0.02); padding: 6px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.1);">
-          <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Omzet Harian</span>
-          <div style="color:#60a5fa; font-weight:bold; font-size:13px;">Rp ${omzetHariDipilih.toLocaleString("id-ID")}</div>
-        </div>
-        <div style="background: rgba(255,255,255,0.02); padding: 6px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.1);">
-          <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Pengeluaran</span>
-          <div style="color:var(--danger); font-weight:bold; font-size:13px;">Rp ${pengeluaranHariDipilih.toLocaleString("id-ID")}</div>
-        </div>
-        <div style="background: rgba(255,255,255,0.02); padding: 6px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.1);">
-          <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Botol Terjual</span>
-          <div style="color:var(--accent); font-weight:bold; font-size:13px;">${botolHariDipilih} pcs</div>
-        </div>
-      </div>
-      
-      <div style="font-size: 12px; line-height: 1.4; display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px;">
-        <div>
-          <b style="color:#60a5fa; display:block; margin-bottom:2px;">💰 Detail Pendapatan:</b>
-          <div style="color:var(--text-muted); background:rgba(0,0,0,0.15); padding:6px; border-radius:6px;">${detailHariDipilih || 'Tidak ada pendapatan.'}</div>
-        </div>
-        <div>
-          <b style="color:var(--danger); display:block; margin-bottom:2px;">💸 Detail Pengeluaran:</b>
-          <div style="color:var(--text-muted); background:rgba(0,0,0,0.15); padding:6px; border-radius:6px;">${detailKeluarHariDipilih || 'Tidak ada pengeluaran.'}</div>
-        </div>
-      </div>
-
-      <div style="font-size:12px; color:var(--accent); font-weight:500; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 8px;">
-        Top Terlaris Hari Ini:<br>
-        <div style="margin-top:3px; color:#fff;">${topSellingHariHTML}</div>
-      </div>
-    `;
+    let kH = getDayKey(tglDipilih);
+    let jH = penjualan.filter(x=>getDayKey(x.tanggal)===kH);
+    let oH = jH.reduce((a,b)=>a+b.nominal,0);
+    summaryHarian.innerHTML = `<b>Omzet Hari Ini:</b> Rp ${oH.toLocaleString("id-ID")}<br><b>Item Terjual:</b> ${jH.reduce((a,b)=>a+b.qty,0)} pcs`;
   }
 
-  // UPDATE: Logika Pemrosesan Render Laporan Bulanan Detail Modern (Mirip Harian)
-  let bulan = bulanSelect.value || bulanAktif;
-  let jualBulanan = penjualan.filter(x=>getMonthKey(x.tanggal)===bulan);
-  let keluarBulanan = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulan);
-  
-  let omzetBulanan = jualBulanan.reduce((a,b)=>a+b.nominal,0);
-  let keluarBulananTotal = keluarBulanan.reduce((a,b)=>a+b.nominal,0);
-  let botolBulananTotal = jualBulanan.reduce((a,b)=>a+b.qty,0); 
+  let blnDipilih = bulanSelect.value || bulanAktif;
+  let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
+  let oB = jB.reduce((a,b)=>a+b.nominal,0);
+  summaryBulanan.innerHTML = `<b>Total Omzet Bulanan:</b> Rp ${oB.toLocaleString("id-ID")}<br><b>Akumulasi Produk:</b> ${jB.reduce((a,b)=>a+b.qty,0)} pcs`;
 
-  let grupJualBulan = {};
-  jualBulanan.forEach(x => {
-    let keyGrup = x.barang === "OMZET MANUAL" ? `MANUAL: ${x.keterangan || 'Tanpa Keterangan'}` : x.barang;
-    if(!grupJualBulan[keyGrup]) {
-      grupJualBulan[keyGrup] = { barang: x.barang, qty: 0, nominal: 0, keterangan: x.keterangan || '' };
-    }
-    grupJualBulan[keyGrup].qty += x.qty;
-    grupJualBulan[keyGrup].nominal += x.nominal;
-  });
-
-  let detailBulanDipilih = Object.values(grupJualBulan).map(x => {
-    if(x.barang === "OMZET MANUAL") { return `• [Manual] ${x.keterangan || 'Tanpa Keterangan'} - Rp ${x.nominal.toLocaleString("id-ID")}`; }
-    return `• ${x.barang} (${x.qty} pcs) - Rp ${x.nominal.toLocaleString("id-ID")}`;
-  }).join("<br>");
-
-  let detailKeluarBulanDipilih = keluarBulanan.map(x => {
-    let dObj = new Date(x.tanggal);
-    let tglCap = `${dObj.getDate()}/${dObj.getMonth()+1}`;
-    return `• [${tglCap}] ${x.keterangan || 'Belanja'} - <span style="color:var(--danger)">Rp ${x.nominal.toLocaleString("id-ID")}</span>`;
-  }).join("<br>");
-
-  let salesMap = {};
-  jualBulanan.forEach(x=> {
-    if(x.qty<=0 || x.barang==="OMZET MANUAL") return;
-    salesMap[x.barang]=(salesMap[x.barang]||0)+x.qty;
-  });
-  
-  let ranking = Object.entries(salesMap).sort((a,b)=>b[1]-a[1]);
-  let topSellingBulanHTML = ranking.length ? ranking.map((x,i)=>{
-    let ikon = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "• ";
-    return `${ikon}${x[0]} : <b>${x[1]} pcs</b>`;
-  }).join("<br>") : "<span style='color:var(--text-muted)'>Belum ada penjualan di bulan ini.</span>";
-
-  summaryBulanan.innerHTML = `
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; text-align: center; margin-bottom: 12px;">
-      <div style="background: rgba(255,255,255,0.02); padding: 8px 4px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.15);">
-        <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Total Omzet</span>
-        <div style="color:#60a5fa; font-weight:bold; font-size:13px;">Rp ${omzetBulanan.toLocaleString("id-ID")}</div>
-      </div>
-      <div style="background: rgba(255,255,255,0.02); padding: 8px 4px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.15);">
-        <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Total Pengeluaran</span>
-        <div style="color:var(--danger); font-weight:bold; font-size:13px;">Rp ${keluarBulananTotal.toLocaleString("id-ID")}</div>
-      </div>
-      <div style="background: rgba(255,255,255,0.02); padding: 8px 4px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.15);">
-        <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Laba Bersih</span>
-        <div style="color:var(--success); font-weight:bold; font-size:13px;">Rp ${(omzetBulanan - keluarBulananTotal).toLocaleString("id-ID")}</div>
-      </div>
-      <div style="background: rgba(255,255,255,0.02); padding: 8px 4px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.15);">
-        <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:3px;">Total Terjual</span>
-        <div style="color:var(--accent); font-weight:bold; font-size:13px;">${botolBulananTotal} pcs</div>
-      </div>
-    </div>
-    
-    <div style="font-size: 12px; line-height: 1.4; display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px;">
-      <div>
-        <b style="color:#60a5fa; display:block; margin-bottom:4px;">💰 Akumulasi Produk Terjual:</b>
-        <div class="scroll-box" style="color:var(--text-muted); background:rgba(0,0,0,0.15); padding:8px; border-radius:6px; max-height:100px;">${detailBulanDipilih || 'Tidak ada pendapatan.'}</div>
-      </div>
-      <div>
-        <b style="color:var(--danger); display:block; margin-bottom:4px;">💸 Detail Log Pengeluaran Bulanan:</b>
-        <div class="scroll-box" style="color:var(--text-muted); background:rgba(0,0,0,0.15); padding:8px; border-radius:6px; max-height:100px;">${detailKeluarBulanDipilih || 'Tidak ada pengeluaran.'}</div>
-      </div>
-    </div>
-
-    <div style="font-size:12px; color:var(--accent); font-weight:500; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 8px;">
-      📊 Peringkat Varian Terlaris (Bulan Ini):<br>
-      <div class="scroll-box" style="margin-top:5px; color:#fff; max-height:110px; font-weight: normal;">${topSellingBulanHTML}</div>
-    </div>
-  `;
-
+  // LOGS MANAGEMENT
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
-  let tglRiwayatKey = getDayKey(tglRiwayat);
-  let blnRiwayatKey = getMonthKey(tglRiwayat);
-
-  let penjualanDenganIndex = penjualan.map((x, i) => ({...x, originalIndex: i}));
-  let pengeluaranDenganIndex = pengeluaran.map((x, i) => ({...x, originalIndex: i}));
-
-  let riwayatJualFiltered = [];
-  let riwayatKeluarFiltered = [];
-
-  if (modeRiwayat === "harian") {
-    riwayatJualFiltered = penjualanDenganIndex.filter(x => getDayKey(x.tanggal) === tglRiwayatKey);
-    riwayatKeluarFiltered = pengeluaranDenganIndex.filter(x => getDayKey(x.tanggal) === tglRiwayatKey);
-  } else {
-    riwayatJualFiltered = penjualanDenganIndex.filter(x => getMonthKey(x.tanggal) === blnRiwayatKey);
-    riwayatKeluarFiltered = pengeluaranDenganIndex.filter(x => getMonthKey(x.tanggal) === blnRiwayatKey);
-  }
-
-  riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => {
-    let tglObj = new Date(x.tanggal);
-    let waktu = tglObj.toLocaleTimeString("id-ID", {hour: '2-digit', minute:'2-digit'});
-    let tglTeks = modeRiwayat === "bulanan" ? `${tglObj.getDate()}/${tglObj.getMonth()+1} ` : "";
-    
-    if(x.barang === "OMZET MANUAL") {
-      return `
-      <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <span style="color:var(--text-muted)">⏱️ ${tglTeks}${waktu}</span> - <b>[Manual] ${x.keterangan || 'Keterangan'}</b><br>
-          <span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span>
-        </div>
-        <button onclick='batalkanPenjualan(${x.originalIndex})' style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
-      </div>`;
-    }
-    return `
-    <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <span style="color:var(--text-muted)">⏱️ ${tglTeks}${waktu}</span> - <b>${x.barang}</b> (${x.qty} pcs)<br>
-        <span style="color:#60a5fa">Rp ${x.nominal.toLocaleString("id-ID")}</span>
-      </div>
-      <button onclick='batalkanPenjualan(${x.originalIndex})' style="background: var(--danger); padding: 5px 10px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Batal</button>
-    </div>`;
-  }).join("") : `<p style='color:var(--text-muted)'>Tidak ada data penjualan periode ini.</p>`;
-
-  riwayatKeluar.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => {
-    let tglObj = new Date(x.tanggal);
-    let waktu = tglObj.toLocaleTimeString("id-ID", {hour: '2-digit', minute:'2-digit'});
-    let tglTeks = modeRiwayat === "bulanan" ? `${tglObj.getDate()}/${tglObj.getMonth()+1} ` : "";
-    
-    return `
-    <div class="riwayat-item" style="display: flex; justify-content: space-between; align-items: center; margin: 4px 0;">
-      <div>
-        <span style="color:var(--text-muted)">⏱️ ${tglTeks}${waktu}</span> - <span style="color:var(--danger)">Rp ${x.nominal.toLocaleString("id-ID")}</span><br>
-        <b>${x.keterangan || '-'}</b>
-      </div>
-      <div style="display: flex; gap: 4px;">
-        <button onclick='editPengeluaran(${x.originalIndex})' class="btn-edit" style="padding: 4px 8px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Edit</button>
-        <button onclick='hapusPengeluaran(${x.originalIndex})' style="background: var(--danger); padding: 4px 8px; font-size: 11px; width: auto; margin: 0; border-radius: 6px;">Hapus</button>
-      </div>
-    </div>`;
-  }).join("") : `<p style='color:var(--text-muted)'>Tidak ada pengeluaran pada periode ini.</p>`;
+  let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
+  
+  riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
+    <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div><b>${x.barang}</b> (${x.qty} pcs)<br><span style="color:var(--primary)">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:4px 8px; font-size:11px; background:var(--danger)">Batal</button>
+    </div>
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted)">Kosong</p>`;
 }
+
+loadDataFromCloud();
 </script>
 </body>
 </html>
