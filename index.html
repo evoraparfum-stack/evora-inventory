@@ -551,7 +551,7 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
 
 <!-- ================= MODALS & POPUPS CONTAINER ================= -->
 
-<!-- NEW GLOBAL DIALOG POPUP (SUPER PRETTIER REPLACEMENT FOR ALERT & CONFIRM) -->
+<!-- GLOBAL DIALOG POPUP -->
 <div id="globalDialogModal" class="modal-overlay" style="display: none;">
   <div class="modal-content" style="max-width: 320px; text-align: center; padding: 26px;">
     <div id="dialogIcon" style="font-size: 42px; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">💡</div>
@@ -578,6 +578,7 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   </div>
 </div>
 
+<!-- MODAL EDIT LOGISTIK BOTOL / BOX (INSTANT MODE ACTIVE) -->
 <div id="logistikModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 id="logistikModalJudul" style="color:var(--primary)">Edit Logistik</h3>
@@ -587,7 +588,7 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
       <button onclick="eksekusiLogistik('tambah')" style="background:var(--success); padding:12px; box-shadow:none;">+ Tambah</button>
       <button onclick="eksekusiLogistik('kurang')" style="background:var(--danger); padding:12px; box-shadow:none;">- Kurang</button>
     </div>
-    <button onclick="tutupLogistikModal()" style="background:#94a3b8; box-shadow:none;">Batal Balik</button>
+    <button onclick="tutupLogistikModal()" style="background:#94a3b8; box-shadow:none;">Selesai & Balik</button>
   </div>
 </div>
 
@@ -937,20 +938,26 @@ function editLogistik(jenis) {
   document.getElementById("logistikJumlahManual").value = "";
   document.getElementById("logistikModal").style.display = "flex";
 }
-async function eksekusiLogistik(aksi) {
+
+// BUG FIXED: REMOVED customConfirm SO STOCKS INCREMENT/DECREMENT INSTANTLY
+function eksekusiLogistik(aksi) {
   let inputVal = Number(document.getElementById("logistikJumlahManual").value);
-  if (inputVal <= 0) return;
-  
-  let konfirmasi = await customConfirm("Konfirmasi Logistik", `Apakah Anda yakin ingin <b>${aksi}</b> stok logistik sebanyak <b>${inputVal} item</b>?`, "warning");
-  if (!konfirmasi) return;
+  if (inputVal <= 0 || isNaN(inputVal)) return;
   
   let nilai = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
   nilai = aksi === 'tambah' ? nilai + inputVal : Math.max(0, nilai - inputVal);
-  if (currentLogistikJenis === 'botol') stokBotol = nilai;
-  else stokBox = nilai;
-  tutupLogistikModal();
-  saveData();
+  
+  if (currentLogistikJenis === 'botol') {
+    stokBotol = nilai;
+  } else {
+    stokBox = nilai;
+  }
+  
+  document.getElementById("logistikStokSekarang").innerText = nilai;
+  document.getElementById("logistikJumlahManual").value = ""; 
+  saveData(); 
 }
+
 function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none"; }
 
 async function tambahBarang(){
