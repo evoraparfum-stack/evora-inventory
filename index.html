@@ -11,8 +11,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="EVORA">
 
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
 <style>
 :root {
   --premium-gradient: linear-gradient(135deg, #063e46 0%, #0f616d 100%);
@@ -50,6 +48,7 @@ html, body {
   padding-bottom: 100px;
 }
 
+/* PREMIUM MODERN HEADER */
 .premium-header {
   background: var(--premium-gradient);
   padding: 35px 20px 60px 20px;
@@ -128,6 +127,7 @@ html, body {
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* GLASSMORPHISM PILLS - TEXT ONLY */
 .pills-container {
   display: flex;
   gap: 10px;
@@ -152,7 +152,11 @@ html, body {
   white-space: nowrap;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
+.premium-pill:active {
+  transform: scale(0.96);
+}
 
+/* MAIN BODY SHEET */
 .main-sheet {
   background: var(--bg-main);
   margin-top: -30px;
@@ -183,6 +187,7 @@ h3 {
   gap: 6px;
 }
 
+/* SEARCH FIELD WRAPPER WITH CLEAR BUTTON */
 .search-container {
   position: relative;
   width: 100%;
@@ -206,6 +211,7 @@ h3 {
   z-index: 5;
 }
 
+/* MODERN TOP PRODUCT SELLING CARDS */
 .top-product-grid {
   display: flex;
   gap: 12px;
@@ -221,6 +227,7 @@ h3 {
   min-width: 125px;
   text-align: center;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.2s;
 }
 .product-badge-rank {
   font-size: 9px;
@@ -233,7 +240,22 @@ h3 {
   border-radius: 20px;
   display: inline-block;
 }
+.product-badge-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.product-badge-qty {
+  font-size: 12px;
+  color: var(--success);
+  font-weight: 700;
+  margin-top: 4px;
+}
 
+/* INPUT & CONTROLS */
 input, select, textarea {
   width: 100%;
   padding: 12px 14px;
@@ -244,6 +266,7 @@ input, select, textarea {
   background: #f8fafc;
   color: var(--text-main);
   outline: none;
+  transition: all 0.2s ease;
 }
 input:focus, select:focus {
   border-color: var(--primary);
@@ -260,9 +283,15 @@ button {
   border: none;
   font-size: 14px;
   cursor: pointer;
+  transition: all 0.2s;
   box-shadow: 0 4px 6px -1px rgba(15, 97, 109, 0.2);
 }
+button:active {
+  transform: scale(0.98);
+  opacity: 0.95;
+}
 
+/* CARDS GRID */
 .grid-barang {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -276,8 +305,32 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: var(--shadow-sm);
 }
+.item-info b {
+  font-size: 14px;
+  color: var(--text-main);
+  display: block;
+  line-height: 1.4;
+}
+.stok-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-weight: 500;
+}
+.badge-status {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  display: inline-block;
+  margin-top: 8px;
+}
+.status-critical { background: #ffe4e6; color: #be123c; }
+.status-ready { background: #ccfbf1; color: #0f766e; }
 
+/* TWIN ACTION CARDS */
 .action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -288,8 +341,10 @@ button {
   border-radius: var(--radius-md);
   padding: 16px;
   border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow-md);
 }
 
+/* BOTTOM NAVIGATION BAR */
 .bottom-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -303,6 +358,7 @@ button {
   box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.06);
   z-index: 999;
   border-top: 1px solid rgba(226, 232, 240, 0.8);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .nav-item {
   display: flex;
@@ -316,17 +372,27 @@ button {
   border: none;
   padding: 0;
   width: 22%;
+  transition: all 0.2s;
 }
-.nav-item.active { color: var(--primary); }
+.nav-item.active {
+  color: var(--primary);
+}
 .nav-icon {
   font-size: 20px;
   margin-bottom: 4px;
   padding: 4px 16px;
   border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.nav-item.active .nav-icon { background: var(--primary-light); }
+.nav-item.active .nav-icon {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+}
 
-.scroll-box { max-height: 240px; overflow-y: auto; }
+.scroll-box {
+  max-height: 240px;
+  overflow-y: auto;
+}
 .riwayat-item {
   background: #f8fafc;
   padding: 12px 14px;
@@ -336,14 +402,17 @@ button {
   border: 1px solid #edf2f7;
 }
 
+/* TAB MANAGEMENT */
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
+/* MODAL WINDOWS */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   display: flex; align-items: center; justify-content: center;
   z-index: 9999; padding: 16px;
 }
@@ -352,8 +421,13 @@ button {
   border-radius: var(--radius-lg);
   padding: 26px;
   width: 100%;
-  max-width: 360px;
+  max-width: 350px;
   box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+  animation: modalUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes modalUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 </style>
 </head>
@@ -377,7 +451,6 @@ button {
   </div>
 
   <div class="pills-container">
-    <button class="premium-pill" style="background: var(--success); border-color:#0d9488;" onclick="bukaScanOcr()">📷 SCAN RESI</button>
     <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol">0</span> ✏️</button>
     <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox">0</span> ✏️</button>
     <div class="premium-pill" style="background: rgba(0,0,0,0.2); border-color: rgba(0,0,0,0.1)">Total Varian: <span id="totalBarang">0</span></div>
@@ -387,6 +460,7 @@ button {
 <div class="main-sheet">
 
   <div id="tab-beranda" class="tab-content active">
+    
     <div class="card" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0;">
       <h3>⚡ PERFORMA HARI INI</h3>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:12px;">
@@ -400,21 +474,22 @@ button {
 
     <div class="card">
       <h3>🏆 TOP VARIAN BULAN INI</h3>
-      <div id="topVarianAvatars" class="top-product-grid"></div>
+      <div id="topVarianAvatars" class="top-product-grid">
+        </div>
     </div>
 
     <div class="action-grid">
       <div class="action-card">
-        <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--success); text-transform:uppercase; font-weight: 800;">💰 Omzet Manual</h4>
-        <input id="manualOmzet" type="number" placeholder="Nominal Rp">
-        <input id="manualKet" placeholder="Keterangan">
-        <button onclick="tambahOmzetManual()" style="background:var(--success); padding:10px;">Simpan</button>
+        <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--success); text-transform:uppercase; letter-spacing:0.5px; font-weight: 800;">💰 Omzet Manual</h4>
+        <input id="manualOmzet" type="number" placeholder="Nominal Rp" style="padding:10px; font-size:12px;">
+        <input id="manualKet" placeholder="Keterangan" style="padding:10px; font-size:12px;">
+        <button onclick="tambahOmzetManual()" style="background:var(--success); padding:10px; font-size:12px; border-radius:8px; box-shadow: none;">Simpan</button>
       </div>
       <div class="action-card">
-        <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--danger); text-transform:uppercase; font-weight: 800;">💸 Pengeluaran</h4>
-        <input id="nominalKeluar" type="number" placeholder="Nominal Rp">
-        <input id="ketKeluar" placeholder="Keperluan">
-        <button onclick="tambahPengeluaran()" style="background:var(--danger); padding:10px;">Simpan</button>
+        <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--danger); text-transform:uppercase; letter-spacing:0.5px; font-weight: 800;">💸 Pengeluaran</h4>
+        <input id="nominalKeluar" type="number" placeholder="Nominal Rp" style="padding:10px; font-size:12px;">
+        <input id="ketKeluar" placeholder="Keperluan" style="padding:10px; font-size:12px;">
+        <button onclick="tambahPengeluaran()" style="background:var(--danger); padding:10px; font-size:12px; border-radius:8px; box-shadow: none;">Simpan</button>
       </div>
     </div>
 
@@ -433,12 +508,11 @@ button {
   <div id="tab-kasir" class="tab-content">
     <div class="card">
       <h3>⚙️ KONFIGURASI HARGA GLOBAL</h3>
-      <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center;">
+      <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:#fff; border-color: var(--primary);">
     </div>
 
     <div class="card">
       <h3>🛒 PANEL KASIR INSTAN</h3>
-      <button onclick="bukaScanOcr()" style="background:var(--success); margin-bottom:12px;">📷 PINDAI RESI OTOMATIS (OCR)</button>
       <div class="search-container">
         <input id="cariBarangInput" placeholder="🔍 Cari nama varian parfum..." oninput="handleSearchInput()">
         <button id="btnClearSearch" class="btn-clear-search" onclick="clearSearchField()">✕</button>
@@ -455,8 +529,7 @@ button {
 
     <div class="card">
       <h3>➕ TAMBAH VARIAN PARFUM BARU</h3>
-      <input id="namaBarang" placeholder="Nama Varian (Contoh: GLITCH)">
-      <input id="aliasBarang" placeholder="Alias Varian pisah koma (Contoh: GLITCH, CAVENTUS)">
+      <input id="namaBarang" placeholder="Nama Varian Parfum">
       <input id="qtyBarang" type="number" placeholder="Stok Logistik Awal">
       <button onclick="tambahBarang()">+ Daftarkan ke Database</button>
     </div>
@@ -480,11 +553,11 @@ button {
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
         <h3>🔍 FILTER LOG</h3>
-        <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:8px;">
+        <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:8px; font-size:12px;">
           <option value="harian">Hari</option>
           <option value="bulanan">Bulan</option>
         </select>
-        <input id="tanggalRiwayat" type="date" onchange="render()" style="width:140px; margin:0; padding:8px;">
+        <input id="tanggalRiwayat" type="date" onchange="render()" style="width:140px; margin:0; padding:8px; font-size:12px;">
       </div>
     </div>
 
@@ -520,54 +593,19 @@ button {
   </button>
 </div>
 
-<div id="scanOcrModal" class="modal-overlay" style="display: none;">
-  <div class="modal-content" style="text-align: center;">
-    <h3 style="color:var(--primary); justify-content: center; margin-bottom: 15px;">📷 PEMINDAI RESI ADVANCED</h3>
-    
-    <div id="cameraPreview" style="position:relative; width: 100%; height: 160px; background: #0f172a; border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 15px; color: #64748b; border: 2px dashed #cbd5e1; overflow: hidden;">
-      <video id="videoStream" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; display: none;"></video>
-      <div id="cameraLoadingText" style="position: absolute; text-align: center; padding:10px;">
-        Membuka Kamera HP...
-      </div>
-      <canvas id="captureCanvas" style="display: none;"></canvas>
-    </div>
-
-    <div id="ocrStatusText" style="font-size: 13px; font-weight: 700; margin: 10px 0; padding: 12px; border-radius: 10px; background: #f1f5f9; color: var(--text-main); line-height:1.4; text-align: left; max-height: 150px; overflow-y: auto;">
-      Membidik teks resi...
-    </div>
-
-    <div id="ocrActionContainer" style="display: none; margin-top: 12px;">
-      <button id="btnKonfirmasiOcr" style="background: var(--success); padding: 12px; margin-bottom: 6px;">
-        IMPORT MASUKKAN DATA AI SCAN
-      </button>
-    </div>
-
-    <div style="margin: 12px 0; padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">
-      <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 5px; font-weight:700;">Simulasi Kasus Resi Anda (Sesuai SOP):</div>
-      <div style="display: flex; flex-direction:column; gap: 4px;">
-        <button onclick="forceStopStream(); jalankanSimulasiResi('EVORA ICARUS Extrait De Parfum\\nQty 2\\n\\nEVORA GLlTCH Extrait De Parfum\\nQty 1\\n\\nEVORA HAWASlCE Extrait De Parfum\\nQty 3')" style="font-size:10px; padding:6px; background:#0f616d; box-shadow:none;">🧪 Test Kasus Multi-Item (Icarus 2, GLlTCH typo, HawasIce typo)</button>
-        <button onclick="forceStopStream(); jalankanSimulasiResi('GLITCH Qty 1\\nGLITCH Qty 2\\nCAVENTUS Qty 1')" style="font-size:10px; padding:6px; background:#d97706; box-shadow:none;">🧪 Test Akumulasi Varian & Alias (GLITCH 1 + GLITCH 2 + CAVENTUS 1)</button>
-      </div>
-    </div>
-
-    <button onclick="tutupScanOcr()" style="background:#94a3b8; box-shadow:none; padding:10px; font-size:13px;">Tutup</button>
-  </div>
-</div>
-
 <div id="editModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 style="color:var(--primary)">Edit Item & Stok</h3>
-    <input id="modalNamaBarang" type="text" placeholder="Nama Varian">
-    <input id="modalAliasBarang" type="text" placeholder="Aliases (Pisah koma)">
+    <input id="modalNamaBarang" type="text">
     <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Saat Ini: <b id="modalStokSekarang" style="color:var(--accent)">0</b> pcs</p>
     <input id="modalJumlahManual" type="number" placeholder="Kuantitas Penyesuaian">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
-      <button onclick="eksekusiManualModal('tambah')" style="background:var(--success); padding:12px;">+ Tambah</button>
-      <button onclick="eksekusiManualModal('kurang')" style="background:var(--danger); padding:12px;">- Kurang</button>
+      <button onclick="eksekusiManualModal('tambah')" style="background:var(--success); padding:12px; box-shadow:none;">+ Tambah</button>
+      <button onclick="eksekusiManualModal('kurang')" style="background:var(--danger); padding:12px; box-shadow:none;">- Kurang</button>
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-      <button onclick="tutupModalEdit()" style="background:#94a3b8;">Batal</button>
-      <button onclick="simpanModalEdit()">Simpan</button>
+      <button onclick="tutupModalEdit()" style="background:#94a3b8; box-shadow:none;">Batal</button>
+      <button onclick="simpanModalEdit()" style="box-shadow:none;">Simpan</button>
     </div>
   </div>
 </div>
@@ -578,10 +616,10 @@ button {
     <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Logistik Sekarang: <b id="logistikStokSekarang" style="color:var(--primary)">0</b></p>
     <input id="logistikJumlahManual" type="number" placeholder="Masukkan Angka Kuantitas">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
-      <button onclick="eksekusiLogistik('tambah')" style="background:var(--success); padding:12px;">+ Tambah</button>
-      <button onclick="eksekusiLogistik('kurang')" style="background:var(--danger); padding:12px;">- Kurang</button>
+      <button onclick="eksekusiLogistik('tambah')" style="background:var(--success); padding:12px; box-shadow:none;">+ Tambah</button>
+      <button onclick="eksekusiLogistik('kurang')" style="background:var(--danger); padding:12px; box-shadow:none;">- Kurang</button>
     </div>
-    <button onclick="tutupLogistikModal()" style="background:#94a3b8;">Batal Balik</button>
+    <button onclick="tutupLogistikModal()" style="background:#94a3b8; box-shadow:none;">Batal Balik</button>
   </div>
 </div>
 
@@ -591,8 +629,8 @@ button {
     <input id="modalNominalKeluar" type="number">
     <input id="modalKetKeluar" type="text">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-      <button onclick="tutupModalPengeluaran()" style="background:#94a3b8;">Batal</button>
-      <button onclick="simpanModalPengeluaran()" style="background:var(--danger);">Simpan Data</button>
+      <button onclick="tutupModalPengeluaran()" style="background:#94a3b8; box-shadow:none;">Batal</button>
+      <button onclick="simpanModalPengeluaran()" style="background:var(--danger); box-shadow:none;">Simpan Data</button>
     </div>
   </div>
 </div>
@@ -603,7 +641,7 @@ const SHEETDB_URL = "https://sheetdb.io/api/v1/8sp606iyketck";
 let HARGA = 27000; 
 let stokBotol = 0;
 let stokBox = 0;
-let barang = []; // Struktur: { nama: "GLITCH", aliases: ["GLITCH", "CAVENTUS"], stok: 10 }
+let barang = [];
 let penjualan = [];
 let pengeluaran = [];
 
@@ -617,34 +655,6 @@ let currentEditIndex = null;
 let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
-
-let localStream = null;
-let pemindaiAktif = false;
-let stringFormatAiImport = ""; // Penampung data final berformat "VARIAN:QTY"
-
-// ================= ALGORITMA FUZZY LEVENSHTEIN DISTANCE =================
-function hitungJarakLevenshtein(s1, s2) {
-  s1 = s1.toLowerCase();
-  s2 = s2.toLowerCase();
-  let costs = [];
-  for (let i = 0; i <= s1.length; i++) {
-    let lastValue = i;
-    for (let j = 0; j <= s2.length; j++) {
-      if (i == 0) costs[j] = j;
-      else {
-        if (j > 0) {
-          let newValue = costs[j - 1];
-          if (s1.charAt(i - 1) != s2.charAt(j - 1))
-            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-          costs[j - 1] = lastValue;
-          lastValue = newValue;
-        }
-      }
-    }
-    if (i > 0) costs[s2.length] = lastValue;
-  }
-  return costs[s2.length];
-}
 
 function switchTab(tabName) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -663,16 +673,7 @@ async function loadDataFromCloud() {
       let dataUtama = JSON.parse(hasil[0].konten);
       stokBotol = Number(dataUtama.stokBotol || 0);
       stokBox = Number(dataUtama.stokBox || 0);
-      
-      // Migrasi & Normalisasi data lama agar selalu mendukung array aliases
-      let rawBarang = dataUtama.barang || [];
-      barang = rawBarang.map(b => {
-        if (!b.aliases) {
-          return { nama: b.nama, aliases: [b.nama], stok: b.stok };
-        }
-        return b;
-      });
-
+      barang = dataUtama.barang || [];
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
       HARGA = Number(dataUtama.hargaGlobal || 27000);
@@ -714,7 +715,7 @@ function simpanHargaBaru() {
   let elHarga = document.getElementById("inputHargaGlobal");
   let hargaBaru = Number(elHarga.value);
   if(hargaBaru <= 0 || isNaN(hargaBaru)) return;
-  if(!confirm(`Apakah Anda yakin mengubah harga global menjadi Rp ${hargaBaru.toLocaleString("id-ID")}?`)) {
+  if(!confirm(`Apakah Anda yakin ingin mengubah harga global produk menjadi Rp ${hargaBaru.toLocaleString("id-ID")}?`)) {
     elHarga.value = HARGA;
     return;
   }
@@ -732,10 +733,7 @@ function getMonthKey(date){
 }
 function getDayKey(date){
   let d = new Date(date);
-  let y = d.getFullYear();
-  let m = String(d.getMonth() + 1).padStart(2, "0");
-  let r = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${r}`;
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
 function getMonthLabel(key){
   let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -753,7 +751,12 @@ function updateMonthSelect(){
   .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
-function handleSearchInput() { render(); }
+function handleSearchInput() {
+  let q = document.getElementById("cariBarangInput").value;
+  document.getElementById("btnClearSearch").style.display = q ? "block" : "none";
+  render();
+}
+
 function clearSearchField() {
   document.getElementById("cariBarangInput").value = "";
   document.getElementById("btnClearSearch").style.display = "none";
@@ -783,26 +786,17 @@ function tutupLogistikModal() { document.getElementById("logistikModal").style.d
 
 function tambahBarang(){
   let nama = namaBarang.value.trim().toUpperCase();
-  let aliasRaw = aliasBarang.value.trim().toUpperCase();
   let qty = Number(qtyBarang.value);
   if(!nama || qty<=0) return;
-
-  // Membuat array aliases dari input teks pisah koma
-  let arrAliases = aliasRaw ? aliasRaw.split(",").map(a => a.trim()).filter(a => a) : [nama];
-  if (!arrAliases.includes(nama)) {
-    arrAliases.unshift(nama);
-  }
-
-  if(!confirm(`Daftarkan varian "${nama}" dengan alias [${arrAliases.join(", ")}] dan stok awal ${qty} pcs?`)) return;
-  barang.push({nama: nama, aliases: arrAliases, stok: qty});
-  namaBarang.value=""; aliasBarang.value=""; qtyBarang.value="";
+  if(!confirm(`Daftarkan varian parfum baru "${nama}" dengan stok awal ${qty} pcs?`)) return;
+  barang.push({nama:nama, stok:qty});
+  namaBarang.value=""; qtyBarang.value="";
   saveData();
 }
 
 function editBarang(originalIndex){
   currentEditIndex = originalIndex;
   document.getElementById("modalNamaBarang").value = barang[originalIndex].nama;
-  document.getElementById("modalAliasBarang").value = (barang[originalIndex].aliases || [barang[originalIndex].nama]).join(", ");
   tempStok = Number(barang[originalIndex].stok || 0);
   document.getElementById("modalStokSekarang").innerText = tempStok;
   document.getElementById("modalJumlahManual").value = "";
@@ -817,15 +811,9 @@ function eksekusiManualModal(aksi) {
 function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
 function simpanModalEdit() {
   let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
-  let aliasBaruRaw = document.getElementById("modalAliasBarang").value.trim().toUpperCase();
   if(!namaBaru) return;
-  
-  let arrAliases = aliasBaruRaw ? aliasBaruRaw.split(",").map(a => a.trim()).filter(a => a) : [namaBaru];
-  if (!arrAliases.includes(namaBaru)) arrAliases.unshift(namaBaru);
-
-  if(!confirm(`Simpan penyesuaian varian?`)) return;
+  if(!confirm(`Simpan penyesuaian untuk varian ini?`)) return;
   barang[currentEditIndex].nama = namaBaru;
-  barang[currentEditIndex].aliases = arrAliases;
   barang[currentEditIndex].stok = tempStok;
   tutupModalEdit();
   saveData();
@@ -834,8 +822,8 @@ function simpanModalEdit() {
 function quickJual(originalIndex) {
   let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`);
   let qty = Number(qtySelect.value || 1);
-  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) return alert("Gagal: Sisa stok logistik tidak mencukupi!");
-  if(!confirm(`Konfirmasi Jual ${qty} pcs ${barang[originalIndex].nama}?`)) return;
+  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) return alert("Gagal: Sisa stok logistik tidak mencukupi kuantitas ini!");
+  if(!confirm(`Konfirmasi Transaksi:\nJual ${qty} pcs ${barang[originalIndex].nama}?\nTotal Nilai: Rp ${(qty * HARGA).toLocaleString("id-ID")}`)) return;
   
   barang[originalIndex].stok -= qty;
   stokBotol -= qty; stokBox -= qty;
@@ -847,7 +835,7 @@ function jualBarang(){
   let idx = Number(barangJual.value);
   let qty = Number(qtyJual.value);
   if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) return alert("Stok tidak memadai!");
-  if(!confirm(`Konfirmasi Jual Grosir ${qty} pcs ${barang[idx].nama}?`)) return;
+  if(!confirm(`Konfirmasi Transaksi Grosir:\nJual ${qty} pcs ${barang[idx].nama}?\nTotal Nilai: Rp ${(qty * HARGA).toLocaleString("id-ID")}`)) return;
   
   barang[idx].stok -= qty;
   stokBotol -= qty; stokBox -= qty;
@@ -859,7 +847,7 @@ function tambahOmzetManual() {
   let nom = Number(manualOmzet.value);
   let ket = manualKet.value.trim() || "Manual";
   if(nom <= 0) return;
-  if(!confirm(`Simpan pendapatan manual sebesar Rp ${nom.toLocaleString("id-ID")}?`)) return;
+  if(!confirm(`Simpan pendapatan manual sebesar Rp ${nom.toLocaleString("id-ID")} (${ket})?`)) return;
   penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket });
   manualOmzet.value = ""; manualKet.value = ""; saveData();
 }
@@ -868,13 +856,13 @@ function tambahPengeluaran(){
   let nom = Number(nominalKeluar.value);
   let ket = ketKeluar.value.trim();
   if(nom<=0 || !ket) return;
-  if(!confirm(`Simpan log pengeluaran sebesar Rp ${nom.toLocaleString("id-ID")}?`)) return;
+  if(!confirm(`Simpan log pengeluaran sebesar Rp ${nom.toLocaleString("id-ID")} untuk keperluan: ${ket}?`)) return;
   pengeluaran.push({ tanggal:new Date().toISOString(), nominal:nom, keterangan:ket });
   nominalKeluar.value=""; ketKeluar.value=""; saveData();
 }
 
 function batalkanPenjualan(originalIndex) {
-  if(!confirm("Batalkan transaksi? Stok akan dikembalikan otomatis.")) return;
+  if(!confirm("Apakah Anda yakin ingin membatalkan transaksi penjualan ini? Stok logistik akan dikembalikan otomatis.")) return;
   let target = penjualan[originalIndex];
   if(target.barang !== "OMZET MANUAL") {
     let bIndex = barang.findIndex(x => x.nama === target.barang);
@@ -896,289 +884,26 @@ function simpanModalPengeluaran() {
   let nom = Number(document.getElementById("modalNominalKeluar").value);
   let ket = document.getElementById("modalKetKeluar").value.trim();
   if(nom <= 0 || !ket) return;
+  if(!confirm("Simpan perubahan data log pengeluaran ini?")) return;
   pengeluaran[currentEditPengeluaranIndex].nominal = nom;
   pengeluaran[currentEditPengeluaranIndex].keterangan = ket;
   tutupModalPengeluaran();
   saveData();
 }
 function hapusPengeluaran(originalIndex) {
-  if(confirm("Hapus catatan log pengeluaran ini?")) { 
+  if(confirm("Hapus catatan log pengeluaran ini secara permanen?")) { 
     pengeluaran.splice(originalIndex, 1); 
     saveData(); 
   }
 }
 
-// ==================== ENGINE SCANNER RESI INTELLIGENT PARSER ====================
-async function bukaScanOcr() {
-  document.getElementById("scanOcrModal").style.display = "flex";
-  resetKeadaanMembidik();
-
-  let video = document.getElementById("videoStream");
-  let loadingText = document.getElementById("cameraLoadingText");
-
-  try {
-    let stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
-    
-    video.srcObject = stream;
-    localStream = stream;
-    video.style.display = "block";
-    loadingText.style.display = "none";
-
-    pemindaiAktif = true;
-    mulaiSiklusPenangkapanResi();
-
-  } catch (err) {
-    console.error(err);
-    document.getElementById("ocrStatusText").innerText = "⚠️ KAMERA OFF (Gunakan Tombol Simulasi Penguji untuk Tes)";
-  }
-}
-
-function tutupScanOcr() {
-  forceStopStream();
-  document.getElementById("scanOcrModal").style.display = "none";
-}
-
-function forceStopStream() {
-  pemindaiAktif = false;
-  if (localStream) {
-    localStream.getTracks().forEach(track => track.stop());
-    localStream = null;
-  }
-  let video = document.getElementById("videoStream");
-  video.srcObject = null;
-  video.style.display = "none";
-  document.getElementById("cameraLoadingText").style.display = "block";
-}
-
-function resetKeadaanMembidik() {
-  let elStatus = document.getElementById("ocrStatusText");
-  elStatus.innerText = "Membidik teks resi...";
-  elStatus.style.background = "#f1f5f9";
-  elStatus.style.color = "var(--text-main)";
-  document.getElementById("ocrActionContainer").style.display = "none";
-  stringFormatAiImport = "";
-}
-
-function mulaiSiklusPenangkapanResi() {
-  if (!pemindaiAktif) return;
-
-  let elStatus = document.getElementById("ocrStatusText");
-  if (elStatus.innerText.includes("BERHASIL PARSING") || elStatus.innerText.includes("TIDAK TERCOCOKKAN")) {
-    return;
-  }
-
-  let video = document.getElementById("videoStream");
-  let canvas = document.getElementById("captureCanvas");
-
-  if (!video.srcObject || video.readyState !== video.HAVE_ENOUGH_DATA) {
-    setTimeout(mulaiSiklusPenangkapanResi, 400);
-    return;
-  }
-
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  let ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  elStatus.innerText = "⏳ Membaca susunan teks resi...";
-
-  Tesseract.recognize(canvas, 'eng')
-    .then(result => {
-      prosesTeksResiMasuk(result.data.text);
-    })
-    .catch(err => {
-      console.error(err);
-      sinyalScanTidakTerbaca();
-    });
-}
-
-// Fungsi utama Pengolahan data berbasis Instruksi User (Poin 1 s/d 9)
-function prosesTeksResiMasuk(rawText) {
-  console.log("OCR Raw Text:", rawText);
-
-  // 1. NORMALISASI (Poin 1)
-  let text = rawText.toUpperCase(); // UPPERCASE
-  text = text.replace(/[\r\n]+/g, " "); // Line break menjadi spasi
-  text = text.replace(/\s+/g, " "); // Spasi ganda menjadi tunggal
-  // Hilangkan teks gangguan volume yang sering mengacaukan deteksi Qty
-  text = text.replace(/\d+\s*ML/g, ""); 
-  text = text.replace(/[^A-Z0-9\s\-\:]/g, ""); // Hilangkan karakter tidak penting
-
-  // Kumpulkan semua database alias terdaftar
-  // Jika database kosong, pakai dummy internal agar fungsi pengujian berjalan lancar
-  let dbVarian = barang.length ? barang : [
-    { id: "GLITCH", nama: "GLITCH", aliases: ["GLITCH", "CAVENTUS"], stok: 99 },
-    { id: "ICARUS", nama: "ICARUS", aliases: ["ICARUS"], stok: 99 },
-    { id: "CALIFORNIA", nama: "CALIFORNIA", aliases: ["CALIFORNIA", "CALBLUE"], stok: 99 },
-    { id: "HAWAS ICE", nama: "HAWAS ICE", aliases: ["HAWAS ICE", "HAWASICE"], stok: 99 }
-  ];
-
-  let kataArray = text.split(" ");
-  let listTemuanMentah = [];
-
-  // Looping teks resi mencari kesamaan alias via exact match maupun Fuzzy Matching Levenshtein (Poin 4 & 8)
-  for (let i = 0; i < kataArray.length; i++) {
-    let kataCek = kataArray[i].trim();
-    if (kataCek.length < 3) continue; 
-
-    // Cek kemungkinan varian gabungan dua kata seperti HAWAS ICE
-    let kataCekDuaGabung = (kataArray[i] + " " + (kataArray[i+1] || "")).trim();
-
-    for (let v of dbVarian) {
-      let targetId = v.id || v.nama;
-      let aliases = v.aliases || [v.nama];
-
-      for (let alias of aliases) {
-        let matchFound = false;
-
-        // Cek Exact Match
-        if (kataCek === alias || kataCekDuaGabung === alias) {
-          matchFound = true;
-        } 
-        // Cek Fuzzy Levenshtein (Poin 8) - batas toleransi jarak edit = 1 atau 2 tergantung panjang kata
-        else if (hitungJarakLevenshtein(kataCek, alias) <= 1 || (alias.length > 5 && hitungJarakLevenshtein(kataCek, alias) <= 2)) {
-          matchFound = true;
-        }
-        else if (kataCekDuaGabung.length > 4 && (hitungJarakLevenshtein(kataCekDuaGabung, alias) <= 1)) {
-          matchFound = true;
-        }
-
-        if (matchFound) {
-          // 7. AMBIL QTY TERDEKAT (Poin 7)
-          // Cari angka terdekat di area sekitar indeks kata ini (radius 5 kata ke depan/belakang)
-          let qtyDitemukan = 1;
-          let minJarak = 999;
-
-          let indeksMulai = Math.max(0, i - 4);
-          let indeksAkhir = Math.min(kataArray.length - 1, i + 5);
-
-          for (let k = indeksMulai; k <= indeksAkhir; k++) {
-            let kataSekitar = kataArray[k];
-            // Temukan elemen angka murni
-            if (/\d+/.test(kataSekitar)) {
-              let angka = parseInt(kataSekitar.match(/\d+/)[0]);
-              let jarak = Math.abs(k - i);
-              if (jarak < minJarak && angka > 0 && angka < 50) { // filter angka tidak logis
-                minJarak = jarak;
-                qtyDitemukan = angka;
-              }
-            }
-          }
-
-          listTemuanMentah.push({ id: targetId, qty: qtyDitemukan });
-          if (kataCekDuaGabung === alias) i++; // skip kata selanjutnya jika multi-word match
-          break; 
-        }
-      }
-    }
-  }
-
-  // 6. GABUNGKAN QTY PADA PRODUK YANG SAMA (Poin 6)
-  let mapHasilFinal = {};
-  listTemuanMentah.forEach(item => {
-    mapHasilFinal[item.id] = (mapHasilFinal[item.id] || 0) + item.qty;
-  });
-
-  let arrayFinal = Object.entries(mapHasilFinal).map(([id, qty]) => ({ id: id, qty: qty }));
-
-  if (arrayFinal.length > 0) {
-    sinyalScanTerbaca(arrayFinal);
-  } else {
-    sinyalScanTidakTerbaca();
-  }
-}
-
-function sinyalScanTerbaca(arrayFinal) {
-  let elStatus = document.getElementById("ocrStatusText");
-  
-  // 9. TAMPILKAN FORMAT SESUAI POIN 9 USER
-  let totalPcs = 0;
-  let barisHtml = arrayFinal.map(x => {
-    totalPcs += x.qty;
-    return `✓ ${x.id} ×${x.qty}`;
-  }).join("<br>");
-
-  // Generate output string terformat: "ICARUS:2\nGLITCH:1"
-  stringFormatAiImport = arrayFinal.map(x => `${x.id}:${x.qty}`).join("\n");
-
-  elStatus.innerHTML = `
-    <div style="font-size:14px; line-height:1.6; color:#0f766e;">
-      <b>🟢 BERHASIL PARSING MULTI-ITEM RESI:</b><br>
-      <div style="margin: 8px 0; background:#fff; padding:10px; border-radius:8px; border:1px solid #b2f5ea;">
-        ${barisHtml}
-      </div>
-      <b>Total: ${totalPcs} pcs</b>
-    </div>
-  `;
-  elStatus.style.background = "#ccfbf1"; 
-  elStatus.style.color = "#0f766e";      
-  
-  document.getElementById("ocrActionContainer").style.display = "block";
-}
-
-function sinyalScanTidakTerbaca() {
-  let elStatus = document.getElementById("ocrStatusText");
-  elStatus.innerText = "❌ TEKS RESI TIDAK TERCOCOKKAN";
-  elStatus.style.background = "#ffe4e6"; 
-  elStatus.style.color = "#be123c";      
-  document.getElementById("ocrActionContainer").style.display = "none";
-
-  setTimeout(() => {
-    if (pemindaiAktif) {
-      resetKeadaanMembidik();
-      mulaiSiklusPenangkapanResi();
-    }
-  }, 3000); 
-}
-
-// Tombol eksekusi Import (Mengirim string data bersih terformat ke tracker utama)
-document.getElementById("btnKonfirmasiOcr").onclick = function() {
-  if (!stringFormatAiImport) return;
-  
-  // Memotong stok lokal sesuai hasil parsing
-  let barisData = stringFormatAiImport.split("\n");
-  let suksesCount = 0;
-
-  barisData.forEach(baris => {
-    let [namaVarian, qtyStr] = baris.split(":");
-    let qty = parseInt(qtyStr);
-    
-    let idx = barang.findIndex(x => x.nama === namaVarian || x.id === namaVarian);
-    if (idx !== -1) {
-      barang[idx].stok = Math.max(0, barang[idx].stok - qty);
-      stokBotol = Math.max(0, stokBotol - qty);
-      stokBox = Math.max(0, stokBox - qty);
-
-      penjualan.push({
-        tanggal: new Date().toISOString(),
-        barang: namaVarian,
-        qty: qty,
-        nominal: qty * HARGA,
-        keterangan: "AI Scan Import V2"
-      });
-      suksesCount++;
-    }
-  });
-
-  tutupScanOcr();
-  saveData();
-  alert(`⚡ AI Scan Import Berhasil!\nData Diolah:\n${stringFormatAiImport}`);
-};
-
-function jalankanSimulasiResi(teksSimulasi) {
-  resetKeadaanMembidik();
-  prosesTeksResiMasuk(teksSimulasi);
-}
-
-// ==================== RENDERING COMPONENT FUNCTION ====================
 function render(){
   updateMonthSelect();
   let hariIniKey = getDayKey(new Date());
   let bulanAktif = getMonthKey(new Date());
   document.getElementById("bulanAktif").innerText = getMonthLabel(bulanAktif);
 
+  // LOGIC & DATA CALCULATION FOR TODAY
   let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
   let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
   let totalTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
@@ -1191,6 +916,7 @@ function render(){
   let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
   document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
 
+  // MONTHLY OVERVIEW
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
@@ -1203,6 +929,7 @@ function render(){
   document.getElementById("pengeluaran").innerText = "Rp "+keluarVal.toLocaleString("id-ID");
   document.getElementById("laba").innerText = "Rp "+(omzetVal-keluarVal).toLocaleString("id-ID");
 
+  // RENDER DYNAMIC CARD BADGES
   let salesMapBln = {};
   jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
   let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
@@ -1213,8 +940,9 @@ function render(){
       <div class="product-badge-name">${x[0]}</div>
       <div class="product-badge-qty">${x[1]} Pcs</div>
     </div>
-  `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan</div>`;
+  `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
 
+  // RENDER GRID KASIR
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
@@ -1233,13 +961,14 @@ function render(){
         </div>
         <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; gap:6px; align-items:center;">
-            <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; height:28px; width:100%; font-weight:bold;">
+            <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
+            <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">
               ${dropdownOptions}
             </select>
           </div>
           <div style="display:flex; gap:6px;">
-            <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); flex:1;">⚡ Jual</button>
-            <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); width:45px;">Edit</button>
+            <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;">⚡ Jual</button>
+            <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
           </div>
         </div>
       </div>
@@ -1247,6 +976,9 @@ function render(){
   }).join("");
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
+  // ==========================================
+  // 1. UPDATE LAPORAN HARIAN (INFO SAJA)
+  // ==========================================
   let tglDipilih = document.getElementById("hariSelect").value;
   if(tglDipilih){
     let kH = getDayKey(tglDipilih);
@@ -1263,23 +995,37 @@ function render(){
     });
     
     let rankHarian = Object.entries(mapHarian).sort((a,b) => b[1].qty - a[1].qty);
+    
     let htmlPenjualan = rankHarian.length > 0 
       ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('')
       : '<li>Belum ada penjualan</li>';
 
+    let htmlPengeluaran = eH.length > 0
+      ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('')
+      : '<li>Tidak ada pengeluaran</li>';
+
     summaryHarian.innerHTML = `
       <div style="margin-bottom:12px;">
         <strong style="color:var(--primary); font-size:14px;">📋 Performa Hari Ini</strong>
-        <ul style="margin:6px 0 10px 18px; padding:0;">${htmlPenjualan}</ul>
+        <ul style="margin:6px 0 10px 18px; padding:0; line-height: 1.6;">${htmlPenjualan}</ul>
+      </div>
+      <div>
+        <strong style="color:var(--danger); font-size:14px;">💸 Info Pengeluaran</strong>
+        <ul style="margin:6px 0 0 18px; padding:0; color:var(--text-muted); font-size:12px; line-height: 1.6;">${htmlPengeluaran}</ul>
       </div>
     `;
   }
 
+  // ==========================================
+  // 2. UPDATE REKAPITULASI BULANAN (DETAIL)
+  // ==========================================
   let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
   let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
+  
   let oB = jB.reduce((a,b)=>a+b.nominal,0);
   let pB = kB.reduce((a,b)=>a+b.nominal,0);
+  let labaB = oB - pB;
 
   let mapBulanan = {};
   jB.forEach(x => {
@@ -1291,31 +1037,69 @@ function render(){
   let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => b[1].qty - a[1].qty).map(x => `
     <tr>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600;">${x[0]}</td>
-      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; font-weight:700;">${x[1].qty > 0 ? x[1].qty : '-'}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:700;">${x[1].qty > 0 ? x[1].qty : '-'}</td>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700;">Rp ${x[1].nominal.toLocaleString('id-ID')}</td>
     </tr>
   `).join("");
 
+  let htmlTabelKeluar = kB.map(x => {
+    let tgl = new Date(x.tanggal);
+    let tglStr = String(tgl.getDate()).padStart(2,"0") + "/" + String(tgl.getMonth()+1).padStart(2,"0");
+    return `
+    <tr>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:600;">${tglStr}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600;">${x.keterangan || 'Operasional'}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700; color:var(--danger);">Rp ${x.nominal.toLocaleString('id-ID')}</td>
+    </tr>
+  `}).join("");
+
   summaryBulanan.innerHTML = `
-    <div style="overflow-x:auto; background:#fff; border-radius:10px; border:1px solid #e2e8f0;">
+    <strong style="color:var(--primary); font-size:13px; display:block; margin-bottom:6px;">1. Rincian Penjualan Bulanan</strong>
+    <div style="overflow-x:auto; margin-bottom:20px; background:#fff; border-radius:10px; border:1px solid #e2e8f0;">
       <table style="width:100%; border-collapse:collapse; font-size:12px;">
         <thead>
-          <tr style="background:#f1f5f9;">
-            <th style="padding:10px 8px; text-align:left;">Nama Produk</th>
-            <th style="padding:10px 8px; text-align:center;">Qty</th>
-            <th style="padding:10px 8px; text-align:right;">Total Rp</th>
+          <tr style="background:#f1f5f9; color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Nama Produk</th>
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Qty</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Total Rp</th>
           </tr>
         </thead>
         <tbody>
           ${htmlTabelJual || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:#f8fafc; border-top:2px solid #cbd5e1; font-size:13px;">
+            <td colspan="2" style="padding:12px 8px;">TOTAL PENJUALAN</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--primary); font-weight:800;">Rp ${oB.toLocaleString('id-ID')}</td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <div style="margin-top:10px; padding:16px; background:#fff; border:2px dashed #cbd5e1; border-radius:14px; font-weight:800; text-align:center; color:var(--success);">
-      📊 LABA BERSIH BULANAN: Rp ${(oB-pB).toLocaleString("id-ID")}
+
+    <strong style="color:var(--danger); font-size:13px; display:block; margin-bottom:6px;">2. Rincian Pengeluaran Bulanan</strong>
+    <div style="overflow-x:auto; margin-bottom:20px; background:#fff; border-radius:10px; border:1px solid #e2e8f0;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:#f1f5f9; color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Tgl</th>
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Keperluan</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Nominal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelKeluar || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:#f8fafc; border-top:2px solid #cbd5e1; font-size:13px;">
+            <td colspan="2" style="padding:12px 8px;">TOTAL PENGELUARAN</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--danger); font-weight:800;">Rp ${pB.toLocaleString('id-ID')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:10px; padding:16px; background:#fff; border:2px dashed #cbd5e1; border-radius:14px; font-weight:800; font-size:16px; text-align:center; box-shadow: var(--shadow-sm); color:${labaB >= 0 ? 'var(--success)' : 'var(--danger)'};">
+      📊 LABA BERSIH: Rp ${labaB.toLocaleString("id-ID")}
     </div>
   `;
 
+  // LOGS MANAGEMENT
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
@@ -1323,16 +1107,20 @@ function render(){
 
   riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
     <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
-      <div><b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}<br><span style="color:var(--primary); font-weight:700;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
-      <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger);">Batal</button>
+      <div><b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}<br><span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Batal</button>
     </div>
-  `).join("") : `<p style="font-size:12px; text-align:center; padding:10px;">Kosong</p>`;
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
 
   riwayatKeluar.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => `
     <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
-      <div><b>${x.keterangan || "Pengeluaran"}</b><br><span style="color:var(--danger); font-weight:700;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <div><b>${x.keterangan || "Pengeluaran"}</b><br><span style="color:var(--danger); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <div style="display:flex; gap:6px;">
+        <button onclick="editPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--accent); box-shadow:none; border-radius:8px;">Edit</button>
+        <button onclick="hapusPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Hapus</button>
+      </div>
     </div>
-  `).join("") : `<p style="font-size:12px; text-align:center; padding:10px;">Kosong</p>`;
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
 }
 
 loadDataFromCloud();
