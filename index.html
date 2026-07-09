@@ -12,6 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="EVORA">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
@@ -549,9 +550,6 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   </button>
 </div>
 
-<!-- ================= MODALS & POPUPS CONTAINER ================= -->
-
-<!-- GLOBAL DIALOG POPUP -->
 <div id="globalDialogModal" class="modal-overlay" style="display: none;">
   <div class="modal-content" style="max-width: 320px; text-align: center; padding: 26px;">
     <div id="dialogIcon" style="font-size: 42px; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">💡</div>
@@ -578,7 +576,6 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   </div>
 </div>
 
-<!-- MODAL EDIT LOGISTIK BOTOL / BOX (INSTANT MODE ACTIVE) -->
 <div id="logistikModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 id="logistikModalJudul" style="color:var(--primary)">Edit Logistik</h3>
@@ -605,7 +602,13 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
 </div>
 
 <script>
-const SHEETDB_URL = "https://sheetdb.io/api/v1/8sp606iyketck"; 
+const SUPABASE_URL = "https://jvyphmuarppsqrsczawa.supabase.co";
+const SUPABASE_KEY = "sb_publishable_VNCg_1CO-1_UOoxlJjmsww_hJ0nkv-d";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 let HARGA = 27000; 
 let stokBotol = 0;
@@ -770,28 +773,106 @@ function switchTab(tabName) {
   document.getElementById(`nav-${tabName}`).classList.add('active');
 }
 
+async function migrateDatabase() {
+  try {
+    const { data: settingsData, error: settingsError } = await supabase.from('settings').select('*').limit(1);
+    if (settingsError) throw settingsError;
+
+    if (!settingsData || settingsData.length === 0) {
+      const { data: evoraData, error: evoraError } = await supabase.from('evora_data').select('konten').eq('id', 1).single();
+      if (evoraError) throw evoraError;
+
+      if (evoraData && evoraData.konten) {
+        const parsed = JSON.parse(evoraData.konten);
+
+        await Promise.all([
+          supabase.from('settings').insert({
+            id: 1,
+            stok_botol: Number(parsed.stokBotol || 0),
+            stok_box: Number(parsed.stokBox || 0),
+            harga_global: Number(parsed.hargaGlobal || 27000)
+          }),
+          (async () => {
+            if (parsed.barang && parsed.barang.length > 0) {
+              await supabase.from('barang').insert(parsed.barang.map(b => ({ nama: b.nama, stok: b.stok })));
+            }
+          })(),
+          (async () => {
+            if (parsed.penjualan && parsed.penjualan.length > 0) {
+              await supabase.from('penjualan').insert(parsed.penjualan.map(p => ({
+                tanggal: p.tanggal,
+                barang: p.barang,
+                qty: p.qty,
+                nominal: p.nominal,
+                keterangan: p.keterangan || null
+              })));
+            }
+          })(),
+          (async () => {
+            if (parsed.pengeluaran && parsed.pengeluaran.length > 0) {
+              await supabase.from('pengeluaran').insert(parsed.pengeluaran.map(p => ({
+                tanggal: p.tanggal,
+                nominal: p.nominal,
+                keterangan: p.keterangan || null
+              })));
+            }
+          })()
+        ]);
+        console.log("✅ Database berhasil dimigrasikan");
+      }
+    }
+  } catch (e) {
+    console.error("Migration error:", e);
+  }
+}
+
 async function loadDataFromCloud() {
   setSyncStatus("🔄 Sync...");
   document.body.classList.add("skeleton-loading");
   try {
-    let respon = await fetch(SHEETDB_URL);
-    let hasil = await respon.json();
-    if (hasil && hasil.length > 0 && hasil[0].konten) {
-      let dataUtama = JSON.parse(hasil[0].konten);
-      stokBotol = Number(dataUtama.stokBotol || 0);
-      stokBox = Number(dataUtama.stokBox || 0);
-      barang = dataUtama.barang || [];
-      penjualan = dataUtama.penjualan || [];
-      pengeluaran = dataUtama.pengeluaran || [];
-      HARGA = Number(dataUtama.hargaGlobal || 27000);
+    await migrateDatabase();
+
+    const [resSettings, resBarang, resPenjualan, resPengeluaran] = await Promise.all([
+      supabase.from('settings').select('*').eq('id', 1).maybeSingle(),
+      supabase.from('barang').select('*').order('id', { ascending: true }),
+      supabase.from('penjualan').select('*').order('id', { ascending: true }),
+      supabase.from('pengeluaran').select('*').order('id', { ascending: true })
+    ]);
+
+    if (resSettings.data) {
+      stokBotol = Number(resSettings.data.stok_botol || 0);
+      stokBox = Number(resSettings.data.stok_box || 0);
+      HARGA = Number(resSettings.data.harga_global || 27000);
       document.getElementById("inputHargaGlobal").value = HARGA;
-      setSyncStatus("✅ Connected");
-    } else {
-      setSyncStatus("⚠️ Empty");
     }
+
+    if (resBarang.data) {
+      barang = resBarang.data.map(b => ({ nama: b.nama, stok: b.stok }));
+    }
+
+    if (resPenjualan.data) {
+      penjualan = resPenjualan.data.map(p => ({
+        tanggal: p.tanggal,
+        barang: p.barang,
+        qty: p.qty,
+        nominal: p.nominal,
+        keterangan: p.keterangan || ""
+      }));
+    }
+
+    if (resPengeluaran.data) {
+      pengeluaran = resPengeluaran.data.map(p => ({
+        tanggal: p.tanggal,
+        nominal: p.nominal,
+        keterangan: p.keterangan || ""
+      }));
+    }
+
+    setSyncStatus("✅ Connected");
     document.body.classList.remove("skeleton-loading");
     render();
   } catch (error) {
+    console.error(error);
     setSyncStatus("❌ Offline");
     document.body.classList.remove("skeleton-loading");
   }
@@ -799,24 +880,52 @@ async function loadDataFromCloud() {
 
 async function saveData() {
   setSyncStatus("⚡ Saving...");
-  let paketData = {
-    stokBotol: stokBotol,
-    stokBox: stokBox,
-    barang: barang,
-    penjualan: penjualan,
-    pengeluaran: pengeluaran,
-    hargaGlobal: HARGA 
-  };
   try {
-    let respon = await fetch(`${SHEETDB_URL}/id/1`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: { konten: JSON.stringify(paketData) } })
+    const pSettings = supabase.from('settings').upsert({
+      id: 1,
+      stok_botol: stokBotol,
+      stok_box: stokBox,
+      harga_global: HARGA
     });
-    if(respon.ok) setSyncStatus("✅ Saved");
+
+    const pBarang = (async () => {
+      await supabase.from('barang').delete().gte('id', 0);
+      if (barang.length > 0) {
+        await supabase.from('barang').insert(barang.map(b => ({ nama: b.nama, stok: b.stok })));
+      }
+    })();
+
+    const pPenjualan = (async () => {
+      await supabase.from('penjualan').delete().gte('id', 0);
+      if (penjualan.length > 0) {
+        await supabase.from('penjualan').insert(penjualan.map(p => ({
+          tanggal: p.tanggal,
+          barang: p.barang,
+          qty: p.qty,
+          nominal: p.nominal,
+          keterangan: p.keterangan || null
+        })));
+      }
+    })();
+
+    const pPengeluaran = (async () => {
+      await supabase.from('pengeluaran').delete().gte('id', 0);
+      if (pengeluaran.length > 0) {
+        await supabase.from('pengeluaran').insert(pengeluaran.map(p => ({
+          tanggal: p.tanggal,
+          nominal: p.nominal,
+          keterangan: p.keterangan || null
+        })));
+      }
+    })();
+
+    await Promise.all([pSettings, pBarang, pPenjualan, pPengeluaran]);
+
+    setSyncStatus("✅ Saved");
     render();
   } catch (error) {
-    setSyncStatus("❌ Failed");
+    console.error(error);
+    setSyncStatus("❌ Offline");
   }
 }
 
