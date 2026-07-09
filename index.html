@@ -549,9 +549,6 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   </button>
 </div>
 
-<!-- ================= MODALS & POPUPS CONTAINER ================= -->
-
-<!-- GLOBAL DIALOG POPUP -->
 <div id="globalDialogModal" class="modal-overlay" style="display: none;">
   <div class="modal-content" style="max-width: 320px; text-align: center; padding: 26px;">
     <div id="dialogIcon" style="font-size: 42px; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">💡</div>
@@ -578,7 +575,6 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   </div>
 </div>
 
-<!-- MODAL EDIT LOGISTIK BOTOL / BOX (INSTANT MODE ACTIVE) -->
 <div id="logistikModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 id="logistikModalJudul" style="color:var(--primary)">Edit Logistik</h3>
@@ -1216,12 +1212,14 @@ function render(){
   }).join("");
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
+  // ================= PERUBAHAN ADA DI BLOK INI =================
   let tglDipilih = document.getElementById("hariSelect").value;
   if(tglDipilih){
     let kH = getDayKey(tglDipilih);
     let jH = penjualan.filter(x=>getDayKey(x.tanggal)===kH);
     let eH = pengeluaran.filter(x=>getDayKey(x.tanggal)===kH);
     let totalPcsHarian = jH.reduce((sum, item) => sum + item.qty, 0);
+    let totalOmzetHarian = jH.reduce((sum, item) => sum + item.nominal, 0);
 
     let mapHarian = {};
     jH.forEach(x => {
@@ -1242,9 +1240,15 @@ function render(){
       : '<li>Tidak ada pengeluaran</li>';
 
     summaryHarian.innerHTML = `
-      <div style="background: var(--primary-light); padding:10px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; justify-content:space-between;">
-        <span>📦 Total Terjual Hari Ini:</span>
-        <span>${totalPcsHarian} Pcs</span>
+      <div style="background: var(--primary-light); padding:12px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span>📦 Total Terjual Hari Ini:</span>
+          <span>${totalPcsHarian} Pcs</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;">
+          <span>💰 Total Pendapatan:</span>
+          <span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span>
+        </div>
       </div>
       <div style="margin-bottom:12px;">
         <strong style="color:var(--primary); font-size:14px;">📋 Performa Hari Ini</strong>
@@ -1256,6 +1260,7 @@ function render(){
       </div>
     `;
   }
+  // ==============================================================
 
   let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
