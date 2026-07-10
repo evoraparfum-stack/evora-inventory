@@ -355,7 +355,7 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.06);
   z-index: 999; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-bottom: env(safe-area-inset-bottom);
 }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; width: 22%; transition: all 0.2s; }
+.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; width: 20%; transition: all 0.2s; }
 .nav-item.active { color: var(--primary); }
 .nav-icon { font-size: 20px; margin-bottom: 4px; padding: 4px 16px; border-radius: 16px; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .nav-item.active .nav-icon { background: var(--primary-light); transform: translateY(-2px); }
@@ -490,8 +490,7 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
       </div>
       <button onclick="buatPesanan()" style="background:var(--accent); font-size:13px; padding:12px;">+ Buat Antrean Pemesanan</button>
       
-      <div id="listPesanPending" style="display:flex; flex-direction:column; gap:8px; margin-top:16px;">
-        </div>
+      <div id="listPesanPending" style="display:flex; flex-direction:column; gap:8px; margin-top:16px;"></div>
     </div>
 
     <div class="card">
@@ -539,6 +538,22 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
     </div>
   </div>
 
+  <!-- TAB SETTING BARU -->
+  <div id="tab-setting" class="tab-content">
+    <div class="card" style="border: 1px solid #cbd5e1; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+      <h3 style="color:var(--primary)">📤 EKSPORT / COPY DATA</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px; line-height: 1.5;">Salin seluruh data (sisa stok botol, box, varian barang, dan riwayat kasir) menjadi format teks. Berguna untuk backup atau memindahkan data ke perangkat lain.</p>
+      <button onclick="salinDataKeClipboard()" style="background:var(--primary); box-shadow:none;">📋 Copy Seluruh Data</button>
+    </div>
+
+    <div class="card" style="border: 1px solid #fda4af; background: #fff1f2; margin-top: 20px;">
+      <h3 style="color:var(--danger)">📥 IMPORT / TRANSFER DATA</h3>
+      <p style="font-size:12px; color:var(--danger); margin-bottom:12px; line-height: 1.5;"><b>PERHATIAN:</b> Memasukkan data di sini akan <b>menghapus dan menimpa</b> semua data saat ini. Tempel (Paste) teks data dari perangkat lain di kotak bawah ini.</p>
+      <textarea id="inputTransferData" rows="4" placeholder="Paste (Tempel) kode data di sini..." style="margin-bottom: 12px; background: #fff;"></textarea>
+      <button onclick="pasteDataTransfer()" style="background:var(--danger); box-shadow:none;">⚠️ Timpa & Transfer Data</button>
+    </div>
+  </div>
+
 </div>
 
 <div class="bottom-nav">
@@ -557,6 +572,11 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   <button id="nav-riwayat" class="nav-item" onclick="switchTab('riwayat')">
     <div class="nav-icon">📜</div>
     <div>Riwayat</div>
+  </button>
+  <!-- TOMBOL SETTING BARU -->
+  <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
+    <div class="nav-icon">⚙️</div>
+    <div>Setting</div>
   </button>
 </div>
 
@@ -620,7 +640,7 @@ let stokBox = 0;
 let barang = [];
 let penjualan = [];
 let pengeluaran = [];
-let pesanan = []; // Menyimpan semua antrean pesanan pending
+let pesanan = []; 
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
@@ -635,7 +655,7 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
-// RIPPLE EFFECT SYSTEM FOR PREMIUM BUTTONS
+// RIPPLE EFFECT SYSTEM
 document.addEventListener('click', function (e) {
   const button = e.target.closest('button');
   if (!button) return;
@@ -791,7 +811,7 @@ async function loadDataFromCloud() {
       barang = dataUtama.barang || [];
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
-      pesanan = dataUtama.pesanan || []; // Ambil antrean restock
+      pesanan = dataUtama.pesanan || []; 
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       document.getElementById("inputHargaGlobal").value = HARGA;
       setSyncStatus("✅ Connected");
@@ -814,7 +834,7 @@ async function saveData() {
     barang: barang,
     penjualan: penjualan,
     pengeluaran: pengeluaran,
-    pesanan: pesanan, // Simpan status pesanan ke cloud
+    pesanan: pesanan, 
     hargaGlobal: HARGA 
   };
   try {
@@ -998,12 +1018,10 @@ function eksekusiManualModal(aksi) {
 }
 function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
 
-// PERBAIKAN: SIMPAN LANGSUNG TANPA KONFIRMASI (BUG FIX)
 function simpanModalEdit() {
   let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
   if(!namaBaru) return;
   
-  // Langsung eksekusi, tanpa alert/konfirmasi
   barang[currentEditIndex].nama = namaBaru;
   barang[currentEditIndex].stok = tempStok;
   
@@ -1111,12 +1129,10 @@ async function hapusPengeluaran(originalIndex) {
   }
 }
 
-// --- LOGIKA UTAMA FITUR PEMESANAN BARANG DILUAR KASIR ---
 function updateDropdownPemesanan() {
   let elTarget = document.getElementById("targetPesan");
   if (!elTarget) return;
 
-  // Gabungkan Logistik Utama + Seluruh Varian Parfum yang ada di array barang
   let opsi = `
     <optgroup label="Logistik Utama">
       <option value="LOGISTIK_BOTOL">🍾 Botol Kosong</option>
@@ -1167,23 +1183,19 @@ async function terimaPesanan(idPesanan) {
   let konfirmasi = await customConfirm("Barang Diterima", `Stok barang fisik sudah datang?<br>Konfirmasi untuk memasukkan <b>+ ${p.qty} pcs</b> secara otomatis ke database <b>${namaTampilan}</b>.`, "success");
   if (!konfirmasi) return;
 
-  // Sistem Distribusi Stok Otomatis Berdasarkan Target Pilihan
   if (p.target === "LOGISTIK_BOTOL") {
     stokBotol += p.qty;
   } else if (p.target === "LOGISTIK_BOX") {
     stokBox += p.qty;
   } else {
-    // Cari varian parfum berdasarkan nama target di dalam database barang
     let bIdx = barang.findIndex(x => x.nama === p.target);
     if (bIdx !== -1) {
       barang[bIdx].stok += p.qty;
     } else {
-      // Antisipasi jika varian tersebut sempat tidak sengaja terhapus saat pesanan menggantung
       barang.push({ nama: p.target, stok: p.qty });
     }
   }
 
-  // Keluarkan dari antrean daftar tunggu pesanan
   pesanan.splice(idx, 1);
   saveData();
 }
@@ -1193,12 +1205,71 @@ function hapusPesanan(idPesanan) {
   saveData();
 }
 
-// --- FUNGSI RENDER UTAMA ---
+// --- FUNGSI COPY / EKSPORT DATA ---
+async function salinDataKeClipboard() {
+  let paketData = {
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran,
+    pesanan: pesanan,
+    hargaGlobal: HARGA 
+  };
+  
+  let stringData = JSON.stringify(paketData);
+  
+  try {
+    await navigator.clipboard.writeText(stringData);
+    customAlert("Berhasil Disalin", "Seluruh data sukses disalin ke clipboard! Anda bisa mem-paste data ini ke WhatsApp atau catatan sebagai Backup.", "success");
+  } catch (err) {
+    customAlert("Gagal Menyalin", "Browser Anda tidak mendukung fitur copy otomatis. Silakan coba di browser lain.", "danger");
+  }
+}
+
+// --- FUNGSI PASTE / IMPORT DATA ---
+async function pasteDataTransfer() {
+  let stringData = document.getElementById("inputTransferData").value.trim();
+  
+  if(!stringData) {
+    customAlert("Kolom Kosong", "Teks data masih kosong. Silakan paste kode data terlebih dahulu.", "warning");
+    return;
+  }
+  
+  let konfirmasi = await customConfirm("Peringatan Kritis", "Yakin ingin menimpa SELURUH DATA saat ini dengan data yang baru? <br><br><b>Semua data lama di perangkat dan cloud ini akan hilang permanen!</b>", "danger");
+  if(!konfirmasi) return;
+
+  try {
+    let dataBaru = JSON.parse(stringData);
+    
+    if(dataBaru.barang === undefined || dataBaru.stokBotol === undefined) {
+      throw new Error("Format tidak valid");
+    }
+
+    stokBotol = Number(dataBaru.stokBotol || 0);
+    stokBox = Number(dataBaru.stokBox || 0);
+    barang = dataBaru.barang || [];
+    penjualan = dataBaru.penjualan || [];
+    pengeluaran = dataBaru.pengeluaran || [];
+    pesanan = dataBaru.pesanan || [];
+    HARGA = Number(dataBaru.hargaGlobal || 27000);
+    
+    document.getElementById("inputHargaGlobal").value = HARGA;
+    document.getElementById("inputTransferData").value = "";
+    
+    saveData(); 
+    render();   
+    
+    customAlert("Transfer Berhasil", "Seluruh data sukses ditimpa dan diperbarui dengan data baru!", "success");
+    
+  } catch (err) {
+    customAlert("Transfer Gagal", "Kode data yang Anda paste salah atau korup. Pastikan Anda meng-copy keseluruhan teks tanpa ada yang terpotong.", "danger");
+  }
+}
+
 function render(){
-  // Update Dropdown Restock
   updateDropdownPemesanan();
   
-  // Render List Antrean Restock
   let elListPesan = document.getElementById("listPesanPending");
   if (elListPesan) {
     elListPesan.innerHTML = pesanan.length > 0 ? pesanan.map(p => {
