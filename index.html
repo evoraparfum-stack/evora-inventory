@@ -66,9 +66,10 @@ html, body {
 /* TOAST NOTIFICATION */
 .top-toast-alert {
   position: fixed;
-  top: -120px; 
+  top: 0; 
   left: 50%;
-  transform: translateX(-50%);
+  /* Sembunyikan sepenuhnya ke atas terlepas dari seberapa tinggi notifikasinya */
+  transform: translate(-50%, calc(-100% - 30px)); 
   width: 90%;
   max-width: 400px;
   background: var(--danger);
@@ -82,11 +83,13 @@ html, body {
   align-items: center;
   font-size: 12px;
   font-weight: 600;
-  transition: top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Animasi sekarang menggunakan transform, bukan top */
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid rgba(255,255,255,0.2);
 }
 .top-toast-alert.show {
-  top: 20px;
+  /* Munculkan ke bawah, sesuaikan juga dengan "poni" (notch) iPhone */
+  transform: translate(-50%, calc(20px + env(safe-area-inset-top)));
 }
 .toast-close {
   background: rgba(255,255,255,0.2) !important;
