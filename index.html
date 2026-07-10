@@ -612,7 +612,8 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
 </div>
 
 <script>
-const SHEETDB_URL = "https://sheetdb.io/api/v1/8sp606iyketck"; 
+// URL SCRIPT GOOGLE APPS ANDA (SUDAH DIKOREKSI MENJADI /exec)
+const SHEETDB_URL = "https://script.google.com/macros/s/AKfycbwV_1mJ9nyNVYw5IqRytbOSx-q8EqDLu5eT9Jq6vA/exec"; 
 
 let HARGA = 27000; 
 let stokBotol = 0;
@@ -806,6 +807,7 @@ async function loadDataFromCloud() {
   }
 }
 
+// FUNGSI SIMPAN DATA MENGGUNAKAN METODE GOOGLE APPS SCRIPT
 async function saveData() {
   setSyncStatus("⚡ Saving...");
   let paketData = {
@@ -814,15 +816,16 @@ async function saveData() {
     barang: barang,
     penjualan: penjualan,
     pengeluaran: pengeluaran,
-    pesanan: pesanan, // Simpan status pesanan ke cloud
+    pesanan: pesanan,
     hargaGlobal: HARGA 
   };
+  
   try {
-    let respon = await fetch(`${SHEETDB_URL}/id/1`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+    let respon = await fetch(SHEETDB_URL, {
+      method: 'POST',
       body: JSON.stringify({ data: { konten: JSON.stringify(paketData) } })
     });
+    
     if(respon.ok) setSyncStatus("✅ Saved");
     render();
   } catch (error) {
@@ -998,12 +1001,10 @@ function eksekusiManualModal(aksi) {
 }
 function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
 
-// PERBAIKAN: SIMPAN LANGSUNG TANPA KONFIRMASI (BUG FIX)
 function simpanModalEdit() {
   let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
   if(!namaBaru) return;
   
-  // Langsung eksekusi, tanpa alert/konfirmasi
   barang[currentEditIndex].nama = namaBaru;
   barang[currentEditIndex].stok = tempStok;
   
@@ -1116,7 +1117,6 @@ function updateDropdownPemesanan() {
   let elTarget = document.getElementById("targetPesan");
   if (!elTarget) return;
 
-  // Gabungkan Logistik Utama + Seluruh Varian Parfum yang ada di array barang
   let opsi = `
     <optgroup label="Logistik Utama">
       <option value="LOGISTIK_BOTOL">🍾 Botol Kosong</option>
@@ -1167,23 +1167,19 @@ async function terimaPesanan(idPesanan) {
   let konfirmasi = await customConfirm("Barang Diterima", `Stok barang fisik sudah datang?<br>Konfirmasi untuk memasukkan <b>+ ${p.qty} pcs</b> secara otomatis ke database <b>${namaTampilan}</b>.`, "success");
   if (!konfirmasi) return;
 
-  // Sistem Distribusi Stok Otomatis Berdasarkan Target Pilihan
   if (p.target === "LOGISTIK_BOTOL") {
     stokBotol += p.qty;
   } else if (p.target === "LOGISTIK_BOX") {
     stokBox += p.qty;
   } else {
-    // Cari varian parfum berdasarkan nama target di dalam database barang
     let bIdx = barang.findIndex(x => x.nama === p.target);
     if (bIdx !== -1) {
       barang[bIdx].stok += p.qty;
     } else {
-      // Antisipasi jika varian tersebut sempat tidak sengaja terhapus saat pesanan menggantung
       barang.push({ nama: p.target, stok: p.qty });
     }
   }
 
-  // Keluarkan dari antrean daftar tunggu pesanan
   pesanan.splice(idx, 1);
   saveData();
 }
@@ -1195,10 +1191,8 @@ function hapusPesanan(idPesanan) {
 
 // --- FUNGSI RENDER UTAMA ---
 function render(){
-  // Update Dropdown Restock
   updateDropdownPemesanan();
   
-  // Render List Antrean Restock
   let elListPesan = document.getElementById("listPesanPending");
   if (elListPesan) {
     elListPesan.innerHTML = pesanan.length > 0 ? pesanan.map(p => {
