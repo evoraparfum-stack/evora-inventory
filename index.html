@@ -321,7 +321,6 @@ button:active {
 .product-badge-name { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .product-badge-qty { font-size: 12px; color: var(--success); font-weight: 700; margin-top: 4px; }
 
-/* PERBAIKAN GLOBAL INPUT AGAR SIMETRIS DAN TIDAK MELEBAR DI HP */
 input, select, textarea {
   width: 100%; 
   max-width: 100%;
@@ -483,6 +482,18 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
       <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
     </div>
 
+    <div class="card" style="border: 1px solid #fcd34d; background: #fffbeb;">
+      <h3 style="color: var(--accent);">🚚 RE-STOCK LOGISTIK & VARIAN</h3>
+      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px; margin-bottom:10px;">
+        <select id="targetPesan" style="margin:0; text-align:left; text-align-last:left; background:#fff;"></select>
+        <input id="qtyPesan" type="number" placeholder="Qty" style="margin:0; background:#fff;">
+      </div>
+      <button onclick="buatPesanan()" style="background:var(--accent); font-size:13px; padding:12px;">+ Buat Antrean Pemesanan</button>
+      
+      <div id="listPesanPending" style="display:flex; flex-direction:column; gap:8px; margin-top:16px;">
+        </div>
+    </div>
+
     <div class="card">
       <h3>➕ TAMBAH VARIAN PARFUM BARU</h3>
       <input id="namaBarang" placeholder="Nama Varian Parfum">
@@ -609,6 +620,7 @@ let stokBox = 0;
 let barang = [];
 let penjualan = [];
 let pengeluaran = [];
+let pesanan = []; // Menyimpan semua antrean pesanan pending
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
@@ -779,6 +791,7 @@ async function loadDataFromCloud() {
       barang = dataUtama.barang || [];
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
+      pesanan = dataUtama.pesanan || []; // Ambil antrean restock
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       document.getElementById("inputHargaGlobal").value = HARGA;
       setSyncStatus("✅ Connected");
@@ -801,6 +814,7 @@ async function saveData() {
     barang: barang,
     penjualan: penjualan,
     pengeluaran: pengeluaran,
+    pesanan: pesanan, // Simpan status pesanan ke cloud
     hargaGlobal: HARGA 
   };
   try {
@@ -935,7 +949,6 @@ function editLogistik(jenis) {
   document.getElementById("logistikModal").style.display = "flex";
 }
 
-// BUG FIXED: REMOVED customConfirm SO STOCKS INCREMENT/DECREMENT INSTANTLY
 function eksekusiLogistik(aksi) {
   let inputVal = Number(document.getElementById("logistikJumlahManual").value);
   if (inputVal <= 0 || isNaN(inputVal)) return;
@@ -984,15 +997,16 @@ function eksekusiManualModal(aksi) {
   document.getElementById("modalStokSekarang").innerText = tempStok;
 }
 function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
-async function simpanModalEdit() {
+
+// PERBAIKAN: SIMPAN LANGSUNG TANPA KONFIRMASI (BUG FIX)
+function simpanModalEdit() {
   let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
   if(!namaBaru) return;
   
-  let konfirmasi = await customConfirm("Simpan Perubahan", "Simpan penyesuaian nama dan stok untuk varian ini?", "warning");
-  if(!konfirmasi) return;
-  
+  // Langsung eksekusi, tanpa alert/konfirmasi
   barang[currentEditIndex].nama = namaBaru;
   barang[currentEditIndex].stok = tempStok;
+  
   tutupModalEdit();
   saveData();
 }
@@ -1097,7 +1111,120 @@ async function hapusPengeluaran(originalIndex) {
   }
 }
 
+// --- LOGIKA UTAMA FITUR PEMESANAN BARANG DILUAR KASIR ---
+function updateDropdownPemesanan() {
+  let elTarget = document.getElementById("targetPesan");
+  if (!elTarget) return;
+
+  // Gabungkan Logistik Utama + Seluruh Varian Parfum yang ada di array barang
+  let opsi = `
+    <optgroup label="Logistik Utama">
+      <option value="LOGISTIK_BOTOL">🍾 Botol Kosong</option>
+      <option value="LOGISTIK_BOX">📦 Box Packing</option>
+    </optgroup>
+    <optgroup label="Semua Varian Parfum EVORA">
+  `;
+  
+  opsi += barang.map(x => `<option value="${x.nama}">🧪 Parfum: ${x.nama}</option>`).join("");
+  opsi += `</optgroup>`;
+  
+  elTarget.innerHTML = opsi;
+}
+
+async function buatPesanan() {
+  let target = document.getElementById("targetPesan").value;
+  let qty = Number(document.getElementById("qtyPesan").value);
+  
+  if (qty <= 0 || !target) return;
+  
+  let namaTampilan = target;
+  if (target === "LOGISTIK_BOTOL") namaTampilan = "Botol Kosong";
+  if (target === "LOGISTIK_BOX") namaTampilan = "Box Packing";
+
+  let konfirmasi = await customConfirm("Konfirmasi Pesanan", `Buat daftar pesanan <b>${qty} pcs</b> untuk <b>${namaTampilan}</b>?`, "warning");
+  if (!konfirmasi) return;
+
+  pesanan.push({
+    id: Date.now(),
+    target: target,
+    qty: qty,
+    tanggal: new Date().toISOString()
+  });
+
+  document.getElementById("qtyPesan").value = "";
+  saveData();
+}
+
+async function terimaPesanan(idPesanan) {
+  let idx = pesanan.findIndex(x => x.id === idPesanan);
+  if (idx === -1) return;
+  
+  let p = pesanan[idx];
+  let namaTampilan = p.target;
+  if (p.target === "LOGISTIK_BOTOL") namaTampilan = "Stok Botol";
+  if (p.target === "LOGISTIK_BOX") namaTampilan = "Stok Box";
+
+  let konfirmasi = await customConfirm("Barang Diterima", `Stok barang fisik sudah datang?<br>Konfirmasi untuk memasukkan <b>+ ${p.qty} pcs</b> secara otomatis ke database <b>${namaTampilan}</b>.`, "success");
+  if (!konfirmasi) return;
+
+  // Sistem Distribusi Stok Otomatis Berdasarkan Target Pilihan
+  if (p.target === "LOGISTIK_BOTOL") {
+    stokBotol += p.qty;
+  } else if (p.target === "LOGISTIK_BOX") {
+    stokBox += p.qty;
+  } else {
+    // Cari varian parfum berdasarkan nama target di dalam database barang
+    let bIdx = barang.findIndex(x => x.nama === p.target);
+    if (bIdx !== -1) {
+      barang[bIdx].stok += p.qty;
+    } else {
+      // Antisipasi jika varian tersebut sempat tidak sengaja terhapus saat pesanan menggantung
+      barang.push({ nama: p.target, stok: p.qty });
+    }
+  }
+
+  // Keluarkan dari antrean daftar tunggu pesanan
+  pesanan.splice(idx, 1);
+  saveData();
+}
+
+function hapusPesanan(idPesanan) {
+  pesanan = pesanan.filter(x => x.id !== idPesanan);
+  saveData();
+}
+
+// --- FUNGSI RENDER UTAMA ---
 function render(){
+  // Update Dropdown Restock
+  updateDropdownPemesanan();
+  
+  // Render List Antrean Restock
+  let elListPesan = document.getElementById("listPesanPending");
+  if (elListPesan) {
+    elListPesan.innerHTML = pesanan.length > 0 ? pesanan.map(p => {
+      let cleanLabel = p.target;
+      if (p.target === "LOGISTIK_BOTOL") cleanLabel = "🍾 BOTOL KOSONG";
+      if (p.target === "LOGISTIK_BOX") cleanLabel = "📦 BOX PACKING";
+      
+      let tgl = new Date(p.tanggal);
+      let tglStr = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0');
+      
+      return `
+      <div style="background:#fff; border:1px solid #fcd34d; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow-sm);">
+        <div>
+          <span style="font-size:10px; color:var(--text-muted); font-weight:700;">📅 ${tglStr} • MENUNGGU FISIK</span><br>
+          <b style="font-size:13px; color:var(--text-main); display:inline-block; margin:2px 0;">${cleanLabel}</b><br>
+          <span style="color:var(--accent); font-weight:900; font-size:14px;">+ ${p.qty} Pcs</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <button onclick="terimaPesanan(${p.id})" style="padding:6px 10px; background:var(--success); border-radius:6px; font-size:11px; width:auto; box-shadow:none;">✅ Terima</button>
+          <button onclick="hapusPesanan(${p.id})" style="padding:4px 10px; background:transparent; border:1px solid var(--danger); color:var(--danger); border-radius:6px; font-size:10px; width:auto; box-shadow:none;">Batal</button>
+        </div>
+      </div>
+      `;
+    }).join("") : `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px; border: 1px dashed #cbd5e1; border-radius:8px; background:#f8fafc;">Tidak ada antrean pemesanan barang yang pending.</div>`;
+  }
+
   updateMonthSelect();
   renderWeeklyChart(); 
   parsePremiumGreeting();
@@ -1212,7 +1339,6 @@ function render(){
   }).join("");
   barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
-  // ================= PERUBAHAN ADA DI BLOK INI =================
   let tglDipilih = document.getElementById("hariSelect").value;
   if(tglDipilih){
     let kH = getDayKey(tglDipilih);
@@ -1260,7 +1386,6 @@ function render(){
       </div>
     `;
   }
-  // ==============================================================
 
   let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
