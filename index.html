@@ -68,27 +68,24 @@ html, body {
   position: fixed;
   top: 0; 
   left: 50%;
-  /* Sembunyikan sepenuhnya ke atas terlepas dari seberapa tinggi notifikasinya */
   transform: translate(-50%, calc(-100% - 30px)); 
-  width: 90%;
-  max-width: 400px;
+  width: 92%;
+  max-width: 420px; /* Ukuran dilebarkan sedikit */
   background: var(--danger);
   color: #fff;
-  padding: 14px 18px;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(225, 29, 72, 0.5);
+  padding: 18px 22px; /* Padding lebih besar */
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(225, 29, 72, 0.4);
   z-index: 10000;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
+  align-items: flex-start; /* Tombol X agar rata atas dengan judul */
+  font-size: 13px;
   font-weight: 600;
-  /* Animasi sekarang menggunakan transform, bukan top */
   transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid rgba(255,255,255,0.2);
 }
 .top-toast-alert.show {
-  /* Munculkan ke bawah, sesuaikan juga dengan "poni" (notch) iPhone */
   transform: translate(-50%, calc(20px + env(safe-area-inset-top)));
 }
 .toast-close {
@@ -96,15 +93,17 @@ html, body {
   border: none;
   color: white;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 32px; /* Tombol silang diperbesar */
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  margin-left: 12px;
+  margin-left: 16px;
   cursor: pointer;
   box-shadow: none !important;
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 /* PREMIUM BANK-STYLE HEADER */
@@ -477,10 +476,13 @@ body.dark-theme #summaryBulanan {
 </head>
 <body>
 
+<!-- TOAST NOTIFICATION ELEMENT -->
 <div id="topNotification" class="top-toast-alert">
-  <div style="flex: 1; line-height: 1.5;">
-    <span style="font-size: 14px; margin-bottom: 4px; display: block;">⚠️ <b>Peringatan Stok Kritis!</b></span>
-    <span id="notificationMessage"></span>
+  <div style="flex: 1; line-height: 1.6;">
+    <div style="font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+      <span style="font-size: 18px;">⚠️</span> <b>Perhatian: Stok Menipis!</b>
+    </div>
+    <div id="notificationMessage" style="font-size: 13px; opacity: 0.95;"></div>
   </div>
   <button class="toast-close" onclick="closeNotification()">✕</button>
 </div>
@@ -812,22 +814,33 @@ initEnterpriseSettings();
 function checkLowStockAlert() {
   let lowItems = [];
   
-  if (stokBotol < 5) lowItems.push("Botol Kosong (" + stokBotol + ")");
-  if (stokBox < 5) lowItems.push("Box Packing (" + stokBox + ")");
+  // Aturan baru: Botol dan Box akan memunculkan notif jika sisa di bawah 15
+  if (stokBotol < 15) lowItems.push(`🍾 Botol Kosong: <b>${stokBotol} pcs</b>`);
+  if (stokBox < 15) lowItems.push(`📦 Box Packing: <b>${stokBox} pcs</b>`);
   
+  // Aturan untuk parfum tetap di bawah 5 (Jika ingin diubah ke 15, ganti angka 5 di bawah)
   barang.forEach(b => {
-    if (b.stok < 5) lowItems.push(b.nama + " (" + b.stok + ")");
+    if (b.stok < 5) lowItems.push(`🧪 ${b.nama}: <b>${b.stok} pcs</b>`);
   });
 
   if (lowItems.length > 0) {
-    let msg = "Item berikut sisa < 5 pcs: " + lowItems.join(", ");
-    document.getElementById("notificationMessage").innerText = msg;
+    // Membuat daftar pesan berformat bullet point
+    let msg = "Item logistik / varian berikut perlu segera di-restock:<br>";
+    msg += "<ul style='margin: 8px 0 0 20px; padding: 0; font-weight: 500; font-size: 13px; line-height: 1.7;'>";
+    
+    lowItems.forEach(item => {
+      msg += `<li>${item}</li>`;
+    });
+    msg += "</ul>";
+
+    // Gunakan innerHTML agar tag HTML (seperti <b> dan <li>) tereksekusi
+    document.getElementById("notificationMessage").innerHTML = msg;
     
     let notif = document.getElementById("topNotification");
     notif.classList.add("show");
     
-    // Auto-close notifikasi setelah 8 detik
-    setTimeout(() => { closeNotification(); }, 8000);
+    // Auto-close notifikasi diubah menjadi 10 detik agar lebih lama untuk dibaca
+    setTimeout(() => { closeNotification(); }, 10000);
   }
 }
 
