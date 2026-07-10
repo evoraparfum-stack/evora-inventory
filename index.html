@@ -160,7 +160,7 @@ html, body {
   transition: all 0.2s;
 }
 
-/* PILLS CONTAINER - GRID 3 KOLOM SIMETRIS */
+/* PILLS CONTAINER */
 .pills-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -218,7 +218,6 @@ h3 {
   gap: 6px;
 }
 
-/* PREMIUM ACTION BUTTON & RIPPLE EFFECT */
 button {
   position: relative;
   overflow: hidden;
@@ -249,7 +248,6 @@ button:active {
   to { transform: scale(4); opacity: 0; }
 }
 
-/* PREMIUM BADGES & INTERACTIVE COLORS */
 .badge-status {
   padding: 4px 10px;
   border-radius: 8px;
@@ -264,16 +262,12 @@ button:active {
 .status-warning { background: #ffedd5; color: #ea580c; border: 1px solid rgba(234,88,12,0.15); }
 .status-ready { background: #ccfbf1; color: #0d9488; border: 1px solid rgba(13,148,136,0.15); }
 
-/* Blinking continuous animation for critical stock */
-.blinking-alert {
-  animation: premium-blink 1.4s infinite ease-in-out;
-}
+.blinking-alert { animation: premium-blink 1.4s infinite ease-in-out; }
 @keyframes premium-blink {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.6; transform: scale(0.96); background: #fff1f2; }
 }
 
-/* SKELETON SHIMMER LOADING EFFECT */
 .skeleton-loading .shimmer-text {
   background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
   background-size: 200% 100%;
@@ -287,10 +281,7 @@ button:active {
   100% { background-position: -200% 0; }
 }
 
-/* SMART FADE & SCALE ENTRANCE ANIMATION FOR TABS */
-.tab-content { 
-  display: none; 
-}
+.tab-content { display: none; }
 .tab-content.active { 
   display: block; 
   animation: premiumEntrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -300,7 +291,6 @@ button:active {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* OTHER SYSTEM LAYOUTS */
 .search-container { position: relative; width: 100%; }
 .search-container input { padding-right: 40px; }
 .btn-clear-search {
@@ -322,26 +312,14 @@ button:active {
 .product-badge-qty { font-size: 12px; color: var(--success); font-weight: 700; margin-top: 4px; }
 
 input, select, textarea {
-  width: 100%; 
-  max-width: 100%;
-  display: block;
-  box-sizing: border-box;
-  padding: 12px 14px; 
-  margin: 8px 0; 
-  border: 1px solid #cbd5e1;
-  border-radius: 12px; 
-  font-size: 14px; 
-  background: #f8fafc; 
-  color: var(--text-main); 
-  outline: none; 
-  transition: all 0.2s ease;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  text-align: center;
-  text-align-last: center; 
+  width: 100%; max-width: 100%; display: block; box-sizing: border-box;
+  padding: 12px 14px; margin: 8px 0; border: 1px solid #cbd5e1;
+  border-radius: 12px; font-size: 14px; background: #f8fafc; 
+  color: var(--text-main); outline: none; transition: all 0.2s ease;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  text-align: center; text-align-last: center; 
 }
-input:focus, select:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(15, 97, 109, 0.12); }
+input:focus, select:focus, textarea:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(15, 97, 109, 0.12); }
 .grid-barang { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .item-barang { background: #fff; padding: 16px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); }
 .item-info b { font-size: 14px; color: var(--text-main); display: block; line-height: 1.4; }
@@ -362,7 +340,7 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
 .scroll-box { max-height: 240px; overflow-y: auto; }
 .riwayat-item { background: #f8fafc; padding: 12px 14px; border-radius: 10px; margin: 8px 0; font-size: 13px; border: 1px solid #edf2f7; }
 
-/* MODALS WITH PREMIUM POP ANIMATIONS */
+/* MODALS */
 .modal-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px;
@@ -464,6 +442,15 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
     <div class="card">
       <h3>⚙️ KONFIGURASI HARGA GLOBAL</h3>
       <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:#fff; border-color: var(--primary);">
+    </div>
+
+    <div class="card" style="border: 1px solid var(--primary); background: var(--primary-light);">
+      <h3 style="color: var(--primary);">🔄 MIGRASI & BACKUP DATA</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom: 12px;">Gunakan fitur ini untuk mem-backup atau memulihkan data lama via format JSON.</p>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <button onclick="exportData()" style="background:#0f172a; font-size:12px; box-shadow:none;">📥 Export Data</button>
+        <button onclick="bukaImportModal()" style="background:var(--warning); font-size:12px; box-shadow:none;">📤 Import Data</button>
+      </div>
     </div>
 
     <div class="card">
@@ -611,8 +598,19 @@ input:focus, select:focus { border-color: var(--primary); background: #fff; box-
   </div>
 </div>
 
+<div id="importModal" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <h3 style="color:var(--warning)">Import Data JSON</h3>
+    <p style="font-size:12px; color:var(--danger); margin-bottom:10px;">⚠️ Peringatan: Import ini akan <b>MENIMPA</b> seluruh data aplikasi kamu saat ini!</p>
+    <textarea id="importTextarea" rows="6" placeholder="Paste kode JSON datamu di sini..." style="resize:none; text-align:left; font-family:monospace; font-size:11px; padding:10px;"></textarea>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+      <button onclick="tutupImportModal()" style="background:#94a3b8; box-shadow:none;">Batal</button>
+      <button onclick="eksekusiImport()" style="background:var(--warning); box-shadow:none; color:#fff;">Eksekusi Import</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// URL SCRIPT GOOGLE APPS ANDA (SUDAH DIKOREKSI MENJADI /exec)
 const SHEETDB_URL = "https://script.google.com/macros/s/AKfycbwV_1mJ9nyNVYw5IqRytbOSx-q8EqDLu5eT9Jq6vA/exec"; 
 
 let HARGA = 27000; 
@@ -621,7 +619,7 @@ let stokBox = 0;
 let barang = [];
 let penjualan = [];
 let pengeluaran = [];
-let pesanan = []; // Menyimpan semua antrean pesanan pending
+let pesanan = []; 
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
@@ -636,7 +634,7 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
-// RIPPLE EFFECT SYSTEM FOR PREMIUM BUTTONS
+// RIPPLE EFFECT SYSTEM
 document.addEventListener('click', function (e) {
   const button = e.target.closest('button');
   if (!button) return;
@@ -723,7 +721,6 @@ function customConfirm(title, message, type = 'primary') {
   });
 }
 
-// SYSTEM DYNAMIC GREETING TIMING
 function parsePremiumGreeting() {
   const jam = new Date().getHours();
   let statusSapaan = "Selamat Malam";
@@ -734,7 +731,6 @@ function parsePremiumGreeting() {
 }
 parsePremiumGreeting();
 
-// COUNT UP ANIMATION LOGIC FOR METRICS
 function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
   const el = document.getElementById(elementId);
   if (!el) return;
@@ -792,7 +788,7 @@ async function loadDataFromCloud() {
       barang = dataUtama.barang || [];
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
-      pesanan = dataUtama.pesanan || []; // Ambil antrean restock
+      pesanan = dataUtama.pesanan || []; 
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       document.getElementById("inputHargaGlobal").value = HARGA;
       setSyncStatus("✅ Connected");
@@ -807,7 +803,6 @@ async function loadDataFromCloud() {
   }
 }
 
-// FUNGSI SIMPAN DATA MENGGUNAKAN METODE GOOGLE APPS SCRIPT
 async function saveData() {
   setSyncStatus("⚡ Saving...");
   let paketData = {
@@ -832,6 +827,76 @@ async function saveData() {
     setSyncStatus("❌ Failed");
   }
 }
+
+// --- FITUR EXPORT / IMPORT DATA JSON ---
+async function exportData() {
+  let paketData = {
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran,
+    pesanan: pesanan,
+    hargaGlobal: HARGA
+  };
+  let jsonString = JSON.stringify(paketData);
+  
+  try {
+    await navigator.clipboard.writeText(jsonString);
+    customAlert("Export Berhasil", "Data JSON berhasil disalin ke clipboard! Silakan simpan / paste di notes yang aman.", "success");
+  } catch(e) {
+    let textArea = document.createElement("textarea");
+    textArea.value = jsonString;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("Copy");
+    textArea.remove();
+    customAlert("Export Berhasil", "Data JSON berhasil disalin ke clipboard!", "success");
+  }
+}
+
+function bukaImportModal() {
+  document.getElementById("importTextarea").value = "";
+  document.getElementById("importModal").style.display = "flex";
+}
+
+function tutupImportModal() {
+  document.getElementById("importModal").style.display = "none";
+}
+
+async function eksekusiImport() {
+  let rawData = document.getElementById("importTextarea").value.trim();
+  if(!rawData) {
+    customAlert("Data Kosong", "Silakan paste teks JSON terlebih dahulu.", "danger");
+    return;
+  }
+  
+  try {
+    let parsed = JSON.parse(rawData);
+    let konfirmasi = await customConfirm("Konfirmasi Migrasi", "Aksi ini akan <b>MENIMPA</b> secara permanen semua data Anda saat ini dengan data dari JSON yang baru. Anda yakin ingin melanjutkan?", "warning");
+    
+    if(!konfirmasi) return;
+
+    // Mapping Data
+    stokBotol = Number(parsed.stokBotol || 0);
+    stokBox = Number(parsed.stokBox || 0);
+    barang = parsed.barang || [];
+    penjualan = parsed.penjualan || [];
+    pengeluaran = parsed.pengeluaran || [];
+    pesanan = parsed.pesanan || [];
+    HARGA = Number(parsed.hargaGlobal || 27000);
+    
+    document.getElementById("inputHargaGlobal").value = HARGA;
+    
+    tutupImportModal();
+    saveData(); // Langsung eksekusi sinkronisasi ke server google
+    customAlert("Migrasi Selesai", "Data berhasil dipulihkan dari JSON dan sedang disinkronisasikan ke sistem cloud.", "success");
+    render();
+  } catch(e) {
+    customAlert("Format Invalid", "Teks yang Anda paste bukan format JSON yang valid. Silakan periksa kembali.", "danger");
+  }
+}
+// ----------------------------------------
 
 async function simpanHargaBaru() {
   let elHarga = document.getElementById("inputHargaGlobal");
@@ -1112,7 +1177,6 @@ async function hapusPengeluaran(originalIndex) {
   }
 }
 
-// --- LOGIKA UTAMA FITUR PEMESANAN BARANG DILUAR KASIR ---
 function updateDropdownPemesanan() {
   let elTarget = document.getElementById("targetPesan");
   if (!elTarget) return;
@@ -1189,7 +1253,6 @@ function hapusPesanan(idPesanan) {
   saveData();
 }
 
-// --- FUNGSI RENDER UTAMA ---
 function render(){
   updateDropdownPemesanan();
   
