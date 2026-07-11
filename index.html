@@ -1146,38 +1146,44 @@ function switchTab(tabName) {
 async function loadDataFromCloud() {
   setSyncStatus("🔄 Sync...");
   document.body.classList.add("skeleton-loading");
+
   try {
-    const { data, error } = await supabaseApp.from('pos_data').select('konten').eq('id', 1).single();
-    
-    if (error && error.code !== 'PGRST116') throw error; 
+    const { data, error } = await supabaseApp
+      .from('pos_data')
+      .select('konten')
+      .eq('id', 1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error;
 
     if (data && data.konten) {
       let dataUtama = data.konten;
-      
+
       stokBotol = Number(dataUtama.stokBotol || 0);
       stokBox = Number(dataUtama.stokBox || 0);
       barang = dataUtama.barang || [];
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
-      pesanan = dataUtama.pesanan || []; 
+      pesanan = dataUtama.pesanan || [];
       HARGA = Number(dataUtama.hargaGlobal || 27000);
-      
+
       document.getElementById("inputHargaGlobal").value = HARGA;
       setSyncStatus("✅ Connected");
     } else {
       setSyncStatus("⚠️ Empty DB");
     }
-    
+
     document.body.classList.remove("skeleton-loading");
     render();
     checkLowStockAlert();
-  catch (error) {
-  console.error(error);
-  alert(JSON.stringify(error, null, 2));
 
-  setSyncStatus("❌ Offline");
-  document.body.classList.remove("skeleton-loading");
-}
+  } catch (error) {
+    console.error(error);
+    alert(JSON.stringify(error, null, 2));
+
+    setSyncStatus("❌ Offline");
+    document.body.classList.remove("skeleton-loading");
+  }
 }
 
 async function saveData() {
@@ -1917,7 +1923,14 @@ function render(){
   `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
 }
 
-loadDataFromCloud();
+(async () => {
+  try {
+    await loadDataFromCloud();
+  } catch (e) {
+    console.error(e);
+    alert(e.stack);
+  }
+})();
 </script>
 </body>
 </html>
