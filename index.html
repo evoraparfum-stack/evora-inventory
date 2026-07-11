@@ -1628,6 +1628,84 @@ async function pasteDataTransfer() {
   }
 }
 
+function updateAIInsight(){
+
+let title="";
+let message="";
+
+let today=getDayKey(new Date());
+
+let todaySales=penjualan.filter(x=>getDayKey(x.tanggal)==today);
+
+let omzetToday=todaySales.reduce((a,b)=>a+b.nominal,0);
+
+let yesterday=new Date();
+
+yesterday.setDate(yesterday.getDate()-1);
+
+let omzetYesterday=
+penjualan
+.filter(x=>getDayKey(x.tanggal)==getDayKey(yesterday))
+.reduce((a,b)=>a+b.nominal,0);
+
+if(stokBotol<15){
+
+title="🔴 STOK MENIPIS";
+
+message="Botol tersisa "+stokBotol+
+" pcs.<br><br>💡 Segera lakukan restock hari ini.";
+
+}
+
+else if(stokBox<15){
+
+title="🟠 BOX MENIPIS";
+
+message="Box tersisa "+stokBox+
+" pcs.<br><br>💡 Lakukan pemesanan box.";
+
+}
+
+else if(omzetToday>omzetYesterday){
+
+let persen=0;
+
+if(omzetYesterday>0){
+
+persen=Math.round(
+((omzetToday-omzetYesterday)/omzetYesterday)*100
+);
+
+}
+
+title="📈 PENJUALAN MENINGKAT";
+
+message="Omzet hari ini naik <b>"+persen+"%</b> dibanding kemarin.<br><br>💡 Pertahankan performa hari ini.";
+
+}
+
+else if(omzetToday==0){
+
+title="😴 BELUM ADA PENJUALAN";
+
+message="Belum ada transaksi hari ini.<br><br>💡 Upload konten TikTok atau aktifkan promosi.";
+
+}
+
+else{
+
+title="🤖 BISNIS BERJALAN NORMAL";
+
+message="Semua stok dalam kondisi aman.<br><br>💡 Pantau produk terlaris hari ini.";
+
+}
+
+document.getElementById("aiTitle").innerHTML=title;
+
+document.getElementById("aiMessage").innerHTML=message;
+
+}
+
 function render(){
   updateDropdownPemesanan();
   
@@ -1921,6 +1999,7 @@ function render(){
       </div>
     </div>
   `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
+  updateAIInsight();
 }
 
 (async () => {
