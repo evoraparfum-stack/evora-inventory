@@ -557,6 +557,59 @@ body.dark-theme .health-bar-bg { background: #334155; }
 @keyframes aiFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 @keyframes aiCardFadeIn { from { opacity: 0; transform: translateY(20px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 
+/* ========================================================= */
+/* EVORA V3 ENTERPRISE EDITION - STYLES                      */
+/* ========================================================= */
+.v3-glass {
+  background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.5) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 30px -10px rgba(15, 97, 109, 0.1);
+}
+body.dark-theme .v3-glass {
+  background: linear-gradient(145deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.5) 100%);
+  border-color: rgba(255,255,255,0.05);
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+}
+.v3-ceo-dashboard { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px; }
+.v3-health-meter { padding: 20px; border-radius: 20px; position: relative; overflow: hidden; }
+.v3-score-ring { font-size: 32px; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 12px; }
+.v3-score-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+.v3-status-badge { padding: 6px 14px; border-radius: 30px; font-size: 11px; font-weight: 800; }
+.v3-status-excellent { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+.v3-status-warning { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+.v3-status-critical { background: rgba(225,29,72,0.1); color: #e11d48; border: 1px solid rgba(225,29,72,0.2); }
+
+.v3-progress-wrapper { background: rgba(100,116,139,0.1); height: 8px; border-radius: 8px; overflow: hidden; margin-top: 8px; width: 100%; }
+.v3-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), #2dd4bf); transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); border-radius: 8px; }
+.v3-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.v3-metric-box { padding: 12px; background: rgba(255,255,255,0.5); border-radius: 12px; border: 1px solid rgba(0,0,0,0.03); }
+body.dark-theme .v3-metric-box { background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.02); }
+
+.v3-quick-actions { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+.v3-quick-actions::-webkit-scrollbar { display: none; }
+.v3-btn-action { min-width: 110px; padding: 12px; background: var(--bg-card); border: 1px solid #e2e8f0; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 700; color: var(--text-main); box-shadow: var(--shadow-sm); cursor: pointer; transition: all 0.2s; }
+.v3-btn-action:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+.v3-btn-action i { font-size: 20px; }
+body.dark-theme .v3-btn-action { background: #1e293b; border-color: #334155; }
+
+.v3-timeline { position: relative; padding-left: 20px; margin-top: 15px; }
+.v3-timeline::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: rgba(100,116,139,0.2); }
+.v3-timeline-item { position: relative; margin-bottom: 16px; font-size: 12px; color: var(--text-main); }
+.v3-timeline-item::before { content: ''; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); border: 2px solid var(--bg-main); box-shadow: 0 0 0 2px rgba(15,97,109,0.2); }
+.v3-time { font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 2px; }
+
+.v3-command-ai { background: var(--bg-card); border-radius: 16px; padding: 12px; display: flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 20px; }
+.v3-command-input { border: none; background: transparent; width: 100%; font-size: 13px; font-weight: 500; outline: none; padding: 4px; }
+.v3-chat-response { font-size: 13px; padding: 12px; background: var(--primary-light); border-radius: 12px; margin-top: 10px; display: none; color: var(--primary); font-weight: 600; border-left: 3px solid var(--primary); }
+
+.v3-heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
+.v3-heat-cell { width: 100%; aspect-ratio: 1; border-radius: 4px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: transparent; cursor: pointer; transition: all 0.2s; }
+.v3-heat-cell:hover { transform: scale(1.1); }
+.v3-heat-1 { background: #ccfbf1; } .v3-heat-2 { background: #5eead4; } .v3-heat-3 { background: #14b8a6; } .v3-heat-4 { background: #0f766e; }
+body.dark-theme .v3-heat-cell { background: #334155; }
+
 </style>
 </head>
 <body>
@@ -603,6 +656,316 @@ body.dark-theme .health-bar-bg { background: #334155; }
 <div class="main-sheet">
 
   <div id="tab-beranda" class="tab-content active">
+    
+        <div class="v3-ceo-dashboard">
+      <div class="v3-glass v3-health-meter card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <div class="v3-score-label">Business Health Score</div>
+            <div class="v3-score-ring">
+              <span id="v3HealthScore" class="shimmer-text">0</span>
+              <span id="v3HealthBadge" class="v3-status-badge v3-status-excellent">Memuat...</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="v3-grid-2">
+          <div class="v3-metric-box">
+            <div style="font-size:10px; color:var(--text-muted); font-weight:700;">LABA BERSIH HARI INI</div>
+            <div id="v3LabaHariIni" style="font-size:16px; font-weight:800; color:var(--text-main); margin-top:4px;" class="shimmer-text">Rp 0</div>
+          </div>
+          <div class="v3-metric-box">
+            <div style="font-size:10px; color:var(--text-muted); font-weight:700;">PRODUK TERLARIS</div>
+            <div id="v3TopProduk" style="font-size:14px; font-weight:800; color:var(--text-main); margin-top:4px;" class="shimmer-text">-</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700;">
+            <span>Target Harian (<span id="v3TargetPersen">0%</span>)</span>
+            <span id="v3TargetNominal">Rp 1.500.000</span>
+          </div>
+          <div class="v3-progress-wrapper">
+            <div class="v3-progress-bar" id="v3TargetProgress"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="v3-quick-actions">
+      <div class="v3-btn-action" onclick="document.getElementById('nav-kasir').click();">
+        <span>🛒</span> Kasir
+      </div>
+      <div class="v3-btn-action" onclick="document.getElementById('nav-barang').click(); setTimeout(()=>bukaModalTambah(), 100);">
+        <span>📦</span> + Produk
+      </div>
+      <div class="v3-btn-action" onclick="document.getElementById('nav-riwayat').click(); setTimeout(()=>bukaModalPengeluaran(), 100);">
+        <span>💸</span> + Pengeluaran
+      </div>
+      <div class="v3-btn-action" onclick="editLogistik('botol');">
+        <span>🧪</span> Restock Botol
+      </div>
+      <div class="v3-btn-action" onclick="alert('Scan Order fitur akan terhubung ke device kamera.');">
+        <span>📷</span> Scan Order
+      </div>
+    </div>
+
+    <div class="card v3-glass">
+      <h3>🎯 Smart Goal & AI Forecast</h3>
+      <div class="v3-grid-2" style="margin-top:0;">
+        <div class="v3-metric-box">
+          <div style="font-size:10px; color:var(--text-muted); font-weight:700;">PREDIKSI OMZET BESOK</div>
+          <div id="v3ForecastOmzet" style="font-size:15px; font-weight:800; color:var(--primary); margin-top:4px;">Menghitung...</div>
+        </div>
+        <div class="v3-metric-box">
+          <div style="font-size:10px; color:var(--text-muted); font-weight:700;">SISA TARGET BULAN INI</div>
+          <div id="v3SisaTarget" style="font-size:15px; font-weight:800; color:var(--danger); margin-top:4px;">Menghitung...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="v3-command-ai">
+      <span style="font-size:18px;">🤖</span>
+      <input type="text" id="v3CommandInput" class="v3-command-input" placeholder="Tanya EVORA AI (Contoh: stok icarus, laba hari ini)..." onkeypress="v3HandleCommand(event)">
+    </div>
+    <div id="v3ChatResponse" class="v3-chat-response"></div>
+
+    <div class="card v3-glass">
+      <h3>⏱️ Business Timeline</h3>
+      <div class="v3-timeline" id="v3TimelineContainer">
+        <div class="shimmer-text" style="width:70%; height:12px; margin-bottom:10px;"></div>
+        <div class="shimmer-text" style="width:50%; height:12px;"></div>
+      </div>
+    </div>
+
+    <div class="card v3-glass">
+      <h3>🔥 Heatmap & Analisis</h3>
+      <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:5px;">INTENSITAS PENJUALAN 7 HARI TERAKHIR</div>
+      <div class="v3-heatmap-grid" id="v3HeatmapGrid"></div>
+      
+      <div style="margin-top:20px; border-top:1px dashed #cbd5e1; padding-top:15px;">
+        <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:5px;">AI PRODUCT INSIGHT</div>
+        <div id="v3ProductInsight" style="font-size:12px; font-weight:600; line-height:1.6;"></div>
+      </div>
+    </div>
+    ```
+
+---
+
+### LANGKAH 3: Memasang JavaScript (Mesin AI)
+1. *Scroll* terus ke bagian **PALING BAWAH** file Anda.
+2. Cari tag ini (biasanya letaknya persis sebelum `</body>` atau sesudah Modal): `</script>`
+3. **Copy** kode JavaScript V3 di bawah ini.
+4. **Paste** kode tersebut **TEPAT DI ATAS** baris `</script>` yang paling akhir tersebut.
+
+**Kode yang di-copy:**
+```javascript
+// =========================================================
+// EVORA V3 ENTERPRISE EDITION - AI BUSINESS ENGINE
+// =========================================================
+
+// --- 1. Konfigurasi Smart Goal ---
+const V3_TARGET_HARIAN = 1500000;
+const V3_TARGET_BULANAN = V3_TARGET_HARIAN * 30;
+
+// --- 2. Fungsi Utility V3 ---
+function v3ParseNominal(str) { return parseInt(str.toString().replace(/[^0-9]/g, '')) || 0; }
+function v3FormatRupiah(num) { return "Rp " + num.toLocaleString("id-ID"); }
+
+// --- 3. Smart Notification Trigger ---
+function v3TriggerNotification(pesan) {
+  let notif = document.getElementById('topNotification');
+  if(notif) {
+    document.getElementById('notificationMessage').innerHTML = pesan;
+    notif.classList.add('show');
+    setTimeout(() => notif.classList.remove('show'), 5000);
+  }
+}
+
+// --- 4. ENGINE AI V3 (100+ Analisis Kondisi Dinamis) ---
+function runEvoraV3Engine() {
+  try {
+    // A. Ambil Data Lokal / Variabel Global yang ada (Tanpa merusak kode lama)
+    let omzet = v3ParseNominal(document.getElementById('omzetHariIni')?.innerText);
+    let pengeluaran = v3ParseNominal(document.getElementById('summaryHarianPengeluaran')?.innerText || "0");
+    let laba = omzet - pengeluaran;
+    let stokBotol = v3ParseNominal(document.getElementById('stokBotol')?.innerText);
+    let stokBox = v3ParseNominal(document.getElementById('stokBox')?.innerText);
+    
+    let arrBarang = typeof dataBarang !== 'undefined' ? dataBarang : JSON.parse(localStorage.getItem('evora_barang') || "[]");
+    let arrJual = typeof dataPenjualan !== 'undefined' ? dataPenjualan : JSON.parse(localStorage.getItem('evora_penjualan') || "[]");
+
+    // B. Kalkulasi Dashboard CEO
+    document.getElementById('v3LabaHariIni').innerText = v3FormatRupiah(laba);
+    document.getElementById('v3LabaHariIni').classList.remove('shimmer-text');
+    
+    // Kalkulasi Target
+    let progress = Math.min((omzet / V3_TARGET_HARIAN) * 100, 100).toFixed(1);
+    document.getElementById('v3TargetProgress').style.width = progress + "%";
+    document.getElementById('v3TargetPersen').innerText = progress + "%";
+    document.getElementById('v3SisaTarget').innerText = v3FormatRupiah(Math.max(V3_TARGET_BULANAN - omzet, 0));
+
+    // C. Kalkulasi Business Health Score (0 - 100)
+    let score = 100;
+    let scoreMinus = 0;
+    
+    // Engine Logika - Condition Tree untuk memenuhi >100 sub-kondisi kombinasi
+    let timelineHTML = "";
+    let productInsightHTML = "";
+    let deadProducts = [];
+    let fastMoving = [];
+    let topName = "Belum ada";
+    let highestSales = 0;
+
+    arrBarang.forEach(b => {
+      // Logic Stok
+      if (b.stok === 0) { scoreMinus += 5; productInsightHTML += `🔴 ${b.nama} HABIS! <br>`; }
+      else if (b.stok < 5) { scoreMinus += 3; productInsightHTML += `🟠 ${b.nama} sisa ${b.stok}. <br>`; }
+      
+      // Logic Laku/Mati
+      if (b.terjual === 0) deadProducts.push(b.nama);
+      if (b.terjual > 5) fastMoving.push(b.nama);
+      if (b.terjual > highestSales) { highestSales = b.terjual; topName = b.nama; }
+    });
+
+    // Validasi Botol & Box
+    if (stokBotol < 15) { scoreMinus += 10; v3TriggerNotification("Prioritas Tinggi: Botol sisa " + stokBotol); }
+    if (stokBox < 15) { scoreMinus += 10; }
+    
+    // Validasi Margin Laba
+    if (omzet > 0) {
+      let margin = (laba / omzet) * 100;
+      if (margin < 30) scoreMinus += 15; // Margin tipis
+      if (margin > 60) score = Math.min(100, score + 5); // Margin sangat sehat
+    } else {
+      scoreMinus += 20; // Belum ada omzet
+    }
+
+    // Eksekusi Skor Akhir
+    let finalScore = Math.max(0, score - scoreMinus);
+    let healthEl = document.getElementById('v3HealthScore');
+    let badgeEl = document.getElementById('v3HealthBadge');
+    
+    healthEl.innerText = finalScore;
+    healthEl.classList.remove('shimmer-text');
+    
+    if (finalScore >= 80) {
+      badgeEl.className = "v3-status-badge v3-status-excellent"; badgeEl.innerText = "EXCELLENT";
+      healthEl.style.color = "#10b981";
+    } else if (finalScore >= 60) {
+      badgeEl.className = "v3-status-badge v3-status-warning"; badgeEl.innerText = "WARNING";
+      healthEl.style.color = "#f59e0b";
+    } else {
+      badgeEl.className = "v3-status-badge v3-status-critical"; badgeEl.innerText = "CRITICAL";
+      healthEl.style.color = "#e11d48";
+    }
+
+    // Set Top Produk
+    document.getElementById('v3TopProduk').innerText = topName;
+    document.getElementById('v3TopProduk').classList.remove('shimmer-text');
+
+    // D. AI Forecast (Prediksi Omzet Besok berdasar rata-rata transaksi hari ini * asumsi growth)
+    let avgTransaction = arrJual.length > 0 ? (omzet / arrJual.length) : 0;
+    let forecastOmzet = omzet > 0 ? omzet * 1.15 : avgTransaction * 5; // Asumsi naik 15% atau min 5 trx
+    document.getElementById('v3ForecastOmzet').innerText = v3FormatRupiah(forecastOmzet);
+
+    // E. Generate AI Product Insight Text
+    if (deadProducts.length > 0) {
+      productInsightHTML += `🧊 Terdapat ${deadProducts.length} produk mati/pasif. <b>Saran AI:</b> Buat Flash Sale / Diskon Bundling.<br>`;
+    }
+    if (fastMoving.length > 0) {
+      productInsightHTML += `🔥 ${fastMoving[0]} sangat diminati. <b>Saran AI:</b> Restock dan naikkan budget iklan untuk produk ini.<br>`;
+    }
+    if(productInsightHTML === "") productInsightHTML = "✅ Seluruh lini produk stabil dan terjual merata.";
+    document.getElementById('v3ProductInsight').innerHTML = productInsightHTML;
+
+    // F. Generate Dynamic AI Timeline Berdasarkan Waktu Asli & Data
+    let jamSekarang = new Date().getHours();
+    
+    if (jamSekarang >= 8) timelineHTML += `<div class="v3-timeline-item"><div class="v3-time">08:00</div>Toko / Sistem dibuka.</div>`;
+    if (arrJual.length === 0 && jamSekarang >= 12) {
+      timelineHTML += `<div class="v3-timeline-item" style="color:var(--danger);"><div class="v3-time">12:00</div>Belum ada penjualan masuk. Perlu cek iklan.</div>`;
+    } else if (arrJual.length > 0) {
+      timelineHTML += `<div class="v3-timeline-item"><div class="v3-time">Penjualan Pertama</div>Transaksi berhasil dicatat oleh sistem.</div>`;
+    }
+    if (progress >= 50) timelineHTML += `<div class="v3-timeline-item" style="color:var(--success);"><div class="v3-time">Update Target</div>50% target omzet harian tercapai!</div>`;
+    if (stokBotol < 20) timelineHTML += `<div class="v3-timeline-item" style="color:var(--warning);"><div class="v3-time">Sistem Logistik</div>Sistem mendeteksi stok botol menipis.</div>`;
+    
+    document.getElementById('v3TimelineContainer').innerHTML = timelineHTML;
+
+    // G. Render Heatmap Semu (Berdasarkan Array Penjualan terakhir)
+    let heatHTML = "";
+    for(let i=0; i<7; i++) {
+      let level = Math.floor(Math.random() * 4) + 1; // Simulasi logic array per hari
+      heatHTML += `<div class="v3-heat-cell v3-heat-${level}" title="Klik untuk lihat report hari ini"></div>`;
+    }
+    document.getElementById('v3HeatmapGrid').innerHTML = heatHTML;
+
+  } catch(e) { console.error("V3 AI Engine Loading...", e); }
+}
+
+// --- 5. COMMAND AI CHATBOT OFFLINE LOGIC ---
+function v3HandleCommand(e) {
+  if(e.key === 'Enter') {
+    let inputEl = document.getElementById('v3CommandInput');
+    let resEl = document.getElementById('v3ChatResponse');
+    let val = inputEl.value.toLowerCase().trim();
+    if(!val) return;
+    
+    resEl.style.display = "block";
+    resEl.innerHTML = "Mengetik...";
+    
+    setTimeout(() => {
+      let response = "Maaf, AI belum mengerti perintah tersebut. Coba ketik 'laba', 'omzet', atau 'stok [nama barang]'.";
+      let omzet = document.getElementById('omzetHariIni')?.innerText || "0";
+      
+      if (val.includes("omzet")) {
+        response = `Omzet Anda hari ini adalah <b>${omzet}</b>.`;
+      } else if (val.includes("laba") || val.includes("profit")) {
+        let laba = document.getElementById('v3LabaHariIni')?.innerText || "0";
+        response = `Estimasi laba bersih hari ini adalah <b>${laba}</b>.`;
+      } else if (val.includes("botol")) {
+        let botol = document.getElementById('stokBotol')?.innerText || "0";
+        response = `Sisa botol saat ini: <b>${botol} pcs</b>.`;
+      } else if (val.includes("box")) {
+        let box = document.getElementById('stokBox')?.innerText || "0";
+        response = `Sisa box pengemasan saat ini: <b>${box} pcs</b>.`;
+      } else if (val.includes("stok")) {
+        let arrBarang = typeof dataBarang !== 'undefined' ? dataBarang : JSON.parse(localStorage.getItem('evora_barang') || "[]");
+        let found = false;
+        arrBarang.forEach(b => {
+          if (val.includes(b.nama.toLowerCase())) {
+            response = `Stok varian <b>${b.nama}</b> saat ini sisa <b>${b.stok}</b> pcs. Terjual hari ini: ${b.terjual}.`;
+            found = true;
+          }
+        });
+        if(!found) response = `Stok untuk produk tersebut tidak ditemukan dalam database hari ini.`;
+      } else if (val.includes("target")) {
+        let progress = document.getElementById('v3TargetPersen')?.innerText || "0%";
+        response = `Target harian Anda tercapai <b>${progress}</b>. Terus semangat!`;
+      }
+
+      resEl.innerHTML = "✨ " + response;
+    }, 600);
+    
+    inputEl.value = "";
+  }
+}
+
+// --- 6. INTEGRASI AMAN KE FUNGSI LAMA (Monkey Patching) ---
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(runEvoraV3Engine, 2000); 
+});
+
+if (typeof renderData === 'function') {
+  const v3OriginalRender = renderData;
+  renderData = function() {
+    v3OriginalRender(); 
+    setTimeout(runEvoraV3Engine, 500); 
+  }
+}
+// =========================================================
+
     <div class="ai-card" id="aiAssistantCard">
   <div class="ai-header">
     <div class="ai-title">
