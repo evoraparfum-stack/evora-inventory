@@ -1172,10 +1172,8 @@ async function loadDataFromCloud() {
     render();
     checkLowStockAlert();
   catch (error) {
-  console.error("Gagal load Supabase:", error);
-
-  alert(error.message);
-  console.log(error);
+  console.error(error);
+  alert(JSON.stringify(error, null, 2));
 
   setSyncStatus("❌ Offline");
   document.body.classList.remove("skeleton-loading");
