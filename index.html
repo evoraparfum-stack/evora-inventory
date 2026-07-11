@@ -777,8 +777,14 @@ body.dark-theme #summaryBulanan {
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-const SHEETDB_URL = "https://sheetdb.io/api/v1/8sp606iyketck"; 
+const { createClient } = supabase;
+const supabaseUrl = 'https://jvyphmuarppsqrsczawa.supabase.co'; 
+const supabaseKey = 'sb_publishable_vsHaMLZRSjn1OwpH2_nCtw_ct1ZIH0T';
+const supabaseApp = createClient(supabaseUrl, supabaseKey);
+
 
 let HARGA = 27000; 
 let stokBotol = 0;
@@ -1141,10 +1147,13 @@ async function loadDataFromCloud() {
   setSyncStatus("🔄 Sync...");
   document.body.classList.add("skeleton-loading");
   try {
-    let respon = await fetch(SHEETDB_URL);
-    let hasil = await respon.json();
-    if (hasil && hasil.length > 0 && hasil[0].konten) {
-      let dataUtama = JSON.parse(hasil[0].konten);
+    const { data, error } = await supabaseApp.from('pos_data').select('konten').eq('id', 1).single();
+    
+    if (error && error.code !== 'PGRST116') throw error; 
+
+    if (data && data.konten) {
+      let dataUtama = data.konten;
+      
       stokBotol = Number(dataUtama.stokBotol || 0);
       stokBox = Number(dataUtama.stokBox || 0);
       barang = dataUtama.barang || [];
@@ -1152,15 +1161,18 @@ async function loadDataFromCloud() {
       pengeluaran = dataUtama.pengeluaran || [];
       pesanan = dataUtama.pesanan || []; 
       HARGA = Number(dataUtama.hargaGlobal || 27000);
+      
       document.getElementById("inputHargaGlobal").value = HARGA;
       setSyncStatus("✅ Connected");
     } else {
-      setSyncStatus("⚠️ Empty");
+      setSyncStatus("⚠️ Empty DB");
     }
+    
     document.body.classList.remove("skeleton-loading");
     render();
     checkLowStockAlert();
   } catch (error) {
+    console.error("Gagal load Supabase:", error);
     setSyncStatus("❌ Offline");
     document.body.classList.remove("skeleton-loading");
   }
@@ -1168,6 +1180,7 @@ async function loadDataFromCloud() {
 
 async function saveData() {
   setSyncStatus("⚡ Saving...");
+  
   let paketData = {
     stokBotol: stokBotol,
     stokBox: stokBox,
@@ -1177,15 +1190,15 @@ async function saveData() {
     pesanan: pesanan, 
     hargaGlobal: HARGA 
   };
+  
   try {
-    let respon = await fetch(`${SHEETDB_URL}/id/1`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: { konten: JSON.stringify(paketData) } })
-    });
-    if(respon.ok) setSyncStatus("✅ Saved");
+    const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
+    if (error) throw error;
+    
+    setSyncStatus("✅ Saved");
     render();
   } catch (error) {
+    console.error("Gagal save Supabase:", error);
     setSyncStatus("❌ Failed");
   }
 }
