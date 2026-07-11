@@ -481,6 +481,82 @@ body.dark-theme #summaryBulanan {
   from { transform: translateY(30px) scale(0.9); opacity: 0; }
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
+/* ========================================== */
+/* FITUR BARU: EVORA AI ASSISTANT CSS */
+/* ========================================== */
+.ai-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 35px -10px rgba(15, 97, 109, 0.15), inset 0 1px 0 rgba(255,255,255,1);
+  position: relative;
+  overflow: hidden;
+  animation: aiCardFadeIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+body.dark-theme .ai-card {
+  background: linear-gradient(145deg, rgba(30,41,59,0.7) 0%, rgba(15,23,42,0.4) 100%);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.ai-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 60%);
+  animation: aiPulse 8s infinite linear;
+  pointer-events: none;
+}
+
+.ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; position: relative; z-index: 1; }
+.ai-title { font-size: 14px; font-weight: 800; background: linear-gradient(90deg, #0f616d, #0d9488); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px; }
+body.dark-theme .ai-title { background: linear-gradient(90deg, #2dd4bf, #99f6e4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+.ai-icon { font-size: 18px; animation: aiFloat 3s infinite ease-in-out; }
+
+.score-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 15px; font-weight: 900; background: rgba(255,255,255,0.7); box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 2px solid #e2e8f0; color: #0f172a; transition: all 0.5s ease; backdrop-filter: blur(5px); }
+body.dark-theme .score-circle { background: rgba(0,0,0,0.3); border-color: #334155; color: #f8fafc; }
+
+.ai-insight-content { font-size: 13px; line-height: 1.5; color: var(--text-main); min-height: 70px; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; transition: opacity 0.5s ease, transform 0.5s ease; }
+
+.insight-priority { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 10px; align-self: flex-start; letter-spacing: 0.5px; }
+.priority-critical { background: rgba(225,29,72,0.1); color: #e11d48; border: 1px solid rgba(225,29,72,0.2); }
+.priority-warning { background: rgba(234,88,12,0.1); color: #ea580c; border: 1px solid rgba(234,88,12,0.2); }
+.priority-good { background: rgba(13,148,136,0.1); color: #0d9488; border: 1px solid rgba(13,148,136,0.2); }
+.priority-info { background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2); }
+
+body.dark-theme .priority-critical { color: #fda4af; }
+body.dark-theme .priority-warning { color: #fed7aa; }
+body.dark-theme .priority-good { color: #99f6e4; }
+body.dark-theme .priority-info { color: #93c5fd; }
+
+.ai-btn { background: rgba(15, 97, 109, 0.05); color: var(--primary); border: 1px solid rgba(15, 97, 109, 0.15); padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 700; margin-top: 15px; box-shadow: none; backdrop-filter: blur(10px); transition: all 0.2s; }
+.ai-btn:active { transform: scale(0.98); background: rgba(15, 97, 109, 0.1); }
+body.dark-theme .ai-btn { background: rgba(255,255,255,0.05); color: #99f6e4; border-color: rgba(255,255,255,0.1); }
+
+.ai-modal-content { background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-main) 100%); border: 1px solid rgba(255,255,255,0.4); backdrop-filter: blur(30px); }
+body.dark-theme .ai-modal-content { border-color: rgba(255,255,255,0.1); }
+
+.ai-health-meter { margin-top: 20px; padding: 16px; background: rgba(15,23,42,0.03); border-radius: 16px; border: 1px solid rgba(100,116,139,0.1); }
+body.dark-theme .ai-health-meter { background: rgba(255,255,255,0.02); }
+.health-bar-bg { height: 10px; background: #e2e8f0; border-radius: 10px; overflow: hidden; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+body.dark-theme .health-bar-bg { background: #334155; }
+.health-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #e11d48, #ea580c, #10b981); transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); border-radius: 10px; }
+
+.ai-detail-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed rgba(100,116,139,0.2); display: flex; justify-content: space-between; align-items: center; }
+.ai-detail-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.ai-detail-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.ai-detail-value { font-size: 13px; font-weight: 800; text-align: right; max-width: 60%; }
+
+@keyframes aiPulse { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes aiFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes aiCardFadeIn { from { opacity: 0; transform: translateY(20px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+
 </style>
 </head>
 <body>
@@ -527,6 +603,30 @@ body.dark-theme #summaryBulanan {
 <div class="main-sheet">
 
   <div id="tab-beranda" class="tab-content active">
+    <div class="ai-card" id="aiAssistantCard">
+  <div class="ai-header">
+    <div class="ai-title">
+      <span class="ai-icon">✨</span> EVORA AI Assistant
+    </div>
+    <div class="ai-score" id="aiBusinessScore">
+      <div class="score-circle">
+        <span id="aiScoreValue" class="shimmer-text" style="width:20px; height:14px;"></span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="ai-body">
+    <div class="ai-insight-content" id="aiInsightContent">
+      <div class="skeleton-loading">
+        <div class="shimmer-text" style="width: 80%; height: 16px; margin-bottom: 8px; border-radius: 4px;"></div>
+        <div class="shimmer-text" style="width: 60%; height: 12px; border-radius: 4px;"></div>
+        <div class="shimmer-text" style="width: 40%; height: 12px; margin-top: 8px; border-radius: 4px;"></div>
+      </div>
+    </div>
+    <button class="ai-btn" onclick="bukaModalAI()">Lihat Analisis Lengkap</button>
+  </div>
+</div>
+
     <div class="card" style="background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-card) 100%);">
       <h3>⚡ PERFORMA HARI INI</h3>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:12px;">
@@ -1915,6 +2015,236 @@ function render(){
 }
 
 loadDataFromCloud();
+// ==========================================
+// FITUR BARU: EVORA AI ENGINE v2 (LOCAL)
+// ==========================================
+function parseNominalAI(str) {
+  if(!str) return 0;
+  return parseInt(str.toString().replace(/[^0-9]/g, '')) || 0;
+}
+
+function runEvoraAI() {
+  try {
+    let insights = [];
+    let score = 100;
+    
+    // 1. Ambil Data Dari DOM & Variabel Global yang ada
+    let omzetHariIni = parseNominalAI(document.getElementById('omzetHariIni')?.innerText);
+    let qtyHariIni = parseNominalAI(document.getElementById('hariIniQtyText')?.innerText);
+    let sisaBotol = parseNominalAI(document.getElementById('stokBotol')?.innerText);
+    let sisaBox = parseNominalAI(document.getElementById('stokBox')?.innerText);
+    let topProduct = document.getElementById('topVarianHariIniText')?.innerText || 'Belum ada';
+    
+    // Fallback jika tidak ada data dari array Supabase, AI akan pakai localStorage / asumsi UI
+    let arrBarang = typeof dataBarang !== 'undefined' ? dataBarang : JSON.parse(localStorage.getItem('evora_barang') || "[]");
+    let arrPenjualan = typeof dataPenjualan !== 'undefined' ? dataPenjualan : JSON.parse(localStorage.getItem('evora_penjualan') || "[]");
+    
+    // KONDISI 1 sd 20 (Local Analysis Engine)
+    
+    // Kondisi 10 & 11: Logistik (Critical priority)
+    if (sisaBotol >= 0 && sisaBotol <= 15) {
+      insights.push({ type: 'critical', title: '🔴 PRIORITAS TINGGI', text: `Botol hanya tersisa ${sisaBotol} pcs. Diperkirakan habis besok.`, advice: 'Lakukan restock botol minimal 50 pcs hari ini.' });
+      score -= 20;
+    } else if (sisaBotol > 15 && sisaBotol <= 30) {
+      insights.push({ type: 'warning', title: '🟠 PERHATIAN LOGISTIK', text: `Stok botol sisa ${sisaBotol} pcs.`, advice: 'Siapkan dana untuk restock minggu ini.' });
+      score -= 5;
+    }
+    
+    if (sisaBox >= 0 && sisaBox <= 15) {
+      insights.push({ type: 'critical', title: '🔴 PRIORITAS TINGGI', text: `Packaging Box menipis (${sisaBox} pcs).`, advice: 'Segera restock agar pengiriman aman.' });
+      score -= 15;
+    }
+
+    // Kondisi 1 & 2 & 16 & 17: Analisis Trend Omzet
+    let badgeTrend = document.getElementById('trendBadge');
+    if (badgeTrend) {
+      if (badgeTrend.classList.contains('up')) {
+        insights.push({ type: 'good', title: '📈 PENJUALAN MENINGKAT', text: `Hari ini omzet naik ${badgeTrend.innerText} dibanding kemarin.`, advice: 'Pertahankan performa dan konsistensi iklan.' });
+        score += 5;
+      } else if (badgeTrend.classList.contains('down')) {
+        insights.push({ type: 'warning', title: '📉 PENJUALAN TURUN', text: `Omzet turun ${badgeTrend.innerText} dari kemarin.`, advice: 'Coba broadcast WhatsApp ke pelanggan lama (Retargeting).' });
+        score -= 10;
+      }
+    }
+
+    // Kondisi 5 & 6 & 18: Produk Terlaris & Rekomendasi Iklan
+    if (topProduct !== 'Belum ada' && topProduct.trim() !== '') {
+      insights.push({ type: 'info', title: '🏆 PRODUK TERLARIS', text: `Varian ${topProduct} mendominasi penjualan hari ini.`, advice: 'Gunakan produk ini sebagai hook (pancingan) di promosi medsos.' });
+      score += 5;
+    }
+
+    // Kondisi 7 & 8 & 9 & 19: Analisis Produk Mati & Restock
+    let deadProducts = 0;
+    let restockProducts = [];
+    if (arrBarang && arrBarang.length > 0) {
+      arrBarang.forEach(b => {
+        if (b.stok <= 5) restockProducts.push(b.nama);
+        if (b.terjual === 0) deadProducts++;
+      });
+      
+      if (restockProducts.length > 0) {
+        insights.push({ type: 'warning', title: '⚠️ BUTUH RESTOCK', text: `Ada ${restockProducts.length} varian yang hampir habis.`, advice: `Restock segera: ${restockProducts.slice(0,2).join(', ')}...` });
+        score -= (restockProducts.length * 3);
+      }
+      
+      if (deadProducts > 0) {
+        insights.push({ type: 'warning', title: '🧊 PRODUK PASIF', text: `${deadProducts} varian produk tidak ada pergerakan.`, advice: 'Buat promo Flash Sale / Bundling cuci gudang.' });
+        score -= (deadProducts * 2);
+      }
+    }
+
+    // Kondisi 12 & 13 & 14 & 15: Margin Laba & Target (Estimasi Berdasarkan Omzet & Pengeluaran)
+    let totalOmzet = parseNominalAI(document.getElementById('summaryBulanOmzet')?.innerText || "0");
+    let totalPengeluaran = parseNominalAI(document.getElementById('summaryBulanPengeluaran')?.innerText || "0");
+    
+    if (totalPengeluaran > 0 && totalOmzet > 0) {
+      let rasio = totalPengeluaran / totalOmzet;
+      if (rasio > 0.7) { // Pengeluaran > 70% omzet
+        insights.push({ type: 'critical', title: '🔴 PENGELUARAN TINGGI', text: 'Biaya operasional memakan lebih dari 70% omzet bulan ini!', advice: 'Tunda belanja non-prioritas segera.' });
+        score -= 25;
+      } else if (rasio < 0.3) {
+        insights.push({ type: 'good', title: '🟢 MARGIN SEHAT', text: 'Pengeluaran sangat terkontrol bulan ini.', advice: 'Anda bisa mengalokasikan budget lebih untuk iklan/marketing.' });
+        score += 10;
+      }
+    }
+
+    // Kondisi 20: Auto Insight / Fallback (Jika tidak ada masalah sama sekali)
+    if (insights.length === 0) {
+      insights.push({ type: 'good', title: '🚀 BISNIS OPTIMAL', text: 'Semua metrik operasional dan penjualan stabil.', advice: 'Fokus pada riset varian baru untuk scale-up.' });
+    }
+
+    // Kunci Score di 0 - 100
+    score = Math.max(0, Math.min(100, score));
+
+    // Sort Insight: critical > warning > good > info
+    const priorityWeight = { 'critical': 1, 'warning': 2, 'good': 3, 'info': 4 };
+    insights.sort((a, b) => priorityWeight[a.type] - priorityWeight[b.type]);
+    let bestInsight = insights[0];
+
+    // ANIMASI & RENDER KE UI
+    let contentDiv = document.getElementById('aiInsightContent');
+    contentDiv.style.opacity = 0;
+    contentDiv.style.transform = 'translateY(10px)';
+    
+    setTimeout(() => {
+      contentDiv.innerHTML = `
+        <div class="insight-priority priority-${bestInsight.type}">${bestInsight.title}</div>
+        <div style="font-size:14px; font-weight:800; margin-bottom:8px;">${bestInsight.text}</div>
+        <div style="font-size:12px; color:var(--text-muted); line-height: 1.5;"><span style="opacity:0.8">💡 Saran:</span> <b>${bestInsight.advice}</b></div>
+      `;
+      contentDiv.style.opacity = 1;
+      contentDiv.style.transform = 'translateY(0)';
+      
+      // Update Score & Color
+      document.getElementById('aiScoreValue').innerText = score;
+      document.getElementById('aiScoreValue').classList.remove('shimmer-text');
+      
+      let circle = document.getElementById('aiBusinessScore').querySelector('.score-circle');
+      if(score >= 80) { circle.style.borderColor = '#10b981'; circle.style.color = '#10b981'; }
+      else if(score >= 60) { circle.style.borderColor = '#ea580c'; circle.style.color = '#ea580c'; }
+      else { circle.style.borderColor = '#e11d48'; circle.style.color = '#e11d48'; }
+
+      // Simpan data untuk Modal
+      window.evoraAiData = {
+        score: score,
+        topProduct: topProduct,
+        stokBotol: sisaBotol,
+        stokBox: sisaBox,
+        status: score >= 80 ? 'Excellent 🌟' : score >= 60 ? 'Need Attention ⚠️' : 'Critical 🔴',
+        kesimpulan: bestInsight.text + ' ' + bestInsight.advice
+      };
+    }, 500);
+
+  } catch (error) {
+    console.log("AI Engine Waiting Data...", error);
+  }
+}
+
+// Fungsi Buka Tutup Modal
+function bukaModalAI() {
+  let d = window.evoraAiData;
+  if(!d) return;
+  
+  let html = `
+    <div class="ai-detail-item">
+      <div class="ai-detail-label">Status Bisnis</div>
+      <div class="ai-detail-value" style="color: ${d.score >= 80 ? '#10b981' : d.score >= 60 ? '#ea580c' : '#e11d48'}">${d.status}</div>
+    </div>
+    <div class="ai-detail-item">
+      <div class="ai-detail-label">Produk Unggulan</div>
+      <div class="ai-detail-value">${d.topProduct}</div>
+    </div>
+    <div class="ai-detail-item">
+      <div class="ai-detail-label">Logistik (Botol / Box)</div>
+      <div class="ai-detail-value">${d.stokBotol} / ${d.stokBox} pcs</div>
+    </div>
+    <div class="ai-detail-item" style="display:block;">
+      <div class="ai-detail-label" style="margin-bottom:8px;">Konklusi AI:</div>
+      <div style="font-weight:700; color:var(--primary); font-size:13px; background:var(--primary-light); padding:10px; border-radius:8px;">${d.kesimpulan}</div>
+    </div>
+  `;
+  
+  document.getElementById('aiDetailContent').innerHTML = html;
+  
+  let modal = document.getElementById('modalAI');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.style.opacity = '1', 50);
+  
+  // Animasi Progress Bar
+  setTimeout(() => {
+    document.getElementById('aiHealthFill').style.width = d.score + '%';
+    document.getElementById('aiHealthText').innerText = d.score + ' / 100';
+  }, 200);
+}
+
+function tutupModalAI() {
+  let modal = document.getElementById('modalAI');
+  modal.style.opacity = '0';
+  document.getElementById('aiHealthFill').style.width = '0%';
+  setTimeout(() => modal.style.display = 'none', 300);
+}
+
+// ==========================================
+// AUTO-TRIGGER AI & INTEGRASI FITUR LAMA
+// ==========================================
+// Jalankan AI 1.5 detik setelah web load (nunggu Supabase selesai)
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(runEvoraAI, 1500);
+});
+
+// Monkey patch (hook) yang SANGAT AMAN agar AI ikut terupdate 
+// setiap kali Anda menambah penjualan/pengeluaran tanpa merusak kode asli Anda.
+if (typeof renderData === 'function') {
+  const originalRenderData = renderData;
+  renderData = function() {
+    originalRenderData(); // Panggil fungsi asli Supabase Anda
+    setTimeout(runEvoraAI, 600); // AI update otomatis setelah render
+  }
+}
+// ==========================================
+
 </script>
+<div id="modalAI" class="modal-overlay" style="display:none; z-index: 10005; opacity: 0; transition: opacity 0.3s ease;">
+  <div class="modal-content ai-modal-content">
+    <h3 style="color: var(--text-main); font-size: 16px; margin-bottom: 20px; text-align: center; text-transform: none;">
+      <span style="font-size:20px;">✨</span> Rangkuman AI
+    </h3>
+    <div id="aiDetailContent" style="font-size: 13px; line-height: 1.6; color: var(--text-main);">
+      </div>
+    <div class="ai-health-meter">
+      <div style="font-size: 11px; font-weight: 700; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase;">Business Health Score</div>
+      <div class="health-bar-bg">
+        <div class="health-bar-fill" id="aiHealthFill"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; margin-top:6px; font-weight:700; color: var(--text-main);">
+        <span>0</span>
+        <span id="aiHealthText">Calculating...</span>
+        <span>100</span>
+      </div>
+    </div>
+    <button onclick="tutupModalAI()" style="margin-top: 20px; background: rgba(100,116,139,0.1); color: var(--text-main); border: 1px solid rgba(100,116,139,0.2); box-shadow: none;">Tutup Analisis</button>
+  </div>
+</div>
+
 </body>
 </html>
