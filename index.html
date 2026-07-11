@@ -1171,11 +1171,15 @@ async function loadDataFromCloud() {
     document.body.classList.remove("skeleton-loading");
     render();
     checkLowStockAlert();
-  } catch (error) {
-    console.error("Gagal load Supabase:", error);
-    setSyncStatus("❌ Offline");
-    document.body.classList.remove("skeleton-loading");
-  }
+  catch (error) {
+  console.error("Gagal load Supabase:", error);
+
+  alert(error.message);
+  console.log(error);
+
+  setSyncStatus("❌ Offline");
+  document.body.classList.remove("skeleton-loading");
+}
 }
 
 async function saveData() {
