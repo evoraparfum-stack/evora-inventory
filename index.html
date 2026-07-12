@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 <html lang="id">
+<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
@@ -538,32 +538,6 @@ body.dark-theme #summaryBulanan {
       </div>
     </div>
 
-<div class="stat-card">
-    <div class="stat-label">🎯 Target Bulan</div>
-
-    <div id="targetPersen"
-         style="font-size:30px;font-weight:900;margin-top:8px;">
-        0%
-    </div>
-
-    <div style="margin-top:8px;">
-        <div style="height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">
-            <div id="targetProgress"
-                 style="width:0%;height:100%;background:#10b981;"></div>
-        </div>
-    </div>
-
-    <div id="targetText"
-         style="margin-top:10px;font-size:13px;">
-        0 / 400 Botol
-    </div>
-
-    <div id="targetInfo"
-         style="font-size:11px;color:#64748b;">
-        Sisa 400 Botol
-    </div>
-</div>
-
     <div class="card">
       <h3>📈 GRAFIK PENJUALAN 7 HARI TERAKHIR</h3>
       <div style="position: relative; height:200px; width:100%;">
@@ -820,8 +794,6 @@ let pengeluaran = [];
 let pesanan = []; 
 let chartInstance = null;
 let currentValuesRegistry = {}; 
-
-const TARGET_BULAN = 400;
 
 // Variabel Ekstensi Enterprise
 let namaUser = localStorage.getItem("evora_nama") || "Farhan";
@@ -1725,28 +1697,6 @@ function render(){
   document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
 
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-
-// ===== TARGET BULAN =====
-
-let totalBotol = jualAktif.reduce((a,b)=>a+b.qty,0);
-
-let persen = Math.min(100,(totalBotol/TARGET_BULAN)*100);
-
-document.getElementById("targetPersen").innerHTML =
-persen.toFixed(0)+"%";
-
-document.getElementById("targetProgress").style.width =
-persen+"%";
-
-document.getElementById("targetText").innerHTML =
-totalBotol+" / "+TARGET_BULAN+" Botol";
-
-document.getElementById("targetInfo").innerHTML =
-"Sisa "+Math.max(0,TARGET_BULAN-totalBotol)+" Botol";
-
-// =======================
-
-let keluarAktif = ...
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
   let keluarVal = keluarAktif.reduce((a,b)=>a+b.nominal,0);
