@@ -564,6 +564,21 @@ body.dark-theme #summaryBulanan {
         <button onclick="tambahPengeluaran()" style="background:var(--danger); padding:10px; font-size:12px; border-radius:8px; box-shadow: none;">Simpan</button>
       </div>
     </div>
+    
+    <div class="card">
+      <h3 style="color:var(--accent);">🎯 TARGET BULAN INI</h3>
+      <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
+          <span>Progress Target</span>
+          <span id="targetTextInfo" style="text-align:right;">0 / 400 Botol (0%)</span>
+        </div>
+        <div style="background:#e2e8f0; height:12px; border-radius:10px; overflow:hidden; margin-bottom:12px;">
+          <div id="targetProgressFill" style="background:var(--success); width:0%; height:100%; transition:width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
+        </div>
+        <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;">
+          </div>
+      </div>
+    </div>
 
     <div class="card" style="margin-top:20px; background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-card) 100%);">
       <h3>📊 RINGKASAN PERFORMA BULANAN</h3>
@@ -1096,6 +1111,28 @@ async function testPrint() {
   await kirimTeksKePrinter(text);
   customAlert("Sukses", "Struk test berhasil dicirim ke printer!", "success");
 }
+
+// SIMPLE CONFETTI SYSTEM
+let isConfettiFired = false;
+function fireConfetti() {
+  if (isConfettiFired || document.getElementById('evora-confetti')) return;
+  isConfettiFired = true;
+  let c = document.createElement('div');
+  c.id = 'evora-confetti';
+  c.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;overflow:hidden;';
+  document.body.appendChild(c);
+  for(let i=0; i<40; i++){
+    let d = document.createElement('div');
+    d.innerHTML = '🎉';
+    d.style.cssText = `position:absolute;left:${Math.random()*100}%;top:-10%;font-size:${Math.random()*15+15}px;animation:confetti-drop ${Math.random()*2+2}s linear infinite;`;
+    c.appendChild(d);
+  }
+  let style = document.createElement('style');
+  style.innerHTML = `@keyframes confetti-drop { to { transform: translateY(120vh) rotate(360deg); } }`;
+  document.head.appendChild(style);
+  setTimeout(()=> { c.remove(); style.remove(); }, 6000);
+}
+
 
 // COUNT UP ANIMATION LOGIC FOR METRICS
 function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
@@ -1726,25 +1763,81 @@ function render(){
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
   barangUrut.sort((a, b) => a.stok - b.stok);
 
-  listBarang.innerHTML = barangUrut.map(x => {
-    let badgeTag = "";
+    // --- KODE PENGGANTI AI RESTOCK (DIMULAI DARI listBarang.innerHTML) ---
+  listBarang.innerHTML = barangUrut.map(x => {  
+    let badgeTag = "";  
+    if (x.stok === 0) {  
+      badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`;  
+    } else if (x.stok <= 10) {  
+      badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`;  
+    } else {  
+      badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;  
+    }  
+    
+    // --- INJEKSI ANALISIS AI RESTOCK ---
+    let msPerDay = 24 * 60 * 60 * 1000;
+    let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
+    
+    let qty7Hari = 0;
+    let qty7HariSebelumnya = 0;
+    
+    // Loop sejarah penjualan untuk mencari pola
+    penjualan.forEach(p => {
+      if (p.barang === x.nama && p.qty > 0) {
+        let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
+        let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
+        
+        if (selisihHari >= 0 && selisihHari < 7) qty7Hari += p.qty;
+        else if (selisihHari >= 7 && selisihHari < 14) qty7HariSebelumnya += p.qty;
+      }
+    });
+    
+    let avg7Hari = qty7Hari / 7;
+    let prediksiHabisHari = avg7Hari > 0 ? Math.floor(x.stok / avg7Hari) : Infinity;
+    
+    let colorPredict = "var(--success)";
+    let textPredict = "✅ Aman (>30 hari)";
     if (x.stok === 0) {
-      badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`;
-    } else if (x.stok <= 10) {
-      badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`;
-    } else {
-      badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;
+      colorPredict = "var(--danger)"; textPredict = "🔴 Stok Habis";
+    } else if (prediksiHabisHari < 7) { 
+      colorPredict = "var(--danger)"; textPredict = `🔴 ± Habis dalam ${prediksiHabisHari} hari`; 
+    } else if (prediksiHabisHari < 14) { 
+      colorPredict = "var(--warning)"; textPredict = `🟠 ± Habis dalam ${prediksiHabisHari} hari`; 
+    } else if (prediksiHabisHari <= 30) { 
+      colorPredict = "#eab308"; textPredict = `🟡 ± Habis dalam ${prediksiHabisHari} hari`; // Kuning gelap
+    }
+    
+    let trenMeroket = false;
+    if (qty7HariSebelumnya > 0) {
+      let persentaseNaik = ((qty7Hari - qty7HariSebelumnya) / qty7HariSebelumnya) * 100;
+      if (persentaseNaik > 30) trenMeroket = true;
+    } else if (qty7Hari > 3 && qty7HariSebelumnya === 0) {
+      trenMeroket = true; 
     }
 
-    let dropdownOptions = "";
+    let aiCardHtml = `
+      <div style="margin-top:10px; padding:8px; background:var(--bg-main); border-radius:8px; border:1px solid #e2e8f0; font-size:11px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color:var(--text-muted); font-weight:700;">🤖 AI Prediksi:</span>
+          <span><b>${avg7Hari.toFixed(1)}</b> avg/hari</span>
+        </div>
+        <div style="color:${colorPredict}; font-weight:800;">${textPredict}</div>
+        ${trenMeroket ? `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;">🔥 Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
+      </div>
+    `;
+    // --- END INJEKSI AI ---
+
+    let dropdownOptions = "";  
+
     for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
     return `
-      <div class="item-barang">
-        <div class="item-info" style="text-align:left;">
-          <b>${x.nama}</b>
-          <div class="stok-text">Sisa: ${x.stok} pcs</div>
-          ${badgeTag}
-        </div>
+            <div class="item-barang">  
+        <div class="item-info" style="text-align:left;">  
+          <b>${x.nama}</b>  
+          <div class="stok-text">Sisa: ${x.stok} pcs</div>  
+          ${badgeTag}  
+          ${aiCardHtml}
+        </div>  
         <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; gap:6px; align-items:center;">
             <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
@@ -1912,6 +2005,49 @@ function render(){
       </div>
     </div>
   `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
+    // --- INJEKSI TARGET BULANAN ---
+  let targetBulanIni = 400; 
+  let currentPcs = totalPcsBulanan; // Menggunakan variabel yang sudah dihitung render()
+  let progressPct = Math.min((currentPcs / targetBulanIni) * 100, 100).toFixed(1);
+  let sisaTarget = Math.max(0, targetBulanIni - currentPcs);
+  
+  let dHariIni = new Date();
+  let hariBerjalan = dHariIni.getDate();
+  let totalHariBulanIni = new Date(dHariIni.getFullYear(), dHariIni.getMonth() + 1, 0).getDate();
+  let sisaHariDalamBulan = Math.max(1, totalHariBulanIni - hariBerjalan);
+  
+  let avgPcsPerDay = currentPcs / hariBerjalan;
+  let reqPcsPerDay = sisaTarget > 0 ? Math.ceil(sisaTarget / sisaHariDalamBulan) : 0;
+  
+  let estTercapaiTeks = "-";
+  if (sisaTarget === 0 && currentPcs >= targetBulanIni) {
+    estTercapaiTeks = "Tercapai! 🎉";
+    if(bulanAktif === getMonthKey(new Date())) fireConfetti(); // Hanya fire jika di bulan berjalan
+  } else if (avgPcsPerDay > 0 && sisaTarget > 0) {
+    let estHariLagi = Math.ceil(sisaTarget / avgPcsPerDay);
+    if (hariBerjalan + estHariLagi <= totalHariBulanIni) {
+       let estDate = new Date(dHariIni);
+       estDate.setDate(estDate.getDate() + estHariLagi);
+       estTercapaiTeks = estDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    } else {
+       estTercapaiTeks = "Bulan Depan (Target terancam meleset)";
+    }
+  }
+
+  let elTargetProgress = document.getElementById("targetProgressFill");
+  let elTargetText = document.getElementById("targetTextInfo");
+  let elTargetAvg = document.getElementById("targetAvgInfo");
+  
+  if (elTargetProgress && elTargetText && elTargetAvg) {
+    elTargetProgress.style.width = progressPct + '%';
+    elTargetText.innerHTML = `${currentPcs} / ${targetBulanIni} Pcs (${progressPct}%)<br><span style="font-size:10px; color:var(--text-muted); font-weight:500;">Sisa: ${sisaTarget} Pcs</span>`;
+    
+    elTargetAvg.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Rata-rata Penjualan:</span> <b>${avgPcsPerDay.toFixed(1)} Pcs/hari</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Harus Dijual (Sisa Hari):</span> <b style="color:var(--warning);">${reqPcsPerDay} Pcs/hari</b></div>
+      <div style="display:flex; justify-content:space-between;"><span>Estimasi Target Tercapai:</span> <b style="color:var(--primary);">${estTercapaiTeks}</b></div>
+    `;
+  }
 }
 
 loadDataFromCloud();
