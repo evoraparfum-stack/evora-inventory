@@ -689,19 +689,6 @@ body.dark-theme #summaryBulanan {
       </div>
     </div>
 
-    <div class="card">
-      <h3 style="color:var(--primary)">🖨️ PRINTER BLUETOOTH THERMAL</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Hubungkan ke printer struk kasir (Mendukung fitur BLE / Web Bluetooth).</p>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:10px 14px; background:var(--primary-light); border-radius:10px; border:1px dashed var(--primary);">
-        <span style="font-size:12px; font-weight:700;">Status Printer:</span>
-        <span id="statusPrinter" style="color:var(--danger); font-weight:800; font-size:12px;">❌ Terputus</span>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <button onclick="hubungkanPrinter()" style="background:var(--primary); box-shadow:none; padding:12px; font-size:12px;">🔌 Cari & Hubungkan</button>
-        <button onclick="testPrint()" id="btnTestPrint" style="background:#cbd5e1; color:#64748b; box-shadow:none; padding:12px; font-size:12px;" disabled>📄 Test Print</button>
-      </div>
-    </div>
-
     <div class="card" style="border: 1px solid #cbd5e1;">
       <h3 style="color:var(--primary)">📤 EKSPORT / COPY DATA</h3>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px; line-height: 1.5;">Salin seluruh data menjadi format teks untuk cadangan (backup).</p>
@@ -1001,115 +988,6 @@ function toggleDarkMode() {
     btnDark.innerText = "Aktifkan";
     btnDark.style.background = "#94a3b8";
   }
-}
-
-// BLUETOOTH THERMAL PRINTER CORE ENGINE
-async function hubungkanPrinter() {
-  if (!navigator.bluetooth) {
-    customAlert("Tidak Didukung", "Browser tidak mendukung Web Bluetooth API. Gunakan Google Chrome terbaru.", "danger");
-    return;
-  }
-  try {
-    document.getElementById("statusPrinter").innerText = "🔄 Mencari...";
-    document.getElementById("statusPrinter").style.color = "var(--warning)";
-
-    bluetoothDevice = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [
-        '000018f0-0000-1000-8000-00805f9b34fb',
-        'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
-        '49535343-fe7d-4ae5-8fa9-9fafd205e455'
-      ]
-    });
-
-    const server = await bluetoothDevice.gatt.connect();
-    const services = await server.getPrimaryServices();
-    if (services.length === 0) throw new Error("Service printer tidak ditemukan.");
-    
-    const service = services[0]; 
-    const characteristics = await service.getCharacteristics();
-    printCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
-
-    if (!printCharacteristic) throw new Error("Karakteristik Write printer tidak ditemukan.");
-
-    document.getElementById("statusPrinter").innerText = "✅ " + bluetoothDevice.name;
-    document.getElementById("statusPrinter").style.color = "var(--success)";
-    
-    let btnTest = document.getElementById("btnTestPrint");
-    btnTest.disabled = false;
-    btnTest.style.background = "var(--success)";
-    btnTest.style.color = "#fff";
-
-    bluetoothDevice.addEventListener('gattserverdisconnected', () => {
-      document.getElementById("statusPrinter").innerText = "❌ Terputus";
-      document.getElementById("statusPrinter").style.color = "var(--danger)";
-      printCharacteristic = null;
-      btnTest.disabled = true;
-      btnTest.style.background = "#cbd5e1";
-    });
-
-  } catch (error) {
-    console.error(error);
-    document.getElementById("statusPrinter").innerText = "❌ Gagal Hubung";
-    document.getElementById("statusPrinter").style.color = "var(--danger)";
-    customAlert("Koneksi Gagal", "Gagal menyambungkan perangkat printer bluetooth.", "warning");
-  }
-}
-
-async function kirimTeksKePrinter(teks) {
-  if (!printCharacteristic) return;
-  try {
-    let encoder = new TextEncoder();
-    let data = encoder.encode(teks);
-    for (let i = 0; i < data.length; i += 20) {
-      let chunk = data.slice(i, i + 20);
-      await printCharacteristic.writeValue(chunk);
-    }
-  } catch (err) {
-    console.error("Gagal mengirim data print:", err);
-  }
-}
-
-async function cetakStrukOtomatis(namaBarang, qty, total) {
-  if (!printCharacteristic) return; // Silent skip jika printer tidak terhubung
-  const ESC = '\x1B';
-  let teksStruk = 
-    ESC + '@' + 
-    ESC + 'a' + '\x01' + 
-    "=== EVORA TRACKER PRO ===\n" +
-    "Premium Perfume Suite\n" +
-    "--------------------------------\n" +
-    ESC + 'a' + '\x00' +
-    "Tanggal : " + new Date().toLocaleString('id-ID') + "\n" +
-    "Kasir   : " + namaUser + "\n" +
-    "--------------------------------\n" +
-    namaBarang + "\n" +
-    qty + " Pcs x Rp " + HARGA.toLocaleString('id-ID') + "\n" +
-    ESC + 'a' + '\x02' + 
-    "TOTAL: Rp " + total.toLocaleString('id-ID') + "\n" +
-    ESC + 'a' + '\x01' + 
-    "--------------------------------\n" +
-    "Terima Kasih Atas Kunjungan Anda\n\n\n\n";
-  await kirimTeksKePrinter(teksStruk);
-}
-
-async function testPrint() {
-  if (!printCharacteristic) return;
-  const ESC = '\x1B';
-  let text = 
-    ESC + '@' + 
-    ESC + 'a' + '\x01' + 
-    "=== EVORA TRACKER PRO ===\n\n" +
-    ESC + 'a' + '\x00' + 
-    "Tgl   : " + new Date().toLocaleString('id-ID') + "\n" +
-    "Kasir : " + namaUser + "\n" +
-    "--------------------------------\n" +
-    ESC + 'a' + '\x01' + 
-    "KONEKSI PRINTER BERHASIL!\n" +
-    ESC + 'a' + '\x00' + 
-    "--------------------------------\n\n\n\n";
-  await kirimTeksKePrinter(text);
-  customAlert("Sukses", "Struk test berhasil dicirim ke printer!", "success");
 }
 
 // SIMPLE CONFETTI SYSTEM
