@@ -452,20 +452,20 @@ input:focus, select:focus { border-color: var(--primary); background: var(--bg-c
 .action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px; border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
 .quick-grid{
 display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:12px;
-margin-bottom:20px;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
 }
 
 .quick-card{
 background:var(--bg-card);
 border:1px solid #e2e8f0;
-border-radius:16px;
-padding:18px;
+border-radius:14px;
+padding:12px 6px;
 display:flex;
 flex-direction:column;
 align-items:center;
 justify-content:center;
+height:78px;
 cursor:pointer;
 box-shadow:var(--shadow-sm);
 transition:.2s;
@@ -476,16 +476,16 @@ transform:scale(.96);
 }
 
 .quick-card i{
-font-size:26px;
+font-size:20px;
 color:var(--primary);
-margin-bottom:10px;
+margin-bottom:6px;
 }
 
 .quick-card span{
-font-size:13px;
+font-size:10px;
 font-weight:700;
+line-height:1.2;
 text-align:center;
-color:var(--text-main);
 }
 
 .bottom-nav {
@@ -575,37 +575,31 @@ body.dark-theme #summaryBulanan {
 
   <div id="tab-beranda" class="tab-content active">
     <div class="card">
-<h3>
-<i class="fa-solid fa-bolt"></i>
-AKSES CEPAT
-</h3>
+<h3><i class="fa-solid fa-bolt"></i> AKSES CEPAT</h3>
 
 <div class="quick-grid">
 
-<div class="quick-card"
-onclick="shortcutRestock()">
+<div class="quick-card" onclick="shortcutRestock()">
 <i class="fa-solid fa-box-open"></i>
 <span>Restock</span>
 </div>
 
-<div class="quick-card"
-onclick="editLogistik('botol')">
+<div class="quick-card" onclick="editLogistik('botol')">
 <i class="fa-solid fa-wine-bottle"></i>
 <span>Botol</span>
 </div>
 
-<div class="quick-card"
-onclick="editLogistik('box')">
+<div class="quick-card" onclick="editLogistik('box')">
 <i class="fa-solid fa-box"></i>
 <span>Box</span>
 </div>
 
-<div class="quick-card"
-onclick="shortcutKasir()">
+<div class="quick-card" onclick="shortcutKasir()">
 <i class="fa-solid fa-cart-shopping"></i>
 <span>Kasir</span>
 </div>
 
+</div>
 </div>
 </div>
     <div class="card" style="background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-card) 100%);">
