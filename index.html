@@ -61,7 +61,7 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  padding-bottom: 100px;
+  padding-bottom: calc(120px + env(safe-area-inset-bottom));
   transition: background 0.3s, color 0.3s;
 }
 
@@ -261,6 +261,7 @@ html, body {
   border-radius: 28px 28px 0 0;
   position: relative;
   padding: 28px 18px;
+  padding-bottom: 170px;
 }
 
 .card {
@@ -449,7 +450,8 @@ input:focus, select:focus { border-color: var(--primary); background: var(--bg-c
 .item-info b { font-size: 14px; color: var(--text-main); display: block; line-height: 1.4; }
 .stok-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px; border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
+.action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px;
+  border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
 
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0;
@@ -463,9 +465,11 @@ body.dark-theme .bottom-nav {
   background: rgba(30, 41, 59, 0.9) !important;
   border-top: 1px solid #334155 !important;
 }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; width: 20%; transition: all 0.2s; }
+.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; width: 20%;
+  transition: all 0.2s; }
 .nav-item.active { color: var(--primary); }
-.nav-icon { font-size: 20px; margin-bottom: 4px; padding: 4px 16px; border-radius: 16px; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.nav-icon { font-size: 20px; margin-bottom: 4px; padding: 4px 16px; border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .nav-item.active .nav-icon { background: var(--primary-light); transform: translateY(-2px); }
 .scroll-box { max-height: 240px; overflow-y: auto; }
 .riwayat-item { background: #f8fafc; padding: 12px 14px; border-radius: 10px; margin: 8px 0; font-size: 13px; border: 1px solid #edf2f7; }
@@ -491,6 +495,51 @@ body.dark-theme #summaryBulanan {
 @keyframes premiumModalPop {
   from { transform: translateY(30px) scale(0.9); opacity: 0; }
   to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* --- QUICK ACCESS CSS --- */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.quick-card {
+  background: var(--bg-card);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: .2s;
+  box-shadow: var(--shadow-sm);
+}
+.quick-card:active {
+  transform: scale(.96);
+}
+.quick-card i {
+  font-size: 20px;
+  color: var(--primary);
+  margin-bottom: 5px;
+}
+.quick-card span {
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--text-main);
+}
+
+/* CUSTOM SCROLLBAR FOR PENDING ORDERS */
+#listPesanPending::-webkit-scrollbar {
+  width: 4px;
+}
+#listPesanPending::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 </style>
 </head>
@@ -537,6 +586,29 @@ body.dark-theme #summaryBulanan {
 <div class="main-sheet">
 
   <div id="tab-beranda" class="tab-content active">
+    
+    <div class="card">
+      <h3><i class="fa-solid fa-bolt"></i> AKSES CEPAT</h3>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="shortcutRestock()">
+          <i class="fa-solid fa-box"></i>
+          <span>Restock</span>
+        </div>
+        <div class="quick-card" onclick="editLogistik('botol')">
+          <i class="fa-solid fa-wine-bottle"></i>
+          <span>Botol</span>
+        </div>
+        <div class="quick-card" onclick="editLogistik('box')">
+          <i class="fa-solid fa-box-open"></i>
+          <span>Box</span>
+        </div>
+        <div class="quick-card" onclick="shortcutKasir()">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Kasir</span>
+        </div>
+      </div>
+    </div>
+   
     <div class="card" style="background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-card) 100%);">
       <h3><i class="fa-solid fa-bolt"></i> PERFORMA HARI INI</h3>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:12px;">
@@ -608,7 +680,7 @@ body.dark-theme #summaryBulanan {
       <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:var(--bg-card); border-color: var(--primary);">
     </div>
 
-    <div class="card">
+    <div class="card" id="panelKasir">
       <h3><i class="fa-solid fa-cart-shopping"></i> PANEL KASIR INSTAN</h3>
       <div class="search-container">
         <input id="cariBarangInput" placeholder="Cari nama varian parfum..." oninput="handleSearchInput()">
@@ -619,12 +691,13 @@ body.dark-theme #summaryBulanan {
 
     <div class="card">
       <h3><i class="fa-solid fa-box"></i> TRANSAKSI GROSIR / MANUAL</h3>
+     
       <select id="barangJual"></select>
       <input id="qtyJual" type="number" placeholder="Kuantitas Item">
       <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
     </div>
 
-    <div class="card" style="border: 1px solid #fcd34d;">
+    <div class="card" style="border: 1px solid #fcd34d;" id="panelRestock">
       <h3 style="color: var(--accent);"><i class="fa-solid fa-truck"></i> RE-STOCK LOGISTIK & VARIAN</h3>
       <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px; margin-bottom:10px;">
         <select id="targetPesan" style="margin:0; text-align:left; text-align-last:left; background:var(--bg-card);"></select>
@@ -632,7 +705,7 @@ body.dark-theme #summaryBulanan {
       </div>
       <button onclick="buatPesanan()" style="background:var(--accent); font-size:13px; padding:12px;"><i class="fa-solid fa-plus"></i> Buat Antrean Pemesanan</button>
       
-      <div id="listPesanPending" style="display:flex; flex-direction:column; gap:8px; margin-top:16px;"></div>
+      <div id="listPesanPending" style="display:flex; flex-direction:column; margin-top:16px; max-height:320px; overflow-y:auto; overflow-x:hidden;"></div>
     </div>
 
     <div class="card">
@@ -747,6 +820,7 @@ body.dark-theme #summaryBulanan {
   </button>
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
     <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
+  
     <div>Setting</div>
   </button>
 </div>
@@ -849,13 +923,33 @@ function initEnterpriseSettings() {
 }
 initEnterpriseSettings();
 
+// SHORTCUT FUNCTIONS
+function shortcutRestock() {
+  switchTab("kasir");
+  setTimeout(() => {
+    document.getElementById("panelRestock").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 250);
+}
+
+function shortcutKasir() {
+  switchTab("kasir");
+  setTimeout(() => {
+    document.getElementById("panelKasir").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 250);
+}
+
 // NOTIFIKASI STOK
 function checkLowStockAlert() {
   let lowItems = [];
   // Aturan baru: Botol dan Box akan memunculkan notif jika sisa di bawah 15
   if (stokBotol < 15) lowItems.push(`<i class="fa-solid fa-wine-bottle"></i> Botol Kosong: <b>${stokBotol} pcs</b>`);
   if (stokBox < 15) lowItems.push(`<i class="fa-solid fa-box"></i> Box Packing: <b>${stokBox} pcs</b>`);
-  
   // Aturan untuk parfum tetap di bawah 5 (Jika ingin diubah ke 15, ganti angka 5 di bawah)
   barang.forEach(b => {
     if (b.stok < 5) lowItems.push(`<i class="fa-solid fa-flask"></i> ${b.nama}: <b>${b.stok} pcs</b>`);
@@ -925,7 +1019,6 @@ function customAlert(title, message, type = 'primary') {
     btnContainer.style.gridTemplateColumns = "1fr";
     btnContainer.innerHTML = `<button id="dialogBtnOk" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">OK</button>`;
     modal.style.display = "flex";
-
     document.getElementById("dialogBtnOk").onclick = () => {
       modal.style.display = "none";
       resolve();
@@ -1108,7 +1201,6 @@ async function testPrint() {
     ESC + 'a' + '\x01' + 
     "KONEKSI PRINTER BERHASIL!\n" +
     ESC + 'a' + '\x00' + 
-   
     "--------------------------------\n\n\n\n";
   await kirimTeksKePrinter(text);
   customAlert("Sukses", "Struk test berhasil dicetak ke printer!", "success");
@@ -1327,7 +1419,6 @@ function renderWeeklyChart() {
           data: dataOmzet,
           borderColor: lineColor,
           backgroundColor: bgColor,
-       
           borderWidth: 2,
           tension: 0.3,
           fill: true
@@ -1647,8 +1738,7 @@ function render(){
   
   let elListPesan = document.getElementById("listPesanPending");
   if (elListPesan) {
-    elListPesan.innerHTML = pesanan.length > 0 ?
-    pesanan.map(p => {
+    elListPesan.innerHTML = pesanan.length > 0 ? pesanan.map(p => {
       let cleanLabel = p.target;
       if (p.target === "LOGISTIK_BOTOL") cleanLabel = "<i class='fa-solid fa-wine-bottle'></i> BOTOL KOSONG";
       if (p.target === "LOGISTIK_BOX") cleanLabel = "<i class='fa-solid fa-box'></i> BOX PACKING";
@@ -1657,15 +1747,15 @@ function render(){
       let tglStr = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0');
       
       return `
-      <div style="background:var(--bg-card); border:1px solid #fcd34d; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow-sm);">
-        <div style="text-align:left;">
-          <span style="font-size:10px; color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-calendar-days"></i> ${tglStr} â¢ MENUNGGU FISIK</span><br>
-          <b style="font-size:13px; color:var(--text-main); display:inline-block; margin:2px 0;">${cleanLabel}</b><br>
+      <div style="background:var(--bg-card); border:1px solid #fcd34d; padding:16px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow-sm); margin-bottom:12px;">
+        <div style="text-align:left; flex:1;">
+          <span style="font-size:10px; color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-calendar-days"></i> ${tglStr} &nbsp; <i class="fa-solid fa-hourglass-half"></i> MENUNGGU FISIK</span><br>
+          <b style="font-size:13px; color:var(--text-main); display:inline-block; margin:4px 0;">${cleanLabel}</b><br>
           <span style="color:var(--accent); font-weight:900; font-size:14px;">+ ${p.qty} Pcs</span>
         </div>
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <button onclick="terimaPesanan(${p.id})" style="padding:6px 10px; background:var(--success); border-radius:6px; font-size:11px; width:auto; box-shadow:none;"><i class="fa-solid fa-circle-check"></i> Terima</button>
-          <button onclick="hapusPesanan(${p.id})" style="padding:4px 10px; background:transparent; border:1px solid var(--danger); color:var(--danger); border-radius:6px; font-size:10px; width:auto; box-shadow:none;">Batal</button>
+        <div style="display:flex; flex-direction:column; gap:8px; width:85px; flex-shrink:0;">
+          <button onclick="terimaPesanan(${p.id})" style="padding:8px 0; background:var(--success); border-radius:8px; font-size:11px; width:100%; box-shadow:none; margin:0; font-weight:bold; border:none; color:#fff;"><i class="fa-solid fa-circle-check"></i> Terima</button>
+          <button onclick="hapusPesanan(${p.id})" style="padding:8px 0; background:transparent; border:1px solid var(--danger); color:var(--danger); border-radius:8px; font-size:11px; width:100%; box-shadow:none; margin:0; font-weight:bold;"><i class="fa-solid fa-xmark"></i> Batal</button>
         </div>
       </div>
       `;
@@ -1719,7 +1809,6 @@ function render(){
   jualHariIni.forEach(x => { if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; });
   let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
   document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
-  
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
@@ -1744,7 +1833,6 @@ function render(){
       <div class="product-badge-qty">${x[1]} Pcs</div>
     </div>
   `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
-  
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
@@ -1782,16 +1870,18 @@ function render(){
     let colorPredict = "var(--success)";
     let textPredict = "<i class='fa-solid fa-circle-check'></i> Aman (>30 hari)";
     if (x.stok === 0) {
-      colorPredict = "var(--danger)"; textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
+      colorPredict = "var(--danger)";
+      textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
     } else if (prediksiHabisHari < 7) { 
       colorPredict = "var(--danger)";
-      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Â± Habis dalam ${prediksiHabisHari} hari`; 
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ± Habis dalam ${prediksiHabisHari} hari`;
     } else if (prediksiHabisHari < 14) { 
       colorPredict = "var(--warning)";
-      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> Â± Habis dalam ${prediksiHabisHari} hari`; 
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ± Habis dalam ${prediksiHabisHari} hari`;
     } else if (prediksiHabisHari <= 30) { 
       colorPredict = "#eab308";
-      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> Â± Habis dalam ${prediksiHabisHari} hari`; // Kuning gelap
+      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ± Habis dalam ${prediksiHabisHari} hari`;
+      // Kuning gelap
     }
     
     let trenMeroket = false;
@@ -1826,6 +1916,7 @@ function render(){
           ${aiCardHtml}
         </div>  
      
+      
         <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; gap:6px; align-items:center;">
             <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
@@ -1834,6 +1925,7 @@ function render(){
             </select>
           </div>
          
+ 
           <div style="display:flex; gap:6px;">
             <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;"><i class="fa-solid fa-bolt"></i> Jual</button>
             <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
@@ -1863,14 +1955,12 @@ function render(){
     
     let rankHarian = Object.entries(mapHarian).sort((a,b) => b[1].qty - a[1].qty);
     let htmlPenjualan = rankHarian.length > 0 
-      ?
-      rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('')
+      ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('')
       : '<li>Belum ada penjualan</li>';
-      let htmlPengeluaran = eH.length > 0
-      ?
-      eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('')
+    let htmlPengeluaran = eH.length > 0
+      ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('')
       : '<li>Tidak ada pengeluaran</li>';
-      summaryHarian.innerHTML = `
+    summaryHarian.innerHTML = `
       <div style="background: var(--primary-light); padding:12px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; flex-direction:column; gap:8px;">
         <div style="display:flex; justify-content:space-between;">
           <span><i class="fa-solid fa-box"></i> Total Terjual Hari Ini:</span>
@@ -1878,7 +1968,7 @@ function render(){
         </div>
         <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;">
           <span><i class="fa-solid fa-money-bill-wave"></i> Total Pendapatan:</span>
-        
+    
           <span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span>
         </div>
       </div>
@@ -2009,8 +2099,7 @@ function render(){
   let sisaHariDalamBulan = Math.max(1, totalHariBulanIni - hariBerjalan);
   
   let avgPcsPerDay = currentPcs / hariBerjalan;
-  let reqPcsPerDay = sisaTarget > 0 ? Math.ceil(sisaTarget / sisaHariDalamBulan) : 
-  0;
+  let reqPcsPerDay = sisaTarget > 0 ? Math.ceil(sisaTarget / sisaHariDalamBulan) : 0;
   
   let estTercapaiTeks = "-";
   if (sisaTarget === 0 && currentPcs >= targetBulanIni) {
