@@ -450,43 +450,6 @@ input:focus, select:focus { border-color: var(--primary); background: var(--bg-c
 .stok-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px; border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
-.quick-grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
-}
-
-.quick-card{
-background:var(--bg-card);
-border:1px solid #e2e8f0;
-border-radius:14px;
-padding:12px 6px;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-height:78px;
-cursor:pointer;
-box-shadow:var(--shadow-sm);
-transition:.2s;
-}
-
-.quick-card:active{
-transform:scale(.96);
-}
-
-.quick-card i{
-font-size:20px;
-color:var(--primary);
-margin-bottom:6px;
-}
-
-.quick-card span{
-font-size:10px;
-font-weight:700;
-line-height:1.2;
-text-align:center;
-}
 
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0;
@@ -574,34 +537,6 @@ body.dark-theme #summaryBulanan {
 <div class="main-sheet">
 
   <div id="tab-beranda" class="tab-content active">
-    <div class="card">
-<h3><i class="fa-solid fa-bolt"></i> AKSES CEPAT</h3>
-
-<div class="quick-grid">
-
-<div class="quick-card" onclick="shortcutRestock()">
-<i class="fa-solid fa-box-open"></i>
-<span>Restock</span>
-</div>
-
-<div class="quick-card" onclick="editLogistik('botol')">
-<i class="fa-solid fa-wine-bottle"></i>
-<span>Botol</span>
-</div>
-
-<div class="quick-card" onclick="editLogistik('box')">
-<i class="fa-solid fa-box"></i>
-<span>Box</span>
-</div>
-
-<div class="quick-card" onclick="shortcutKasir()">
-<i class="fa-solid fa-cart-shopping"></i>
-<span>Kasir</span>
-</div>
-
-</div>
-</div>
-</div>
     <div class="card" style="background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-card) 100%);">
       <h3><i class="fa-solid fa-bolt"></i> PERFORMA HARI INI</h3>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:12px;">
@@ -673,8 +608,8 @@ body.dark-theme #summaryBulanan {
       <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:var(--bg-card); border-color: var(--primary);">
     </div>
 
-    <div class="card" id="panelKasir">
-<h3><i class="fa-solid fa-cart-shopping"></i> PANEL KASIR INSTAN</h3>
+    <div class="card">
+      <h3><i class="fa-solid fa-cart-shopping"></i> PANEL KASIR INSTAN</h3>
       <div class="search-container">
         <input id="cariBarangInput" placeholder="Cari nama varian parfum..." oninput="handleSearchInput()">
         <button id="btnClearSearch" class="btn-clear-search" onclick="clearSearchField()"><i class="fa-solid fa-xmark"></i></button>
@@ -689,7 +624,7 @@ body.dark-theme #summaryBulanan {
       <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
     </div>
 
-    <div class="card" id="panelRestock" style="border: 1px solid #fcd34d;">
+    <div class="card" style="border: 1px solid #fcd34d;">
       <h3 style="color: var(--accent);"><i class="fa-solid fa-truck"></i> RE-STOCK LOGISTIK & VARIAN</h3>
       <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px; margin-bottom:10px;">
         <select id="targetPesan" style="margin:0; text-align:left; text-align-last:left; background:var(--bg-card);"></select>
@@ -2107,45 +2042,7 @@ function render(){
     `;
   }
 }
-function shortcutRestock(){
 
-switchTab("kasir");
-
-setTimeout(()=>{
-
-document
-.getElementById("panelRestock")
-.scrollIntoView({
-
-behavior:"smooth",
-
-block:"start"
-
-});
-
-},250);
-
-}
-
-function shortcutKasir(){
-
-switchTab("kasir");
-
-setTimeout(()=>{
-
-document
-.getElementById("panelKasir")
-.scrollIntoView({
-
-behavior:"smooth",
-
-block:"start"
-
-});
-
-},250);
-
-}
 loadDataFromCloud();
 </script>
 </body>
