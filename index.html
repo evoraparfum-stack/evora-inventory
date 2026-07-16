@@ -227,10 +227,10 @@ html, body {
   transition: all 0.2s;
 }
 
-/* PILLS CONTAINER - GRID 4 KOLOM SIMETRIS */
+/* PILLS CONTAINER - GRID 3 KOLOM SIMETRIS */
 .pills-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin-top: 25px;
   padding-bottom: 5px;
@@ -527,11 +527,11 @@ body.dark-theme #summaryBulanan {
     </div>
   </div>
 
- <div class="pills-container">
-  <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol" class="shimmer-text">0</span></button>
-  <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox" class="shimmer-text">0</span></button>
-  <div class="premium-pill">Total Varian: <span id="totalBarang">0</span></div>
-  <button class="premium-pill" onclick="aksesRestock()" style="background: var(--accent); color: white;">&#128666; Restock</button>
+  <div class="pills-container">
+    <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol" class="shimmer-text">0</span></button>
+    <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox" class="shimmer-text">0</span></button>
+    <div class="premium-pill">Total Varian: <span id="totalBarang">0</span></div>
+  </div>
 </div>
 
 <div class="main-sheet">
@@ -624,8 +624,8 @@ body.dark-theme #summaryBulanan {
       <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
     </div>
 
-    <div id="section-restock" class="card" style="border: 1px solid #fcd34d;">
-  <h3 style="color: var(--accent);">&#128666; RE-STOCK LOGISTIK & VARIAN</h3>
+    <div class="card" style="border: 1px solid #fcd34d;">
+      <h3 style="color: var(--accent);"><i class="fa-solid fa-truck"></i> RE-STOCK LOGISTIK & VARIAN</h3>
       <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px; margin-bottom:10px;">
         <select id="targetPesan" style="margin:0; text-align:left; text-align-last:left; background:var(--bg-card);"></select>
         <input id="qtyPesan" type="number" placeholder="Qty" style="margin:0; background:var(--bg-card);">
@@ -1659,7 +1659,7 @@ function render(){
       return `
       <div style="background:var(--bg-card); border:1px solid #fcd34d; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow-sm);">
         <div style="text-align:left;">
-          <span style="font-size:10px; color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-calendar-days"></i> ${tglStr} • MENUNGGU FISIK</span><br>
+          <span style="font-size:10px; color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-calendar-days"></i> ${tglStr} â¢ MENUNGGU FISIK</span><br>
           <b style="font-size:13px; color:var(--text-main); display:inline-block; margin:2px 0;">${cleanLabel}</b><br>
           <span style="color:var(--accent); font-weight:900; font-size:14px;">+ ${p.qty} Pcs</span>
         </div>
@@ -1785,13 +1785,13 @@ function render(){
       colorPredict = "var(--danger)"; textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
     } else if (prediksiHabisHari < 7) { 
       colorPredict = "var(--danger)";
-      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ± Habis dalam ${prediksiHabisHari} hari`; 
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Â± Habis dalam ${prediksiHabisHari} hari`; 
     } else if (prediksiHabisHari < 14) { 
       colorPredict = "var(--warning)";
-      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ± Habis dalam ${prediksiHabisHari} hari`; 
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> Â± Habis dalam ${prediksiHabisHari} hari`; 
     } else if (prediksiHabisHari <= 30) { 
       colorPredict = "#eab308";
-      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ± Habis dalam ${prediksiHabisHari} hari`; // Kuning gelap
+      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> Â± Habis dalam ${prediksiHabisHari} hari`; // Kuning gelap
     }
     
     let trenMeroket = false;
@@ -2041,28 +2041,7 @@ function render(){
       <div style="display:flex; justify-content:space-between;"><span>Estimasi Target Tercapai:</span> <b style="color:var(--primary);">${estTercapaiTeks}</b></div>
     `;
   }
-
-function aksesRestock() {
-  // Pindah secara programmatif ke tab kasir
-  switchTab('kasir');
-  
-  // Beri jeda singkat 250ms agar tab terbuka sepenuhnya sebelum digulir ke bawah
-  setTimeout(() => {
-    const el = document.getElementById('section-restock');
-    if (el) {
-      // Menggulirkan layar secara halus (smooth) agar card berada di tengah layar
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
-      // Efek visual highlight: Memberikan outline warna amber/oranye agar fokus mata langsung ke card restock
-      el.style.outline = '3px solid var(--accent)';
-      el.style.transition = 'outline 0.3s ease';
-      setTimeout(() => {
-        el.style.outline = 'none';
-      }, 1500);
-    }
-  }, 250);
 }
-
 
 loadDataFromCloud();
 </script>
