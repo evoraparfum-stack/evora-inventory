@@ -1628,7 +1628,7 @@ function render(){
   
   let stBadge = document.getElementById("aiStatusVal");
   if(globalAIForecast.butuhCampaign) { stBadge.innerText = "â  Perlu Campaign"; stBadge.style.background = "var(--danger)"; stBadge.style.color = "#fff"; }
-  else { stBadge.innerText = "â Target Aman"; stBadge.style.background = "var(--success)"; stBadge.style.color = "#fff"; }
+  else { stBadge.innerText = "Target Aman"; stBadge.style.background = "var(--success)"; stBadge.style.color = "#fff"; }
   
   document.getElementById("aiPrioritasList").innerHTML = globalAIForecast.prioritas.length > 0 ? globalAIForecast.prioritas.map(p => `<li>${p}</li>`).join('') : '<li>Tidak ada prioritas mendesak</li>';
   
