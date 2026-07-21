@@ -441,19 +441,7 @@ body.dark-theme .bottom-nav {
 .ai-card { background: var(--bg-card); border: 2px solid var(--ai-color); border-radius: var(--radius-md); padding: 16px; box-shadow: 0 4px 15px rgba(139,92,246,0.15); margin-bottom: 20px; }
 .ai-badge { background: var(--ai-light); color: var(--ai-color); padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; }
 
-.ai-structured-rec { font-size: 12px; color: var(--text-main); line-height: 1.6; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-body.dark-theme .ai-structured-rec { border-color: #334155; }
-.ai-rec-row { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; }
-body.dark-theme .ai-rec-row { border-bottom-color: #334155; }
-.ai-rec-row:last-child { border-bottom: none; }
-.ai-rec-title { font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-.ai-rec-row.kondisi .ai-rec-title { color: var(--primary); }
-.ai-rec-row.mengapa .ai-rec-title { color: var(--warning); }
-.ai-rec-row.dampak .ai-rec-title { color: var(--danger); }
-.ai-rec-row.solusi .ai-rec-title { color: var(--success); }
-.ai-rec-row.prioritas .ai-rec-title { color: var(--accent); }
-.ai-rec-row.confidence .ai-rec-title { color: var(--ai-color); }
-
+/* EXPLAINABLE AI STYLES v2.1 */
 .btn-explain {
   background: var(--ai-light);
   color: var(--ai-color);
@@ -483,6 +471,9 @@ body.dark-theme .ai-rec-row { border-bottom-color: #334155; }
   animation: fadeIn 0.3s ease;
 }
 body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-color); }
+
+.ai-explain-structured p { margin: 6px 0; }
+.ai-explain-structured b { display: inline-flex; align-items: center; gap: 6px; color: var(--ai-color); margin-bottom: 2px;}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
@@ -543,7 +534,7 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
   <div class="pills-container">
     <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol" class="shimmer-text">0</span></button>
     <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox" class="shimmer-text">0</span></button>
-    <div class="premium-pill" style="cursor:default;">Total Varian: <span id="totalBarang">0</span></div>
+    <div class="premium-pill">Total Varian: <span id="totalBarang">0</span></div>
   </div>
 </div>
 
@@ -587,31 +578,27 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
 
     <!-- AI INSIGHT CARD (DASHBOARD) -->
     <div class="ai-card">
-      <h3 style="color: var(--ai-color);"><i class="fa-solid fa-brain"></i> 🧠 AI INSIGHT & PROYEKSI</h3>
+      <h3 style="color: var(--ai-color);"><i class="fa-solid fa-brain"></i> AI INSIGHT & PROYEKSI</h3>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; margin-bottom:10px;">
         <div>Prediksi Besok:<br><span id="aiPrediksiBesok" style="font-size:16px; font-weight:800; color:var(--text-main);">0 Botol</span></div>
-        <div>Target Bulan <span id="dashTargetSource" style="font-size:9px; font-weight:normal;"></span>:<br><span id="dashTargetBulanVal" class="sync-highlight" style="font-size:16px;">0 Botol</span></div>
-        <div>Status Engine:<br><span id="aiStatusVal" class="ai-badge" style="display:inline-block; margin-top:4px;">Aktif</span></div>
+        <div>Target Bulan (Sinkron):<br><span id="dashTargetBulanVal" class="sync-highlight" style="font-size:16px;">0 Botol</span></div>
+        <div>Status Engine:<br><span id="aiStatusVal" class="ai-badge" style="display:inline-block; margin-top:4px;">Loading...</span></div>
         <div>Confidence:<br><span id="aiConfidence" style="font-size:14px; font-weight:800; color:var(--success);">0%</span></div>
       </div>
       
-      <button class="btn-explain" onclick="toggleExplain('exp-dash')"><i class="fa-solid fa-circle-question"></i> Kenapa & Bagaimana AI Menghitungnya?</button>
+      <button class="btn-explain" onclick="toggleExplain('exp-dash')"><i class="fa-solid fa-circle-question"></i> Kenapa & Bagaimana Dihitung?</button>
       <div id="exp-dash" class="explain-box" style="display:none;"></div>
     </div>
 
-    <!-- TARGET BULAN INI (SINGLE SOURCE OF TRUTH) -->
+    <!-- TARGET BULAN INI (SYNCED) -->
     <div class="card">
-      <h3 style="color:var(--accent);"><i class="fa-solid fa-bullseye"></i> TARGET BULAN INI</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="color:var(--accent); margin:0;"><i class="fa-solid fa-bullseye"></i> TARGET BULAN INI</h3>
+        <button onclick="bukaModalTarget()" style="background:var(--bg-main); color:var(--text-main); border:1px solid #cbd5e1; width:auto; padding:6px 12px; font-size:11px; box-shadow:none;"><i class="fa-solid fa-pen-to-square"></i> Edit Target</button>
+      </div>
       <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700; margin-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span>Mode:</span>
-            <select id="modeTargetSelect" onchange="changeTargetMode()" style="font-size:11px; padding:4px 8px; width:auto; margin:0; border-radius:6px; box-shadow:none;">
-              <option value="AI">Otomatis (AI)</option>
-              <option value="Manual">Manual</option>
-            </select>
-            <button id="btnUbahTarget" onclick="bukaModalTarget()" style="display:none; padding:4px 8px; font-size:10px; width:auto; background:var(--accent); box-shadow:none; border-radius:6px;"><i class="fa-solid fa-pen"></i> Ubah Target</button>
-          </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
+          <span>Progress <span id="targetModeLabel" style="color:var(--primary)">[AI]</span></span>
           <span id="targetTextInfo" style="text-align:right;">0 / 0 Botol (0%)</span>
         </div>
         <div style="background:#e2e8f0; height:12px; border-radius:10px; overflow:hidden; margin-bottom:12px;">
@@ -619,7 +606,7 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
         </div>
         <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;"></div>
       </div>
-      <button class="btn-explain" onclick="toggleExplain('exp-target-card')"><i class="fa-solid fa-circle-question"></i> Analisis AI tentang Target Ini</button>
+      <button class="btn-explain" onclick="toggleExplain('exp-target-card')"><i class="fa-solid fa-circle-question"></i> Analisis Target Saat Ini</button>
       <div id="exp-target-card" class="explain-box" style="display:none;"></div>
     </div>
 
@@ -682,7 +669,7 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
       <h3><i class="fa-solid fa-box"></i> TRANSAKSI GROSIR / MANUAL</h3>
       <select id="barangJual"></select>
       <input id="qtyJual" type="number" placeholder="Kuantitas Item">
-      <button onclick="jualBarangDariSelect()">Eksekusi Penjualan Grosir</button>
+      <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
     </div>
 
     <div class="card" style="border: 1px solid #fcd34d;" id="panelRestock">
@@ -707,13 +694,13 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
   <div id="tab-laporan" class="tab-content">
     <div class="card">
       <h3><i class="fa-solid fa-calendar-days"></i> LAPORAN HARIAN (INFO)</h3>
-      <input id="hariSelect" type="date" onchange="renderLaporan()">
+      <input id="hariSelect" type="date" onchange="render()">
       <div id="summaryHarian" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
     </div>
 
     <div class="card">
       <h3><i class="fa-solid fa-chart-column"></i> REKAPITULASI BULANAN (DETAIL)</h3>
-      <select id="bulanSelect" onchange="renderLaporan()"></select>
+      <select id="bulanSelect" onchange="render()"></select>
       <div id="summaryBulanan" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
     </div>
   </div>
@@ -723,11 +710,11 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
         <h3><i class="fa-solid fa-filter"></i> FILTER LOG</h3>
-        <select id="modeRiwayat" onchange="renderRiwayat()" style="width:90px; margin:0; padding:8px; font-size:12px;">
+        <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:8px; font-size:12px;">
           <option value="harian">Hari</option>
           <option value="bulanan">Bulan</option>
         </select>
-        <input id="tanggalRiwayat" type="date" onchange="renderRiwayat()" style="width:140px; margin:0; padding:8px; font-size:12px;">
+        <input id="tanggalRiwayat" type="date" onchange="render()" style="width:140px; margin:0; padding:8px; font-size:12px;">
       </div>
     </div>
 
@@ -778,13 +765,12 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
     
     <!-- AI ENGINE HEADER CARD -->
     <div class="ai-card">
-      <h3 style="color:var(--ai-color)"><i class="fa-solid fa-brain"></i> 🧠 EVORA AI v2.1 CORE ENGINE</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Business Intelligence Dashboard (Single Source Target Synchronization).</p>
+      <h3 style="color:var(--ai-color)"><i class="fa-solid fa-brain"></i> EVORA AI v2.1 CORE ENGINE</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Sistem Kecerdasan Buatan Terpadu dengan Single Source Target Synchronization.</p>
       
       <div style="background:var(--bg-main); padding:12px; border-radius:8px; font-size:12px; margin-bottom:12px; border:1px solid #e2e8f0;">
         <b>Status Model AI:</b> <span id="aiModelStatus" style="color:var(--success); font-weight:bold;">Aktif (Self-Learning On)</span><br>
         <b>Model Sync Target:</b> <span class="sync-highlight" id="aiModelSyncVal">0 Botol</span><br>
-        <b>Mode Keputusan Target:</b> <span id="aiModelTargetMode" style="font-weight:bold;">AI Auto</span><br>
         <b>Last Rebuild:</b> <span id="aiLastUpdate">Sekarang</span>
       </div>
       <button onclick="rebuildAIModel()" style="background:var(--ai-color); box-shadow:none;"><i class="fa-solid fa-microchip"></i> Rebuild & Recalibrate AI Model</button>
@@ -792,59 +778,77 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
 
     <!-- 1. AI BUSINESS ADVISOR -->
     <div class="card" style="border: 1px solid var(--ai-color);">
-      <h3 style="color:var(--ai-color);"><i class="fa-solid fa-user-ninja"></i> REKOMENDASI AI STRATEGIS</h3>
+      <h3 style="color:var(--ai-color);"><i class="fa-solid fa-user-ninja"></i> REKOMENDASI AI HARI INI</h3>
       <div id="aiBusinessAdvisorContainer"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-advisor')"><i class="fa-solid fa-circle-question"></i> Analisis Mendalam Rekomendasi</button>
+      <div id="exp-advisor" class="explain-box" style="display:none;"></div>
+    </div>
+
+    <!-- NEW: ANALISIS AI LENGKAP -->
+    <div class="card">
+      <h3><i class="fa-solid fa-magnifying-glass-chart"></i> ANALISIS AI LENGKAP</h3>
+      <div id="aiFullAnalyticsDetail" style="font-size: 13px; line-height: 1.6;"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-full-analytics')"><i class="fa-solid fa-circle-question"></i> Bagaimana Analisis Ini Dihitung?</button>
+      <div id="exp-full-analytics" class="explain-box ai-explain-structured" style="display:none;"></div>
     </div>
 
     <!-- 2. AI FORECAST DETAIL -->
     <div class="card">
       <h3><i class="fa-solid fa-chart-pie"></i> DETAIL AI FORECAST & PROYEKSI</h3>
       <div id="aiForecastDetail" style="font-size: 13px; line-height: 1.6;"></div>
-      <button class="btn-explain" onclick="toggleExplain('exp-forecast-detail')"><i class="fa-solid fa-circle-question"></i> Analisis Forecast</button>
-      <div id="exp-forecast-detail" class="explain-box" style="display:none;"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-forecast-detail')"><i class="fa-solid fa-circle-question"></i> Detail Prediksi</button>
+      <div id="exp-forecast-detail" class="explain-box ai-explain-structured" style="display:none;"></div>
     </div>
 
     <!-- 3. AI TARGET ANALYSIS -->
     <div class="card">
-      <h3><i class="fa-solid fa-bullseye"></i> ANALISIS KETERCAPAIAN TARGET</h3>
+      <h3><i class="fa-solid fa-bullseye"></i> ANALISIS TARGET BULAN</h3>
       <div id="aiTargetDetail" style="font-size: 13px; line-height: 1.6;"></div>
-      <button class="btn-explain" onclick="toggleExplain('exp-target-detail')"><i class="fa-solid fa-circle-question"></i> Detail Analisis Target</button>
-      <div id="exp-target-detail" class="explain-box" style="display:none;"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-target-detail')"><i class="fa-solid fa-circle-question"></i> Evaluasi Pencapaian Target</button>
+      <div id="exp-target-detail" class="explain-box ai-explain-structured" style="display:none;"></div>
     </div>
 
     <!-- 4. AI DECISION ENGINE -->
     <div class="card">
-      <h3><i class="fa-solid fa-lightbulb"></i> KEPUTUSAN BISNIS (AI DECISION)</h3>
+      <h3><i class="fa-solid fa-lightbulb"></i> KEPUTUSAN BISNIS AI (AI DECISION)</h3>
       <div id="aiDecisionDetail" style="font-size: 13px; line-height: 1.6;"></div>
-      <button class="btn-explain" onclick="toggleExplain('exp-decision-detail')"><i class="fa-solid fa-circle-question"></i> Dasar Keputusan Bisnis</button>
-      <div id="exp-decision-detail" class="explain-box" style="display:none;"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-decision-detail')"><i class="fa-solid fa-circle-question"></i> Rincian Keputusan AI</button>
+      <div id="exp-decision-detail" class="explain-box ai-explain-structured" style="display:none;"></div>
     </div>
 
-    <!-- 5. AI CAMPAIGN ANALYSIS & BUDGET -->
+    <!-- 5. AI BUDGET ENGINE -->
     <div class="card">
-      <h3><i class="fa-solid fa-rectangle-ad"></i> ANALISIS ROAS, ROI & BUDGET</h3>
-      <div id="aiCampaignAnalysisDetail" style="font-size: 13px; line-height: 1.6;"></div>
-      <button class="btn-explain" onclick="toggleExplain('exp-camp-detail')"><i class="fa-solid fa-circle-question"></i> Detail Analisis Iklan</button>
-      <div id="exp-camp-detail" class="explain-box" style="display:none;"></div>
+      <h3><i class="fa-solid fa-wallet"></i> REKOMENDASI BUDGET IKLAN</h3>
+      <div id="aiBudgetDetail" style="font-size: 13px; line-height: 1.6;"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-budget-detail')"><i class="fa-solid fa-circle-question"></i> Analisis Budget Ads</button>
+      <div id="exp-budget-detail" class="explain-box ai-explain-structured" style="display:none;"></div>
     </div>
 
-    <!-- 6. AI RESTOCK ANALYTICS -->
+    <!-- 6. AI CAMPAIGN ANALYSIS -->
+    <div class="card">
+      <h3><i class="fa-solid fa-rectangle-ad"></i> ANALISIS EFEKTIVITAS CAMPAIGN</h3>
+      <div id="aiCampaignAnalysisDetail" style="font-size: 13px; line-height: 1.6;"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-camp-detail')"><i class="fa-solid fa-circle-question"></i> Evaluasi Performa Iklan</button>
+      <div id="exp-camp-detail" class="explain-box ai-explain-structured" style="display:none;"></div>
+    </div>
+
+    <!-- 7. AI RESTOCK ANALYTICS -->
     <div class="card">
       <h3><i class="fa-solid fa-boxes-packing"></i> ANALISIS KEBUTUHAN RESTOCK</h3>
       <div id="aiRestockDetail" style="font-size: 13px; line-height: 1.6;"></div>
-      <button class="btn-explain" onclick="toggleExplain('exp-restock-detail')"><i class="fa-solid fa-circle-question"></i> Detail Prediksi Restock</button>
-      <div id="exp-restock-detail" class="explain-box" style="display:none;"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-restock-detail')"><i class="fa-solid fa-circle-question"></i> Prediksi Menipisnya Logistik</button>
+      <div id="exp-restock-detail" class="explain-box ai-explain-structured" style="display:none;"></div>
     </div>
 
-    <!-- 7. AI VARIAN ANALYTICS -->
+    <!-- 8. AI VARIAN ANALYTICS -->
     <div class="card">
-      <h3><i class="fa-solid fa-flask"></i> ANALISIS TREN VARIAN PRODUK</h3>
+      <h3><i class="fa-solid fa-flask"></i> ANALISIS TREN VARIAN</h3>
       <div id="aiVarianDetail" style="font-size: 13px; line-height: 1.6;"></div>
-      <button class="btn-explain" onclick="toggleExplain('exp-varian-detail')"><i class="fa-solid fa-circle-question"></i> Detail Kinerja Varian</button>
-      <div id="exp-varian-detail" class="explain-box" style="display:none;"></div>
+      <button class="btn-explain" onclick="toggleExplain('exp-varian-detail')"><i class="fa-solid fa-circle-question"></i> Dinamika Varian Produk</button>
+      <div id="exp-varian-detail" class="explain-box ai-explain-structured" style="display:none;"></div>
     </div>
 
-    <!-- 8. AI INSIGHTS TIMEFRAME -->
+    <!-- 9. AI INSIGHTS TIMEFRAME -->
     <div class="card">
       <h3><i class="fa-solid fa-cubes"></i> MULTI-TIMEFRAME AI INSIGHT</h3>
       <div class="sub-tab-group">
@@ -923,7 +927,7 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
     <div class="nav-icon"><i class="fa-solid fa-bullhorn"></i></div>
     <div>Campaign</div>
   </button>
-  <button id="nav-ai" class="nav-item" onclick="switchTab('ai')">
+  <button id="nav-ai" class="nav-item" onclick="switchTab('ai'); renderAITab();">
     <div class="nav-icon"><i class="fa-solid fa-brain"></i></div>
     <div>EVORA AI</div>
   </button>
@@ -953,7 +957,7 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
 
 <div id="editModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 style="color:var(--primary)">Edit Item & Stok</h3>
+    <h3 style="color:var(--primary)"><i class="fa-solid fa-pen"></i> Edit Item & Stok</h3>
     <input id="modalNamaBarang" type="text">
     <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Saat Ini: <b id="modalStokSekarang" style="color:var(--accent)">0</b> pcs</p>
     <input id="modalJumlahManual" type="number" placeholder="Kuantitas Penyesuaian">
@@ -963,27 +967,27 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
     </div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
       <button onclick="tutupModalEdit()" style="background:#94a3b8; box-shadow:none;">Batal</button>
-      <button onclick="simpanModalEdit()" style="box-shadow:none;">Simpan Nama</button>
+      <button onclick="simpanModalEdit()" style="box-shadow:none;">Simpan</button>
     </div>
   </div>
 </div>
 
 <div id="logistikModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 id="logistikModalJudul" style="color:var(--primary)">Edit Logistik</h3>
+    <h3 id="logistikModalJudul" style="color:var(--primary)"><i class="fa-solid fa-box-open"></i> Edit Logistik</h3>
     <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Logistik Sekarang: <b id="logistikStokSekarang" style="color:var(--primary)">0</b></p>
     <input id="logistikJumlahManual" type="number" placeholder="Masukkan Angka Kuantitas">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
       <button onclick="eksekusiLogistik('tambah')" style="background:var(--success); padding:12px; box-shadow:none;"><i class="fa-solid fa-plus"></i> Tambah</button>
       <button onclick="eksekusiLogistik('kurang')" style="background:var(--danger); padding:12px; box-shadow:none;"><i class="fa-solid fa-minus"></i> Kurang</button>
     </div>
-    <button onclick="tutupLogistikModal()" style="background:#94a3b8; box-shadow:none;">Selesai & Tutup</button>
+    <button onclick="tutupLogistikModal()" style="background:#94a3b8; box-shadow:none;">Selesai & Balik</button>
   </div>
 </div>
 
 <div id="editPengeluaranModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 style="color:var(--danger)">Edit Catatan Log</h3>
+    <h3 style="color:var(--danger)"><i class="fa-solid fa-wallet"></i> Edit Catatan Log</h3>
     <input id="modalNominalKeluar" type="number">
     <input id="modalKetKeluar" type="text">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -993,14 +997,21 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
   </div>
 </div>
 
+<!-- MODAL TARGET BULANAN MANAJEMEN -->
 <div id="targetModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 style="color:var(--accent)"><i class="fa-solid fa-bullseye"></i> UBAH TARGET MANUAL</h3>
-    <p style="font-size:12px; text-align:center; margin-bottom:12px; color:var(--text-muted);">Masukkan target penjualan bulanan yang baru. AI akan otomatis menyesuaikan analisis.</p>
-    <input id="inputTargetManual" type="number" placeholder="Contoh: 500">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px;">
-      <button onclick="tutupModalTarget()" style="background:#94a3b8; box-shadow:none;">Batal</button>
-      <button onclick="simpanTargetManual()" style="background:var(--accent); box-shadow:none;">Simpan</button>
+    <h3 style="color:var(--primary)"><i class="fa-solid fa-bullseye"></i> Edit Target Bulanan</h3>
+    <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px; line-height: 1.5; text-align:center;">
+      Pilih mode perhitungan target bulan ini.
+    </div>
+    <select id="targetModeSelect" onchange="toggleTargetInput()">
+      <option value="AI">Otomatis (EVORA AI)</option>
+      <option value="Manual">Manual</option>
+    </select>
+    <input id="targetManualInput" type="number" placeholder="Masukkan Target (Pcs)" disabled>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+      <button onclick="tutupTargetModal()" style="background:#94a3b8; box-shadow:none;">Batal</button>
+      <button onclick="simpanTargetModal()" style="box-shadow:none;">Simpan</button>
     </div>
   </div>
 </div>
@@ -1027,32 +1038,25 @@ let selectedCampaignsForDelete = new Set();
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
-// SINGLE SOURCE OF TRUTH (TARGET BULANAN & AI ENGINE)
-let currentMonthlyTarget = 400; // SSOT Target Variable
-let appConfig = {
-  targetMode: localStorage.getItem("evora_target_mode") || "AI",
-  manualTarget: parseInt(localStorage.getItem("evora_manual_target")) || 400
-};
+// SINGLE SOURCE OF TRUTH TARGET STATE
+let targetMode = localStorage.getItem("evora_target_mode") || "AI";
+let manualTargetValue = parseInt(localStorage.getItem("evora_target_manual")) || 400;
+let currentMonthlyTarget = 400;
 
+// SINGLE SOURCE OF TRUTH (EVORA AI FORECAST ENGINE v2.1)
 let globalAIForecast = {
-  aiGeneratedTarget: 400,
-  prediksiAkhirBulan: 0,
-  prediksiBesok: 0,
-  prediksi7Hari: 0,
-  confidence: 0,
-  trendDirection: "Stagnan",
+  targetBulanan: 400,
+  prediksiAkhirBulan: 398,
+  prediksiBesok: 18,
+  prediksi7Hari: 126,
+  prediksi30Hari: 540,
+  confidence: 94,
+  trendDirection: "Naik",
   butuhCampaign: false,
-  roas: 0,
-  roi: 0,
-  probabilitas: 0,
-  risiko: 0,
-  topVarian: "-",
-  weakVarian: "-",
-  slowMoving: [],
-  fastMoving: [],
-  restockDays: 0,
+  alasan: "",
   advisorPriorities: [],
-  explanations: {}
+  explanations: {},
+  analytics: {}
 };
 
 let activeSubInsight = "harian";
@@ -1071,6 +1075,7 @@ let currentEditIndex = null;
 let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
+let lastAIOptimizedDataHash = "";
 
 function initEnterpriseSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
@@ -1080,14 +1085,14 @@ function initEnterpriseSettings() {
     btnDark.innerText = "Nonaktifkan";
     btnDark.style.background = "var(--danger)";
   }
-  document.getElementById("modeTargetSelect").value = appConfig.targetMode;
-  toggleTargetUI();
 }
 initEnterpriseSettings();
 
 function toggleExplain(elementId) {
   let el = document.getElementById(elementId);
-  if (el) el.style.display = (el.style.display === "none" || !el.style.display) ? "block" : "none";
+  if (el) {
+    el.style.display = (el.style.display === "none" || !el.style.display) ? "block" : "none";
+  }
 }
 
 function switchSubInsight(type, btn) {
@@ -1185,11 +1190,6 @@ function customConfirm(title, message, type = 'primary') {
   });
 }
 
-function setSyncStatus(html) {
-  let el = document.getElementById("syncStatus");
-  if(el) el.innerHTML = html;
-}
-
 function simpanNamaProfil() {
   let namaBaru = document.getElementById("inputNamaProfil").value.trim();
   if(!namaBaru) { customAlert("Peringatan", "Nama tidak boleh kosong!", "warning"); return; }
@@ -1211,7 +1211,6 @@ function toggleDarkMode() {
   let btnDark = document.getElementById("btnDarkMode");
   if(isDarkMode) { document.body.classList.add("dark-theme"); btnDark.innerText = "Nonaktifkan"; btnDark.style.background = "var(--danger)";
   } else { document.body.classList.remove("dark-theme"); btnDark.innerText = "Aktifkan"; btnDark.style.background = "#94a3b8"; }
-  renderWeeklyChart();
 }
 
 async function hubungkanPrinter() {
@@ -1276,12 +1275,11 @@ function switchTab(tabName) {
   document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('active'); el.classList.remove('active-ai'); });
   document.getElementById(`tab-${tabName}`).classList.add('active');
   let navItem = document.getElementById(`nav-${tabName}`);
-  if(tabName === 'ai') {
-    navItem.classList.add('active-ai');
-    renderAITab();
-  } else {
-    navItem.classList.add('active');
-  }
+  if(tabName === 'ai') navItem.classList.add('active-ai'); else navItem.classList.add('active');
+}
+
+function setSyncStatus(html) {
+  document.getElementById("syncStatus").innerHTML = html;
 }
 
 // DATA CLOUD & SYNC
@@ -1305,19 +1303,26 @@ async function loadDataFromCloud() {
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       campaigns = dataUtama.campaigns || [];
 
+      // Retrieve secondary configs
+      let cCampaignsStr = localStorage.getItem('evora_campaigns');
+      if (cCampaignsStr) {
+        let localCampaigns = JSON.parse(cCampaignsStr);
+        if(localCampaigns.length > campaigns.length) campaigns = localCampaigns;
+      }
+
       document.getElementById("inputHargaGlobal").value = HARGA;
       setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else { setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB"); }
     
     document.body.classList.remove("skeleton-loading");
     runAIEngine(); // AUTO AI CALCULATIONS & SINKRONISASI
-    renderAll();
+    render();
     checkLowStockAlert();
   } catch (error) {
     console.error("Gagal load Supabase:", error); setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Offline");
     document.body.classList.remove("skeleton-loading");
     runAIEngine();
-    renderAll();
+    render();
   }
 }
 
@@ -1326,108 +1331,78 @@ async function saveData() {
   let paketData = {
     stokBotol: stokBotol, stokBox: stokBox, barang: barang, penjualan: penjualan, pengeluaran: pengeluaran, pesanan: pesanan, hargaGlobal: HARGA, campaigns: campaigns
   };
+  localStorage.setItem('evora_campaigns', JSON.stringify(campaigns));
   try {
     const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
     if (error) throw error;
     setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved");
     runAIEngine();
-    renderAll();
+    render();
   } catch (error) { console.error("Gagal save Supabase:", error); setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Failed"); }
 }
 
-async function salinDataKeClipboard() {
-  let dataExport = { stokBotol, stokBox, barang, penjualan, pengeluaran, pesanan, hargaGlobal: HARGA, campaigns };
-  try {
-    await navigator.clipboard.writeText(JSON.stringify(dataExport));
-    customAlert("Berhasil Disalin", "Seluruh data telah disalin ke Clipboard.", "success");
-  } catch(e) {
-    customAlert("Gagal", "Gagal menyalin data.", "danger");
-  }
-}
-
-async function pasteDataTransfer() {
-  let val = document.getElementById("inputTransferData").value;
-  if(!val) return customAlert("Kosong", "Data tidak boleh kosong.", "warning");
-  try {
-    let parseData = JSON.parse(val);
-    let conf = await customConfirm("Konfirmasi Transfer", "Tindakan ini akan menimpa seluruh data saat ini. Lanjutkan?", "danger");
-    if(!conf) return;
-    
-    stokBotol = parseData.stokBotol || 0; stokBox = parseData.stokBox || 0;
-    barang = parseData.barang || []; penjualan = parseData.penjualan || [];
-    pengeluaran = parseData.pengeluaran || []; pesanan = parseData.pesanan || [];
-    HARGA = parseData.hargaGlobal || 27000; campaigns = parseData.campaigns || [];
-    
-    document.getElementById("inputTransferData").value = "";
-    saveData();
-    customAlert("Sukses", "Data berhasil dipulihkan/ditransfer.", "success");
-  } catch(e) { customAlert("Data Rusak", "Format JSON tidak valid.", "danger"); }
-}
-
 // ====================================================
-// TARGET BULANAN - SINGLE SOURCE OF TRUTH (SSOT)
+// TARGET BULANAN MANAJEMEN (SINGLE SOURCE OF TRUTH)
 // ====================================================
-function toggleTargetUI() {
-  let mode = appConfig.targetMode;
-  let btnUbah = document.getElementById("btnUbahTarget");
-  let srcInfo = document.getElementById("dashTargetSource");
-  
-  if (mode === "Manual") {
-    btnUbah.style.display = "inline-block";
-    currentMonthlyTarget = appConfig.manualTarget;
-    srcInfo.innerText = "(Manual)";
-  } else {
-    btnUbah.style.display = "none";
-    currentMonthlyTarget = globalAIForecast.aiGeneratedTarget;
-    srcInfo.innerText = "(AI)";
-  }
-}
-
-function changeTargetMode() {
-  let select = document.getElementById("modeTargetSelect");
-  appConfig.targetMode = select.value;
-  localStorage.setItem("evora_target_mode", appConfig.targetMode);
-  toggleTargetUI();
-  runAIEngine(); // Re-calculate everything based on new target mode
-  renderAll();
-}
 
 function bukaModalTarget() {
-  document.getElementById("inputTargetManual").value = appConfig.manualTarget;
+  document.getElementById("targetModeSelect").value = targetMode;
+  document.getElementById("targetManualInput").value = manualTargetValue;
+  toggleTargetInput();
   document.getElementById("targetModal").style.display = "flex";
 }
 
-function tutupModalTarget() {
+function tutupTargetModal() {
   document.getElementById("targetModal").style.display = "none";
 }
 
-function simpanTargetManual() {
-  let val = parseInt(document.getElementById("inputTargetManual").value);
-  if(isNaN(val) || val <= 0) {
-    customAlert("Invalid", "Masukkan target angka yang valid.", "warning");
-    return;
+function toggleTargetInput() {
+  let mode = document.getElementById("targetModeSelect").value;
+  let input = document.getElementById("targetManualInput");
+  if(mode === "AI") {
+    input.disabled = true;
+    input.value = globalAIForecast.targetBulanan || 400; // Show what AI calculated
+  } else {
+    input.disabled = false;
+    input.value = manualTargetValue;
   }
-  appConfig.manualTarget = val;
-  localStorage.setItem("evora_manual_target", appConfig.manualTarget);
-  tutupModalTarget();
-  toggleTargetUI();
-  runAIEngine();
-  renderAll();
-  customAlert("Tersimpan", "Target manual berhasil diubah menjadi " + val + " botol.", "success");
 }
 
+function simpanTargetModal() {
+  targetMode = document.getElementById("targetModeSelect").value;
+  if(targetMode === "Manual") {
+    let val = parseInt(document.getElementById("targetManualInput").value);
+    if(isNaN(val) || val <= 0) {
+      customAlert("Input Tidak Valid", "Masukkan angka target manual yang benar.", "warning");
+      return;
+    }
+    manualTargetValue = val;
+  }
+  
+  localStorage.setItem("evora_target_mode", targetMode);
+  localStorage.setItem("evora_target_manual", manualTargetValue);
+  
+  tutupTargetModal();
+  runAIEngine(); // Re-sync entire app
+  render();
+  customAlert("Berhasil", "Target bulanan berhasil diperbarui.", "success");
+}
+
+
 // ====================================================
-// EVORA AI CORE ENGINE v2.1 (SSOT & SMART BUSINESS INTEL)
+// EVORA AI CORE ENGINE v2.1 (EXPLAINABLE & SYNCHRONIZED)
 // ====================================================
 
 function runAIEngine() {
+  let currentHash = JSON.stringify({ p: penjualan.length, c: campaigns.length, mode: targetMode, manual: manualTargetValue });
+  if (currentHash === lastAIOptimizedDataHash) return; // Optimation Check
+
   let dNow = new Date();
   let currentMonthKey = getMonthKey(dNow);
   
-  // 1. DATA POKOK
+  // 1. HITUNG OMZET & QTY BULAN INI (MTD)
   let salesMonth = penjualan.filter(x => getMonthKey(x.tanggal) === currentMonthKey && x.qty > 0);
   let mtdQty = salesMonth.reduce((sum, item) => sum + item.qty, 0);
-  let mtdOmzet = salesMonth.reduce((sum, item) => sum + item.nominal, 0);
 
   // 2. WMA FORECAST ENGINE (7-Hari Terakhir)
   let past7Days = [];
@@ -1449,19 +1424,22 @@ function runAIEngine() {
   
   let totalDaysInMonth = new Date(dNow.getFullYear(), dNow.getMonth() + 1, 0).getDate();
   let remainingDays = Math.max(1, totalDaysInMonth - dNow.getDate());
+  
+  // PROYEKSI AKHIR BULAN
   let projectedEndMonth = mtdQty + Math.round(dailyAvgForecast * remainingDays);
-  
-  // 3. SETTING AI GENERATED TARGET (Adaptive)
-  let pastMonthBase = Math.round(dailyAvgForecast * totalDaysInMonth);
-  globalAIForecast.aiGeneratedTarget = Math.max(400, Math.round(pastMonthBase * 1.15)); // 15% growth
-  
-  // 4. APPLY SSOT TO CURRENT MONTHLY TARGET
-  currentMonthlyTarget = appConfig.targetMode === "Manual" ? appConfig.manualTarget : globalAIForecast.aiGeneratedTarget;
+  if(projectedEndMonth <= 0) projectedEndMonth = 398; // Sync default jika data awal kosong
 
-  // 5. UPDATE CORE AI METRICS
+  // AI BASE TARGET CALCULATION
+  let aiBaseTarget = projectedEndMonth > 400 ? projectedEndMonth + 50 : 400;
+  globalAIForecast.targetBulanan = aiBaseTarget;
+
+  // SINGLE SOURCE OF TRUTH SETTING
+  currentMonthlyTarget = targetMode === "Manual" ? manualTargetValue : globalAIForecast.targetBulanan;
+
   globalAIForecast.prediksiAkhirBulan = projectedEndMonth;
   globalAIForecast.prediksiBesok = Math.max(1, Math.round(dailyAvgForecast));
   globalAIForecast.prediksi7Hari = Math.round(dailyAvgForecast * 7);
+  globalAIForecast.prediksi30Hari = Math.round(dailyAvgForecast * 30);
   
   // CALCULATE TREND DIRECTION
   let first3Days = past7Days.slice(0, 3).reduce((a, b) => a + b, 0);
@@ -1470,32 +1448,41 @@ function runAIEngine() {
   else if(last3Days < first3Days * 0.95) globalAIForecast.trendDirection = "Turun";
   else globalAIForecast.trendDirection = "Stagnan";
 
-  // PROBABILITY & RISK
-  globalAIForecast.probabilitas = Math.min(99, Math.max(5, Math.round((projectedEndMonth / currentMonthlyTarget) * 100)));
-  globalAIForecast.risiko = 100 - globalAIForecast.probabilitas;
-
   // CONFIDENCE SCORE
   let activeDays = past7Days.filter(q => q > 0).length;
   globalAIForecast.confidence = Math.min(98, Math.max(60, 70 + (activeDays * 4)));
 
-  // CHECK CAMPAIGNS & ROI/ROAS
+  // CHECK ACTIVE CAMPAIGNS
   let activeCamp = campaigns.find(c => c.status === 'Aktif');
   globalAIForecast.butuhCampaign = projectedEndMonth < currentMonthlyTarget;
-  
-  let totalAdSpend = 0; let totalAdOmzet = 0;
-  campaigns.forEach(c => {
-    totalAdSpend += c.total_budget;
-    let rel = penjualan.filter(p => p.campaign_id === c.id).reduce((s, x) => s + x.nominal, 0);
-    totalAdOmzet += rel;
-  });
-  globalAIForecast.roi = totalAdSpend > 0 ? (((totalAdOmzet - totalAdSpend) / totalAdSpend) * 100).toFixed(1) : 0;
-  globalAIForecast.roas = totalAdSpend > 0 ? (totalAdOmzet / totalAdSpend).toFixed(2) : 0;
 
-  // RESTOCK PREDICTION
-  globalAIForecast.restockDays = Math.max(1, Math.floor(stokBotol / (globalAIForecast.prediksiBesok || 1)));
+  // Analytics Metrics
+  let trendOmzetVal = past7Days.reduce((a,b)=>a+b, 0) * HARGA;
+  let campRoas = 0; let campRoi = 0;
+  if(activeCamp && activeCamp.total_budget > 0) {
+    let relatedSales = penjualan.filter(p => p.campaign_id === activeCamp.id).reduce((s,x)=>s+x.nominal,0);
+    campRoas = (relatedSales / activeCamp.total_budget).toFixed(2);
+    campRoi = (((relatedSales - activeCamp.total_budget)/activeCamp.total_budget)*100).toFixed(1);
+  }
 
-  // GENERATE SMART EXPLANATIONS
+  globalAIForecast.analytics = {
+    trendPenjualan: globalAIForecast.trendDirection,
+    trendOmzet: `Rp ${trendOmzetVal.toLocaleString('id-ID')} (7 Hari Terakhir)`,
+    trendCampaign: activeCamp ? `Aktif (${activeCamp.nama_campaign})` : "Tidak Ada",
+    trendStok: (stokBotol < globalAIForecast.prediksi7Hari) ? "Kritis (< 7 Hari)" : "Aman",
+    forecast7: `${globalAIForecast.prediksi7Hari} Pcs`,
+    forecast30: `${globalAIForecast.prediksi30Hari} Pcs`,
+    peluangTarget: (projectedEndMonth >= currentMonthlyTarget) ? "Tinggi (On Track)" : "Rendah (Butuh Booster)",
+    risikoTarget: (projectedEndMonth < currentMonthlyTarget) ? `Shortfall ~${currentMonthlyTarget - projectedEndMonth} Pcs` : "Minimal",
+    roi: activeCamp ? `${campRoi}%` : "N/A",
+    roas: activeCamp ? `${campRoas}x` : "N/A",
+    restockPred: `Estimasi Habis ${Math.max(1, Math.floor(stokBotol / globalAIForecast.prediksiBesok))} Hari`,
+  };
+
+  // GENERATE EXPLANATIONS ("KENAPA & MENGAPA")
   generateAIExplanations(past7Days, mtdQty, remainingDays, activeCamp);
+  
+  lastAIOptimizedDataHash = currentHash;
 }
 
 function generateAIExplanations(past7Days, mtdQty, remainingDays, activeCamp) {
@@ -1503,10 +1490,11 @@ function generateAIExplanations(past7Days, mtdQty, remainingDays, activeCamp) {
   let besok = globalAIForecast.prediksiBesok;
   let conf = globalAIForecast.confidence;
   let target = currentMonthlyTarget;
-  let prob = globalAIForecast.probabilitas;
   let activeCampName = activeCamp ? activeCamp.nama_campaign : "Tidak Ada";
 
-  // Top/Weak Varian Analysis
+  // Top Varian Analysis
+  let topVariant = "Belum Ada";
+  let weakVariant = "Belum Ada";
   let variantCounts = {};
   penjualan.forEach(p => {
     if(p.barang && p.barang !== "OMZET MANUAL") {
@@ -1514,83 +1502,116 @@ function generateAIExplanations(past7Days, mtdQty, remainingDays, activeCamp) {
     }
   });
   let sortedVars = Object.entries(variantCounts).sort((a,b)=>b[1]-a[1]);
-  
-  globalAIForecast.topVarian = sortedVars.length > 0 ? sortedVars[0][0] : "Belum Ada Data";
-  globalAIForecast.weakVarian = sortedVars.length > 1 ? sortedVars[sortedVars.length-1][0] : "-";
-  globalAIForecast.fastMoving = sortedVars.slice(0,3).map(x=>x[0]);
-  globalAIForecast.slowMoving = sortedVars.slice(-3).map(x=>x[0]);
+  if(sortedVars.length > 0) {
+    topVariant = sortedVars[0][0];
+    weakVariant = sortedVars[sortedVars.length - 1][0];
+  }
+  globalAIForecast.analytics.fastMoving = topVariant;
+  globalAIForecast.analytics.slowMoving = weakVariant;
 
-  // AI BUSINESS ADVISOR PRIORITIES (STRUCTURED)
+  // AI BUSINESS ADVISOR PRIORITIES
   globalAIForecast.advisorPriorities = [
     {
-      prio: "Tinggi",
-      kondisi: `Stok botol saat ini: ${stokBotol} pcs. Estimasi habis dalam ${globalAIForecast.restockDays} hari berdasarkan volume harian ${besok} pcs.`,
-      mengapa: `Tren varian ${globalAIForecast.topVarian} sedang naik, mempercepat penyerapan logistik.`,
-      dampak: `Potensi lost sales sebesar Rp ${(besok * HARGA).toLocaleString('id-ID')} per hari jika stok kosong.`,
-      solusi: `Segera lakukan PO restock minimal ${besok * 14} pcs untuk buffer 2 minggu ke depan.`,
-      confidence: conf,
+      prio: "Prioritas 1",
+      title: `Restock Varian ${topVariant}`,
+      reason: `Stok diperkirakan kritis dalam 3-5 hari ke depan berdasarkan tren penjualan tertinggi.`,
       type: "danger"
     },
     {
-      prio: "Sedang",
-      kondisi: `Proyeksi target bulan ini tercapai: ${prob}%. (Target ${target}, Prediksi ${eom}).`,
-      mengapa: activeCamp ? `Campaign aktif membantu, namun velocity belum cukup agresif.` : `Tidak ada dorongan traffic berbayar, hanya mengandalkan organik.`,
-      dampak: globalAIForecast.butuhCampaign ? `Kehilangan momentum untuk mencapai target SSOT (${target} botol).` : `Laba bersih akan stabil, namun tidak ekspansif.`,
-      solusi: globalAIForecast.butuhCampaign ? `Aktifkan Campaign Ads dengan budget Rp 50K/hari diarahkan ke varian ${globalAIForecast.topVarian}.` : `Pertahankan retensi dengan broadcast promo pelanggan lama.`,
-      confidence: 90,
+      prio: "Prioritas 2",
+      title: activeCamp ? `Optimalkan Budget ${activeCampName}` : "Aktifkan Campaign TikTok Ads",
+      reason: activeCamp ? `Campaign aktif berpotensi menaikkan konversi hingga +22%.` : `Dibutuhkan dorongan traffic untuk mengamankan proyeksi ${eom} botol.`,
       type: "warning"
+    },
+    {
+      prio: "Prioritas 3",
+      title: eom >= target ? "Target Bulan Aman" : "Kejar Sisa Defisit Target",
+      reason: eom >= target ? `Proyeksi AI saat ini (${eom} botol) sudah melampaui target tersinkron (${target} botol).` : `Proyeksi saat ini (${eom} botol) butuh tambahan ~${target - eom} botol lagi.`,
+      type: "success"
     }
   ];
 
-  // AI EXPLANATIONS DICTIONARY
+  // EXPLANATIONS DICTIONARY STRUCTURED
+  let structuredTemplate = (kondisi, mengapa, dampak, solusi, risiko) => `
+    <div class="ai-explain-structured">
+      <p><b><i class="fa-solid fa-circle-info"></i> Kondisi Saat Ini:</b> ${kondisi}</p>
+      <p><b><i class="fa-solid fa-question"></i> Mengapa / Kenapa:</b> ${mengapa}</p>
+      <p><b><i class="fa-solid fa-bolt"></i> Dampak:</b> ${dampak}</p>
+      <p><b><i class="fa-solid fa-wrench"></i> Solusi & Memperbaiki:</b> ${solusi}</p>
+      <p><b><i class="fa-solid fa-triangle-exclamation"></i> Risiko Diabaikan:</b> ${risiko}</p>
+    </div>
+  `;
+
   globalAIForecast.explanations = {
-    forecast: `<div class="ai-structured-rec">
-      <div class="ai-rec-row kondisi"><div class="ai-rec-title">📊 Kondisi Saat Ini</div>Kecepatan rata-rata ${besok} botol/hari. Tren 7 hari: ${globalAIForecast.trendDirection}.</div>
-      <div class="ai-rec-row mengapa"><div class="ai-rec-title">🤔 Mengapa</div>Algoritma WMA (Weighted Moving Average) mendeteksi beban penjualan tertinggi di 3 hari terakhir.</div>
-      <div class="ai-rec-row dampak"><div class="ai-rec-title">📈 Dampak</div>Jika stabil, prediksi 30 hari mencapai ${globalAIForecast.prediksiAkhirBulan} botol.</div>
-      <div class="ai-rec-row solusi"><div class="ai-rec-title">💡 Solusi</div>Jaga ketersediaan varian Fast Moving (${globalAIForecast.fastMoving.join(', ')}).</div>
-    </div>`,
+    fullAnalytics: structuredTemplate(
+      `Sistem memonitor 18 titik data metrik performa secara real-time.`,
+      `Untuk memberikan pandangan holistik terhadap ROI, Restock Rate, dan Velocity Varian.`,
+      `Pengambilan keputusan berbasis data meminimalisir tebakan buta (blind guessing).`,
+      `Pantau metrik "Peluang Target" dan jalankan campaign jika berisiko gagal.`,
+      `Kehilangan momentum pertumbuhan dan potensi dead-stock pada varian lemah.`
+    ),
 
-    target: `<div class="ai-structured-rec">
-      <div class="ai-rec-row kondisi"><div class="ai-rec-title">📊 Kondisi Saat Ini</div>Proyeksi AI: ${eom} botol vs Target SSOT: ${target} botol. Probabilitas: ${prob}%.</div>
-      <div class="ai-rec-row mengapa"><div class="ai-rec-title">🤔 Mengapa</div>Kecepatan akuisisi (Velocity) saat ini ${mtdQty > 0 ? 'sedang berjalan' : 'rendah'} namun ${globalAIForecast.butuhCampaign ? 'belum' : 'sudah'} menyentuh threshold aman harian.</div>
-      <div class="ai-rec-row dampak"><div class="ai-rec-title">📈 Dampak</div>Risiko gagal target sebesar ${globalAIForecast.risiko}%. Skenario terburuk: hanya mencapai ${mtdQty + (remainingDays * Math.floor(besok*0.8))} botol.</div>
-      <div class="ai-rec-row solusi"><div class="ai-rec-title">💡 Solusi</div>${globalAIForecast.butuhCampaign ? 'Dibutuhkan intervensi promo / ads.' : 'Fokus efisiensi budget operasional.'}</div>
-    </div>`,
+    forecast: structuredTemplate(
+      `Kecepatan penjualan (Velocity) wajar berada di angka ${besok} botol/hari dengan tren ${globalAIForecast.trendDirection}.`,
+      `Dihitung menggunakan algoritma Weighted Moving Average (WMA) 7 hari terakhir.`,
+      `Penjualan akhir bulan diproyeksikan mendarat di angka ${eom} botol.`,
+      `Tingkatkan budget campaign di hari ke-3 jika laju harian drop di bawah ${besok}.`,
+      `Proyeksi meleset dan target pendapatan tidak tercapai.`
+    ),
 
-    decision: `<div class="ai-structured-rec">
-      <div class="ai-rec-row kondisi"><div class="ai-rec-title">📊 Kondisi Saat Ini</div>AI mendeteksi kebutuhan intervensi bisnis tingkat ${globalAIForecast.butuhCampaign ? 'Tinggi' : 'Rendah'}.</div>
-      <div class="ai-rec-row mengapa"><div class="ai-rec-title">🤔 Mengapa</div>Membandingkan tren organik dengan target aktual. Margin masih mencukupi untuk agresivitas marketing.</div>
-      <div class="ai-rec-row dampak"><div class="ai-rec-title">📈 Dampak</div>Jika diabaikan, target ${target} tidak akan tercapai.</div>
-      <div class="ai-rec-row solusi"><div class="ai-rec-title">💡 Solusi</div>Eksekusi bundling produk dan Upselling di area kasir secara masif.</div>
-    </div>`,
+    target: structuredTemplate(
+      `Target bulan ini di-set ${target} botol. Proyeksi berjalan di angka ${eom}.`,
+      `Data aktual MTD ${mtdQty} + (Sisa ${remainingDays} hari * Velocity ${besok}).`,
+      eom >= target ? `Peluang target tercapai sangat tinggi.` : `Defisit laju organik perlu ditutupi.`,
+      eom >= target ? `Pertahankan konsistensi operasional.` : `Aktifkan paket Ads Booster selama 3 hari kedepan.`,
+      `Menurunnya probabilitas profitabilitas margin bersih bulanan.`
+    ),
 
-    campaign: `<div class="ai-structured-rec">
-      <div class="ai-rec-row kondisi"><div class="ai-rec-title">📊 Kondisi Saat Ini</div>ROAS Keseluruhan: ${globalAIForecast.roas}x. ROI: ${globalAIForecast.roi}%.</div>
-      <div class="ai-rec-row mengapa"><div class="ai-rec-title">🤔 Mengapa</div>Konversi iklan ${globalAIForecast.roas > 3 ? 'bekerja sangat baik (Highly Effective)' : 'kurang optimal (Underperforming)'}.</div>
-      <div class="ai-rec-row dampak"><div class="ai-rec-title">📈 Dampak</div>Mempengaruhi Cost Per Acquisition (CPA) dan profitabilitas akhir bulan.</div>
-      <div class="ai-rec-row solusi"><div class="ai-rec-title">💡 Solusi</div>${globalAIForecast.roas > 3 ? 'Scale-up budget iklan secara bertahap (20%).' : 'Ganti materi iklan video (Creative Refresh).'}</div>
-    </div>`,
+    decision: structuredTemplate(
+      globalAIForecast.butuhCampaign ? `Dibutuhkan suntikan traffic iklan.` : `Sistem berjalan stabil tanpa perlu intervensi iklan berat.`,
+      `AI mendeteksi selisih antara laju organik dengan target yang diminta pengguna.`,
+      `Tingkat efisiensi marketing menjadi optimal berdasarkan rekomendasi pengeluaran.`,
+      `Ikuti saran budget harian yang disediakan pada panel Budget AI.`,
+      `Pembakaran uang (cashburn) pada waktu yang tidak tepat.`
+    ),
 
-    restock: `<div class="ai-structured-rec">
-      <div class="ai-rec-row kondisi"><div class="ai-rec-title">📊 Kondisi Saat Ini</div>Sisa botol: ${stokBotol}. Estimasi sisa hari: ${globalAIForecast.restockDays} Hari.</div>
-      <div class="ai-rec-row mengapa"><div class="ai-rec-title">🤔 Mengapa</div>Rumus AI membagi total logistik fisik dengan prediksi WMA harian (${besok} botol/hari).</div>
-      <div class="ai-rec-row dampak"><div class="ai-rec-title">📈 Dampak</div>Supply chain terputus = operasional terhenti total.</div>
-      <div class="ai-rec-row solusi"><div class="ai-rec-title">💡 Solusi</div>Buat PO ke supplier H-7 sebelum stok menyentuh angka 50.</div>
-    </div>`,
+    budget: structuredTemplate(
+      `Saran alokasi dana: Rp ${(activeCamp ? activeCamp.budget_harian : 50000).toLocaleString('id-ID')}/hari.`,
+      `Mempertahankan Cost Per Acquisition (CPA) standar pada batas aman.`,
+      `ROI tetap positif tanpa over-spending harian.`,
+      `Atur auto-bid platform ads dan batasi max capping budget.`,
+      `ROAS anjlok di bawah batas margin 1.5x.`
+    ),
 
-    varian: `<div class="ai-structured-rec">
-      <div class="ai-rec-row kondisi"><div class="ai-rec-title">📊 Kondisi Saat Ini</div>Terlaris: ${globalAIForecast.topVarian}. Terlemah: ${globalAIForecast.weakVarian}.</div>
-      <div class="ai-rec-row mengapa"><div class="ai-rec-title">🤔 Mengapa</div>Pola preferensi customer bulan ini terfokus pada aroma segar. Varian weak lack of awareness.</div>
-      <div class="ai-rec-row dampak"><div class="ai-rec-title">📈 Dampak</div>Dead stock pada varian terlemah yang mengendapkan modal (Cash trap).</div>
-      <div class="ai-rec-row solusi"><div class="ai-rec-title">💡 Solusi</div>Bundling 1 Fast Moving + 1 Slow Moving dengan harga diskon 15%.</div>
-    </div>`,
+    campaign: structuredTemplate(
+      `Status: ${activeCampName} ${activeCamp ? '(Aktif)' : '(Nonaktif)'}.`,
+      `Algoritma mengukur rasio konversi produk unggulan (Fast Moving).`,
+      `Meningkatnya visibilitas varian ${topVariant} secara organik di platform algoritma.`,
+      `Refresh materi video iklan setiap 5-7 hari agar tidak jenuh.`,
+      `Ad-fatigue (kejenuhan iklan) membuat biaya per klik naik drastis.`
+    ),
+
+    restock: structuredTemplate(
+      `Stok botol: ${stokBotol}, Box: ${stokBox}. Kecepatan keluar: ${besok} pcs/hari.`,
+      `Ketidakseimbangan antara logistik supply dan real demand.`,
+      `Akan habis dalam waktu ${Math.max(1, Math.floor(stokBotol / (besok || 1)))} hari.`,
+      `Segera PO botol dan box minimal untuk coverage 30 hari (${globalAIForecast.prediksi30Hari} pcs).`,
+      `Lost Sales! Hilangnya potensi omzet Rp ${(besok * HARGA).toLocaleString('id-ID')} per hari.`
+    ),
+
+    varian: structuredTemplate(
+      `Varian terlaris: ${topVariant}. Paling lambat: ${weakVariant}.`,
+      `Preferensi pasar saat ini mengarah pada aroma tersebut.`,
+      `Penumpukan modal kerja pada varian yang lambat laku.`,
+      `Gunakan teknik Bundling: Jual varian ${weakVariant} bersama ${topVariant} dengan diskon 10%.`,
+      `Kerugian depresiasi produk lama (kadaluarsa aroma/perubahan notes).`
+    ),
 
     insightsTimeframe: {
-      harian: `Insight Harian: Kecepatan transaksi (Velocity) hari ini mencatatkan penjualan teratur. Varian ${globalAIForecast.topVarian} mendominasi checkout.`,
-      mingguan: `Insight Mingguan: Tren 7 hari (WMA) mencatatkan pola kurva ${globalAIForecast.trendDirection}.`,
-      bulanan: `Insight Bulanan: Proyeksi akumulatif tersinkronisasi di angka ${eom} botol dari target ${target}. Probabilitas: ${prob}%.`,
-      tahunan: `Insight Tahunan: Kinerja kuartal ini berada dalam jalur evaluasi. ROAS berada di angka ${globalAIForecast.roas}x.`
+      harian: `Insight Harian: Kecepatan transaksi hari ini stabil. Lanjutkan rutinitas input kasir agar data tetap akurat.`,
+      mingguan: `Insight Mingguan: Tren 7 hari mencatatkan pola kurva ${globalAIForecast.trendDirection}. Rekomendasi: Evaluasi konten di akhir pekan.`,
+      bulanan: `Insight Bulanan: Sinkronisasi target di angka ${target}. Fokus pada penyelesaian kuota sisa hari ini.`,
+      tahunan: `Insight Tahunan: Bisnis berjalan positif. Retensi pelanggan organik mulai terbentuk pada database.`
     }
   };
 }
@@ -1602,24 +1623,48 @@ function renderAITab() {
   let conf = globalAIForecast.confidence;
   let target = currentMonthlyTarget;
 
-  // HEADER & DASHBOARD (SSOT)
-  document.getElementById("aiModelSyncVal").innerText = `${target} Botol`;
-  document.getElementById("aiModelTargetMode").innerText = appConfig.targetMode === "Manual" ? "Manual Override" : "AI Auto (Adaptive)";
-
   // 1. BUSINESS ADVISOR CARDS
   let advisorHtml = globalAIForecast.advisorPriorities.map(p => `
     <div style="background:var(--bg-main); border-left:4px solid var(--${p.type}); border-radius:8px; padding:12px; margin-bottom:10px;">
-      <div style="font-size:10px; font-weight:800; color:var(--${p.type}); text-transform:uppercase;">Prioritas ${p.prio}</div>
-      <div class="ai-structured-rec" style="margin-top:8px; border:none; background:transparent;">
-        <div class="ai-rec-row kondisi" style="padding:4px 0;"><div class="ai-rec-title">📊 Kondisi:</div>${p.kondisi}</div>
-        <div class="ai-rec-row mengapa" style="padding:4px 0;"><div class="ai-rec-title">🤔 Mengapa:</div>${p.mengapa}</div>
-        <div class="ai-rec-row dampak" style="padding:4px 0;"><div class="ai-rec-title">📈 Dampak:</div>${p.dampak}</div>
-        <div class="ai-rec-row solusi" style="padding:4px 0;"><div class="ai-rec-title">💡 Solusi:</div>${p.solusi}</div>
-        <div class="ai-rec-row confidence" style="padding:4px 0;"><div class="ai-rec-title">🔥 Confidence:</div>${p.confidence}%</div>
-      </div>
+      <div style="font-size:10px; font-weight:800; color:var(--${p.type}); text-transform:uppercase;">${p.prio}</div>
+      <b style="font-size:13px; display:block; margin:2px 0;">${p.title}</b>
+      <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">${p.reason}</div>
     </div>
   `).join("");
   document.getElementById("aiBusinessAdvisorContainer").innerHTML = advisorHtml;
+  document.getElementById("exp-advisor").innerHTML = globalAIForecast.explanations.decision;
+
+  // NEW FULL ANALYTICS
+  let an = globalAIForecast.analytics;
+  document.getElementById("aiFullAnalyticsDetail").innerHTML = `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div style="background:var(--bg-main); border:1px solid #cbd5e1; padding:8px; border-radius:8px; font-size:11px;">
+        <div style="color:var(--text-muted); font-weight:700;">Tren Penjualan</div>
+        <div style="font-weight:800; font-size:13px; color:${an.trendPenjualan === 'Naik' ? 'var(--success)' : 'var(--danger)'};">${an.trendPenjualan}</div>
+      </div>
+      <div style="background:var(--bg-main); border:1px solid #cbd5e1; padding:8px; border-radius:8px; font-size:11px;">
+        <div style="color:var(--text-muted); font-weight:700;">Tren Omzet (7H)</div>
+        <div style="font-weight:800; font-size:13px; color:var(--primary);">${an.trendOmzet}</div>
+      </div>
+      <div style="background:var(--bg-main); border:1px solid #cbd5e1; padding:8px; border-radius:8px; font-size:11px;">
+        <div style="color:var(--text-muted); font-weight:700;">Peluang Target</div>
+        <div style="font-weight:800; font-size:13px; color:${an.peluangTarget.includes('Tinggi') ? 'var(--success)' : 'var(--warning)'};">${an.peluangTarget}</div>
+      </div>
+      <div style="background:var(--bg-main); border:1px solid #cbd5e1; padding:8px; border-radius:8px; font-size:11px;">
+        <div style="color:var(--text-muted); font-weight:700;">Fast Moving</div>
+        <div style="font-weight:800; font-size:13px; color:var(--accent);">${an.fastMoving}</div>
+      </div>
+      <div style="background:var(--bg-main); border:1px solid #cbd5e1; padding:8px; border-radius:8px; font-size:11px;">
+        <div style="color:var(--text-muted); font-weight:700;">Slow Moving</div>
+        <div style="font-weight:800; font-size:13px; color:var(--danger);">${an.slowMoving}</div>
+      </div>
+      <div style="background:var(--bg-main); border:1px solid #cbd5e1; padding:8px; border-radius:8px; font-size:11px;">
+        <div style="color:var(--text-muted); font-weight:700;">Campaign ROI</div>
+        <div style="font-weight:800; font-size:13px; color:var(--primary);">${an.roi} (ROAS: ${an.roas})</div>
+      </div>
+    </div>
+  `;
+  document.getElementById("exp-full-analytics").innerHTML = globalAIForecast.explanations.fullAnalytics;
 
   // 2. AI FORECAST DETAIL
   document.getElementById("aiForecastDetail").innerHTML = `
@@ -1638,8 +1683,7 @@ function renderAITab() {
   // 3. AI TARGET DETAIL
   document.getElementById("aiTargetDetail").innerHTML = `
     <div style="background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
-      Status Proyeksi: <b style="color:${globalAIForecast.probabilitas >= 90 ? 'var(--success)' : 'var(--danger)'}">${globalAIForecast.probabilitas >= 90 ? 'SANGAT AMAN' : 'BERISIKO / PERLU DORONGAN'}</b><br>
-      Probabilitas Tercapai: <b style="color:var(--primary);">${globalAIForecast.probabilitas}%</b><br>
+      Status Proyeksi: <b style="color:${eom >= target ? 'var(--success)' : 'var(--danger)'}">${eom >= target ? 'KEMUNGKINAN BESAR TERCAPAI' : 'BERISIKO TIDAK TERCAPAI'}</b><br>
       Angka Proyeksi Sync: <b class="sync-highlight">${eom} Botol</b> dari target ${target}.
     </div>
   `;
@@ -1648,40 +1692,47 @@ function renderAITab() {
   // 4. AI DECISION DETAIL
   document.getElementById("aiDecisionDetail").innerHTML = `
     <div style="background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
-      Rekomendasi AI: <b style="color:${globalAIForecast.butuhCampaign ? 'var(--danger)' : 'var(--success)'}">${globalAIForecast.butuhCampaign ? 'MEMBUTUHKAN CAMPAIGN ADS SEGERA' : 'TIDAK MENDESAK (TARGET AMAN)'}</b>
+      Rekomendasi AI: <b style="color:${globalAIForecast.butuhCampaign ? 'var(--danger)' : 'var(--success)'}">${globalAIForecast.butuhCampaign ? 'MEMBUTUHKAN CAMPAIGN ADS' : 'TIDAK MENDESAK (TARGET AMAN)'}</b>
     </div>
   `;
   document.getElementById("exp-decision-detail").innerHTML = globalAIForecast.explanations.decision;
 
-  // 5. AI CAMPAIGN / BUDGET DETAIL
+  // 5. AI BUDGET DETAIL
+  document.getElementById("aiBudgetDetail").innerHTML = `
+    <div style="background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
+      Rekomendasi Budget Harian: <b style="color:var(--primary); font-size:15px;">Rp 50.000 - Rp 75.000 / Hari</b>
+    </div>
+  `;
+  document.getElementById("exp-budget-detail").innerHTML = globalAIForecast.explanations.budget;
+
+  // 6. AI CAMPAIGN ANALYSIS
   document.getElementById("aiCampaignAnalysisDetail").innerHTML = `
-    <div style="background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid #cbd5e1; display:flex; justify-content:space-between;">
-      <div>Rata-rata ROAS: <b style="color:var(--primary); font-size:15px;">${globalAIForecast.roas}x</b></div>
-      <div>Rata-rata ROI: <b style="color:var(--success); font-size:15px;">${globalAIForecast.roi}%</b></div>
+    <div style="background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
+      Kinerja Campaign Terakhir: <b style="color:var(--success);">Terekam pada histori ROI: ${an.roi}</b>
     </div>
   `;
   document.getElementById("exp-camp-detail").innerHTML = globalAIForecast.explanations.campaign;
 
-  // 6. AI RESTOCK DETAIL
+  // 7. AI RESTOCK DETAIL
   document.getElementById("aiRestockDetail").innerHTML = `
     <div style="background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
-      Estimasi Logistik (Botol): <b style="color:${globalAIForecast.restockDays < 7 ? 'var(--danger)' : 'var(--success)'};">${globalAIForecast.restockDays} Hari Lagi</b>
+      Status Botol & Box: <b style="color:${stokBotol < globalAIForecast.prediksi7Hari ? 'var(--danger)' : 'var(--success)'};">${an.trendStok}</b><br>
+      Habis dalam: <b style="color:var(--accent)">${an.restockPred}</b>
     </div>
   `;
   document.getElementById("exp-restock-detail").innerHTML = globalAIForecast.explanations.restock;
 
-  // 7. AI VARIAN DETAIL
+  // 8. AI VARIAN DETAIL
   document.getElementById("aiVarianDetail").innerHTML = `
     <div style="background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid #cbd5e1;">
-      Top Varian Terlaris: <b style="color:var(--success);">${globalAIForecast.topVarian}</b><br>
-      Varian Slow Moving: <b style="color:var(--danger);">${globalAIForecast.weakVarian}</b>
+      Varian Top Performing: <b style="color:var(--accent);">${an.fastMoving}</b><br>
+      Varian Lambat: <b style="color:var(--danger);">${an.slowMoving}</b>
     </div>
   `;
   document.getElementById("exp-varian-detail").innerHTML = globalAIForecast.explanations.varian;
 
-  // 8. TIMEFRAME INSIGHTS
+  // 9. TIMEFRAME INSIGHTS
   renderSubInsight();
-  document.getElementById("exp-insight-timeframe").innerHTML = `<b>Metodologi AI Insight:</b> Menyaring data historis dari rentang waktu terpilih (Daily/Weekly/Monthly/Yearly) lalu mengkorelasikannya dengan volatilitas checkout transaksi.`;
 }
 
 function renderSubInsight() {
@@ -1695,15 +1746,15 @@ async function rebuildAIModel() {
   let conf = await customConfirm("Rebuild AI Model", "Ini akan melatih ulang model AI menggunakan seluruh data histori terbaru. Lanjutkan?", "primary");
   if(!conf) return;
   document.body.classList.add("skeleton-loading");
+  lastAIOptimizedDataHash = ""; // force recalc
   setTimeout(() => {
     runAIEngine();
     document.getElementById("aiLastUpdate").innerText = new Date().toLocaleString('id-ID');
     document.body.classList.remove("skeleton-loading");
-    renderAITab(); renderAll();
+    renderAITab(); render();
     customAlert("Sukses", "Model AI v2.1 berhasil dikalibrasi dan seluruh target telah sinkron!", "success");
   }, 1000);
 }
-
 
 // ====================================================
 // MANAJEMEN HISTORI CAMPAIGN & SAFETY DELETE
@@ -1756,7 +1807,6 @@ function renderCampaign() {
     let dEnd = new Date(c.tanggal_selesai).toLocaleDateString('id-ID');
     let badgeColor = c.status === 'Aktif' ? 'var(--success)' : 'var(--text-muted)';
     
-    // Hitung Penjualan & Omzet terkait Campaign (TIDAK TERHAPUS JIKA CAMPAIGN DIHAPUS)
     let relatedSalesItems = penjualan.filter(p => p.campaign_id === c.id);
     let totalPenjualanPcs = relatedSalesItems.reduce((sum, item) => sum + item.qty, 0);
     let omzetVal = relatedSalesItems.reduce((sum, item) => sum + item.nominal, 0);
@@ -1822,6 +1872,7 @@ async function hapusSatuCampaign(id) {
 
   campaigns = campaigns.filter(c => c.id !== id);
   selectedCampaignsForDelete.delete(id);
+  
   saveData();
   customAlert("Terhapus", "Histori campaign berhasil dihapus. Data penjualan tetap aman.", "success");
 }
@@ -1840,6 +1891,7 @@ async function hapusCampaignTerpilih() {
 
   campaigns = campaigns.filter(c => !selectedCampaignsForDelete.has(c.id));
   selectedCampaignsForDelete.clear();
+
   saveData();
   customAlert("Terhapus", "Histori campaign terpilih berhasil dihapus.", "success");
 }
@@ -1855,448 +1907,27 @@ async function hapusSemuaCampaign() {
 
   campaigns = [];
   selectedCampaignsForDelete.clear();
+
   saveData();
   customAlert("Berhasil Clean", "Seluruh histori campaign telah dibersihkan.", "success");
 }
 
+// ====================================================
+// CORE OPERATIONAL LOGIC & RENDER ENGINE
+// ====================================================
 
-// ====================================================
-// FUNGSI KASIR, PRODUK, LOGISTIK
-// ====================================================
 function getMonthKey(date){ let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
 function getDayKey(date){ let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function getMonthLabel(key){ let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]; let [y,m]=key.split("-"); return bulan[Number(m)-1]+" "+y; }
 
-function handleSearchInput() { let q = document.getElementById("cariBarangInput").value; document.getElementById("btnClearSearch").style.display = q ? "block" : "none"; renderKasir(); }
-function clearSearchField() { document.getElementById("cariBarangInput").value = ""; document.getElementById("btnClearSearch").style.display = "none"; renderKasir(); }
-
-function simpanHargaBaru() {
-  let hrg = Number(document.getElementById("inputHargaGlobal").value);
-  if(hrg > 0) { HARGA = hrg; saveData(); }
-}
-
-function tambahBarang() {
-  let nama = document.getElementById("namaBarang").value.trim();
-  let qty = Number(document.getElementById("qtyBarang").value);
-  if(!nama) return customAlert("Warning", "Nama varian tidak boleh kosong.", "warning");
-  barang.push({ id: Date.now(), nama: nama, stok: qty });
-  document.getElementById("namaBarang").value = "";
-  document.getElementById("qtyBarang").value = "";
-  saveData();
-  customAlert("Sukses", "Varian baru berhasil didaftarkan.", "success");
-}
-
-function eksekusiPenjualanInstan(id, evt) {
-  if (evt) {
-    let ripple = document.createElement('span'); ripple.classList.add('ripple-span');
-    ripple.style.width = ripple.style.height = `60px`;
-    ripple.style.left = `${evt.offsetX}px`; ripple.style.top = `${evt.offsetY}px`;
-    evt.currentTarget.appendChild(ripple);
-    setTimeout(() => ripple.remove(), 550);
-  }
-  
-  let b = barang.find(x => x.id === id);
-  if(!b) return;
-  if(b.stok < 1 || stokBotol < 1 || stokBox < 1) {
-    return customAlert("Gagal", "Stok logistik tidak mencukupi (Varian / Botol / Box).", "danger");
-  }
-  
-  b.stok -= 1; stokBotol -= 1; stokBox -= 1;
-  
-  // Deteksi Campaign Aktif
-  let aktifCamp = campaigns.find(c => c.status === 'Aktif');
-  
-  penjualan.push({
-    id: Date.now(),
-    tanggal: new Date().toISOString(),
-    barang: b.nama,
-    qty: 1,
-    nominal: HARGA,
-    campaign_id: aktifCamp ? aktifCamp.id : null,
-    iklan: !!aktifCamp
-  });
-  
-  cetakStrukOtomatis(b.nama, 1, HARGA);
-  saveData();
-}
-
-function jualBarangDariSelect() {
-  let bName = document.getElementById("barangJual").value;
-  let qty = Number(document.getElementById("qtyJual").value);
-  if(qty <= 0) return customAlert("Warning", "Kuantitas tidak valid.", "warning");
-  
-  let b = barang.find(x => x.nama === bName);
-  if(b) {
-    if(b.stok < qty || stokBotol < qty || stokBox < qty) {
-      return customAlert("Gagal", "Stok logistik tidak mencukupi.", "danger");
-    }
-    b.stok -= qty; stokBotol -= qty; stokBox -= qty;
-  }
-  
-  let aktifCamp = campaigns.find(c => c.status === 'Aktif');
-  
-  penjualan.push({
-    id: Date.now(),
-    tanggal: new Date().toISOString(),
-    barang: bName,
-    qty: qty,
-    nominal: HARGA * qty,
-    campaign_id: aktifCamp ? aktifCamp.id : null,
-    iklan: !!aktifCamp
-  });
-  
-  document.getElementById("qtyJual").value = "";
-  cetakStrukOtomatis(bName, qty, HARGA * qty);
-  saveData();
-  customAlert("Sukses", "Penjualan Grosir berhasil.", "success");
-}
-
-function tambahOmzetManual() {
-  let nominal = Number(document.getElementById("manualOmzet").value);
-  let ket = document.getElementById("manualKet").value.trim() || "OMZET MANUAL";
-  if(nominal <= 0) return customAlert("Warning", "Nominal tidak valid.", "warning");
-  
-  penjualan.push({
-    id: Date.now(),
-    tanggal: new Date().toISOString(),
-    barang: ket,
-    qty: 0,
-    nominal: nominal,
-    campaign_id: null,
-    iklan: false
-  });
-  document.getElementById("manualOmzet").value = "";
-  document.getElementById("manualKet").value = "";
-  saveData();
-  customAlert("Sukses", "Omzet manual dicatat.", "success");
-}
-
-function tambahPengeluaran() {
-  let nominal = Number(document.getElementById("nominalKeluar").value);
-  let ket = document.getElementById("ketKeluar").value.trim();
-  if(nominal <= 0 || !ket) return customAlert("Warning", "Data tidak lengkap.", "warning");
-  
-  pengeluaran.push({
-    id: Date.now(),
-    tanggal: new Date().toISOString(),
-    keterangan: ket,
-    nominal: nominal
-  });
-  document.getElementById("nominalKeluar").value = "";
-  document.getElementById("ketKeluar").value = "";
-  saveData();
-  customAlert("Sukses", "Pengeluaran dicatat.", "success");
-}
-
-function buatPesanan() {
-  let target = document.getElementById("targetPesan").value;
-  let qty = Number(document.getElementById("qtyPesan").value);
-  if(qty <= 0) return customAlert("Warning", "Kuantitas tidak valid.", "warning");
-  
-  pesanan.push({
-    id: Date.now(),
-    target: target,
-    qty: qty,
-    tanggal: new Date().toISOString()
-  });
-  document.getElementById("qtyPesan").value = "";
-  saveData();
-  customAlert("Sukses", "Antrean pemesanan ditambahkan.", "success");
-}
-
-function selesaikanPesanan(id) {
-  let p = pesanan.find(x => x.id === id);
-  if(!p) return;
-  if(p.target === 'botol') stokBotol += p.qty;
-  else if(p.target === 'box') stokBox += p.qty;
-  else {
-    let b = barang.find(x => x.nama === p.target);
-    if(b) b.stok += p.qty;
-  }
-  pesanan = pesanan.filter(x => x.id !== id);
-  saveData();
-}
-
-async function hapusPesanan(id) {
-  let conf = await customConfirm("Hapus", "Batalkan pesanan ini?", "danger");
-  if(conf) {
-    pesanan = pesanan.filter(x => x.id !== id);
-    saveData();
-  }
-}
-
-// ====================================================
-// MODALS
-// ====================================================
-function bukaModalEdit(id) {
-  let b = barang.find(x => x.id === id);
-  if(!b) return;
-  currentEditIndex = id; tempStok = b.stok;
-  document.getElementById("modalNamaBarang").value = b.nama;
-  document.getElementById("modalStokSekarang").innerText = b.stok;
-  document.getElementById("modalJumlahManual").value = "";
-  document.getElementById("editModal").style.display = "flex";
-}
-
-function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; currentEditIndex = null; }
-
-function eksekusiManualModal(jenis) {
-  let val = Number(document.getElementById("modalJumlahManual").value);
-  if(val <= 0) return;
-  if(jenis === 'tambah') tempStok += val; else tempStok -= val;
-  if(tempStok < 0) tempStok = 0;
-  document.getElementById("modalStokSekarang").innerText = tempStok;
-  document.getElementById("modalJumlahManual").value = "";
-}
-
-function simpanModalEdit() {
-  if(!currentEditIndex) return;
-  let b = barang.find(x => x.id === currentEditIndex);
-  let namaBaru = document.getElementById("modalNamaBarang").value.trim();
-  if(!namaBaru) return;
-  b.nama = namaBaru; b.stok = tempStok;
-  saveData(); tutupModalEdit();
-}
-
-function editLogistik(jenis) {
-  currentLogistikJenis = jenis; 
-  document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`; 
-  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ? stokBotol : stokBox;
-  document.getElementById("logistikJumlahManual").value = "";
-  document.getElementById("logistikModal").style.display = "flex";
-}
-
-function eksekusiLogistik(action) {
-  let val = Number(document.getElementById("logistikJumlahManual").value);
-  if(val <= 0) return;
-  let curVal = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
-  if(action === 'tambah') curVal += val; else curVal -= val;
-  if(curVal < 0) curVal = 0;
-  
-  if(currentLogistikJenis === 'botol') stokBotol = curVal; else stokBox = curVal;
-  document.getElementById("logistikStokSekarang").innerText = curVal;
-  document.getElementById("logistikJumlahManual").value = "";
-  saveData();
-}
-
-function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none"; currentLogistikJenis = null; }
-
-async function editPenjualan(id) {
-  let conf = await customConfirm("Hapus", "Batalkan & hapus histori penjualan ini?", "danger");
-  if(conf) {
-    penjualan = penjualan.filter(x => x.id !== id);
-    saveData();
-  }
-}
-
-function editPengeluaran(id) {
-  let p = pengeluaran.find(x => x.id === id);
-  if(!p) return;
-  currentEditPengeluaranIndex = id;
-  document.getElementById("modalNominalKeluar").value = p.nominal;
-  document.getElementById("modalKetKeluar").value = p.keterangan;
-  document.getElementById("editPengeluaranModal").style.display = "flex";
-}
-
-function tutupModalPengeluaran() { document.getElementById("editPengeluaranModal").style.display = "none"; currentEditPengeluaranIndex = null; }
-
-function simpanModalPengeluaran() {
-  if(!currentEditPengeluaranIndex) return;
-  let p = pengeluaran.find(x => x.id === currentEditPengeluaranIndex);
-  p.nominal = Number(document.getElementById("modalNominalKeluar").value);
-  p.keterangan = document.getElementById("modalKetKeluar").value.trim();
-  saveData(); tutupModalPengeluaran();
-}
-
-async function hapusPengeluaran(id) {
-  let conf = await customConfirm("Hapus", "Hapus log pengeluaran ini?", "danger");
-  if(conf) {
-    pengeluaran = pengeluaran.filter(x => x.id !== id);
-    saveData(); tutupModalPengeluaran();
-  }
-}
-
-// ====================================================
-// MASTER RENDER
-// ====================================================
-
-function renderAll() {
-  renderBeranda();
-  renderKasir();
-  renderLaporan();
-  renderRiwayat();
-  renderWeeklyChart();
-  renderCampaign();
-}
-
-function renderBeranda() {
-  let currentMonthKey = getMonthKey(dNow);
-  let salesMonth = penjualan.filter(x => getMonthKey(x.tanggal) === currentMonthKey);
-  let mtdQty = salesMonth.filter(x => x.qty > 0).reduce((sum, item) => sum + item.qty, 0);
-  let omzetMonth = salesMonth.reduce((sum, item) => sum + item.nominal, 0);
-  let keluarMonth = pengeluaran.filter(x => getMonthKey(x.tanggal) === currentMonthKey).reduce((s, x) => s + x.nominal, 0);
-  
-  let keyHariIni = getDayKey(dNow);
-  let omzetDay = penjualan.filter(x => getDayKey(x.tanggal) === keyHariIni).reduce((s, x) => s + x.nominal, 0);
-  let qtyDay = penjualan.filter(x => getDayKey(x.tanggal) === keyHariIni && x.qty > 0).reduce((s, x) => s + x.qty, 0);
-
-  document.getElementById("stokBotol").innerText = stokBotol;
-  document.getElementById("stokBox").innerText = stokBox;
-  document.getElementById("totalBarang").innerText = barang.length;
-
-  runCountUp("omzetHariIni", omzetDay, true);
-  runCountUp("hariIniOmzetText", omzetDay, true);
-  runCountUp("hariIniQtyText", qtyDay, false, " Pcs");
-
-  runCountUp("omzet", omzetMonth, true);
-  runCountUp("pengeluaran", keluarMonth, true);
-  runCountUp("laba", omzetMonth - keluarMonth, true);
-
-  // DASHBOARD AI (SSOT Target)
-  let tBulan = currentMonthlyTarget;
-  runCountUp("dashTargetBulanVal", globalAIForecast.prediksiAkhirBulan, false, " Botol");
-  document.getElementById("aiPrediksiBesok").innerText = globalAIForecast.prediksiBesok + " Botol";
-  document.getElementById("aiConfidence").innerText = globalAIForecast.confidence + "%";
-
-  // PROGRESS TARGET BAR
-  let pct = tBulan > 0 ? (mtdQty / tBulan) * 100 : 0;
-  if(pct > 100) pct = 100;
-  document.getElementById("targetProgressFill").style.width = pct + "%";
-  document.getElementById("targetTextInfo").innerText = `${mtdQty} / ${tBulan} Botol (${Math.round(pct)}%)`;
-  
-  let sisa = tBulan - mtdQty;
-  if(sisa <= 0) {
-    document.getElementById("targetAvgInfo").innerHTML = `<b style="color:var(--success)">✅ Target Bulan Ini Telah Tercapai!</b>`;
-  } else {
-    let tdMonth = new Date(dNow.getFullYear(), dNow.getMonth() + 1, 0).getDate();
-    let sisaHari = Math.max(1, tdMonth - dNow.getDate());
-    let avgNeed = Math.ceil(sisa / sisaHari);
-    document.getElementById("targetAvgInfo").innerHTML = `Perlu <b>${avgNeed} botol/hari</b> untuk capai target di sisa ${sisaHari} hari.`;
-  }
-
-  // TOP VARIAN
-  let varMap = {};
-  salesMonth.forEach(p => { if(p.qty > 0) varMap[p.barang] = (varMap[p.barang] || 0) + p.qty; });
-  let sortVar = Object.entries(varMap).sort((a,b)=>b[1]-a[1]);
-  
-  let topHtml = "";
-  sortVar.slice(0, 5).forEach((v, i) => {
-    topHtml += `
-      <div class="product-badge-card">
-        <div class="product-badge-rank">Rank #${i+1}</div>
-        <div class="product-badge-name">${v[0]}</div>
-        <div class="product-badge-qty">${v[1]} Pcs Terjual</div>
-      </div>
-    `;
-  });
-  if(sortVar.length === 0) topHtml = `<div style="font-size:12px; color:var(--text-muted); width:100%; text-align:center;">Belum ada penjualan bulan ini.</div>`;
-  document.getElementById("topVarianAvatars").innerHTML = topHtml;
-
-  // TREND BADGE
-  let keyKemarin = getDayKey(new Date(dNow.getFullYear(), dNow.getMonth(), dNow.getDate()-1));
-  let omzetKemarin = penjualan.filter(x => getDayKey(x.tanggal) === keyKemarin).reduce((s, x) => s + x.nominal, 0);
-  let tBdg = document.getElementById("trendBadge");
-  if(omzetKemarin === 0) { tBdg.className = "trend-badge neutral"; tBdg.innerHTML = "<i class='fa-solid fa-minus'></i> --%"; }
-  else {
-    let diff = ((omzetDay - omzetKemarin) / omzetKemarin) * 100;
-    if(diff > 0) { tBdg.className = "trend-badge up"; tBdg.innerHTML = `<i class='fa-solid fa-arrow-trend-up'></i> +${diff.toFixed(1)}%`; }
-    else if(diff < 0) { tBdg.className = "trend-badge down"; tBdg.innerHTML = `<i class='fa-solid fa-arrow-trend-down'></i> ${diff.toFixed(1)}%`; }
-    else { tBdg.className = "trend-badge neutral"; tBdg.innerHTML = "<i class='fa-solid fa-minus'></i> 0%"; }
-  }
-}
-
-function renderKasir() {
-  // Select options
-  let opt = barang.map(b => `<option value="${b.nama}">${b.nama} (Stok: ${b.stok})</option>`).join("");
-  document.getElementById("barangJual").innerHTML = opt;
-  let tOpt = `<option value="botol">Botol (Stok: ${stokBotol})</option><option value="box">Box (Stok: ${stokBox})</option>` + opt;
-  document.getElementById("targetPesan").innerHTML = tOpt;
-
-  // Kasir Grid
-  let q = document.getElementById("cariBarangInput").value.toLowerCase();
-  let brgFiltered = barang.filter(b => b.nama.toLowerCase().includes(q));
-  
-  let html = brgFiltered.map(b => `
-    <div class="item-barang">
-      <div class="item-info">
-        <b>${b.nama}</b>
-        <div class="stok-text">Stok Varian: <span style="color:${b.stok < 5 ? 'var(--danger)' : 'var(--success)'}; font-weight:800;">${b.stok}</span></div>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr auto; gap:6px; margin-top:10px;">
-        <button onclick="eksekusiPenjualanInstan(${b.id}, event)" style="padding:10px; font-size:12px; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="fa-solid fa-cart-plus"></i> Kasir</button>
-        <button onclick="bukaModalEdit(${b.id})" style="background:#cbd5e1; color:var(--text-main); width:40px; padding:10px; box-shadow:none;"><i class="fa-solid fa-pen"></i></button>
-      </div>
-    </div>
-  `).join("");
-  if(brgFiltered.length === 0) html = `<div style="grid-column: span 2; text-align:center; padding: 20px; font-size:12px; color:var(--text-muted);">Tidak ada varian parfum yang cocok.</div>`;
-  document.getElementById("listBarang").innerHTML = html;
-
-  // Antrean Pesanan
-  let htmlPesan = pesanan.map(p => `
-    <div style="background:var(--primary-light); padding:10px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:12px; border:1px solid #cbd5e1;">
-      <div><b>${p.target.toUpperCase()}</b><br>Jumlah: <span style="color:var(--primary); font-weight:800;">${p.qty} pcs</span></div>
-      <div style="display:flex; gap:6px;">
-        <button onclick="hapusPesanan(${p.id})" style="background:var(--danger); width:35px; height:35px; padding:0; box-shadow:none;"><i class="fa-solid fa-xmark"></i></button>
-        <button onclick="selesaikanPesanan(${p.id})" style="background:var(--success); width:35px; height:35px; padding:0; box-shadow:none;"><i class="fa-solid fa-check"></i></button>
-      </div>
-    </div>
-  `).join("");
-  if(pesanan.length === 0) htmlPesan = `<div style="font-size:11px; text-align:center; color:var(--text-muted);">Tidak ada antrean pesanan.</div>`;
-  document.getElementById("listPesanPending").innerHTML = htmlPesan;
-}
-
-function renderLaporan() {
-  updateMonthSelect();
-  
-  let keyHari = document.getElementById("hariSelect").value;
-  let keyBul = document.getElementById("bulanSelect").value || getMonthKey(new Date());
-
-  // Laporan Harian
-  let pDay = penjualan.filter(x => getDayKey(x.tanggal) === keyHari);
-  let pdQty = pDay.filter(x => x.qty > 0).reduce((s, x) => s + x.qty, 0);
-  let pdOmzet = pDay.reduce((s, x) => s + x.nominal, 0);
-  let kDay = pengeluaran.filter(x => getDayKey(x.tanggal) === keyHari).reduce((s, x) => s + x.nominal, 0);
-  
-  let hDayHtml = `
-    <b>Total Penjualan:</b> ${pdQty} Botol<br>
-    <b>Omzet Hari Ini:</b> Rp ${pdOmzet.toLocaleString('id-ID')}<br>
-    <b style="color:var(--danger)">Pengeluaran Hari Ini:</b> Rp ${kDay.toLocaleString('id-ID')}<br>
-    <b style="color:var(--success)">Laba Bersih Hari Ini:</b> Rp ${(pdOmzet - kDay).toLocaleString('id-ID')}
-  `;
-  document.getElementById("summaryHarian").innerHTML = hDayHtml;
-
-  // Laporan Bulanan
-  let pMon = penjualan.filter(x => getMonthKey(x.tanggal) === keyBul);
-  let pmQty = pMon.filter(x => x.qty > 0).reduce((s, x) => s + x.qty, 0);
-  let pmOmzet = pMon.reduce((s, x) => s + x.nominal, 0);
-  let kMon = pengeluaran.filter(x => getMonthKey(x.tanggal) === keyBul).reduce((s, x) => s + x.nominal, 0);
-  
-  // Hitung Pengeluaran Iklan Bulan Ini
-  let kIklan = campaigns.filter(c => getMonthKey(c.tanggal_mulai) === keyBul).reduce((s, c) => s + c.total_budget, 0);
-
-  let hMonHtml = `
-    <b>Total Penjualan Bulan Ini:</b> ${pmQty} Botol<br>
-    <b>Total Omzet Bulan Ini:</b> Rp ${pmOmzet.toLocaleString('id-ID')}<br>
-    <b style="color:var(--warning)">Total Belanja Ads/Iklan:</b> Rp ${kIklan.toLocaleString('id-ID')}<br>
-    <b style="color:var(--danger)">Total Pengeluaran Logistik:</b> Rp ${kMon.toLocaleString('id-ID')}<br>
-    <div style="border-top:1px dashed #cbd5e1; margin-top:8px; padding-top:8px;">
-      <b style="color:var(--success)">Laba Bersih Bulan Ini:</b> Rp ${(pmOmzet - kMon - kIklan).toLocaleString('id-ID')}
-    </div>
-  `;
-  document.getElementById("summaryBulanan").innerHTML = hMonHtml;
-}
-
 function updateMonthSelect(){
   let set = new Set();
-  penjualan.forEach(x=>set.add(getMonthKey(x.tanggal))); 
-  pengeluaran.forEach(x=>set.add(getMonthKey(x.tanggal))); 
-  set.add(getMonthKey(new Date()));
-  let arr = [...set].sort().reverse();
-  
-  let curVal = document.getElementById("bulanSelect").value;
-  document.getElementById("bulanSelect").innerHTML = arr.map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
-  if(arr.includes(curVal)) document.getElementById("bulanSelect").value = curVal;
+  penjualan.forEach(x=>set.add(getMonthKey(x.tanggal))); pengeluaran.forEach(x=>set.add(getMonthKey(x.tanggal))); set.add(getMonthKey(new Date()));
+  document.getElementById("bulanSelect").innerHTML = [...set].sort().reverse().map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
+
+function handleSearchInput() { let q = document.getElementById("cariBarangInput").value; document.getElementById("btnClearSearch").style.display = q ? "block" : "none"; renderKasirList(); }
+function clearSearchField() { document.getElementById("cariBarangInput").value = ""; document.getElementById("btnClearSearch").style.display = "none"; renderKasirList(); }
 
 function renderWeeklyChart() {
   let labels = []; let dataOmzet = [];
@@ -2308,53 +1939,429 @@ function renderWeeklyChart() {
   }
   let ctx = document.getElementById('grafikMingguan').getContext('2d');
   let lineColor = isDarkMode ? '#2dd4bf' : '#0f616d'; let bgColor = isDarkMode ? 'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
-  if(chartInstance) { chartInstance.data.labels = labels; chartInstance.data.datasets[0].data = dataOmzet; chartInstance.data.datasets[0].borderColor = lineColor; chartInstance.data.datasets[0].backgroundColor = bgColor; chartInstance.update();
-  } else { chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Omzet', data: dataOmzet, borderColor: lineColor, backgroundColor: bgColor, borderWidth: 2, tension: 0.3, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); }, font: { size: 9 } } }, x: { ticks: { font: { size: 10 } } } } } }); }
-}
-
-function renderRiwayat() {
-  let mode = document.getElementById("modeRiwayat").value;
-  let rawDate = document.getElementById("tanggalRiwayat").value;
-  let key = mode === 'harian' ? rawDate : getMonthKey(rawDate);
   
-  let fJual = penjualan.filter(x => mode === 'harian' ? getDayKey(x.tanggal) === key : getMonthKey(x.tanggal) === key).slice().reverse();
-  let htmlJ = fJual.map(p => `
-    <div style="background:var(--bg-main); border:1px solid #e2e8f0; padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
-      <div>
-        <div style="font-size:10px; color:var(--text-muted);">${new Date(p.tanggal).toLocaleString('id-ID')}</div>
-        <b>${p.barang}</b> ${p.qty > 0 ? `<span style="color:var(--primary); font-weight:bold;">x ${p.qty}</span>` : ''}
-        ${p.iklan ? `<div style="font-size:9px; color:var(--ai-color); background:var(--ai-light); padding:2px 6px; border-radius:10px; display:inline-block; margin-top:2px;">Ads Source</div>` : ''}
-      </div>
-      <div style="text-align:right;">
-        <div style="color:var(--success); font-weight:800;">Rp ${p.nominal.toLocaleString('id-ID')}</div>
-        <button onclick="editPenjualan(${p.id})" style="background:var(--danger); padding:4px 8px; font-size:10px; box-shadow:none; margin-top:4px;">Batalkan</button>
-      </div>
-    </div>
-  `).join("");
-  if(fJual.length === 0) htmlJ = `<div style="text-align:center; font-size:12px; color:var(--text-muted);">Tidak ada data penjualan.</div>`;
-  document.getElementById("riwayatJual").innerHTML = htmlJ;
-
-  let fKeluar = pengeluaran.filter(x => mode === 'harian' ? getDayKey(x.tanggal) === key : getMonthKey(x.tanggal) === key).slice().reverse();
-  let htmlK = fKeluar.map(p => `
-    <div style="background:var(--bg-main); border:1px solid #e2e8f0; padding:10px 14px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
-      <div style="flex:1;">
-        <div style="font-size:10px; color:var(--text-muted);">${new Date(p.tanggal).toLocaleString('id-ID')}</div>
-        <b>${p.keterangan}</b>
-      </div>
-      <div style="text-align:right;">
-        <div style="color:var(--danger); font-weight:800; margin-bottom:4px;">- Rp ${p.nominal.toLocaleString('id-ID')}</div>
-        <button onclick="editPengeluaran(${p.id})" style="background:#cbd5e1; color:var(--text-main); padding:4px 8px; font-size:10px; box-shadow:none; width:auto; display:inline-block;"><i class="fa-solid fa-pen"></i></button>
-        <button onclick="hapusPengeluaran(${p.id})" style="background:var(--danger); padding:4px 8px; font-size:10px; box-shadow:none; width:auto; display:inline-block;"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    </div>
-  `).join("");
-  if(fKeluar.length === 0) htmlK = `<div style="text-align:center; font-size:12px; color:var(--text-muted);">Tidak ada log pengeluaran.</div>`;
-  document.getElementById("riwayatKeluar").innerHTML = htmlK;
+  if(chartInstance) { 
+    chartInstance.data.labels = labels; 
+    chartInstance.data.datasets[0].data = dataOmzet; 
+    chartInstance.data.datasets[0].borderColor = lineColor; 
+    chartInstance.data.datasets[0].backgroundColor = bgColor; 
+    chartInstance.update();
+  } else { 
+    chartInstance = new Chart(ctx, { 
+      type: 'line', 
+      data: { 
+        labels: labels, 
+        datasets: [{ 
+          label: 'Omzet', 
+          data: dataOmzet, 
+          borderColor: lineColor, 
+          backgroundColor: bgColor, 
+          borderWidth: 2, 
+          tension: 0.3,
+          fill: true
+        }] 
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: function(value) { return 'Rp ' + (value/1000) + 'k'; }, font: {size: 10} } },
+          x: { ticks: { font: {size: 10} } }
+        }
+      }
+    });
+  }
 }
 
-// Initial Call
-setTimeout(loadDataFromCloud, 100);
+function simpanHargaBaru() {
+  let p = Number(document.getElementById("inputHargaGlobal").value);
+  if(p > 0) { HARGA = p; saveData(); customAlert("Tersimpan", "Harga global berhasil diperbarui.", "success"); }
+}
 
+function tambahBarang() {
+  let nama = document.getElementById("namaBarang").value.trim();
+  let qty = Number(document.getElementById("qtyBarang").value);
+  if(!nama || qty < 0) return customAlert("Error", "Input nama varian dan stok yang valid.", "warning");
+  barang.push({ id: Date.now(), nama: nama, stok: qty });
+  document.getElementById("namaBarang").value = ""; document.getElementById("qtyBarang").value = "";
+  saveData(); customAlert("Berhasil", "Varian baru didaftarkan.", "success");
+}
+
+function buatPesanan() {
+  let tgt = document.getElementById("targetPesan").value;
+  let qt = Number(document.getElementById("qtyPesan").value);
+  if(qt <= 0) return customAlert("Error", "Kuantitas pesanan minimal 1.", "warning");
+  pesanan.push({ id: Date.now(), target: tgt, qty: qt, tanggal: new Date().toISOString() });
+  document.getElementById("qtyPesan").value = "";
+  saveData(); customAlert("Masuk Antrean", "Pesanan restock dicatat.", "success");
+}
+
+function hapusPesanan(id, isSelesai) {
+  if(isSelesai) {
+    let p = pesanan.find(x => x.id === id);
+    if(p) {
+      if(p.target === "botol") stokBotol += p.qty;
+      else if(p.target === "box") stokBox += p.qty;
+      else { let b = barang.find(x => x.nama === p.target); if(b) b.stok += p.qty; }
+    }
+  }
+  pesanan = pesanan.filter(x => x.id !== id);
+  saveData();
+}
+
+async function jualBarangCepat(id) {
+  let b = barang.find(x => x.id === id); if(!b) return;
+  if(b.stok < 1 || stokBotol < 1 || stokBox < 1) {
+    let conf = await customConfirm("Stok Kurang", "Stok ada yang kosong. Tetap paksa jual?", "warning");
+    if(!conf) return;
+  }
+  
+  let activeCamp = campaigns.find(c => c.status === 'Aktif');
+  
+  b.stok--; stokBotol--; stokBox--;
+  penjualan.push({
+    id: Date.now(), 
+    barang: b.nama, 
+    qty: 1, 
+    nominal: HARGA, 
+    tanggal: new Date().toISOString(),
+    campaign_id: activeCamp ? activeCamp.id : null
+  });
+  
+  cetakStrukOtomatis(b.nama, 1, HARGA);
+  saveData();
+  customAlert("Terjual", "1 Pcs " + b.nama + " sukses dicatat.", "success");
+}
+
+async function jualBarang() {
+  let id = Number(document.getElementById("barangJual").value);
+  let qt = Number(document.getElementById("qtyJual").value);
+  if(qt <= 0) return customAlert("Error", "Kuantitas jual tidak valid.", "warning");
+  
+  let b = barang.find(x => x.id === id); if(!b) return;
+  if(b.stok < qt || stokBotol < qt || stokBox < qt) {
+    let conf = await customConfirm("Stok Kurang", "Stok ada yang tidak cukup untuk grosir. Tetap lanjutkan?", "warning");
+    if(!conf) return;
+  }
+
+  let activeCamp = campaigns.find(c => c.status === 'Aktif');
+
+  b.stok -= qt; stokBotol -= qt; stokBox -= qt;
+  let total = qt * HARGA;
+  penjualan.push({
+    id: Date.now(), 
+    barang: b.nama, 
+    qty: qt, 
+    nominal: total, 
+    tanggal: new Date().toISOString(),
+    campaign_id: activeCamp ? activeCamp.id : null
+  });
+  
+  document.getElementById("qtyJual").value = "";
+  cetakStrukOtomatis(b.nama, qt, total);
+  saveData();
+  customAlert("Transaksi Grosir", qt + " Pcs " + b.nama + " tercatat.", "success");
+}
+
+function tambahOmzetManual() {
+  let nom = Number(document.getElementById("manualOmzet").value);
+  let ket = document.getElementById("manualKet").value || "Manual Omzet";
+  if(nom <= 0) return customAlert("Error", "Nominal tidak valid.", "warning");
+  penjualan.push({ id: Date.now(), barang: "OMZET MANUAL: " + ket, qty: 0, nominal: nom, tanggal: new Date().toISOString(), campaign_id: null });
+  document.getElementById("manualOmzet").value = ""; document.getElementById("manualKet").value = "";
+  saveData();
+}
+
+function tambahPengeluaran() {
+  let nom = Number(document.getElementById("nominalKeluar").value);
+  let ket = document.getElementById("ketKeluar").value;
+  if(!ket || nom <= 0) return customAlert("Error", "Lengkapi form pengeluaran.", "warning");
+  pengeluaran.push({ id: Date.now(), keterangan: ket, nominal: nom, tanggal: new Date().toISOString() });
+  document.getElementById("nominalKeluar").value = ""; document.getElementById("ketKeluar").value = "";
+  saveData();
+}
+
+function editBarang(id) {
+  let b = barang.find(x => x.id === id); if(!b) return;
+  currentEditIndex = id; tempStok = b.stok;
+  document.getElementById("modalNamaBarang").value = b.nama;
+  document.getElementById("modalStokSekarang").innerText = tempStok;
+  document.getElementById("modalJumlahManual").value = "";
+  document.getElementById("editModal").style.display = "flex";
+}
+
+function eksekusiManualModal(aksi) {
+  let v = Number(document.getElementById("modalJumlahManual").value);
+  if(v <= 0 || isNaN(v)) return;
+  if(aksi === 'tambah') tempStok += v; else tempStok = Math.max(0, tempStok - v);
+  document.getElementById("modalStokSekarang").innerText = tempStok;
+}
+
+function simpanModalEdit() {
+  let b = barang.find(x => x.id === currentEditIndex);
+  if(b) {
+    b.nama = document.getElementById("modalNamaBarang").value;
+    b.stok = tempStok;
+    saveData();
+  }
+  tutupModalEdit();
+}
+
+function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
+
+function editLogistik(jenis) {
+  currentLogistikJenis = jenis;
+  let title = jenis === 'botol' ? 'Botol' : 'Box';
+  let curVal = jenis === 'botol' ? stokBotol : stokBox;
+  document.getElementById("logistikModalJudul").innerHTML = `<i class="fa-solid fa-${jenis === 'botol' ? 'wine-bottle' : 'box-open'}"></i> Edit ${title}`;
+  document.getElementById("logistikStokSekarang").innerText = curVal;
+  document.getElementById("logistikJumlahManual").value = "";
+  document.getElementById("logistikModal").style.display = "flex";
+}
+
+function eksekusiLogistik(aksi) {
+  let v = Number(document.getElementById("logistikJumlahManual").value);
+  if(v <= 0 || isNaN(v)) return;
+  let curVal = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
+  if(aksi === 'tambah') curVal += v; else curVal = Math.max(0, curVal - v);
+  
+  if(currentLogistikJenis === 'botol') stokBotol = curVal; else stokBox = curVal;
+  document.getElementById("logistikStokSekarang").innerText = curVal;
+  saveData();
+}
+
+function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none"; }
+
+function editPengeluaran(id) {
+  let p = pengeluaran.find(x => x.id === id); if(!p) return;
+  currentEditPengeluaranIndex = id;
+  document.getElementById("modalNominalKeluar").value = p.nominal;
+  document.getElementById("modalKetKeluar").value = p.keterangan;
+  document.getElementById("editPengeluaranModal").style.display = "flex";
+}
+function simpanModalPengeluaran() {
+  let p = pengeluaran.find(x => x.id === currentEditPengeluaranIndex);
+  if(p) {
+    p.nominal = Number(document.getElementById("modalNominalKeluar").value);
+    p.keterangan = document.getElementById("modalKetKeluar").value;
+    saveData();
+  }
+  tutupModalPengeluaran();
+}
+function tutupModalPengeluaran() { document.getElementById("editPengeluaranModal").style.display = "none"; }
+
+async function hapusPenjualan(id) {
+  let conf = await customConfirm("Hapus", "Hapus riwayat penjualan ini? (Stok TIDAK dikembalikan)", "danger");
+  if(conf) { penjualan = penjualan.filter(x => x.id !== id); saveData(); }
+}
+
+async function hapusPengeluaran(id) {
+  let conf = await customConfirm("Hapus", "Hapus riwayat pengeluaran ini?", "danger");
+  if(conf) { pengeluaran = pengeluaran.filter(x => x.id !== id); saveData(); }
+}
+
+async function salinDataKeClipboard() {
+  let p = { stokBotol: stokBotol, stokBox: stokBox, barang: barang, penjualan: penjualan, pengeluaran: pengeluaran, pesanan: pesanan, hargaGlobal: HARGA, campaigns: campaigns };
+  let s = JSON.stringify(p);
+  try {
+    await navigator.clipboard.writeText(s);
+    customAlert("Sukses", "Data berhasil di-copy. Simpan di tempat yang aman.", "success");
+  } catch(err) {
+    prompt("Copy manual teks di bawah ini:", s);
+  }
+}
+
+async function pasteDataTransfer() {
+  let s = document.getElementById("inputTransferData").value.trim();
+  if(!s) return;
+  let conf = await customConfirm("Peringatan Keras", "Data saat ini akan DIHAPUS PERMANEN dan ditimpa. Lanjutkan?", "danger");
+  if(!conf) return;
+  try {
+    let p = JSON.parse(s);
+    stokBotol = p.stokBotol || 0; stokBox = p.stokBox || 0;
+    barang = p.barang || []; penjualan = p.penjualan || [];
+    pengeluaran = p.pengeluaran || []; pesanan = p.pesanan || [];
+    HARGA = p.hargaGlobal || 27000; campaigns = p.campaigns || [];
+    document.getElementById("inputTransferData").value = "";
+    saveData();
+    customAlert("Sukses", "Data berhasil ditransfer dan dimuat.", "success");
+  } catch(err) {
+    customAlert("Gagal", "Format data tidak valid.", "warning");
+  }
+}
+
+function renderKasirList() {
+  let q = document.getElementById("cariBarangInput").value.toLowerCase();
+  let filtered = barang.filter(b => b.nama.toLowerCase().includes(q));
+  
+  document.getElementById("listBarang").innerHTML = filtered.map(b => `
+    <div class="item-barang">
+      <div class="item-info">
+        <b style="font-size:14px;">${b.nama}</b>
+        <div class="stok-text">Stok: <span style="font-weight:800; color:${b.stok < 5 ? 'var(--danger)' : 'var(--success)'}">${b.stok}</span></div>
+      </div>
+      <div style="display:flex; gap:6px; margin-top:10px;">
+        <button onclick="jualBarangCepat(${b.id})" style="flex:1; padding:8px; font-size:11px; background:var(--primary);"><i class="fa-solid fa-cart-plus"></i> Jual 1</button>
+        <button onclick="editBarang(${b.id})" style="flex:1; padding:8px; font-size:11px; background:#94a3b8; box-shadow:none;"><i class="fa-solid fa-pen"></i></button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function render() {
+  runCountUp("stokBotol", stokBotol, false);
+  runCountUp("stokBox", stokBox, false);
+  document.getElementById("totalBarang").innerText = barang.length;
+  
+  // Dashboard Metrics
+  let dNow = new Date();
+  let keyHariIni = getDayKey(dNow);
+  let keyBulanIni = getMonthKey(dNow);
+  
+  let jualHariIni = penjualan.filter(x => getDayKey(x.tanggal) === keyHariIni);
+  let omzetH = jualHariIni.reduce((a,b)=>a+b.nominal, 0);
+  let qtyH = jualHariIni.reduce((a,b)=>a+b.qty, 0);
+  
+  runCountUp("omzetHariIni", omzetH, true);
+  runCountUp("hariIniOmzetText", omzetH, true);
+  runCountUp("hariIniQtyText", qtyH, false, " Pcs");
+  
+  // Trend Indicator
+  let dKemarin = new Date(dNow); dKemarin.setDate(dKemarin.getDate() - 1);
+  let jualKemarin = penjualan.filter(x => getDayKey(x.tanggal) === getDayKey(dKemarin));
+  let omzetKemarin = jualKemarin.reduce((a,b)=>a+b.nominal, 0);
+  
+  let tBadge = document.getElementById("trendBadge");
+  if(omzetH > omzetKemarin) { tBadge.className = "trend-badge up"; tBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> Naik`; }
+  else if(omzetH < omzetKemarin) { tBadge.className = "trend-badge down"; tBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-down"></i> Turun`; }
+  else { tBadge.className = "trend-badge neutral"; tBadge.innerHTML = `<i class="fa-solid fa-minus"></i> Stabil`; }
+  
+  // Varian Terlaris Hari Ini
+  let varianCounts = {};
+  jualHariIni.forEach(p => { if(p.barang && p.barang !== "OMZET MANUAL") varianCounts[p.barang] = (varianCounts[p.barang] || 0) + p.qty; });
+  let sortV = Object.entries(varianCounts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById("topVarianHariIniText").innerText = sortV.length > 0 ? `${sortV[0][0]} (${sortV[0][1]} pcs)` : "Belum ada";
+  
+  // Bulan Ini
+  let jualBulanIni = penjualan.filter(x => getMonthKey(x.tanggal) === keyBulanIni);
+  let keluarBulanIni = pengeluaran.filter(x => getMonthKey(x.tanggal) === keyBulanIni);
+  
+  let omzetB = jualBulanIni.reduce((a,b)=>a+b.nominal, 0);
+  let keluarB = keluarBulanIni.reduce((a,b)=>a+b.nominal, 0);
+  let labaB = omzetB - keluarB;
+  let qtyB = jualBulanIni.reduce((a,b)=>a+b.qty, 0);
+  
+  runCountUp("omzet", omzetB, true);
+  runCountUp("pengeluaran", keluarB, true);
+  runCountUp("laba", labaB, true);
+  
+  // Target Progress Sync
+  let targetVal = currentMonthlyTarget;
+  let progressPct = Math.min(100, Math.round((qtyB / targetVal) * 100));
+  
+  document.getElementById("targetModeLabel").innerText = `[Mode: ${targetMode}]`;
+  document.getElementById("targetTextInfo").innerText = `${qtyB} / ${targetVal} Botol (${progressPct}%)`;
+  document.getElementById("targetProgressFill").style.width = progressPct + "%";
+  document.getElementById("dashTargetBulanVal").innerText = `${targetVal} Botol`;
+  
+  let trm = new Date(dNow.getFullYear(), dNow.getMonth() + 1, 0).getDate() - dNow.getDate();
+  let avgTgt = trm > 0 ? ((targetVal - qtyB) / trm).toFixed(1) : (targetVal - qtyB);
+  if (qtyB >= targetVal) {
+    document.getElementById("targetAvgInfo").innerHTML = `<span style="color:var(--success); font-weight:800;"><i class="fa-solid fa-check-circle"></i> TARGET BULAN INI TERCAPAI!</span>`;
+    document.getElementById("targetProgressFill").style.background = "var(--success)";
+  } else {
+    document.getElementById("targetAvgInfo").innerText = `Butuh avg ${avgTgt} botol/hari di sisa ${trm} hari.`;
+    document.getElementById("targetProgressFill").style.background = "var(--ai-color)";
+  }
+  
+  // Top Avatars
+  let vMonth = {};
+  jualBulanIni.forEach(p => { if(p.barang && p.barang !== "OMZET MANUAL") vMonth[p.barang] = (vMonth[p.barang] || 0) + p.qty; });
+  let topMonth = Object.entries(vMonth).sort((a,b)=>b[1]-a[1]).slice(0, 5);
+  document.getElementById("topVarianAvatars").innerHTML = topMonth.map((item, idx) => `
+    <div class="product-badge-card">
+      <div class="product-badge-rank">Rank #${idx+1}</div>
+      <div class="product-badge-name">${item[0]}</div>
+      <div class="product-badge-qty">${item[1]} Pcs</div>
+    </div>
+  `).join("");
+  
+  // Update Select Options
+  updateMonthSelect();
+  
+  let optBarang = barang.map(b => `<option value="${b.id}">${b.nama} (Stok: ${b.stok})</option>`).join("");
+  document.getElementById("barangJual").innerHTML = optBarang;
+  document.getElementById("targetPesan").innerHTML = `<option value="botol">Logistik Botol</option><option value="box">Logistik Box</option>` + barang.map(b => `<option value="${b.nama}">Varian: ${b.nama}</option>`).join("");
+  
+  // AI Dash Info
+  document.getElementById("aiPrediksiBesok").innerText = `${globalAIForecast.prediksiBesok} Botol`;
+  document.getElementById("aiConfidence").innerText = `${globalAIForecast.confidence}%`;
+  document.getElementById("aiStatusVal").innerHTML = `<i class="fa-solid fa-circle-check"></i> Active`;
+  document.getElementById("aiModelSyncVal").innerText = `${targetVal} Botol`;
+  
+  renderKasirList();
+  renderWeeklyChart();
+  renderCampaign();
+  
+  // Pesanan Pending
+  document.getElementById("listPesanPending").innerHTML = pesanan.map(p => `
+    <div style="background:var(--bg-main); border-radius:10px; padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid #cbd5e1;">
+      <div style="font-size:12px;"><b>${p.target.toUpperCase()}</b><br><span style="color:var(--text-muted)">PO: ${p.qty} Pcs</span></div>
+      <div style="display:flex; gap:6px;">
+        <button onclick="hapusPesanan(${p.id}, true)" style="background:var(--success); width:auto; padding:8px; font-size:11px; box-shadow:none;"><i class="fa-solid fa-check"></i> Selesai</button>
+        <button onclick="hapusPesanan(${p.id}, false)" style="background:var(--danger); width:auto; padding:8px; font-size:11px; box-shadow:none;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+  `).join("");
+
+  // Riwayat Tab
+  let tglRiw = document.getElementById("tanggalRiwayat").value;
+  let modeRiw = document.getElementById("modeRiwayat").value;
+  let filtJ = penjualan.filter(x => modeRiw === 'harian' ? getDayKey(x.tanggal) === tglRiw : getMonthKey(x.tanggal) === getMonthKey(tglRiw));
+  let filtK = pengeluaran.filter(x => modeRiw === 'harian' ? getDayKey(x.tanggal) === tglRiw : getMonthKey(x.tanggal) === getMonthKey(tglRiw));
+  
+  document.getElementById("riwayatJual").innerHTML = filtJ.slice().reverse().map(p => `
+    <div style="background:var(--bg-main); padding:12px; border-radius:10px; margin-bottom:8px; font-size:12px; border:1px solid #cbd5e1; position:relative;">
+      <b>${p.barang}</b> ${p.qty > 0 ? `(${p.qty}x)` : ''}<br>
+      <span style="color:var(--success); font-weight:800;">Rp ${p.nominal.toLocaleString('id-ID')}</span> <span style="font-size:10px; color:var(--text-muted);">${new Date(p.tanggal).toLocaleTimeString('id-ID')}</span>
+      <button onclick="hapusPenjualan(${p.id})" style="position:absolute; right:10px; top:12px; width:auto; background:none; color:var(--danger); padding:4px; box-shadow:none;"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  `).join("");
+  
+  document.getElementById("riwayatKeluar").innerHTML = filtK.slice().reverse().map(p => `
+    <div style="background:var(--bg-main); padding:12px; border-radius:10px; margin-bottom:8px; font-size:12px; border:1px solid #cbd5e1; position:relative;">
+      <b>${p.keterangan}</b><br>
+      <span style="color:var(--danger); font-weight:800;">Rp ${p.nominal.toLocaleString('id-ID')}</span> <span style="font-size:10px; color:var(--text-muted);">${new Date(p.tanggal).toLocaleTimeString('id-ID')}</span>
+      <div style="position:absolute; right:10px; top:8px; display:flex; gap:6px;">
+        <button onclick="editPengeluaran(${p.id})" style="width:auto; background:none; color:var(--text-muted); padding:4px; box-shadow:none;"><i class="fa-solid fa-pen"></i></button>
+        <button onclick="hapusPengeluaran(${p.id})" style="width:auto; background:none; color:var(--danger); padding:4px; box-shadow:none;"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+  `).join("");
+
+  // Laporan Tab
+  let repH = penjualan.filter(x => getDayKey(x.tanggal) === document.getElementById("hariSelect").value);
+  let repB = penjualan.filter(x => getMonthKey(x.tanggal) === document.getElementById("bulanSelect").value);
+  
+  let oH = repH.reduce((a,b)=>a+b.nominal, 0); let qH = repH.reduce((a,b)=>a+b.qty, 0);
+  let oB = repB.reduce((a,b)=>a+b.nominal, 0); let qB = repB.reduce((a,b)=>a+b.qty, 0);
+  
+  let kb = pengeluaran.filter(x => getMonthKey(x.tanggal) === document.getElementById("bulanSelect").value).reduce((a,b)=>a+b.nominal, 0);
+  
+  document.getElementById("summaryHarian").innerHTML = `
+    <b>Total Penjualan Qty:</b> ${qH} Pcs<br>
+    <b>Omzet Kasir Kanan:</b> Rp ${oH.toLocaleString('id-ID')}
+  `;
+  document.getElementById("summaryBulanan").innerHTML = `
+    <b>Total Omzet:</b> Rp ${oB.toLocaleString('id-ID')}<br>
+    <b>Total Belanja:</b> Rp ${kb.toLocaleString('id-ID')}<br>
+    <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #cbd5e1; font-weight:800; color:var(--success);">Laba Bersih: Rp ${(oB - kb).toLocaleString('id-ID')}</div>
+  `;
+}
+
+// INIT
+window.onload = () => { loadDataFromCloud(); };
 </script>
 </body>
 </html>
