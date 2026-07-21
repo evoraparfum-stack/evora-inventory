@@ -462,6 +462,7 @@ input:focus, select:focus { border-color: var(--primary); background: var(--bg-c
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px; border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
 
+/* Updated bottom-nav to fit 6 items evenly */
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); height: 80px;
@@ -645,17 +646,17 @@ body.dark-theme .switch-container { border-color: #334155; }
   <!-- ======================== TAB KASIR ======================== -->
   <div id="tab-kasir" class="tab-content">
 
-    <!-- NEW CARD: AI TRACKING (DIPINDAHKAN KE PALING ATAS TAB KASIR) -->
-    <div class="card" id="aiTrackingCard">
-      <h3><i class="fa-solid fa-chart-pie"></i> AI TRACKING PENJUALAN</h3>
+    <!-- NEW CARD: MODE IKLAN -->
+    <div class="card" id="adsModeCard">
+      <h3><i class="fa-solid fa-bullhorn"></i> MODE IKLAN HARI INI</h3>
       <div class="switch-container">
         <div style="text-align: left;">
-          <b style="font-size:13px;">Status AI Tracking</b>
-          <div id="aiTrackingBadge" style="margin-top:4px;">
-            <span class="badge-status" style="background:#e2e8f0; color:#64748b; border: 1px solid #cbd5e1;">AI Tracking Nonaktif</span>
+          <b style="font-size:13px;">Status Iklan</b>
+          <div id="adsModeBadge" style="margin-top:4px;">
+            <span class="badge-status" style="background:#e2e8f0; color:#64748b; border: 1px solid #cbd5e1;">Mode Organik</span>
           </div>
         </div>
-        <input type="checkbox" id="aiTrackingToggle" onchange="toggleAiTracking()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+        <input type="checkbox" id="adsModeToggle" onchange="toggleAdsMode()" style="width: 20px; height: 20px; accent-color: var(--primary);">
       </div>
     </div>
 
@@ -823,6 +824,13 @@ body.dark-theme .switch-container { border-color: #334155; }
       </div>
       <div class="ai-divider"></div>
       
+      <!-- V2 PANEL: Analisis Iklan & Memory -->
+      <div style="margin-top:8px;">
+        <span class="ai-label" style="font-weight:700; color:#fff; display:block; margin-bottom:4px;"><i class="fa-solid fa-bullhorn"></i> Analisis Iklan & Business Memory:</span>
+        <ul class="ai-list" id="aiCardAdMemory"><li>Menganalisa efektivitas iklan...</li></ul>
+      </div>
+      <div class="ai-divider"></div>
+
       <div class="ai-stat-row">
         <span class="ai-label">Confidence & Accuracy</span>
         <span class="ai-value" id="aiCardConfAcc">-</span>
@@ -986,6 +994,8 @@ let pesanan = [];
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
+let currentAdsMode = 'Organik'; // Nilai global SSOT mode iklan hari ini
+
 let namaUser = localStorage.getItem("evora_nama") || "Farhan";
 let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let printCharacteristic = null;
@@ -1001,21 +1011,94 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
-function toggleAiTracking(isInit = false) {
-  let isON = document.getElementById("aiTrackingToggle").checked;
-  localStorage.setItem("evora_ai_tracking", isON ? "true" : "false");
-  let badge = document.getElementById("aiTrackingBadge");
-  if (isON) {
-    badge.innerHTML = '<span class="badge-status status-ready">AI Tracking Aktif</span>';
-  } else {
-    badge.innerHTML = '<span class="badge-status" style="background:#e2e8f0; color:#64748b; border: 1px solid #cbd5e1;">AI Tracking Nonaktif</span>';
-  }
+// =================================================================
+// SUPABASE BUSINESS CONTEXT LOGIC (MODE IKLAN SSOT)
+// =================================================================
 
-  // Jika trigger langsung dari user (bukan dari init load), maka update AI.
-  if (!isInit && isON) {
-    EvoraAI.incrementalUpdate();
+async function initBusinessContext() {
+  let todayStr = getDayKey(new Date());
+  try {
+    const { data, error } = await supabaseApp
+      .from('business_context')
+      .select('*')
+      .eq('date', todayStr)
+      .single();
+
+    if (error && error.code === 'PGRST116') {
+      // Row tidak ditemukan untuk hari ini, create default "Organik"
+      const { data: insertData, error: insertError } = await supabaseApp
+        .from('business_context')
+        .insert([{ date: todayStr, ads_mode: 'Organik', updated_at: new Date().toISOString() }])
+        .select()
+        .single();
+      if (!insertError && insertData) {
+        currentAdsMode = 'Organik';
+      }
+    } else if (data) {
+      currentAdsMode = data.ads_mode;
+    }
+  } catch (err) {
+    console.error("Error init business_context", err);
+  }
+  
+  // Sinkronisasi UI Toggle sesuai Supabase state
+  let toggle = document.getElementById("adsModeToggle");
+  let badge = document.getElementById("adsModeBadge");
+  if (toggle && badge) {
+    if (currentAdsMode === 'Iklan') {
+      toggle.checked = true;
+      badge.innerHTML = '<span class="badge-status status-ready">Mode Iklan Aktif</span>';
+    } else {
+      toggle.checked = false;
+      badge.innerHTML = '<span class="badge-status" style="background:#e2e8f0; color:#64748b; border: 1px solid #cbd5e1;">Mode Organik</span>';
+    }
   }
 }
+
+async function toggleAdsMode() {
+  let isON = document.getElementById("adsModeToggle").checked;
+  currentAdsMode = isON ? 'Iklan' : 'Organik';
+  
+  let badge = document.getElementById("adsModeBadge");
+  if (isON) {
+    badge.innerHTML = '<span class="badge-status status-ready">Mode Iklan Aktif</span>';
+  } else {
+    badge.innerHTML = '<span class="badge-status" style="background:#e2e8f0; color:#64748b; border: 1px solid #cbd5e1;">Mode Organik</span>';
+  }
+
+  let todayStr = getDayKey(new Date());
+  
+  // Update to Supabase as SSOT (Single Source of Truth)
+  try {
+    await supabaseApp
+      .from('business_context')
+      .update({ ads_mode: currentAdsMode, updated_at: new Date().toISOString() })
+      .eq('date', todayStr);
+  } catch (err) {
+    console.error("Error updating business_context", err);
+  }
+  
+  EvoraAI.incrementalUpdate();
+}
+
+// Generate data tracking otomatis yang mencakup statusAdsMode saat ini
+function getTransactionTrackingData(qty, totalNilai, stokSebelum, stokSesudah) {
+  let now = new Date();
+  return {
+      jam: String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0'),
+      omzet: totalNilai,
+      laba: totalNilai, 
+      hargaJual: HARGA,
+      stokSebelum: stokSebelum,
+      stokSesudah: stokSesudah,
+      hari: now.toLocaleDateString('id-ID', {weekday: 'long'}),
+      bulan: String(now.getMonth() + 1).padStart(2, '0'),
+      tahun: now.getFullYear(),
+      statusIklan: currentAdsMode // Langsung tarik global state SSOT
+  };
+}
+
+// =================================================================
 
 function initSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
@@ -1025,13 +1108,7 @@ function initSettings() {
     btnDark.innerText = "Nonaktifkan";
     btnDark.style.background = "var(--danger)";
   }
-  
-  // Mengambil state AI Tracking saat load
-  let trackingState = localStorage.getItem("evora_ai_tracking") === "true";
-  document.getElementById("aiTrackingToggle").checked = trackingState;
-  toggleAiTracking(true);
 }
-initSettings();
 
 function shortcutRestock() { switchTab('kasir'); setTimeout(() => { document.getElementById("panelRestock").scrollIntoView({ behavior: "smooth", block: "start" }); }, 250); }
 function shortcutKasir() { switchTab('kasir'); setTimeout(() => { document.getElementById("panelKasir").scrollIntoView({ behavior: "smooth", block: "start" }); }, 250); }
@@ -1197,7 +1274,7 @@ function switchTab(tabName) {
 
 // ------------------------------------------------------------------
 // EVORA AI V2 BUSINESS INTELLIGENCE ENGINE (SMART BI V2)
-// (Fully Real Data Driven - No Math.random() or Dummy data)
+// (Fully Real Data Driven + Membaca histori `statusIklan`)
 // ------------------------------------------------------------------
 const EvoraAI = {
   memory: {
@@ -1215,6 +1292,7 @@ const EvoraAI = {
     whatIfSimulations: [],
     aiTimeline: [],
     variantPerformance: {},
+    adMemoryInsights: [],
     historyError: []
   },
   
@@ -1222,15 +1300,7 @@ const EvoraAI = {
 
   initOrUpdate: function() {
     if(!this.memory.lastTraining) this.initialTraining();
-    else {
-      // Jika AI Tracking ON, baru kita hitung ulang berdasarkan transaksi terbaru.
-      if (document.getElementById("aiTrackingToggle").checked) {
-        this.incrementalUpdate();
-      } else {
-        // Jika OFF, cukup render ulang data AI yang lama yang masih tersimpan.
-        this.updateCardUI();
-      }
-    }
+    else this.incrementalUpdate(); // AI Selalu Aktif
   },
 
   initialTraining: function() {
@@ -1239,9 +1309,6 @@ const EvoraAI = {
   },
 
   incrementalUpdate: function() {
-    // Pengamanan ganda: Jangan hitung jika tracking AI sengaja dimatikan.
-    if (!document.getElementById("aiTrackingToggle").checked) return;
-
     this.analyzeHistory();
     this.calculateHealthAndScores();
     this.runExplainEngine();
@@ -1251,6 +1318,7 @@ const EvoraAI = {
     this.runSmartTargetEngine();
     this.runWhatIfAnalysis();
     this.runVariantPerformance();
+    this.runAdMemoryEngine();
     this.runAiTimeline();
     this.runDecisionEngine();
     this.runSmartNotification();
@@ -1267,16 +1335,14 @@ const EvoraAI = {
     let yesterdayStr = getDayKey(yesterday);
     let yesterdayActualQty = penjualan.filter(p => getDayKey(p.tanggal) === yesterdayStr).reduce((sum, p) => sum + p.qty, 0);
     
-    // Get last prediction for yesterday, default to naive prediction if unavailable
     let predictedYest = this.memory.predictions.todayQty || yesterdayActualQty; 
     let error = Math.abs(yesterdayActualQty - predictedYest);
     
-    // Calculating absolute percentage error correctly
     let accuracy;
     if (yesterdayActualQty > 0) {
       accuracy = Math.max(0, 100 - ((error / yesterdayActualQty) * 100));
     } else {
-      accuracy = (predictedYest === 0) ? 100 : 50; // if both zero 100%, if missed completely 50%
+      accuracy = (predictedYest === 0) ? 100 : 50; 
     }
     
     this.memory.historyError.push({ date: yesterdayStr, accuracy: accuracy });
@@ -1299,14 +1365,13 @@ const EvoraAI = {
     
     this.memory.predictions.todayQty = Math.ceil(basePred);
     this.memory.predictions.todayOmzet = this.memory.predictions.todayQty * HARGA;
-    this.memory.predictions.tomorrowQty = Math.ceil(basePred * 1.05); // slightly optimistic curve based on general growth target
+    this.memory.predictions.tomorrowQty = Math.ceil(basePred * 1.05); 
     
     let daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     let daysLeft = daysInMonth - daysPassed;
     this.memory.predictions.monthQty = totalQtyMonth + (Math.ceil(basePred) * daysLeft);
     this.memory.predictions.monthChance = Math.min(100, Math.max(0, (this.memory.predictions.monthQty / this.targetBulanIni) * 100));
 
-    // Confidence Calculation (strictly historical length vs stability)
     let dataPoints = penjualan.length;
     if (dataPoints === 0) this.memory.confidence = 0;
     else if(dataPoints < 20) this.memory.confidence = 72;
@@ -1322,9 +1387,12 @@ const EvoraAI = {
     let labaBersih = totalOmzetMonth - totalKeluarMonth;
     
     let score = 50;
-    // Real dynamic scoring based solely on business metrics (NO Math.random)
     if(this.memory.predictions.monthChance >= 95) score += 20;
     else if(this.memory.predictions.monthChance >= 75) score += 10;
+    
+    // AI references business_context for potential multipliers
+    let currentIsAd = (currentAdsMode === 'Iklan');
+    if(currentIsAd && labaBersih > 0) score += 5; // Reward if profitable during ads
     
     if(labaBersih > 0) score += 15;
     if(stokBotol > 20 && stokBox > 20) score += 15;
@@ -1345,7 +1413,6 @@ const EvoraAI = {
     let todayName = dayNames[now.getDay()];
     let reasons = [];
 
-    // Analyze past 14 days dynamically
     let d14 = new Date(); d14.setDate(d14.getDate() - 14);
     let sales14 = penjualan.filter(p => new Date(p.tanggal) >= d14).reduce((sum, p) => sum + p.qty, 0);
     if(sales14 > 10) reasons.push(`• Penjualan 14 hari terakhir stabil/naik dengan total ${sales14} pcs.`);
@@ -1354,6 +1421,10 @@ const EvoraAI = {
     
     if(this.memory.predictionAccuracy > 80) {
       reasons.push(`• Akurasi mesin AI stabil di atas 80%, meningkatkan presisi prediksi volume.`);
+    }
+
+    if(currentAdsMode === 'Iklan') {
+      reasons.push(`• <b>Status Iklan Aktif:</b> AI menyesuaikan probabilitas konversi transaksi.`);
     }
     
     this.memory.whyPredReasons = reasons.length ? reasons : ["Data belum cukup untuk penjelasan kompleks."];
@@ -1412,8 +1483,9 @@ const EvoraAI = {
     if(sortedVariants.length > 0) {
       opps.push(`Varian <b>${sortedVariants[0][0]}</b> sedang memimpin penjualan, layak dipromosikan (Upsell).`);
     }
-    if (this.memory.trendStatus.includes('Turun')) {
-       opps.push(`Manfaatkan paket bundling atau diskon ringan untuk menghentikan perlambatan trend.`);
+    
+    if (this.memory.trendStatus.includes('Turun') && currentAdsMode !== 'Iklan') {
+       opps.push(`Trend melambat. Pertimbangkan <b>Mode Iklan</b> untuk merangsang akuisisi transaksi baru.`);
     }
     
     this.memory.opportunityEngine = opps.length ? opps : ["Terus input data penjualan untuk membuka peluang AI."];
@@ -1438,8 +1510,8 @@ const EvoraAI = {
 
   runWhatIfAnalysis: function() {
     let sims = [];
-    let avg = (this.memory.predictions.todayQty > 0) ? this.memory.predictions.todayQty : 5; // avoiding zero divide 
-    let boostQty = Math.ceil(avg * 1.15); // +15% boost sim
+    let avg = (this.memory.predictions.todayQty > 0) ? this.memory.predictions.todayQty : 5;
+    let boostQty = Math.ceil(avg * 1.15); 
     
     let totalQtyMonth = penjualan.filter(p => getMonthKey(p.tanggal) === getMonthKey(new Date())).reduce((a,b)=>a+b.qty,0);
     let sisaTarget = Math.max(0, this.targetBulanIni - totalQtyMonth);
@@ -1447,16 +1519,16 @@ const EvoraAI = {
     if (boostQty > 0 && sisaTarget > 0) {
        let daysRequired = Math.ceil(sisaTarget / boostQty);
        let dSim = new Date(); dSim.setDate(dSim.getDate() + daysRequired);
-       sims.push(`Jika kecepatan konversi rata-rata naik 15% (${boostQty} pcs/hari), target akan selesai pada tanggal <b>${dSim.getDate()}</b>.`);
+       sims.push(`Jika kecepatan konversi naik 15% (${boostQty} pcs/hari), target akan selesai pada tanggal <b>${dSim.getDate()}</b>.`);
     }
 
-    let adSalesData = penjualan.filter(p => p.isAiTracked === true); // Using tracked logic if any
+    let adSalesData = penjualan.filter(p => p.statusIklan === 'Iklan');
     if (adSalesData.length > 0) {
       let avgYield = adSalesData.reduce((sum, p) => sum + p.qty, 0) / adSalesData.length;
       let estOmzet = avgYield * HARGA;
-      sims.push(`Berdasarkan data tracked historis (Yield ${avgYield.toFixed(1)} pcs/tx), setiap interaksi/kampanye rata-rata menambah estimasi omzet minimum <b>Rp ${estOmzet.toLocaleString('id-ID')}</b>.`);
+      sims.push(`Berdasarkan data <b>Mode Iklan</b> historis (Yield ${avgYield.toFixed(1)} pcs/tx), estimasi omzet rata-rata bertambah minimum <b>Rp ${estOmzet.toLocaleString('id-ID')}</b> per interaksi pemasaran.`);
     } else {
-      sims.push(`Sistem belum memiliki data track khusus untuk simulasi mendalam.`);
+      sims.push(`Sistem belum memiliki histori <b>Mode Iklan</b> yang cukup untuk simulasi efektivitas kampanye pemasaran.`);
     }
     
     this.memory.whatIfSimulations = sims;
@@ -1467,13 +1539,12 @@ const EvoraAI = {
     barang.forEach(b => {
       let bSales = penjualan.filter(p => p.barang === b.nama);
       let totalQty = bSales.reduce((sum, p) => sum + p.qty, 0);
-      let avg = (totalQty / Math.max(1, 30)).toFixed(1); // avg monthly
+      let avg = (totalQty / Math.max(1, 30)).toFixed(1);
       
       let trend = 'Stabil';
       let tagColor = 'trend-tag-yellow';
       let growth = '0%';
       
-      // Calculate growth from week 1 vs week 2 
       let d7 = new Date(); d7.setDate(d7.getDate() - 7);
       let d14 = new Date(); d14.setDate(d14.getDate() - 14);
       
@@ -1499,11 +1570,24 @@ const EvoraAI = {
     this.memory.variantPerformance = varPerf;
   },
 
+  runAdMemoryEngine: function() {
+    let adIns = [];
+    let iklanSales = penjualan.filter(p => p.statusIklan === 'Iklan').reduce((sum, p) => sum + p.qty, 0);
+    let orgSales = penjualan.filter(p => p.statusIklan === 'Organik' || !p.statusIklan).reduce((sum, p) => sum + p.qty, 0);
+    
+    if(iklanSales > 0 || orgSales > 0) {
+       adIns.push(`Total Volume Penjualan Organik: <b>${orgSales} Pcs</b>`);
+       adIns.push(`Total Volume Penjualan Iklan: <b>${iklanSales} Pcs</b>`);
+    } else {
+       adIns.push(`Belum ada perbandingan data organik vs iklan yang tersimpan di histori Supabase.`);
+    }
+    this.memory.adMemoryInsights = adIns;
+  },
+
   runAiTimeline: function() {
     let timelines = [];
     let now = new Date();
     
-    // Today status
     let todayStr = getDayKey(now);
     let todayQty = penjualan.filter(p => getDayKey(p.tanggal) === todayStr).reduce((a,b)=>a+b.qty,0);
     let reqToday = this.memory.smartTargets.targetToday;
@@ -1511,12 +1595,10 @@ const EvoraAI = {
     else if(todayQty > 0) timelines.push(`Hari ini: Berjalan dengan ${todayQty} konversi, butuh ${reqToday - todayQty} lagi.`);
     else timelines.push(`Hari ini: Belum ada pergerakan transaksi.`);
 
-    // Yesterday status
     let dYest = new Date(); dYest.setDate(dYest.getDate() - 1);
     let yestQty = penjualan.filter(p => getDayKey(p.tanggal) === getDayKey(dYest)).reduce((a,b)=>a+b.qty,0);
     if(yestQty > 0) timelines.push(`Kemarin: Ditutup dengan volume ${yestQty} Pcs.`);
 
-    // 3 Days Ago Pattern
     let d3 = new Date(); d3.setDate(d3.getDate() - 3);
     let d3Qty = penjualan.filter(p => getDayKey(p.tanggal) === getDayKey(d3)).reduce((a,b)=>a+b.qty,0);
     if (d3Qty > yestQty && yestQty > 0) timelines.push(`3 hari lalu: Performa lebih agresif (${d3Qty} pcs) dibanding masa kini.`);
@@ -1529,10 +1611,12 @@ const EvoraAI = {
      let reqPcsPerDay = this.memory.smartTargets.targetMin;
      let avgPcsPerDay = this.memory.predictions.todayQty;
      
-     if (reqPcsPerDay > avgPcsPerDay) {
-        dec.push("Kesenjangan target terdeteksi. <b>Rekomendasi Mutlak:</b> Aktifkan pengeluaran mode pemasaran / operasional ekstra.");
+     if (reqPcsPerDay > avgPcsPerDay && currentAdsMode !== 'Iklan') {
+        dec.push("Kesenjangan target terdeteksi. <b>Rekomendasi Mutlak:</b> Segera aktifkan <b>Mode Iklan</b> hari ini.");
+     } else if (reqPcsPerDay > avgPcsPerDay && currentAdsMode === 'Iklan') {
+        dec.push("Iklan sedang aktif, namun target masih tertinggal. <b>Rekomendasi Mutlak:</b> Evaluasi efisiensi konten kampanye.");
      } else {
-        dec.push("Trafik stabil. <b>Rekomendasi Mutlak:</b> Maksimalkan metode penjualan organik saat ini.");
+        dec.push("Trafik berjalan stabil. <b>Rekomendasi Mutlak:</b> Lanjutkan strategi pemasaran saat ini.");
      }
      
      let minStockVariant = barang.slice().sort((a,b)=>a.stok - b.stok)[0];
@@ -1559,7 +1643,6 @@ const EvoraAI = {
     document.getElementById("summaryAiPredToday").innerText = `${this.memory.predictions.todayQty} Pcs`;
     document.getElementById("summaryAiConfidence").innerText = `${this.memory.confidence}%`;
     
-    // Quick Insight for Beranda
     let summaryIns = [];
     if(this.memory.whyPredReasons.length > 0) summaryIns.push(this.memory.whyPredReasons[0]);
     if(this.memory.opportunityEngine.length > 0) summaryIns.push(this.memory.opportunityEngine[0]);
@@ -1571,7 +1654,6 @@ const EvoraAI = {
   updateCardUI: function() {
     this.updateSummaryUI();
       
-    // Health Badge
     let healthEl = document.getElementById("aiCardHealthBadge");
     healthEl.innerText = this.memory.businessHealth;
     healthEl.className = `health-badge health-${this.memory.businessHealth.toLowerCase()}`;
@@ -1606,13 +1688,15 @@ const EvoraAI = {
 
     let timelineHTML = this.memory.aiTimeline.map(t => `<li>${t}</li>`).join('');
     document.getElementById("aiCardTimeline").innerHTML = timelineHTML;
+    
+    let adHTML = this.memory.adMemoryInsights.map(t => `<li>${t}</li>`).join('');
+    document.getElementById("aiCardAdMemory").innerHTML = adHTML;
 
     document.getElementById("aiCardConfAcc").innerText = `Confidence: ${this.memory.confidence}% | Accuracy: ${this.memory.predictionAccuracy.toFixed(1)}%`;
     
     let recHTML = this.memory.recommendations.map(r => `<li>${r}</li>`).join('');
     document.getElementById("aiCardRecommendations").innerHTML = recHTML;
 
-    // Render Variant Performance Table
     let tableBody = document.getElementById("variantPerformanceTableBody");
     let perfEntries = Object.entries(this.memory.variantPerformance);
     if(perfEntries.length > 0) {
@@ -1635,6 +1719,7 @@ const EvoraAI = {
 async function loadDataFromCloud() {
   setSyncStatus("<i class='fa-solid fa-rotate'></i> Sync..."); document.body.classList.add("skeleton-loading");
   try {
+    // Tarik konfigurasi dan memory dasar EVORA dari JSON Cloud
     const { data, error } = await supabaseApp.from('pos_data').select('konten').eq('id', 1).single();
     if (error && error.code !== 'PGRST116') throw error; 
     if (data && data.konten) {
@@ -1649,7 +1734,9 @@ async function loadDataFromCloud() {
       document.getElementById("inputHargaGlobal").value = HARGA;
       
       if(dataUtama.aiMemory) EvoraAI.memory = dataUtama.aiMemory;
-      EvoraAI.initOrUpdate();
+
+      // Tunggu context iklan disinkronkan terlebih dahulu dari Supabase (SSOT)
+      await initBusinessContext();
 
       setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else {
@@ -1753,23 +1840,9 @@ function simpanModalEdit() {
   barang[currentEditIndex].nama = namaBaru; barang[currentEditIndex].stok = tempStok; tutupModalEdit(); saveData();
 }
 
-// Generate data tracking terperinci jika fitur AI Tracking AKTIF
-function getAiTrackingData(qty, totalNilai, stokSebelum, stokSesudah) {
-  let now = new Date();
-  return {
-      isAiTracked: true,
-      jam: String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0'),
-      omzet: totalNilai,
-      laba: totalNilai, // Belum ada modal global (cogs), maka laba = omzet
-      hargaJual: HARGA,
-      stokSebelum: stokSebelum,
-      stokSesudah: stokSesudah,
-      hari: now.toLocaleDateString('id-ID', {weekday: 'long'}),
-      bulan: String(now.getMonth() + 1).padStart(2, '0'),
-      tahun: now.getFullYear()
-  };
-}
-
+// -------------------------------------------------------------
+// TRANSAKSI PENJUALAN MENGGUNAKAN TRACKING AI OTOMATIS
+// -------------------------------------------------------------
 async function quickJual(originalIndex) {
   let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`); let qty = Number(qtySelect.value || 1);
   if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) { await customAlert("Stok Tidak Cukup", "Stok fisik gudang tidak mencukupi!", "danger"); return; }
@@ -1783,17 +1856,12 @@ async function quickJual(originalIndex) {
   let stokSesudah = barang[originalIndex].stok;
   
   let tx = { tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai };
-  
-  if (document.getElementById("aiTrackingToggle").checked) {
-      Object.assign(tx, getAiTrackingData(qty, totalNilai, stokSebelum, stokSesudah));
-  }
+  Object.assign(tx, getTransactionTrackingData(qty, totalNilai, stokSebelum, stokSesudah));
   
   penjualan.push(tx);
   await cetakStrukOtomatis(barang[originalIndex].nama, qty, totalNilai);
   
-  if (document.getElementById("aiTrackingToggle").checked) {
-    EvoraAI.incrementalUpdate();
-  }
+  EvoraAI.incrementalUpdate();
   saveData();
 }
 
@@ -1810,17 +1878,12 @@ async function jualBarang(){
   let stokSesudah = barang[idx].stok;
 
   let tx = { tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai };
-  
-  if (document.getElementById("aiTrackingToggle").checked) {
-      Object.assign(tx, getAiTrackingData(qty, totalNilai, stokSebelum, stokSesudah));
-  }
+  Object.assign(tx, getTransactionTrackingData(qty, totalNilai, stokSebelum, stokSesudah));
   
   penjualan.push(tx);
   await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai); qtyJual.value=""; 
   
-  if (document.getElementById("aiTrackingToggle").checked) {
-    EvoraAI.incrementalUpdate();
-  }
+  EvoraAI.incrementalUpdate();
   saveData();
 }
 
@@ -1830,17 +1893,12 @@ async function tambahOmzetManual() {
   if(!konfirmasi) return;
   
   let tx = { tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket };
-  
-  if (document.getElementById("aiTrackingToggle").checked) {
-      Object.assign(tx, getAiTrackingData(0, nom, 0, 0));
-  }
+  Object.assign(tx, getTransactionTrackingData(0, nom, 0, 0));
   
   penjualan.push(tx);
   manualOmzet.value = ""; manualKet.value = "";
   
-  if (document.getElementById("aiTrackingToggle").checked) {
-    EvoraAI.incrementalUpdate(); 
-  }
+  EvoraAI.incrementalUpdate(); 
   saveData();
 }
 
@@ -1863,9 +1921,7 @@ async function batalkanPenjualan(originalIndex) {
   }
   penjualan.splice(originalIndex, 1);
   
-  if (document.getElementById("aiTrackingToggle").checked) {
-    EvoraAI.incrementalUpdate();
-  }
+  EvoraAI.incrementalUpdate();
   saveData();
 }
 
@@ -2093,7 +2149,7 @@ function render(){
     <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
       <div style="text-align:left;">
         <b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}
-        ${x.modeIklan === 'Iklan' ? '<span style="font-size:10px; background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:4px; margin-left:4px;">IKLAN</span>' : ''}
+        ${x.statusIklan === 'Iklan' ? '<span style="font-size:10px; background:#e0f2fe; color:#0284c7; padding:2px 6px; border-radius:4px; margin-left:4px;">IKLAN</span>' : ''}
         <br><span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span>
       </div>
       <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Batal</button>
@@ -2130,6 +2186,7 @@ function render(){
   }
 }
 
+initSettings();
 loadDataFromCloud();
 </script>
 </body>
