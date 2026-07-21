@@ -710,7 +710,7 @@ let barang = []; let penjualan = []; let pengeluaran = []; let pesanan = [];
 let chartInstance = null; let currentValuesRegistry = {}; 
 
 let campaigns = []; let ai_predictions = []; let ai_learning = []; let ai_insight = []; let ai_forecast_history = []; let ai_campaign_analysis = [];
-let monthly_target = []; // TABEL MASTER TARGET BULANAN SUPABASE
+let monthly_target = [];
 
 // SINGLE SOURCE OF TRUTH AI FORECAST
 let globalAIForecast = {
@@ -770,7 +770,6 @@ function customConfirm(title, message, type = 'primary') {
 
 function showAIExplanation(topic) { customAlert(`Analisis & Logika AI: ${topic}`, globalAIForecast['explain'+topic] || "Penjelasan belum tersedia.", "ai"); }
 
-// MODAL EDIT TARGET BULANAN LOGIC
 function bukaModalEditTarget() {
   document.getElementById("inputModalTargetValue").value = globalAIForecast.targetBulanan;
   document.getElementById("modalEditTarget").style.display = "flex";
@@ -791,7 +790,6 @@ async function simpanTargetBaru() {
   let tahunStr = String(d.getFullYear());
   let bulanTahunKey = tahunStr + "-" + bulanStr;
 
-  // Cek apakah sudah ada target di bulan ini dalam histori monthly_target
   let existingIndex = monthly_target.findIndex(x => x.bulan === bulanTahunKey || x.bulan === bulanStr);
   let nowIso = new Date().toISOString();
 
@@ -811,7 +809,7 @@ async function simpanTargetBaru() {
 
   tutupModalEditTarget();
   await saveData();
-  customAlert("Berhasil", `Target bulanan berhasil diperbarui menjadi <b>${val} Botol</b>. Seluruh modul AI & Dashboard telah disinkronkan.`, "success");
+  customAlert("Berhasil", `Target bulanan berhasil diperbarui menjadi <b>${val} Botol</b>.`, "success");
 }
 
 function simpanNamaProfil() { let namaBaru = document.getElementById("inputNamaProfil").value.trim(); if(!namaBaru) { customAlert("Peringatan", "Nama tidak boleh kosong!", "warning"); return; } namaUser = namaBaru; localStorage.setItem("evora_nama", namaUser); parsePremiumGreeting(); customAlert("Tersimpan", `Nama profil berhasil diubah menjadi <b>${namaUser}</b>.`, "success"); }
@@ -837,38 +835,65 @@ function switchTab(tabName) {
   let navItem = document.getElementById(`nav-${tabName}`); if(tabName === 'ai') navItem.classList.add('active-ai'); else navItem.classList.add('active');
 }
 
-// AUTO LOAD SUPABASE & MAPPING
+// SAFE LOAD DENGAN FALLBACK DATA & ERROR HANDLING SUPABASE AGAR TIDAK OFFLINE
 async function loadDataFromCloud() {
   setSyncStatus("<i class='fa-solid fa-rotate'></i> Sync..."); document.body.classList.add("skeleton-loading");
   try {
     const { data, error } = await supabaseApp.from('pos_data').select('konten').eq('id', 1).single();
-    if (error && error.code !== 'PGRST116') throw error; 
+    if (error) {
+      // Jika error PGRST116 (row not found) atau error tabel belum siap, jangan ubah aplikasi ke mode offline total, inisialisasi default aman
+      console.warn("Supabase warning/not found:", error.message);
+    }
+    
     if (data && data.konten) {
       let dataUtama = data.konten;
-      stokBotol = Number(dataUtama.stokBotol || 0); stokBox = Number(dataUtama.stokBox || 0); barang = dataUtama.barang || [];
-      penjualan = (dataUtama.penjualan || []).map(p => ({ ...p, campaign_id: p.campaign_id || null, iklan: p.iklan !== undefined ? p.iklan : false }));
-      pengeluaran = dataUtama.pengeluaran || []; pesanan = dataUtama.pesanan || []; HARGA = Number(dataUtama.hargaGlobal || 27000);
-      campaigns = dataUtama.campaigns || []; ai_predictions = dataUtama.ai_predictions || []; ai_learning = dataUtama.ai_learning || []; ai_insight = dataUtama.ai_insight || []; ai_forecast_history = dataUtama.ai_forecast_history || []; ai_campaign_analysis = dataUtama.ai_campaign_analysis || [];
-      monthly_target = dataUtama.monthly_target || []; // LOAD TABLE MONTHLY TARGET DARI SUPABASE
+      stokBotol = Number(dataUtama.stokBotol || 0); 
+      stokBox = Number(dataUtama.stokBox || 0); 
+      barang = Array.isArray(dataUtama.barang) ? dataUtama.barang : [];
+      penjualan = Array.isArray(dataUtama.penjualan) ? dataUtama.penjualan.map(p => ({ ...p, campaign_id: p.campaign_id || null, iklan: p.iklan !== undefined ? p.iklan : false })) : [];
+      pengeluaran = Array.isArray(dataUtama.pengeluaran) ? dataUtama.pengeluaran : []; 
+      pesanan = Array.isArray(dataUtama.pesanan) ? dataUtama.pesanan : []; 
+      HARGA = Number(dataUtama.hargaGlobal || 27000);
+      campaigns = Array.isArray(dataUtama.campaigns) ? dataUtama.campaigns : []; 
+      ai_predictions = Array.isArray(dataUtama.ai_predictions) ? dataUtama.ai_predictions : []; 
+      ai_learning = Array.isArray(dataUtama.ai_learning) ? dataUtama.ai_learning : []; 
+      ai_insight = Array.isArray(dataUtama.ai_insight) ? dataUtama.ai_insight : []; 
+      ai_forecast_history = Array.isArray(dataUtama.ai_forecast_history) ? dataUtama.ai_forecast_history : []; 
+      ai_campaign_analysis = Array.isArray(dataUtama.ai_campaign_analysis) ? dataUtama.ai_campaign_analysis : [];
+      monthly_target = Array.isArray(dataUtama.monthly_target) ? dataUtama.monthly_target : [];
 
-      document.getElementById("inputHargaGlobal").value = HARGA; setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
-    } else { setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB"); }
+      document.getElementById("inputHargaGlobal").value = HARGA; 
+      setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
+    } else { 
+      setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected"); 
+    }
     document.body.classList.remove("skeleton-loading");
-    runAIEngine(); render();
-  } catch (error) { setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Offline"); document.body.classList.remove("skeleton-loading"); }
+    runAIEngine(); 
+    render(); 
+    checkLowStockAlert();
+  } catch (error) { 
+    console.error("Critical load error:", error);
+    setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Offline"); 
+    document.body.classList.remove("skeleton-loading");
+  }
 }
 
 async function saveData() {
   setSyncStatus("<i class='fa-solid fa-bolt'></i> Saving...");
   let paketData = { stokBotol, stokBox, barang, penjualan, pengeluaran, pesanan, hargaGlobal: HARGA, campaigns, ai_predictions, ai_learning, ai_insight, ai_forecast_history, ai_campaign_analysis, monthly_target };
-  try { const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData }); if (error) throw error;
-    setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved"); runAIEngine(); render();
-  } catch (error) { setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Failed"); }
+  try { 
+    const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData }); 
+    if (error) throw error;
+    setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved"); 
+    runAIEngine(); 
+    render();
+  } catch (error) { 
+    console.error("Save error:", error);
+    setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Failed"); 
+  }
 }
 
-// ----------------------------------------------------
-// EVORA AI CORE ENGINE v2.2 (MASTER TARGET INTEGRATED)
-// ----------------------------------------------------
+// EVORA AI CORE ENGINE v2.2
 function calculateAIForecast() {
   let hariIniStr = getDayKey(new Date()); let past7DaysQty = []; let d = new Date();
   for(let i=1; i<=7; i++) {
@@ -895,7 +920,6 @@ function calculateAIForecast() {
   let tahunNum = String(dHariIni.getFullYear());
   let bulanTahunKey = tahunNum + "-" + bulanNum;
 
-  // AMBIL TARGET DARI TABLE MONTHLY_TARGET SUPABASE (AUTO LOAD & FALLBACK 400)
   let activeTargetObj = monthly_target.find(x => x.bulan === bulanTahunKey || x.bulan === bulanNum);
   let targetBulanAktif = activeTargetObj ? Number(activeTargetObj.target) : 400;
 
@@ -921,7 +945,7 @@ function calculateAIForecast() {
   let besokStr = getDayKey(new Date(d.getTime() + 86400000));
   if(!ai_forecast_history.find(x => x.tanggal === besokStr)) ai_forecast_history.push({ id: Date.now(), tanggal: besokStr, forecast: finalPrediction, confidence: confidence, created_at: new Date().toISOString() });
 
-  globalAIForecast.explainForecast = `<b>Mengapa Prediksi Besok ${finalPrediction} Botol?</b><br><br>• Penjualan 7 hari terakhir menunjukkan tren <b>${trend}</b>.<br>• AI menggunakan WMA dan memperhitungkan histori hari yang sama.<br>• Confidence dihitung sebesar <b>${confidence}%</b> berdasarkan stabilitas data transaksi di Supabase.`;
+  globalAIForecast.explainForecast = `<b>Mengapa Prediksi Besok ${finalPrediction} Botol?</b><br><br>• Penjualan 7 hari terakhir menunjukkan tren <b>${trend}</b>.<br>• AI menggunakan WMA dan memperhitungkan histori hari yang sama.<br>• Confidence dihitung sebesar <b>${confidence}%</b> berdasarkan kestabilan data transaksi di Supabase.`;
 }
 
 function calculateAIDecisions() {
@@ -938,9 +962,7 @@ function calculateAIDecisions() {
   }
 
   globalAIForecast.explainTarget = `<b>Mengapa ${globalAIForecast.statusTarget}?</b><br><br>• Target Bulanan Anda: <b>${globalAIForecast.targetBulanan} Botol</b>.<br>• Terjual saat ini: <b>${globalAIForecast.terjualBulanIni} Botol</b>.<br>• Prediksi akhir bulan: <b>${globalAIForecast.prediksiAkhirBulan} Botol</b>.<br>• Sisa kekurangan: <b>${globalAIForecast.sisaTarget} Botol</b> dengan tingkat kepastian <b>${globalAIForecast.confidence}%</b>.`;
-
   globalAIForecast.explainDecision = `<b>Analisis Keputusan & Campaign AI</b><br><br>• Status Target: ${globalAIForecast.statusTarget}.<br>• ${globalAIForecast.butuhCampaign ? 'AI merekomendasikan pembuatan campaign iklan agar target bulanan dapat tercapai tepat waktu.' : 'Tidak perlu menambah budget iklan karena prediksi akhir bulan sudah melewati target yang ditetapkan.'}`;
-  
   globalAIForecast.explainBudget = `<b>Rekomendasi Budget Ideal</b><br><br>Alokasi harian disarankan di kisaran Rp 30.000 - Rp 50.000 dengan durasi 5-7 hari untuk mendongkrak penjualan sisa target secara optimal tanpa pemborosan.`;
 
   let restockPriorities = [];
@@ -1023,7 +1045,7 @@ async function hapusSemuaCampaign() {
   if(conf) { campaigns = []; saveData(); }
 }
 
-function runAIEngine() { if(penjualan.length === 0 && monthly_target.length === 0) return; calculateAIForecast(); calculateAIDecisions(); }
+function runAIEngine() { calculateAIForecast(); calculateAIDecisions(); }
 
 function renderAITab() {
   document.getElementById("aiForecastDetail").innerHTML = `
@@ -1051,9 +1073,6 @@ async function rebuildAIModel() {
   setTimeout(() => { runAIEngine(); document.getElementById("aiLastUpdate").innerText = new Date().toLocaleString('id-ID'); document.body.classList.remove("skeleton-loading"); renderAITab(); render(); customAlert("Sukses", "Model AI berhasil dilatih ulang (Re-trained) dan dikalibrasi.", "success"); }, 1200); 
 }
 
-// ----------------------------------------------------
-// ORIGINAL FUNCTIONS KASIR DLL
-// ----------------------------------------------------
 async function simpanHargaBaru() { let elHarga = document.getElementById("inputHargaGlobal"); let hargaBaru = Number(elHarga.value); if(hargaBaru <= 0 || isNaN(hargaBaru)) return; let konfirmasi = await customConfirm("Ubah Harga Global", `Ubah harga produk menjadi <b>Rp ${hargaBaru.toLocaleString("id-ID")}</b>?`, "warning"); if(!konfirmasi) { elHarga.value = HARGA; return; } HARGA = hargaBaru; saveData(); }
 function setSyncStatus(teks) { document.getElementById("syncStatus").innerHTML = teks; }
 function getMonthKey(date){ let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); } function getDayKey(date){ let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); } function getMonthLabel(key){ let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]; let [y,m]=key.split("-"); return bulan[Number(m)-1]+" "+y; }
@@ -1083,7 +1102,7 @@ async function quickJual(originalIndex) {
   let totalNilai = qty * HARGA; let konfirmasi = await customConfirm("Konfirmasi Kasir", `Jual <b>${qty} pcs</b> ${barang[originalIndex].nama}?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success"); if(!konfirmasi) return;
   let activeCamp = getActiveCampaign(); barang[originalIndex].stok -= qty; stokBotol -= qty; stokBox -= qty;
   penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai, campaign_id: activeCamp ? activeCamp.id : null, iklan: activeCamp ? true : false });
-  await cetakStrukOtomatis(barang[originalIndex].nama, qty, totalNilai); saveData();
+  saveData();
 }
 
 async function jualBarang(){
@@ -1092,7 +1111,7 @@ async function jualBarang(){
   let totalNilai = qty * HARGA; let konfirmasi = await customConfirm("Konfirmasi Grosir", `Jual <b>${qty} pcs</b> ${barang[idx].nama} via order grosir?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success"); if(!konfirmasi) return;
   let activeCamp = getActiveCampaign(); barang[idx].stok -= qty; stokBotol -= qty; stokBox -= qty;
   penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai, campaign_id: activeCamp ? activeCamp.id : null, iklan: activeCamp ? true : false });
-  await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai); qtyJual.value=""; saveData();
+  qtyJual.value=""; saveData();
 }
 
 async function tambahOmzetManual() { let nom = Number(manualOmzet.value); let ket = manualKet.value.trim() || "Manual"; if(nom <= 0) return; let konfirmasi = await customConfirm("Pendapatan Manual", `Simpan pendapatan manual sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> (${ket})?`, "success"); if(!konfirmasi) return; penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket, campaign_id: null, iklan: false }); manualOmzet.value = ""; manualKet.value = ""; saveData(); }
@@ -1114,7 +1133,6 @@ function render(){
   updateDropdownPemesanan();
   renderCampaign();
 
-  // DASHBOARD AI INJECT
   document.getElementById("aiPrediksiBesok").innerText = `${globalAIForecast.prediksiBesok} Botol`;
   document.getElementById("aiTargetBulan").innerText = `Target: ${globalAIForecast.targetBulanan}`;
   document.getElementById("aiConfidence").innerText = `${globalAIForecast.confidence}%`;
@@ -1124,12 +1142,10 @@ function render(){
   else { stBadge.innerText = "✔ Target Aman"; stBadge.style.background = "var(--success)"; stBadge.style.color = "#fff"; }
   document.getElementById("aiPrioritasList").innerHTML = globalAIForecast.prioritas.length > 0 ? globalAIForecast.prioritas.map(p => `<li>${p}</li>`).join('') : '<li>Tidak ada prioritas mendesak</li>';
   
-  // SETTING TARGET BULANAN DISPLAY & HISTORI LIST
   document.getElementById("settingTargetDisplay").innerText = `${globalAIForecast.targetBulanan} Botol`;
   let historiHtml = monthly_target.slice().reverse().map(m => `<div>• Bulan <b>${m.bulan}</b>: <b>${m.target} Botol</b></div>`).join("");
   document.getElementById("settingHistoriTargetList").innerHTML = historiHtml || "<div>Belum ada histori perubahan target.</div>";
 
-  // TARGET BULAN DI BERANDA SINKRON AI (DENGAN TOMBOL EDIT)
   document.getElementById("targetDashboardContent").innerHTML = `
     <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:12px;">
       <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
