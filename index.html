@@ -854,7 +854,7 @@ async function loadDataFromCloud() {
       document.getElementById("inputHargaGlobal").value = HARGA; setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else { setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB"); }
     document.body.classList.remove("skeleton-loading");
-    runAIEngine(); render(); checkLowStockAlert();
+    runAIEngine(); render();
   } catch (error) { setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Offline"); document.body.classList.remove("skeleton-loading"); }
 }
 
