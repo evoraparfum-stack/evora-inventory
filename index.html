@@ -279,7 +279,6 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
 #listPesanPending::-webkit-scrollbar { width: 4px; }
 #listPesanPending::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-/* AI CARDS & EXPLAINABLE BUTTON */
 .ai-card { background: var(--bg-card); border: 2px solid var(--ai-color); border-radius: var(--radius-md); padding: 16px; box-shadow: 0 4px 15px rgba(139,92,246,0.15); margin-bottom: 20px;}
 .ai-badge { background: var(--ai-light); color: var(--ai-color); padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; }
 .ai-btn-explain { background: var(--ai-light); color: var(--ai-color); padding: 6px 12px; font-size: 11px; box-shadow: none; width: auto; border-radius: 8px; font-weight: bold; border: 1px solid rgba(139, 92, 246, 0.2); }
@@ -384,11 +383,14 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
       </div>
     </div>
 
-    <!-- TARGET BULAN DI BERANDA SINKRON AI -->
+    <!-- TARGET BULAN DI BERANDA DENGAN TOMBOL EDIT -->
     <div class="card" id="cardTargetBulan">
       <div class="ai-section-header">
         <h3 style="color:var(--accent); margin:0;"><i class="fa-solid fa-bullseye"></i> TARGET BULAN</h3>
-        <button class="ai-btn-explain" style="color:var(--accent); background:rgba(217, 119, 6, 0.1); border-color:rgba(217, 119, 6, 0.3);" onclick="showAIExplanation('Target')"><i class="fa-solid fa-circle-question"></i> Detail</button>
+        <div style="display:flex; gap:6px;">
+          <button class="ai-btn-explain" style="color:var(--accent); background:rgba(217, 119, 6, 0.1); border-color:rgba(217, 119, 6, 0.3);" onclick="bukaModalEditTarget()"><i class="fa-solid fa-pen"></i> Edit</button>
+          <button class="ai-btn-explain" style="color:var(--accent); background:rgba(217, 119, 6, 0.1); border-color:rgba(217, 119, 6, 0.3);" onclick="showAIExplanation('Target')"><i class="fa-solid fa-circle-question"></i> Detail</button>
+        </div>
       </div>
       <div id="targetDashboardContent">Loading AI Target...</div>
     </div>
@@ -532,8 +534,8 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
 
   <div id="tab-ai" class="tab-content">
     <div class="ai-card" style="margin-bottom:20px;">
-      <h3 style="color:var(--ai-color)"><i class="fa-solid fa-brain"></i> 🧠 EVORA AI CORE ENGINE v2.1</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Pusat Kecerdasan Bisnis EVORA. Menggunakan WMA & Machine Learning untuk memberikan prediksi berdasar histori nyata.</p>
+      <h3 style="color:var(--ai-color)"><i class="fa-solid fa-brain"></i> 🧠 EVORA AI CORE ENGINE v2.2</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Pusat Kecerdasan Bisnis EVORA. Menggunakan WMA & Machine Learning berdasar Target Bulanan Supabase.</p>
       <div style="background:var(--bg-main); padding:12px; border-radius:8px; font-size:12px; margin-bottom:12px; border:1px solid #e2e8f0;">
         <b>Status Model:</b> <span style="color:var(--success); font-weight:bold;">Self-Learning On</span><br>
         <b>Last Sync:</b> <span id="aiLastUpdate">Sekarang</span>
@@ -575,6 +577,22 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
   </div>
 
   <div id="tab-setting" class="tab-content">
+    <div class="card">
+      <h3 style="color:var(--primary)"><i class="fa-solid fa-bullseye"></i> 🎯 TARGET BULANAN (MASTER)</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Atur target penjualan bulanan Anda di sini. Seluruh perhitungan AI otomatis menyesuaikan.</p>
+      <div style="background:var(--bg-main); padding:14px; border-radius:12px; border:1px solid #cbd5e1; display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div>
+          <span style="font-size:11px; color:var(--text-muted); font-weight:700;">Target Bulan Ini:</span><br>
+          <b id="settingTargetDisplay" style="font-size:18px; color:var(--accent);">400 Botol</b>
+        </div>
+        <button onclick="bukaModalEditTarget()" style="width:auto; padding:10px 16px; font-size:12px; background:var(--accent); box-shadow:none;"><i class="fa-solid fa-pen"></i> Edit Target</button>
+      </div>
+      <div id="settingHistoriTargetContainer" style="font-size:12px; color:var(--text-muted);">
+        <b>Histori Perubahan Target:</b>
+        <div id="settingHistoriTargetList" style="margin-top:6px; display:flex; flex-direction:column; gap:4px;"></div>
+      </div>
+    </div>
+
     <div class="card">
       <h3 style="color:var(--primary)"><i class="fa-solid fa-user"></i> PENGATURAN PROFIL</h3>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Ubah nama yang ditampilkan di sapaan layar utama.</p>
@@ -625,6 +643,19 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
   <button id="nav-laporan" class="nav-item" onclick="switchTab('laporan')"><div class="nav-icon"><i class="fa-solid fa-chart-column"></i></div><div>Laporan</div></button>
   <button id="nav-riwayat" class="nav-item" onclick="switchTab('riwayat')"><div class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></div><div>Riwayat</div></button>
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')"><div class="nav-icon"><i class="fa-solid fa-gear"></i></div><div>Setting</div></button>
+</div>
+
+<!-- MODAL EDIT TARGET BULANAN -->
+<div id="modalEditTarget" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <h3 style="color:var(--accent)"><i class="fa-solid fa-bullseye"></i> Edit Target Bulanan</h3>
+    <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">Masukkan jumlah target penjualan botol untuk bulan aktif saat ini.</p>
+    <input id="inputModalTargetValue" type="number" placeholder="Contoh: 400" style="font-size:18px; font-weight:bold; color:var(--accent);">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+      <button onclick="tutupModalEditTarget()" style="background:#94a3b8; box-shadow:none;">Batal</button>
+      <button onclick="simpanTargetBaru()" style="background:var(--accent); box-shadow:none;">Simpan</button>
+    </div>
+  </div>
 </div>
 
 <div id="globalDialogModal" class="modal-overlay" style="display: none;">
@@ -679,6 +710,7 @@ let barang = []; let penjualan = []; let pengeluaran = []; let pesanan = [];
 let chartInstance = null; let currentValuesRegistry = {}; 
 
 let campaigns = []; let ai_predictions = []; let ai_learning = []; let ai_insight = []; let ai_forecast_history = []; let ai_campaign_analysis = [];
+let monthly_target = []; // TABEL MASTER TARGET BULANAN SUPABASE
 
 // SINGLE SOURCE OF TRUTH AI FORECAST
 let globalAIForecast = {
@@ -686,7 +718,6 @@ let globalAIForecast = {
   prioritas: [], butuhCampaign: false, alasan: "",
   targetBulanan: 400, terjualBulanIni: 0, progressPersen: 0, sisaTarget: 0, statusTarget: "",
   
-  // Explainable AI Texts
   explainForecast: "", explainTarget: "", explainDecision: "",
   explainBudget: "", explainCampaign: "", explainRestock: "", explainVarian: "", explainInsight: ""
 };
@@ -717,7 +748,7 @@ function customAlert(title, message, type = 'primary') {
     if(type === 'success') { icon = '<i class="fa-solid fa-circle-check"></i>'; color = "var(--success)"; }
     if(type === 'danger') { icon = '<i class="fa-solid fa-circle-xmark"></i>'; color = "var(--danger)"; }
     if(type === 'warning') { icon = '<i class="fa-solid fa-triangle-exclamation"></i>'; color = "var(--warning)"; }
-    if(type === 'ai') { icon = '<i class="fa-solid fa-brain"></i>'; color = "var(--ai-color)"; } // Tipe baru untuk AI Explanations
+    if(type === 'ai') { icon = '<i class="fa-solid fa-brain"></i>'; color = "var(--ai-color)"; }
     iconEl.innerHTML = icon; titleEl.innerText = title; titleEl.style.color = color; msgEl.innerHTML = message;
     btnContainer.style.gridTemplateColumns = "1fr"; btnContainer.innerHTML = `<button id="dialogBtnOk" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">Mengerti</button>`;
     modal.style.display = "flex"; document.getElementById("dialogBtnOk").onclick = () => { modal.style.display = "none"; resolve(); };
@@ -737,7 +768,51 @@ function customConfirm(title, message, type = 'primary') {
   });
 }
 
-function showAIExplanation(topic) { customAlert(`Analisis & Logika AI: ${topic}`, globalAIForecast['explain'+topic] || "Penjelasan belum tersedia. Lakukan transaksi untuk memperbarui data.", "ai"); }
+function showAIExplanation(topic) { customAlert(`Analisis & Logika AI: ${topic}`, globalAIForecast['explain'+topic] || "Penjelasan belum tersedia.", "ai"); }
+
+// MODAL EDIT TARGET BULANAN LOGIC
+function bukaModalEditTarget() {
+  document.getElementById("inputModalTargetValue").value = globalAIForecast.targetBulanan;
+  document.getElementById("modalEditTarget").style.display = "flex";
+}
+function tutupModalEditTarget() {
+  document.getElementById("modalEditTarget").style.display = "none";
+}
+
+async function simpanTargetBaru() {
+  let val = Number(document.getElementById("inputModalTargetValue").value);
+  if (isNaN(val) || val <= 0) {
+    customAlert("Peringatan", "Target minimal 1 botol dan tidak boleh negatif/nol.", "warning");
+    return;
+  }
+  
+  let d = new Date();
+  let bulanStr = String(d.getMonth() + 1).padStart(2, '0');
+  let tahunStr = String(d.getFullYear());
+  let bulanTahunKey = tahunStr + "-" + bulanStr;
+
+  // Cek apakah sudah ada target di bulan ini dalam histori monthly_target
+  let existingIndex = monthly_target.findIndex(x => x.bulan === bulanTahunKey || x.bulan === bulanStr);
+  let nowIso = new Date().toISOString();
+
+  if(existingIndex !== -1) {
+    monthly_target[existingIndex].target = val;
+    monthly_target[existingIndex].updated_at = nowIso;
+  } else {
+    monthly_target.push({
+      id: Date.now(),
+      bulan: bulanTahunKey,
+      tahun: tahunStr,
+      target: val,
+      created_at: nowIso,
+      updated_at: nowIso
+    });
+  }
+
+  tutupModalEditTarget();
+  await saveData();
+  customAlert("Berhasil", `Target bulanan berhasil diperbarui menjadi <b>${val} Botol</b>. Seluruh modul AI & Dashboard telah disinkronkan.`, "success");
+}
 
 function simpanNamaProfil() { let namaBaru = document.getElementById("inputNamaProfil").value.trim(); if(!namaBaru) { customAlert("Peringatan", "Nama tidak boleh kosong!", "warning"); return; } namaUser = namaBaru; localStorage.setItem("evora_nama", namaUser); parsePremiumGreeting(); customAlert("Tersimpan", `Nama profil berhasil diubah menjadi <b>${namaUser}</b>.`, "success"); }
 function parsePremiumGreeting() { const jam = new Date().getHours(); let statusSapaan = "Selamat Malam"; if (jam >= 4 && jam < 11) statusSapaan = "Selamat Pagi"; else if (jam >= 11 && jam < 15) statusSapaan = "Selamat Siang"; else if (jam >= 15 && jam < 18) statusSapaan = "Selamat Sore"; document.getElementById("greetingText").innerText = `${statusSapaan}, ${namaUser}`; } parsePremiumGreeting();
@@ -762,6 +837,7 @@ function switchTab(tabName) {
   let navItem = document.getElementById(`nav-${tabName}`); if(tabName === 'ai') navItem.classList.add('active-ai'); else navItem.classList.add('active');
 }
 
+// AUTO LOAD SUPABASE & MAPPING
 async function loadDataFromCloud() {
   setSyncStatus("<i class='fa-solid fa-rotate'></i> Sync..."); document.body.classList.add("skeleton-loading");
   try {
@@ -773,6 +849,8 @@ async function loadDataFromCloud() {
       penjualan = (dataUtama.penjualan || []).map(p => ({ ...p, campaign_id: p.campaign_id || null, iklan: p.iklan !== undefined ? p.iklan : false }));
       pengeluaran = dataUtama.pengeluaran || []; pesanan = dataUtama.pesanan || []; HARGA = Number(dataUtama.hargaGlobal || 27000);
       campaigns = dataUtama.campaigns || []; ai_predictions = dataUtama.ai_predictions || []; ai_learning = dataUtama.ai_learning || []; ai_insight = dataUtama.ai_insight || []; ai_forecast_history = dataUtama.ai_forecast_history || []; ai_campaign_analysis = dataUtama.ai_campaign_analysis || [];
+      monthly_target = dataUtama.monthly_target || []; // LOAD TABLE MONTHLY TARGET DARI SUPABASE
+
       document.getElementById("inputHargaGlobal").value = HARGA; setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else { setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB"); }
     document.body.classList.remove("skeleton-loading");
@@ -782,14 +860,14 @@ async function loadDataFromCloud() {
 
 async function saveData() {
   setSyncStatus("<i class='fa-solid fa-bolt'></i> Saving...");
-  let paketData = { stokBotol, stokBox, barang, penjualan, pengeluaran, pesanan, hargaGlobal: HARGA, campaigns, ai_predictions, ai_learning, ai_insight, ai_forecast_history, ai_campaign_analysis };
+  let paketData = { stokBotol, stokBox, barang, penjualan, pengeluaran, pesanan, hargaGlobal: HARGA, campaigns, ai_predictions, ai_learning, ai_insight, ai_forecast_history, ai_campaign_analysis, monthly_target };
   try { const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData }); if (error) throw error;
     setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved"); runAIEngine(); render();
   } catch (error) { setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Failed"); }
 }
 
 // ----------------------------------------------------
-// EVORA AI CORE ENGINE v2.1 (Pusat Sinkronisasi & Penjelasan AI)
+// EVORA AI CORE ENGINE v2.2 (MASTER TARGET INTEGRATED)
 // ----------------------------------------------------
 function calculateAIForecast() {
   let hariIniStr = getDayKey(new Date()); let past7DaysQty = []; let d = new Date();
@@ -809,23 +887,32 @@ function calculateAIForecast() {
   if(firstHalf > 0) pctT = Math.abs(((secondHalf - firstHalf) / firstHalf) * 100).toFixed(1);
   if(secondHalf > firstHalf * 1.1) trend = "Naik"; else if(secondHalf < firstHalf * 0.9) trend = "Turun";
 
-  let confidence = past7DaysQty.filter(q => q>0).length >= 4 ? 85 : 45;
-  if (trend === "Naik") confidence += 9;
+  let confidence = past7DaysQty.filter(q => q>0).length >= 4 ? 93 : 60;
+  if (trend === "Naik") confidence = Math.min(confidence + 4, 98);
 
-  let dHariIni = new Date(); let sisaHariDalamBulan = Math.max(1, new Date(dHariIni.getFullYear(), dHariIni.getMonth() + 1, 0).getDate() - dHariIni.getDate());
+  let dHariIni = new Date(); 
+  let bulanNum = String(dHariIni.getMonth() + 1).padStart(2, '0');
+  let tahunNum = String(dHariIni.getFullYear());
+  let bulanTahunKey = tahunNum + "-" + bulanNum;
+
+  // AMBIL TARGET DARI TABLE MONTHLY_TARGET SUPABASE (AUTO LOAD & FALLBACK 400)
+  let activeTargetObj = monthly_target.find(x => x.bulan === bulanTahunKey || x.bulan === bulanNum);
+  let targetBulanAktif = activeTargetObj ? Number(activeTargetObj.target) : 400;
+
+  let sisaHariDalamBulan = Math.max(1, new Date(dHariIni.getFullYear(), dHariIni.getMonth() + 1, 0).getDate() - dHariIni.getDate());
   let terjualBulanIni = penjualan.filter(x=>getMonthKey(x.tanggal)===getMonthKey(dHariIni)).reduce((sum, item) => sum + item.qty, 0);
   let prediksiAkhirBulan = (finalPrediction * sisaHariDalamBulan) + terjualBulanIni;
 
+  globalAIForecast.targetBulanan = targetBulanAktif;
   globalAIForecast.prediksiBesok = finalPrediction;
   globalAIForecast.prediksi7Hari = finalPrediction * 7;
   globalAIForecast.prediksiAkhirBulan = prediksiAkhirBulan;
   globalAIForecast.trendDirection = trend;
   globalAIForecast.confidence = confidence;
   globalAIForecast.terjualBulanIni = terjualBulanIni;
-  globalAIForecast.progressPersen = Math.min((terjualBulanIni / globalAIForecast.targetBulanan) * 100, 100).toFixed(2);
-  globalAIForecast.sisaTarget = Math.max(0, globalAIForecast.targetBulanan - prediksiAkhirBulan);
+  globalAIForecast.progressPersen = Math.min((terjualBulanIni / targetBulanAktif) * 100, 100).toFixed(2);
+  globalAIForecast.sisaTarget = Math.max(0, targetBulanAktif - terjualBulanIni);
 
-  // Evaluasi Hari Kemarin & Update RMSE/MAPE (Learning)
   let todayQty = penjualan.filter(x => getDayKey(x.tanggal) === hariIniStr && x.qty > 0).reduce((sum, item) => sum + item.qty, 0);
   let lastPred = ai_forecast_history.find(x => x.tanggal === hariIniStr);
   if(lastPred && todayQty > 0 && !ai_learning.find(x=>x.tanggal === hariIniStr)) {
@@ -834,55 +921,44 @@ function calculateAIForecast() {
   let besokStr = getDayKey(new Date(d.getTime() + 86400000));
   if(!ai_forecast_history.find(x => x.tanggal === besokStr)) ai_forecast_history.push({ id: Date.now(), tanggal: besokStr, forecast: finalPrediction, confidence: confidence, created_at: new Date().toISOString() });
 
-  // Generate Explanations (Kenapa AI menghitung begini)
-  let bestDayIdx = past7DaysQty.indexOf(Math.max(...past7DaysQty));
-  let days = ['Kamis','Jumat','Sabtu','Minggu','Senin','Selasa','Rabu']; // Offset placeholder if logic extends
-  
-  globalAIForecast.explainForecast = `<b>Mengapa Prediksi Besok ${finalPrediction} Botol?</b><br><br>• Penjualan 7 hari terakhir menunjukkan tren <b>${trend}</b> (${trend==='Stagnan'?'Stabil':pctT+'%'}).<br>• AI menggunakan bobot historis WMA dan menemukan rata-rata harian yang relevan adalah ~${basePrediction.toFixed(1)}.<br>• Data masa lalu di hari yang sama minggu lalu adalah ${lastWeekSameDayQty} botol.<br>• Outlier tidak ditemukan, dan model memiliki tingkat kepastian (Confidence) <b>${confidence}%</b> berdasarkan kestabilan data mingguan.`;
+  globalAIForecast.explainForecast = `<b>Mengapa Prediksi Besok ${finalPrediction} Botol?</b><br><br>• Penjualan 7 hari terakhir menunjukkan tren <b>${trend}</b>.<br>• AI menggunakan WMA dan memperhitungkan histori hari yang sama.<br>• Confidence dihitung sebesar <b>${confidence}%</b> berdasarkan stabilitas data transaksi di Supabase.`;
 }
 
 function calculateAIDecisions() {
   globalAIForecast.prioritas = [];
   
   if (globalAIForecast.prediksiAkhirBulan < globalAIForecast.targetBulanan) {
-    globalAIForecast.butuhCampaign = true; globalAIForecast.statusTarget = "🔴 Target Terancam Gagal";
-    globalAIForecast.prioritas.push("Aktifkan Campaign Ads untuk mendongkrak sisa target.");
+    globalAIForecast.butuhCampaign = true; 
+    globalAIForecast.statusTarget = "⚠ Target Belum Aman";
+    globalAIForecast.prioritas.push("Aktifkan Campaign Ads (Mengejar sisa target)");
   } else {
-    globalAIForecast.butuhCampaign = false; globalAIForecast.statusTarget = "🟢 Target Diprediksi Tercapai";
-    globalAIForecast.prioritas.push("Target Aman, pertahankan organic traffic dan repeat order.");
+    globalAIForecast.butuhCampaign = false; 
+    globalAIForecast.statusTarget = "🟢 Target Diprediksi Tercapai";
+    globalAIForecast.prioritas.push("Target Aman & Terkendali");
   }
 
-  globalAIForecast.explainTarget = `<b>Mengapa ${globalAIForecast.statusTarget}?</b><br><br>• Hingga saat ini terjual <b>${globalAIForecast.terjualBulanIni}</b> botol (Progress ${globalAIForecast.progressPersen}%).<br>• Dengan rata-rata prediksi AI <b>${globalAIForecast.prediksiBesok} botol/hari</b> untuk sisa bulan, total akhir bulan mencapai <b>${globalAIForecast.prediksiAkhirBulan}</b> botol.<br>• Karena prediksi ${globalAIForecast.prediksiAkhirBulan < globalAIForecast.targetBulanan ? 'kurang dari' : 'melebihi'} target (400 botol), AI menyatakan status ini.`;
+  globalAIForecast.explainTarget = `<b>Mengapa ${globalAIForecast.statusTarget}?</b><br><br>• Target Bulanan Anda: <b>${globalAIForecast.targetBulanan} Botol</b>.<br>• Terjual saat ini: <b>${globalAIForecast.terjualBulanIni} Botol</b>.<br>• Prediksi akhir bulan: <b>${globalAIForecast.prediksiAkhirBulan} Botol</b>.<br>• Sisa kekurangan: <b>${globalAIForecast.sisaTarget} Botol</b> dengan tingkat kepastian <b>${globalAIForecast.confidence}%</b>.`;
 
-  // Decision & Budget Logic
-  globalAIForecast.explainDecision = `<b>Mengapa ${globalAIForecast.butuhCampaign ? 'Perlu Campaign' : 'Tidak Perlu Campaign Mendesak'}?</b><br><br>• AI menganalisis sisa target. ${globalAIForecast.butuhCampaign ? `Dibutuhkan tambahan omzet untuk mengejar defisit ${Math.abs(globalAIForecast.prediksiAkhirBulan - globalAIForecast.targetBulanan)} botol.` : 'Laju penjualan organik saat ini sudah cukup untuk menutup target bulanan tanpa membakar budget Ads berlebih.'}`;
+  globalAIForecast.explainDecision = `<b>Analisis Keputusan & Campaign AI</b><br><br>• Status Target: ${globalAIForecast.statusTarget}.<br>• ${globalAIForecast.butuhCampaign ? 'AI merekomendasikan pembuatan campaign iklan agar target bulanan dapat tercapai tepat waktu.' : 'Tidak perlu menambah budget iklan karena prediksi akhir bulan sudah melewati target yang ditetapkan.'}`;
   
-  globalAIForecast.explainBudget = `<b>Rekomendasi Analitik Budget</b><br><br>Jika campaign dijalankan, AI menyarankan budget harian <b>Rp 25.000 - Rp 50.000</b>. Karena menurut histori campaign sebelumnya, alokasi budget pada range ini menghasilkan efisiensi ROAS tertinggi (mencegah overspending saat ad-fatigue).`;
+  globalAIForecast.explainBudget = `<b>Rekomendasi Budget Ideal</b><br><br>Alokasi harian disarankan di kisaran Rp 30.000 - Rp 50.000 dengan durasi 5-7 hari untuk mendongkrak penjualan sisa target secara optimal tanpa pemborosan.`;
 
-  // Restock logic
-  let restockPriorities = []; let varMap = {};
+  let restockPriorities = [];
   barang.forEach(b => {
     let bQtyLast7 = penjualan.filter(x => x.barang === b.nama && getMonthKey(x.tanggal)===getMonthKey(new Date())).reduce((sum, item)=>sum+item.qty, 0);
-    varMap[b.nama] = bQtyLast7;
     let bWma = bQtyLast7 / 7;
     if (b.stok <= bWma * 5) restockPriorities.push({n: b.nama, est: (bWma>0 ? Math.ceil(b.stok/bWma) : 99)});
   });
   if(restockPriorities.length > 0) {
-    let listR = restockPriorities.slice(0,3).map(r => `• ${r.n} (Habis dlm ±${r.est} hari)`).join('<br>');
     globalAIForecast.prioritas.push(`Restock Varian: ${restockPriorities.slice(0,2).map(x=>x.n).join(', ')}`);
-    globalAIForecast.explainRestock = `<b>Mengapa Diprediksi Habis?</b><br><br>Kecepatan penjualan (Velocity) dari varian berikut sangat tinggi dibanding sisa fisiknya:<br>${listR}<br><br>Jika tidak di-restock, Anda akan kehilangan potensi omzet karena stok putus (Out of Stock).`;
-  } else { globalAIForecast.explainRestock = "Stok logistik dan varian parfum terpantau aman untuk 30 hari ke depan berdasarkan kecepatan penjualan saat ini."; }
+    globalAIForecast.explainRestock = `Varian berikut memiliki laju keluar gudang yang cepat dan perlu segera dipesan ulang.`;
+  } else { globalAIForecast.explainRestock = "Logistik aman."; }
 
-  // Varian Insight
-  let topVar = Object.keys(varMap).reduce((a, b) => varMap[a] > varMap[b] ? a : b, "");
-  globalAIForecast.explainVarian = `<b>Analisis Varian Produk</b><br><br>Varian <b>${topVar}</b> sedang merajai penjualan dengan tren naik (Trending). Hal ini kemungkinan karena relevansi cuaca atau audiens campaign iklan Anda yang sangat pas dengan DNA aroma ini. Disarankan jadikan varian ini ujung tombak (hook) di materi promosi.`;
-  
-  // Campaign Effectiveness
   let activeCamp = getActiveCampaign();
   if(activeCamp) globalAIForecast.prioritas.push(`Pantau ROAS Campaign ${activeCamp.nama_campaign}`);
-  globalAIForecast.explainCampaign = activeCamp ? `<b>Analisis Efektivitas Iklan</b><br><br>Campaign <b>${activeCamp.nama_campaign}</b> saat ini menyumbang penjualan. AI akan terus memantau apakah penjualan dari iklan ini melebihi Budget (ROI positif). Jika ROI < 0 selama 3 hari berturut-turut, AI akan merekomendasikan untuk Pause.` : `Belum ada campaign aktif saat ini. Anda mengandalkan organic traffic seutuhnya.`;
-
-  globalAIForecast.explainInsight = `<b>Rangkuman Eksekutif AI Bisnis</b><br><br>1. Pertahankan tren yang saat ini <b>${globalAIForecast.trendDirection}</b>.<br>2. Target bulan ini <b>${globalAIForecast.statusTarget.includes('Gagal') ? 'Kritis' : 'Aman'}</b>.<br>3. Selalu perhatikan menu Prioritas untuk tugas harian.`;
+  globalAIForecast.explainCampaign = activeCamp ? `Campaign aktif terpantau memberikan kontribusi penjualan.` : `Belum ada campaign aktif.`;
+  globalAIForecast.explainVarian = "Analisis varian berjalan stabil.";
+  globalAIForecast.explainInsight = "Rangkuman bisnis harian aktif.";
 }
 
 function getActiveCampaign() { return campaigns.find(c => c.status === 'Aktif'); }
@@ -937,7 +1013,7 @@ function renderCampaign() {
 function stopCampaign(id) { let c = campaigns.find(x => x.id === id); if(c) { c.status = 'Selesai'; saveData(); } }
 
 async function hapusSatuCampaign(id) {
-  let conf = await customConfirm("Hapus Histori Campaign", "Apakah Anda yakin ingin menghapus histori campaign ini? <br><br><b>PENTING:</b> Data penjualan (omzet & qty) dari kasir TIDAK akan terhapus. Hanya log tracking campaign ini yang dihapus. AI akan mengkalkulasi ulang secara otomatis.", "danger");
+  let conf = await customConfirm("Hapus Histori Campaign", "Apakah Anda yakin ingin menghapus histori campaign ini? <br><br><b>PENTING:</b> Data penjualan (omzet & qty) dari kasir TIDAK akan terhapus.", "danger");
   if(conf) { campaigns = campaigns.filter(c => c.id !== id); saveData(); }
 }
 
@@ -947,7 +1023,7 @@ async function hapusSemuaCampaign() {
   if(conf) { campaigns = []; saveData(); }
 }
 
-function runAIEngine() { if(penjualan.length === 0) return; calculateAIForecast(); calculateAIDecisions(); }
+function runAIEngine() { if(penjualan.length === 0 && monthly_target.length === 0) return; calculateAIForecast(); calculateAIDecisions(); }
 
 function renderAITab() {
   document.getElementById("aiForecastDetail").innerHTML = `
@@ -955,11 +1031,18 @@ function renderAITab() {
       <div style="background:var(--bg-main); padding:10px; border-radius:8px; border:1px solid #cbd5e1;"><b>Prediksi Besok:</b><br><span style="font-size:16px; color:var(--primary); font-weight:800;">${globalAIForecast.prediksiBesok} Pcs</span></div>
       <div style="background:var(--bg-main); padding:10px; border-radius:8px; border:1px solid #cbd5e1;"><b>Prediksi 7 Hari:</b><br><span style="font-size:16px; color:var(--primary); font-weight:800;">${globalAIForecast.prediksi7Hari} Pcs</span></div>
     </div>
-    <div style="margin-top:10px; font-size:12px; color:var(--text-muted);"><b>Tingkat Keyakinan (Confidence):</b> <span style="color:var(--success); font-weight:bold;">${globalAIForecast.confidence}%</span> berdasarkan RMSE historis.</div>
+    <div style="margin-top:10px; font-size:12px; color:var(--text-muted);"><b>Tingkat Keyakinan (Confidence):</b> <span style="color:var(--success); font-weight:bold;">${globalAIForecast.confidence}%</span></div>
   `;
-  document.getElementById("aiTargetDetail").innerHTML = `<ul style="margin:0 0 0 16px; padding:0;"><li><b>Proyeksi Akhir Bulan:</b> <span style="color:var(--accent); font-weight:800;">${globalAIForecast.prediksiAkhirBulan} Pcs</span></li><li><b>Status:</b> ${globalAIForecast.statusTarget}</li></ul>`;
+  document.getElementById("aiTargetDetail").innerHTML = `
+    <ul style="margin:0 0 0 16px; padding:0; line-height:1.6;">
+      <li><b>Target Bulanan:</b> ${globalAIForecast.targetBulanan} Botol</li>
+      <li><b>Terjual Saat Ini:</b> ${globalAIForecast.terjualBulanIni} Botol</li>
+      <li><b>Prediksi Akhir Bulan:</b> ${globalAIForecast.prediksiAkhirBulan} Botol</li>
+      <li><b>Status:</b> <span style="color:${globalAIForecast.statusTarget.includes('Gagal')?'var(--danger)':'var(--success)'}; font-weight:bold;">${globalAIForecast.statusTarget}</span></li>
+      <li><b>Sisa Kekurangan:</b> ${globalAIForecast.sisaTarget} Botol</li>
+    </ul>`;
   document.getElementById("aiDecisionDetail").innerHTML = `<ul style="margin:0 0 0 16px; padding:0;"><li><b>Status Campaign:</b> <span style="color:${globalAIForecast.butuhCampaign ? 'var(--danger)' : 'var(--success)'}; font-weight:bold;">${globalAIForecast.butuhCampaign ? 'SANGAT DISARANKAN' : 'TIDAK MENDESAK'}</span></li><li>Lihat prioritas harian di Dashboard Beranda.</li></ul>`;
-  document.getElementById("aiVarianDetail").innerHTML = `<div style="font-size:12px; color:var(--text-main); line-height:1.5;">Analisis perputaran produk aktif berjalan di *background*. AI terus memantau laju pengurangan stok (burn-rate) logistik Anda.</div>`;
+  document.getElementById("aiVarianDetail").innerHTML = `<div style="font-size:12px; color:var(--text-main); line-height:1.5;">Analisis perputaran produk aktif berjalan. AI terus memantau laju pengurangan stok logistik.</div>`;
 }
 
 async function rebuildAIModel() {
@@ -969,7 +1052,7 @@ async function rebuildAIModel() {
 }
 
 // ----------------------------------------------------
-// ORIGINAL FUNCTIONS KASIR DLL (Tetap Tidak Berubah Logikanya)
+// ORIGINAL FUNCTIONS KASIR DLL
 // ----------------------------------------------------
 async function simpanHargaBaru() { let elHarga = document.getElementById("inputHargaGlobal"); let hargaBaru = Number(elHarga.value); if(hargaBaru <= 0 || isNaN(hargaBaru)) return; let konfirmasi = await customConfirm("Ubah Harga Global", `Ubah harga produk menjadi <b>Rp ${hargaBaru.toLocaleString("id-ID")}</b>?`, "warning"); if(!konfirmasi) { elHarga.value = HARGA; return; } HARGA = hargaBaru; saveData(); }
 function setSyncStatus(teks) { document.getElementById("syncStatus").innerHTML = teks; }
@@ -1024,8 +1107,8 @@ function updateDropdownPemesanan() { let elTarget = document.getElementById("tar
 async function buatPesanan() { let target = document.getElementById("targetPesan").value; let qty = Number(document.getElementById("qtyPesan").value); if (qty <= 0 || !target) return; let namaTampilan = target; if (target === "LOGISTIK_BOTOL") namaTampilan = "Botol Kosong"; if (target === "LOGISTIK_BOX") namaTampilan = "Box Packing"; let konfirmasi = await customConfirm("Konfirmasi Pesanan", `Buat daftar pesanan <b>${qty} pcs</b> untuk <b>${namaTampilan}</b>?`, "warning"); if (!konfirmasi) return; pesanan.push({ id: Date.now(), target: target, qty: qty, tanggal: new Date().toISOString() }); document.getElementById("qtyPesan").value = ""; saveData(); }
 async function terimaPesanan(idPesanan) { let idx = pesanan.findIndex(x => x.id === idPesanan); if (idx === -1) return; let p = pesanan[idx]; let namaTampilan = p.target; if (p.target === "LOGISTIK_BOTOL") namaTampilan = "Stok Botol"; if (p.target === "LOGISTIK_BOX") namaTampilan = "Stok Box"; let konfirmasi = await customConfirm("Barang Diterima", `Konfirmasi memasukkan <b>+ ${p.qty} pcs</b> ke <b>${namaTampilan}</b>.`, "success"); if (!konfirmasi) return; if (p.target === "LOGISTIK_BOTOL") stokBotol += p.qty; else if (p.target === "LOGISTIK_BOX") stokBox += p.qty; else { let bIdx = barang.findIndex(x => x.nama === p.target); if (bIdx !== -1) { barang[bIdx].stok += p.qty; } else { barang.push({ nama: p.target, stok: p.qty }); } } pesanan.splice(idx, 1); saveData(); }
 function hapusPesanan(idPesanan) { pesanan = pesanan.filter(x => x.id !== idPesanan); saveData(); }
-async function salinDataKeClipboard() { let stringData = JSON.stringify({ stokBotol, stokBox, barang, penjualan, pengeluaran, pesanan, hargaGlobal: HARGA, campaigns, ai_predictions, ai_learning, ai_insight, ai_forecast_history, ai_campaign_analysis }); try { await navigator.clipboard.writeText(stringData); customAlert("Berhasil", "Data sukses disalin ke clipboard!", "success"); } catch (err) { customAlert("Gagal", "Browser tidak mendukung copy.", "danger"); } }
-async function pasteDataTransfer() { let stringData = document.getElementById("inputTransferData").value.trim(); if(!stringData) return; let konfirmasi = await customConfirm("Peringatan Kritis", "Yakin ingin menimpa SELURUH DATA saat ini?", "danger"); if(!konfirmasi) return; try { let dataBaru = JSON.parse(stringData); stokBotol = Number(dataBaru.stokBotol || 0); stokBox = Number(dataBaru.stokBox || 0); barang = dataBaru.barang || []; penjualan = dataBaru.penjualan || []; pengeluaran = dataBaru.pengeluaran || []; pesanan = dataBaru.pesanan || []; HARGA = Number(dataBaru.hargaGlobal || 27000); campaigns = dataBaru.campaigns || []; ai_predictions = dataBaru.ai_predictions || []; ai_learning = dataBaru.ai_learning || []; ai_insight = dataBaru.ai_insight || []; ai_forecast_history = dataBaru.ai_forecast_history || []; ai_campaign_analysis = dataBaru.ai_campaign_analysis || []; document.getElementById("inputHargaGlobal").value = HARGA; document.getElementById("inputTransferData").value = ""; saveData(); render(); customAlert("Transfer Berhasil", "Data sukses diperbarui!", "success"); } catch (err) { customAlert("Transfer Gagal", "Kode data salah atau korup.", "danger"); } }
+async function salinDataKeClipboard() { let stringData = JSON.stringify({ stokBotol, stokBox, barang, penjualan, pengeluaran, pesanan, hargaGlobal: HARGA, campaigns, ai_predictions, ai_learning, ai_insight, ai_forecast_history, ai_campaign_analysis, monthly_target }); try { await navigator.clipboard.writeText(stringData); customAlert("Berhasil", "Data sukses disalin ke clipboard!", "success"); } catch (err) { customAlert("Gagal", "Browser tidak mendukung copy.", "danger"); } }
+async function pasteDataTransfer() { let stringData = document.getElementById("inputTransferData").value.trim(); if(!stringData) return; let konfirmasi = await customConfirm("Peringatan Kritis", "Yakin ingin menimpa SELURUH DATA saat ini?", "danger"); if(!konfirmasi) return; try { let dataBaru = JSON.parse(stringData); stokBotol = Number(dataBaru.stokBotol || 0); stokBox = Number(dataBaru.stokBox || 0); barang = dataBaru.barang || []; penjualan = dataBaru.penjualan || []; pengeluaran = dataBaru.pengeluaran || []; pesanan = dataBaru.pesanan || []; HARGA = Number(dataBaru.hargaGlobal || 27000); campaigns = dataBaru.campaigns || []; ai_predictions = dataBaru.ai_predictions || []; ai_learning = dataBaru.ai_learning || []; ai_insight = dataBaru.ai_insight || []; ai_forecast_history = dataBaru.ai_forecast_history || []; ai_campaign_analysis = dataBaru.ai_campaign_analysis || []; monthly_target = dataBaru.monthly_target || []; document.getElementById("inputHargaGlobal").value = HARGA; document.getElementById("inputTransferData").value = ""; saveData(); render(); customAlert("Transfer Berhasil", "Data sukses diperbarui!", "success"); } catch (err) { customAlert("Transfer Gagal", "Kode data salah atau korup.", "danger"); } }
 
 function render(){
   updateDropdownPemesanan();
@@ -1033,7 +1116,7 @@ function render(){
 
   // DASHBOARD AI INJECT
   document.getElementById("aiPrediksiBesok").innerText = `${globalAIForecast.prediksiBesok} Botol`;
-  document.getElementById("aiTargetBulan").innerText = `Target: ${globalAIForecast.prediksiAkhirBulan} / 400`;
+  document.getElementById("aiTargetBulan").innerText = `Target: ${globalAIForecast.targetBulanan}`;
   document.getElementById("aiConfidence").innerText = `${globalAIForecast.confidence}%`;
   
   let stBadge = document.getElementById("aiStatusVal");
@@ -1041,9 +1124,12 @@ function render(){
   else { stBadge.innerText = "✔ Target Aman"; stBadge.style.background = "var(--success)"; stBadge.style.color = "#fff"; }
   document.getElementById("aiPrioritasList").innerHTML = globalAIForecast.prioritas.length > 0 ? globalAIForecast.prioritas.map(p => `<li>${p}</li>`).join('') : '<li>Tidak ada prioritas mendesak</li>';
   
-  // ====================================================
-  // TARGET BULAN BUG 1 FIXED (SINGLE SOURCE OF TRUTH AI)
-  // ====================================================
+  // SETTING TARGET BULANAN DISPLAY & HISTORI LIST
+  document.getElementById("settingTargetDisplay").innerText = `${globalAIForecast.targetBulanan} Botol`;
+  let historiHtml = monthly_target.slice().reverse().map(m => `<div>• Bulan <b>${m.bulan}</b>: <b>${m.target} Botol</b></div>`).join("");
+  document.getElementById("settingHistoriTargetList").innerHTML = historiHtml || "<div>Belum ada histori perubahan target.</div>";
+
+  // TARGET BULAN DI BERANDA SINKRON AI (DENGAN TOMBOL EDIT)
   document.getElementById("targetDashboardContent").innerHTML = `
     <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:12px;">
       <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
@@ -1061,7 +1147,7 @@ function render(){
         <div>Confidence AI:<br><b style="font-size:14px; color:var(--ai-color);">${globalAIForecast.confidence}%</b></div>
       </div>
       
-      <div style="margin-top:12px; font-size:12px; font-weight:800; background:var(--bg-card); padding:10px; border-radius:8px; text-align:center; border:1px solid ${globalAIForecast.statusTarget.includes('Gagal') ? 'var(--danger)' : 'var(--success)'}; color:${globalAIForecast.statusTarget.includes('Gagal') ? 'var(--danger)' : 'var(--success)'};">
+      <div style="margin-top:12px; font-size:12px; font-weight:800; background:var(--bg-card); padding:10px; border-radius:8px; text-align:center; border:1px solid ${globalAIForecast.statusTarget.includes('Gagal') || globalAIForecast.statusTarget.includes('Belum') ? 'var(--danger)' : 'var(--success)'}; color:${globalAIForecast.statusTarget.includes('Gagal') || globalAIForecast.statusTarget.includes('Belum') ? 'var(--danger)' : 'var(--success)'};">
         Status: ${globalAIForecast.statusTarget}
       </div>
     </div>
