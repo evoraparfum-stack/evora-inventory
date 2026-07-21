@@ -462,7 +462,6 @@ input:focus, select:focus { border-color: var(--primary); background: var(--bg-c
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px; border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
 
-/* Updated bottom-nav to fit 6 items evenly */
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); height: 80px;
@@ -645,6 +644,21 @@ body.dark-theme .switch-container { border-color: #334155; }
 
   <!-- ======================== TAB KASIR ======================== -->
   <div id="tab-kasir" class="tab-content">
+
+    <!-- NEW CARD: AI TRACKING (DIPINDAHKAN KE PALING ATAS TAB KASIR) -->
+    <div class="card" id="aiTrackingCard">
+      <h3><i class="fa-solid fa-chart-pie"></i> AI TRACKING PENJUALAN</h3>
+      <div class="switch-container">
+        <div style="text-align: left;">
+          <b style="font-size:13px;">Status AI Tracking</b>
+          <div id="aiTrackingBadge" style="margin-top:4px;">
+            <span class="badge-status" style="background:#e2e8f0; color:#64748b; border: 1px solid #cbd5e1;">AI Tracking Nonaktif</span>
+          </div>
+        </div>
+        <input type="checkbox" id="aiTrackingToggle" onchange="toggleAiTracking()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+      </div>
+    </div>
+
     <div class="card">
       <h3><i class="fa-solid fa-gear"></i> KONFIGURASI HARGA GLOBAL</h3>
       <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:var(--bg-card); border-color: var(--primary);">
@@ -809,13 +823,6 @@ body.dark-theme .switch-container { border-color: #334155; }
       </div>
       <div class="ai-divider"></div>
       
-      <!-- V2 PANEL: Analisis Iklan & Memory -->
-      <div style="margin-top:8px;">
-        <span class="ai-label" style="font-weight:700; color:#fff; display:block; margin-bottom:4px;"><i class="fa-solid fa-bullhorn"></i> Analisis Iklan & Business Memory:</span>
-        <ul class="ai-list" id="aiCardAdMemory"><li>Menganalisa efektivitas budget...</li></ul>
-      </div>
-      <div class="ai-divider"></div>
-
       <div class="ai-stat-row">
         <span class="ai-label">Confidence & Accuracy</span>
         <span class="ai-value" id="aiCardConfAcc">-</span>
@@ -853,38 +860,6 @@ body.dark-theme .switch-container { border-color: #334155; }
 
   <!-- ======================== TAB SETTING ======================== -->
   <div id="tab-setting" class="tab-content">
-    <div class="card" style="border: 1px solid var(--primary);">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-robot"></i> AI & IKLAN</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Pengaturan default saat menyimpan penjualan untuk AI Analysis.</p>
-      
-      <div style="text-align: left; margin-bottom:10px;">
-        <label style="font-size:12px; font-weight:700;">Mode Penjualan Default</label>
-        <select id="aiModeSetting" style="margin-top:4px;">
-          <option value="Organik">Organik</option>
-          <option value="Iklan">Iklan</option>
-        </select>
-      </div>
-
-      <div style="text-align: left; margin-bottom:10px;">
-        <label style="font-size:12px; font-weight:700;">Budget Iklan Default (Rp)</label>
-        <input id="aiBudgetSetting" type="number" placeholder="Contoh: 100000" value="0" style="margin-top:4px;">
-      </div>
-
-      <div style="text-align: left; margin-bottom:10px;">
-        <label style="font-size:12px; font-weight:700;">Catatan Iklan Default</label>
-        <input id="aiNotesSetting" type="text" placeholder="Contoh: Video Baru, Live TikTok" style="margin-top:4px;">
-      </div>
-
-      <div class="switch-container">
-        <div style="text-align: left;">
-          <b style="font-size:13px;">Terapkan ke Semua Penjualan</b>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Gunakan pengaturan di atas setiap Jual Instan/Manual</div>
-        </div>
-        <input type="checkbox" id="aiApplyAllSetting" checked style="width: 20px; height: 20px; accent-color: var(--primary);">
-      </div>
-      <button onclick="simpanSettingAI()" style="margin-top:8px;">Simpan Pengaturan AI</button>
-    </div>
-
     <div class="card">
       <h3 style="color:var(--primary)"><i class="fa-solid fa-user"></i> PENGATURAN PROFIL</h3>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Ubah nama yang ditampilkan di sapaan layar utama.</p>
@@ -1026,7 +1001,23 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
-function initEnterpriseSettings() {
+function toggleAiTracking(isInit = false) {
+  let isON = document.getElementById("aiTrackingToggle").checked;
+  localStorage.setItem("evora_ai_tracking", isON ? "true" : "false");
+  let badge = document.getElementById("aiTrackingBadge");
+  if (isON) {
+    badge.innerHTML = '<span class="badge-status status-ready">AI Tracking Aktif</span>';
+  } else {
+    badge.innerHTML = '<span class="badge-status" style="background:#e2e8f0; color:#64748b; border: 1px solid #cbd5e1;">AI Tracking Nonaktif</span>';
+  }
+
+  // Jika trigger langsung dari user (bukan dari init load), maka update AI.
+  if (!isInit && isON) {
+    EvoraAI.incrementalUpdate();
+  }
+}
+
+function initSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
   let btnDark = document.getElementById("btnDarkMode");
   if (isDarkMode) {
@@ -1034,22 +1025,13 @@ function initEnterpriseSettings() {
     btnDark.innerText = "Nonaktifkan";
     btnDark.style.background = "var(--danger)";
   }
-  document.getElementById("aiModeSetting").value = localStorage.getItem("evora_ai_mode") || "Organik";
-  document.getElementById("aiBudgetSetting").value = localStorage.getItem("evora_ai_budget") || "0";
-  document.getElementById("aiNotesSetting").value = localStorage.getItem("evora_ai_notes") || "";
-  // Bug fix: Explicit checking string "true"
-  document.getElementById("aiApplyAllSetting").checked = (localStorage.getItem("evora_ai_applyAll") === "true");
+  
+  // Mengambil state AI Tracking saat load
+  let trackingState = localStorage.getItem("evora_ai_tracking") === "true";
+  document.getElementById("aiTrackingToggle").checked = trackingState;
+  toggleAiTracking(true);
 }
-
-function simpanSettingAI() {
-  localStorage.setItem("evora_ai_mode", document.getElementById("aiModeSetting").value);
-  localStorage.setItem("evora_ai_budget", document.getElementById("aiBudgetSetting").value);
-  localStorage.setItem("evora_ai_notes", document.getElementById("aiNotesSetting").value);
-  // Bug fix: Saving literal "true" or "false" based on check
-  localStorage.setItem("evora_ai_applyAll", document.getElementById("aiApplyAllSetting").checked ? "true" : "false");
-  customAlert("Tersimpan", "Pengaturan AI & Iklan berhasil disimpan.", "success");
-}
-initEnterpriseSettings();
+initSettings();
 
 function shortcutRestock() { switchTab('kasir'); setTimeout(() => { document.getElementById("panelRestock").scrollIntoView({ behavior: "smooth", block: "start" }); }, 250); }
 function shortcutKasir() { switchTab('kasir'); setTimeout(() => { document.getElementById("panelKasir").scrollIntoView({ behavior: "smooth", block: "start" }); }, 250); }
@@ -1233,7 +1215,6 @@ const EvoraAI = {
     whatIfSimulations: [],
     aiTimeline: [],
     variantPerformance: {},
-    adMemoryInsights: [],
     historyError: []
   },
   
@@ -1241,7 +1222,15 @@ const EvoraAI = {
 
   initOrUpdate: function() {
     if(!this.memory.lastTraining) this.initialTraining();
-    else this.incrementalUpdate();
+    else {
+      // Jika AI Tracking ON, baru kita hitung ulang berdasarkan transaksi terbaru.
+      if (document.getElementById("aiTrackingToggle").checked) {
+        this.incrementalUpdate();
+      } else {
+        // Jika OFF, cukup render ulang data AI yang lama yang masih tersimpan.
+        this.updateCardUI();
+      }
+    }
   },
 
   initialTraining: function() {
@@ -1250,6 +1239,9 @@ const EvoraAI = {
   },
 
   incrementalUpdate: function() {
+    // Pengamanan ganda: Jangan hitung jika tracking AI sengaja dimatikan.
+    if (!document.getElementById("aiTrackingToggle").checked) return;
+
     this.analyzeHistory();
     this.calculateHealthAndScores();
     this.runExplainEngine();
@@ -1259,7 +1251,6 @@ const EvoraAI = {
     this.runSmartTargetEngine();
     this.runWhatIfAnalysis();
     this.runVariantPerformance();
-    this.runAdMemoryEngine();
     this.runAiTimeline();
     this.runDecisionEngine();
     this.runSmartNotification();
@@ -1459,13 +1450,13 @@ const EvoraAI = {
        sims.push(`Jika kecepatan konversi rata-rata naik 15% (${boostQty} pcs/hari), target akan selesai pada tanggal <b>${dSim.getDate()}</b>.`);
     }
 
-    let adSalesData = penjualan.filter(p => p.modeIklan === 'Iklan');
+    let adSalesData = penjualan.filter(p => p.isAiTracked === true); // Using tracked logic if any
     if (adSalesData.length > 0) {
-      let avgAdYield = adSalesData.reduce((sum, p) => sum + p.qty, 0) / adSalesData.length;
-      let estOmzet = avgAdYield * HARGA;
-      sims.push(`Jika iklan dijalankan berdasarkan historis (Yield ${avgAdYield.toFixed(1)} pcs/tx), estimasi omzet bertambah minimum <b>Rp ${estOmzet.toLocaleString('id-ID')}</b>/transaksi.`);
+      let avgYield = adSalesData.reduce((sum, p) => sum + p.qty, 0) / adSalesData.length;
+      let estOmzet = avgYield * HARGA;
+      sims.push(`Berdasarkan data tracked historis (Yield ${avgYield.toFixed(1)} pcs/tx), setiap interaksi/kampanye rata-rata menambah estimasi omzet minimum <b>Rp ${estOmzet.toLocaleString('id-ID')}</b>.`);
     } else {
-      sims.push(`Sistem belum memiliki data efektivitas iklan untuk simulasi akurat. Uji iklan sangat disarankan.`);
+      sims.push(`Sistem belum memiliki data track khusus untuk simulasi mendalam.`);
     }
     
     this.memory.whatIfSimulations = sims;
@@ -1508,20 +1499,6 @@ const EvoraAI = {
     this.memory.variantPerformance = varPerf;
   },
 
-  runAdMemoryEngine: function() {
-    let adIns = [];
-    let iklanSales = penjualan.filter(p => p.modeIklan === 'Iklan').reduce((sum, p) => sum + p.qty, 0);
-    let orgSales = penjualan.filter(p => p.modeIklan === 'Organik' || !p.modeIklan).reduce((sum, p) => sum + p.qty, 0);
-    
-    if(iklanSales > 0 || orgSales > 0) {
-       adIns.push(`Total Volume Organik: <b>${orgSales} Pcs</b>`);
-       adIns.push(`Total Volume Iklan: <b>${iklanSales} Pcs</b>`);
-    } else {
-       adIns.push(`Belum ada perbandingan data organik vs iklan yang tersimpan.`);
-    }
-    this.memory.adMemoryInsights = adIns;
-  },
-
   runAiTimeline: function() {
     let timelines = [];
     let now = new Date();
@@ -1553,9 +1530,9 @@ const EvoraAI = {
      let avgPcsPerDay = this.memory.predictions.todayQty;
      
      if (reqPcsPerDay > avgPcsPerDay) {
-        dec.push("Kesenjangan target terdeteksi. <b>Rekomendasi Mutlak:</b> Aktifkan pengeluaran mode Iklan.");
+        dec.push("Kesenjangan target terdeteksi. <b>Rekomendasi Mutlak:</b> Aktifkan pengeluaran mode pemasaran / operasional ekstra.");
      } else {
-        dec.push("Trafik stabil. <b>Rekomendasi Mutlak:</b> Maksimalkan metode penjualan Organik saat ini.");
+        dec.push("Trafik stabil. <b>Rekomendasi Mutlak:</b> Maksimalkan metode penjualan organik saat ini.");
      }
      
      let minStockVariant = barang.slice().sort((a,b)=>a.stok - b.stok)[0];
@@ -1629,9 +1606,6 @@ const EvoraAI = {
 
     let timelineHTML = this.memory.aiTimeline.map(t => `<li>${t}</li>`).join('');
     document.getElementById("aiCardTimeline").innerHTML = timelineHTML;
-    
-    let adHTML = this.memory.adMemoryInsights.map(t => `<li>${t}</li>`).join('');
-    document.getElementById("aiCardAdMemory").innerHTML = adHTML;
 
     document.getElementById("aiCardConfAcc").innerText = `Confidence: ${this.memory.confidence}% | Accuracy: ${this.memory.predictionAccuracy.toFixed(1)}%`;
     
@@ -1779,19 +1753,21 @@ function simpanModalEdit() {
   barang[currentEditIndex].nama = namaBaru; barang[currentEditIndex].stok = tempStok; tutupModalEdit(); saveData();
 }
 
-// BUG FIX: Accurate Ad Metadata Application
-function getAdMetadata() {
-  // Checking the explicit check state from DOM
-  let applyAll = document.getElementById("aiApplyAllSetting").checked;
-  if(applyAll) {
-    return {
-      mode: document.getElementById("aiModeSetting").value || "Organik",
-      budget: Number(document.getElementById("aiBudgetSetting").value) || 0,
-      notes: document.getElementById("aiNotesSetting").value || ""
-    };
-  }
-  // Fallback defaults if unchecked
-  return { mode: "Organik", budget: 0, notes: "" };
+// Generate data tracking terperinci jika fitur AI Tracking AKTIF
+function getAiTrackingData(qty, totalNilai, stokSebelum, stokSesudah) {
+  let now = new Date();
+  return {
+      isAiTracked: true,
+      jam: String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0'),
+      omzet: totalNilai,
+      laba: totalNilai, // Belum ada modal global (cogs), maka laba = omzet
+      hargaJual: HARGA,
+      stokSebelum: stokSebelum,
+      stokSesudah: stokSesudah,
+      hari: now.toLocaleDateString('id-ID', {weekday: 'long'}),
+      bulan: String(now.getMonth() + 1).padStart(2, '0'),
+      tahun: now.getFullYear()
+  };
 }
 
 async function quickJual(originalIndex) {
@@ -1802,12 +1778,22 @@ async function quickJual(originalIndex) {
   let konfirmasi = await customConfirm("Konfirmasi Kasir", `Jual <b>${qty} pcs</b> ${barang[originalIndex].nama}?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
   if(!konfirmasi) return;
   
-  let adMeta = getAdMetadata(); // Retrieve Ad Meta setting based on checkbox
+  let stokSebelum = barang[originalIndex].stok;
   barang[originalIndex].stok -= qty; stokBotol -= qty; stokBox -= qty;
-  penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai, modeIklan: adMeta.mode, budgetIklan: adMeta.budget, catatanIklan: adMeta.notes });
+  let stokSesudah = barang[originalIndex].stok;
+  
+  let tx = { tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai };
+  
+  if (document.getElementById("aiTrackingToggle").checked) {
+      Object.assign(tx, getAiTrackingData(qty, totalNilai, stokSebelum, stokSesudah));
+  }
+  
+  penjualan.push(tx);
   await cetakStrukOtomatis(barang[originalIndex].nama, qty, totalNilai);
   
-  EvoraAI.incrementalUpdate();
+  if (document.getElementById("aiTrackingToggle").checked) {
+    EvoraAI.incrementalUpdate();
+  }
   saveData();
 }
 
@@ -1819,13 +1805,22 @@ async function jualBarang(){
   let konfirmasi = await customConfirm("Konfirmasi Grosir", `Jual <b>${qty} pcs</b> ${barang[idx].nama} via order grosir?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
   if(!konfirmasi) return;
 
-  let adMeta = getAdMetadata(); // Retrieve Ad Meta setting based on checkbox
+  let stokSebelum = barang[idx].stok;
   barang[idx].stok -= qty; stokBotol -= qty; stokBox -= qty;
-  penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai, modeIklan: adMeta.mode, budgetIklan: adMeta.budget, catatanIklan: adMeta.notes });
+  let stokSesudah = barang[idx].stok;
+
+  let tx = { tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai };
   
+  if (document.getElementById("aiTrackingToggle").checked) {
+      Object.assign(tx, getAiTrackingData(qty, totalNilai, stokSebelum, stokSesudah));
+  }
+  
+  penjualan.push(tx);
   await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai); qtyJual.value=""; 
   
-  EvoraAI.incrementalUpdate();
+  if (document.getElementById("aiTrackingToggle").checked) {
+    EvoraAI.incrementalUpdate();
+  }
   saveData();
 }
 
@@ -1834,11 +1829,18 @@ async function tambahOmzetManual() {
   let konfirmasi = await customConfirm("Pendapatan Manual", `Simpan pendapatan manual sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> (${ket})?`, "success");
   if(!konfirmasi) return;
   
-  let adMeta = getAdMetadata(); // BUG FIX: Apply ad settings to manual omzet as well
-  penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket, modeIklan: adMeta.mode, budgetIklan: adMeta.budget, catatanIklan: adMeta.notes });
+  let tx = { tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket };
+  
+  if (document.getElementById("aiTrackingToggle").checked) {
+      Object.assign(tx, getAiTrackingData(0, nom, 0, 0));
+  }
+  
+  penjualan.push(tx);
   manualOmzet.value = ""; manualKet.value = "";
   
-  EvoraAI.incrementalUpdate(); 
+  if (document.getElementById("aiTrackingToggle").checked) {
+    EvoraAI.incrementalUpdate(); 
+  }
   saveData();
 }
 
@@ -1860,7 +1862,10 @@ async function batalkanPenjualan(originalIndex) {
     stokBotol += target.qty; stokBox += target.qty;
   }
   penjualan.splice(originalIndex, 1);
-  EvoraAI.incrementalUpdate();
+  
+  if (document.getElementById("aiTrackingToggle").checked) {
+    EvoraAI.incrementalUpdate();
+  }
   saveData();
 }
 
