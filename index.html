@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro - Premium Suite</title>
+  <title>EVORA Tracker Pro - Premium Suite V2.0</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -28,6 +28,8 @@
   --danger: #e11d48;
   --warning: #f97316;
   --accent: #d97706;
+  --ads: #8b5cf6;
+  --ai: #0ea5e9;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -113,7 +115,7 @@ html, body {
   flex-shrink: 0;
 }
 
-/* PREMIUM HEADER */
+/* PREMIUM BANK-STYLE HEADER */
 .premium-header {
   background: var(--premium-gradient);
   padding: 40px 24px 65px 24px;
@@ -121,42 +123,217 @@ html, body {
   position: relative;
   box-shadow: inset 0 -40px 40px rgba(0,0,0,0.15);
 }
-.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.brand-title { font-size: 20px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(to right, #ffffff, #ccfbf1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.sync-badge { font-size: 11px; background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 6px 14px; border-radius: 30px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: var(--shadow-sm); transition: all 0.3s; }
-.user-greeting { font-size: 16px; font-weight: 500; opacity: 0.95; letter-spacing: 0.3px; margin-top: 4px; }
-.bank-divider { border-top: 1px solid rgba(255, 255, 255, 0.18); margin: 16px 0; width: 100%; }
-.balance-section { display: flex; justify-content: space-between; align-items: flex-end; }
-.balance-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.75; font-weight: 600; }
-.balance-value { font-size: 36px; font-weight: 800; margin: 4px 0; letter-spacing: -1px; }
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.brand-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  background: linear-gradient(to right, #ffffff, #ccfbf1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.sync-badge {
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s;
+}
+.user-greeting {
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.95;
+  letter-spacing: 0.3px;
+  margin-top: 4px;
+}
+.bank-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  margin: 16px 0;
+  width: 100%;
+}
+.balance-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.balance-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  opacity: 0.75;
+  font-weight: 600;
+}
+.balance-value {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 4px 0;
+  letter-spacing: -1px;
+}
 
-/* DYNAMIC GROWTH BADGES */
-.trend-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; transition: all 0.3s ease; }
-.trend-badge.up { background: rgba(20, 184, 166, 0.25); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.2); }
-.trend-badge.down { background: rgba(225, 29, 72, 0.2); color: #fda4af; border: 1px solid rgba(225, 29, 72, 0.15); }
-.trend-badge.neutral { background: rgba(255, 255, 255, 0.1); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.05); }
+/* DYNAMIC BANK GROWTH BADGES */
+.trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+.trend-badge.up {
+  background: rgba(20, 184, 166, 0.25);
+  color: #2dd4bf;
+  border: 1px solid rgba(45, 212, 191, 0.2);
+}
+.trend-badge.down {
+  background: rgba(225, 29, 72, 0.2);
+  color: #fda4af;
+  border: 1px solid rgba(225, 29, 72, 0.15);
+}
+.trend-badge.neutral {
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-.btn-sync-icon { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); color: white; width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: all 0.2s; }
+.btn-sync-icon {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
-/* PILLS CONTAINER */
-.pills-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 25px; padding-bottom: 5px; }
-.premium-pill { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: white; padding: 10px 4px; border-radius: 12px; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px solid rgba(255, 255, 255, 0.18); white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.05); width: 100%; }
+/* PILLS CONTAINER - GRID 3 KOLOM SIMETRIS */
+.pills-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 25px;
+  padding-bottom: 5px;
+}
+.premium-pill {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: white;
+  padding: 10px 4px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  width: 100%;
+}
 
 /* MAIN BODY SHEET */
-.main-sheet { background: var(--bg-main); margin-top: -30px; border-radius: 28px 28px 0 0; position: relative; padding: 28px 18px; padding-bottom: 170px; }
-.card { background: var(--bg-card); padding: 20px; border-radius: var(--radius-md); margin-bottom: 20px; box-shadow: var(--shadow-md); border: 1px solid rgba(226, 232, 240, 0.6); transition: background 0.3s, border-color 0.3s; }
-body.dark-theme .card, body.dark-theme .item-barang, body.dark-theme .action-card, body.dark-theme .modal-content { background: var(--bg-card) !important; border-color: #334155 !important; }
+.main-sheet {
+  background: var(--bg-main);
+  margin-top: -30px;
+  border-radius: 28px 28px 0 0;
+  position: relative;
+  padding: 28px 18px;
+  padding-bottom: 170px;
+}
 
-h3 { margin-top: 0; margin-bottom: 16px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.card {
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  transition: background 0.3s, border-color 0.3s;
+}
 
-/* ACTION BUTTON & RIPPLE */
-button { position: relative; overflow: hidden; width: 100%; padding: 14px; font-weight: 700; background: var(--primary); color: #fff; border-radius: 12px; border: none; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px -1px rgba(15, 97, 109, 0.2); }
-button:active { transform: scale(0.97); }
-.ripple-span { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-effect 0.55s ease-out; background: rgba(255, 255, 255, 0.35); pointer-events: none; }
-@keyframes ripple-effect { to { transform: scale(4); opacity: 0; } }
+body.dark-theme .card, 
+body.dark-theme .item-barang, 
+body.dark-theme .action-card, 
+body.dark-theme .modal-content {
+  background: var(--bg-card) !important;
+  border-color: #334155 !important;
+}
 
-/* BADGES */
-.badge-status { padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; display: inline-block; margin-top: 8px; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* PREMIUM ACTION BUTTON & RIPPLE EFFECT */
+button {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 14px;
+  font-weight: 700;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 12px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(15, 97, 109, 0.2);
+}
+button:active {
+  transform: scale(0.97);
+}
+.ripple-span {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-effect 0.55s ease-out;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+@keyframes ripple-effect {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* PREMIUM BADGES & INTERACTIVE COLORS */
+.badge-status {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-block;
+  margin-top: 8px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
 .status-critical { background: #ffe4e6; color: #e11d48; border: 1px solid rgba(225,29,72,0.15); }
 .status-warning { background: #ffedd5; color: #ea580c; border: 1px solid rgba(234,88,12,0.15); }
 .status-ready { background: #ccfbf1; color: #0d9488; border: 1px solid rgba(13,148,136,0.15); }
@@ -165,67 +342,246 @@ body.dark-theme .status-critical { background: rgba(225,29,72,0.2); color: #fda4
 body.dark-theme .status-warning { background: rgba(234,88,12,0.2); color: #fed7aa; }
 body.dark-theme .status-ready { background: rgba(13,148,136,0.2); color: #99f6e4; }
 
-.blinking-alert { animation: premium-blink 1.4s infinite ease-in-out; }
-@keyframes premium-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.96); background: #fff1f2; } }
-body.dark-theme .blinking-alert { @keyframes premium-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; background: rgba(225,29,72,0.3); } } }
+/* Blinking continuous animation for critical stock */
+.blinking-alert {
+  animation: premium-blink 1.4s infinite ease-in-out;
+}
+@keyframes premium-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.96); background: #fff1f2; }
+}
+body.dark-theme .blinking-alert {
+  @keyframes premium-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; background: rgba(225,29,72,0.3); }
+  }
+}
 
-/* SKELETON SHIMMER */
-.skeleton-loading .shimmer-text { background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.4s infinite linear; color: transparent !important; border-radius: 6px; pointer-events: none; }
-body.dark-theme .skeleton-loading .shimmer-text { background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%); }
-@keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+/* SKELETON SHIMMER LOADING EFFECT */
+.skeleton-loading .shimmer-text {
+  background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+  color: transparent !important;
+  border-radius: 6px;
+  pointer-events: none;
+}
+body.dark-theme .skeleton-loading .shimmer-text {
+  background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 
-/* ANIMATION ENTRANCE */
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: premiumEntrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-@keyframes premiumEntrance { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+/* SMART FADE & SCALE ENTRANCE ANIMATION FOR TABS */
+.tab-content { 
+  display: none;
+}
+.tab-content.active { 
+  display: block; 
+  animation: premiumEntrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes premiumEntrance {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
-/* LAYOUTS */
+/* OTHER SYSTEM LAYOUTS */
 .search-container { position: relative; width: 100%; }
 .search-container input { padding-right: 40px; }
-.btn-clear-search { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none !important; border: none !important; color: var(--text-muted); width: auto !important; padding: 0 !important; font-size: 16px; cursor: pointer; display: none; z-index: 5; }
+.btn-clear-search {
+  position: absolute;
+  right: 14px; top: 50%; transform: translateY(-50%);
+  background: none !important; border: none !important; color: var(--text-muted);
+  width: auto !important; padding: 0 !important;
+  font-size: 16px; cursor: pointer; display: none; z-index: 5;
+}
 .top-product-grid { display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px; }
 .top-product-grid::-webkit-scrollbar { display: none; }
-.product-badge-card { background: var(--bg-card); border: 1px solid #e2e8f0; padding: 14px; border-radius: var(--radius-md); min-width: 125px; text-align: center; box-shadow: var(--shadow-sm); }
+.product-badge-card {
+  background: var(--bg-card); border: 1px solid #e2e8f0; padding: 14px;
+  border-radius: var(--radius-md); min-width: 125px;
+  text-align: center; box-shadow: var(--shadow-sm);
+}
 body.dark-theme .product-badge-card { border-color: #334155; }
-.product-badge-rank { font-size: 9px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 6px; background: var(--primary-light); padding: 2px 6px; border-radius: 20px; display: inline-block; }
-.product-badge-name { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.product-badge-rank {
+  font-size: 9px; font-weight: 800; color: var(--primary); text-transform: uppercase;
+  margin-bottom: 6px; background: var(--primary-light); padding: 2px 6px; border-radius: 20px; display: inline-block;
+}
+.product-badge-name { font-size: 13px; font-weight: 700; color: var(--text-main);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .product-badge-qty { font-size: 12px; color: var(--success); font-weight: 700; margin-top: 4px; }
 
-input, select, textarea { width: 100%; max-width: 100%; display: block; box-sizing: border-box; padding: 12px 14px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 14px; background: #f8fafc; color: var(--text-main); outline: none; transition: all 0.2s ease; -webkit-appearance: none; -moz-appearance: none; appearance: none; text-align: center; text-align-last: center; }
-body.dark-theme input, body.dark-theme select, body.dark-theme textarea { background: #0f172a !important; color: #f8fafc !important; border-color: #334155 !important; }
-input:focus, select:focus { border-color: var(--primary); background: var(--bg-card); box-shadow: 0 0 0 4px rgba(15, 97, 109, 0.12); }
+input, select, textarea {
+  width: 100%; 
+  max-width: 100%;
+  display: block;
+  box-sizing: border-box;
+  padding: 12px 14px; 
+  margin: 8px 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px; 
+  font-size: 14px; 
+  background: #f8fafc; 
+  color: var(--text-main); 
+  outline: none; 
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  text-align: center;
+  text-align-last: center; 
+}
+body.dark-theme input, 
+body.dark-theme select, 
+body.dark-theme textarea {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+input:focus, select:focus { border-color: var(--primary); background: var(--bg-card);
+  box-shadow: 0 0 0 4px rgba(15, 97, 109, 0.12); }
 .grid-barang { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .item-barang { background: var(--bg-card); padding: 16px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); }
 .item-info b { font-size: 14px; color: var(--text-main); display: block; line-height: 1.4; }
 .stok-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px; border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
+.action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px;
+  border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
 
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); height: 80px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.06); z-index: 999; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-bottom: env(safe-area-inset-bottom); }
-body.dark-theme .bottom-nav { background: rgba(30, 41, 59, 0.9) !important; border-top: 1px solid #334155 !important; }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; width: 20%; transition: all 0.2s; }
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); height: 80px;
+  display: flex; justify-content: space-around; align-items: center;
+  box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.06);
+  z-index: 999; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-bottom: env(safe-area-inset-bottom);
+}
+body.dark-theme .bottom-nav {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-top: 1px solid #334155 !important;
+}
+.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; flex: 1;
+  transition: all 0.2s; }
 .nav-item.active { color: var(--primary); }
-.nav-icon { font-size: 20px; margin-bottom: 4px; padding: 4px 16px; border-radius: 16px; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.nav-icon { font-size: 18px; margin-bottom: 4px; padding: 4px 12px; border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .nav-item.active .nav-icon { background: var(--primary-light); transform: translateY(-2px); }
 .scroll-box { max-height: 240px; overflow-y: auto; }
 .riwayat-item { background: #f8fafc; padding: 12px 14px; border-radius: 10px; margin: 8px 0; font-size: 13px; border: 1px solid #edf2f7; }
 
-body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #summaryBulanan { background: #0f172a !important; border-color: #334155 !important; color: var(--text-main) !important; }
+body.dark-theme .riwayat-item,
+body.dark-theme #summaryHarian,
+body.dark-theme #summaryBulanan {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: var(--text-main) !important;
+}
 
-/* MODALS */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
-.modal-content { background: var(--bg-card); border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 350px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); animation: premiumModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-@keyframes premiumModalPop { from { transform: translateY(30px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+/* MODALS WITH PREMIUM POP ANIMATIONS */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px;
+}
+.modal-content {
+  background: var(--bg-card); border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 350px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+  animation: premiumModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes premiumModalPop {
+  from { transform: translateY(30px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
 
-/* QUICK ACCESS */
-.quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
-.quick-card { background: var(--bg-card); border: 1px solid #e2e8f0; border-radius: 14px; height: 72px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: .2s; box-shadow: var(--shadow-sm); }
-.quick-card:active { transform: scale(.96); }
-.quick-card i { font-size: 20px; color: var(--primary); margin-bottom: 5px; }
-.quick-card span { font-size: 10px; font-weight: 700; text-align: center; line-height: 1.2; color: var(--text-main); }
+/* --- QUICK ACCESS CSS --- */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.quick-card {
+  background: var(--bg-card);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: .2s;
+  box-shadow: var(--shadow-sm);
+}
+.quick-card:active {
+  transform: scale(.96);
+}
+.quick-card i {
+  font-size: 20px;
+  color: var(--primary);
+  margin-bottom: 5px;
+}
+.quick-card span {
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--text-main);
+}
 
-#listPesanPending::-webkit-scrollbar { width: 4px; }
-#listPesanPending::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+/* CUSTOM SCROLLBAR FOR PENDING ORDERS */
+#listPesanPending::-webkit-scrollbar {
+  width: 4px;
+}
+#listPesanPending::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* NEW: TOGGLE SWITCH */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  transition: .4s;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: var(--ads);
+}
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--ads);
+}
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+body.dark-theme .slider {
+  background-color: #475569;
+}
 </style>
 </head>
 <body>
@@ -270,6 +626,7 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
 
 <div class="main-sheet">
 
+  <!-- BERANDA TAB -->
   <div id="tab-beranda" class="tab-content active">
     
     <div class="card">
@@ -303,39 +660,6 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
       <div style="font-size:12px; border-top:1px dashed #cbd5e1; padding-top:10px; font-weight:600; color:var(--text-main);">
         <i class="fa-solid fa-medal" style="color:#fbbf24;"></i> Varian Terlaris Hari Ini: <span id="topVarianHariIniText" style="color:var(--accent); font-weight: 700;">Belum ada</span>
       </div>
-    </div>
-
-    <!-- AI & ADS CONSULTANT DASHBOARD -->
-    <div class="card" style="border: 1px solid var(--primary); background: linear-gradient(135deg, var(--bg-card) 0%, var(--primary-light) 100%);">
-      <h3 style="color: var(--primary);"><i class="fa-solid fa-wand-magic-sparkles"></i> AI KONSULTAN & MANAJEMEN IKLAN</h3>
-      
-      <!-- Panel Prediksi Penjualan Besok -->
-      <div style="background:var(--bg-main); padding:12px; border-radius:12px; border:1px solid #cbd5e1; margin-bottom:14px; font-size:13px;">
-        <b style="display:block; margin-bottom:8px; color:var(--primary);"><i class="fa-solid fa-chart-line"></i> Prediksi Penjualan Besok</b>
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-          <span>Estimasi Terjual:</span>
-          <b id="prediksiQty" style="font-size:15px; color:var(--text-main);">0 Pcs</b>
-        </div>
-        <div style="display:flex; justify-content:space-between;">
-          <span>Proyeksi Omzet:</span>
-          <b id="prediksiOmzet" style="font-size:15px; color:var(--success);">Rp 0</b>
-        </div>
-      </div>
-
-      <!-- Pesan Peringatan AI Target Bulanan -->
-      <div id="pesanSaranAI" style="margin-bottom:14px;"></div>
-
-      <!-- Panel Aktifasi Iklan -->
-      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:12px; border-radius:12px; border:1px dashed #cbd5e1; margin-bottom:12px;">
-        <div>
-          <b style="font-size:13px;">Status Penjualan Saat Ini</b>
-          <div id="statusIklanTeks" style="font-size:11px; color:var(--text-muted); margin-top:2px;">Organik (Tidak ada iklan aktif)</div>
-        </div>
-        <button id="btnToggleIklan" onclick="toggleIklan()" style="width:auto; padding:8px 16px; font-size:12px; background:var(--success); box-shadow:none;">Aktifkan Iklan</button>
-      </div>
-
-      <h4 style="font-size:11px; color:var(--text-muted); margin:0 0 8px 0; text-transform:uppercase;">Riwayat Kampanye Iklan</h4>
-      <div id="listRiwayatIklan" style="max-height: 180px; overflow-y: auto;"></div>
     </div>
 
     <div class="card">
@@ -392,7 +716,19 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
     </div>
   </div>
 
+  <!-- KASIR TAB -->
   <div id="tab-kasir" class="tab-content">
+    
+    <!-- NEW: KONTROL SUMBER PENJUALAN (IKLAN / ORGANIK) -->
+    <div class="card" id="kasirSourceControl" style="display:none; border-color: var(--ads); background: rgba(139, 92, 246, 0.05);">
+      <h3 style="color:var(--ads);"><i class="fa-solid fa-bullhorn"></i> SUMBER PENJUALAN (IKLAN AKTIF)</h3>
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">Pilih sumber dari mana pembeli ini berasal sebelum memproses kasir.</p>
+      <div style="display: flex; gap: 8px;">
+        <button id="btnSourceOrganik" onclick="setKasirSource('Organik')" style="background:var(--bg-main); color:var(--text-main); border:1px solid #cbd5e1; box-shadow:none;">🌱 Organik</button>
+        <button id="btnSourceIklan" onclick="setKasirSource('Iklan')" style="background:var(--ads); color:#fff; box-shadow:none;">📢 Iklan</button>
+      </div>
+    </div>
+
     <div class="card">
       <h3><i class="fa-solid fa-gear"></i> KONFIGURASI HARGA GLOBAL</h3>
       <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:var(--bg-card); border-color: var(--primary);">
@@ -409,6 +745,7 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
 
     <div class="card">
       <h3><i class="fa-solid fa-box"></i> TRANSAKSI GROSIR / MANUAL</h3>
+     
       <select id="barangJual"></select>
       <input id="qtyJual" type="number" placeholder="Kuantitas Item">
       <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
@@ -421,6 +758,7 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
         <input id="qtyPesan" type="number" placeholder="Qty" style="margin:0; background:var(--bg-card);">
       </div>
       <button onclick="buatPesanan()" style="background:var(--accent); font-size:13px; padding:12px;"><i class="fa-solid fa-plus"></i> Buat Antrean Pemesanan</button>
+      
       <div id="listPesanPending" style="display:flex; flex-direction:column; margin-top:16px; max-height:320px; overflow-y:auto; overflow-x:hidden;"></div>
     </div>
 
@@ -432,6 +770,7 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
     </div>
   </div>
 
+  <!-- LAPORAN TAB -->
   <div id="tab-laporan" class="tab-content">
     <div class="card">
       <h3><i class="fa-solid fa-calendar-days"></i> LAPORAN HARIAN (INFO)</h3>
@@ -446,6 +785,7 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
     </div>
   </div>
 
+  <!-- RIWAYAT TAB -->
   <div id="tab-riwayat" class="tab-content">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
@@ -469,6 +809,93 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
     </div>
   </div>
 
+  <!-- NEW: IKLAN TAB -->
+  <div id="tab-iklan" class="tab-content">
+    <div class="card" style="border-color: var(--ads);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+        <h3 style="color:var(--ads); margin:0;"><i class="fa-solid fa-bullhorn"></i> STATUS IKLAN</h3>
+        <label class="switch">
+          <input type="checkbox" id="toggleIklan" onchange="toggleIklanStatus()">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <p id="iklanStatusText" style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Iklan sedang dinonaktifkan. Seluruh penjualan otomatis tercatat sebagai penjualan organik.</p>
+      
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div>
+          <label style="font-size:11px; font-weight:700; color:var(--text-muted);">Budget Harian</label>
+          <input id="inputBudgetHarian" type="number" placeholder="Rp" onchange="simpanBudgetIklan()">
+        </div>
+        <div>
+          <label style="font-size:11px; font-weight:700; color:var(--text-muted);">Budget Bulanan</label>
+          <input id="inputBudgetBulanan" type="number" placeholder="Rp" onchange="simpanBudgetIklan()">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--ads)"><i class="fa-solid fa-chart-pie"></i> STATISTIK HARI INI</h3>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; font-weight:600; text-align:center;">
+        <div style="background:var(--bg-main); padding:12px; border-radius:12px; border:1px solid #e2e8f0;">
+          <div style="color:var(--text-muted); font-size:11px; text-transform:uppercase;">Order Organik</div>
+          <div id="iklanOrderOrganik" style="color:var(--success); font-size:20px; font-weight:900; margin-top:4px;">0</div>
+          <div id="iklanOmzetOrganik" style="font-size:11px; margin-top:4px;">Rp 0</div>
+        </div>
+        <div style="background:var(--bg-main); padding:12px; border-radius:12px; border:1px solid #e2e8f0;">
+          <div style="color:var(--text-muted); font-size:11px; text-transform:uppercase;">Order Iklan</div>
+          <div id="iklanOrderAds" style="color:var(--ads); font-size:20px; font-weight:900; margin-top:4px;">0</div>
+          <div id="iklanOmzetAds" style="font-size:11px; margin-top:4px;">Rp 0</div>
+        </div>
+      </div>
+      
+      <div style="margin-top:16px; border-top:1px dashed #cbd5e1; padding-top:16px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
+          <span>Profit Iklan (Hari Ini)</span>
+          <span id="iklanProfitValue" style="color:var(--success);">Rp 0</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+          <span>ROAS Harian</span>
+          <span id="iklanRoasValue" style="color:var(--ads);">0x</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--ads)"><i class="fa-solid fa-chart-area"></i> GRAFIK ORGANIK VS IKLAN (7 HARI)</h3>
+      <div style="position: relative; height:200px; width:100%;">
+        <canvas id="grafikIklan"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW: AI ENGINE TAB -->
+  <div id="tab-ai" class="tab-content">
+    <div class="card" style="border: 1px solid var(--ai); background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, var(--bg-card) 100%);">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+        <div style="font-size: 32px; color: var(--ai);"><i class="fa-solid fa-brain"></i></div>
+        <div>
+          <h3 style="color:var(--ai); margin:0; font-size: 14px;">EVORA AI ENGINE</h3>
+          <div style="font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px;">Self-Learning Business Analyst</div>
+        </div>
+      </div>
+      
+      <div id="aiAnalysisContainer" style="font-size:13px; line-height:1.7; color:var(--text-main);">
+        <div style="text-align:center; color:var(--text-muted); padding: 20px;">
+          <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 24px; color:var(--ai); margin-bottom:10px;"></i><br>
+          AI sedang menganalisis seluruh data histori...
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--ai)"><i class="fa-solid fa-magnifying-glass-chart"></i> INSIGHT IKLAN (ADVERTISER AI)</h3>
+      <div id="aiIklanContainer" style="font-size:13px; line-height:1.7; color:var(--text-main); background:var(--bg-main); padding:16px; border-radius:12px; border:1px solid #e2e8f0;">
+         Menunggu analisis...
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTING TAB -->
   <div id="tab-setting" class="tab-content">
     <div class="card">
       <h3 style="color:var(--primary)"><i class="fa-solid fa-user"></i> PENGATURAN PROFIL</h3>
@@ -517,6 +944,7 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
 
 </div>
 
+<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <button id="nav-beranda" class="nav-item active" onclick="switchTab('beranda')">
     <div class="nav-icon"><i class="fa-solid fa-house"></i></div>
@@ -534,6 +962,16 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
     <div class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
     <div>Riwayat</div>
   </button>
+  <!-- NEW NAVS -->
+  <button id="nav-iklan" class="nav-item" onclick="switchTab('iklan')">
+    <div class="nav-icon"><i class="fa-solid fa-bullhorn"></i></div>
+    <div>Iklan</div>
+  </button>
+  <button id="nav-ai" class="nav-item" onclick="switchTab('ai')">
+    <div class="nav-icon"><i class="fa-solid fa-brain"></i></div>
+    <div>AI</div>
+  </button>
+  <!-- END NEW NAVS -->
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
     <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
     <div>Setting</div>
@@ -608,17 +1046,20 @@ let penjualan = [];
 let pengeluaran = [];
 let pesanan = []; 
 let chartInstance = null;
+let chartIklanInstance = null; // New chart for Iklan
 let currentValuesRegistry = {}; 
 
-// VAR GLOBAL ADS & AI
-let iklanHistory = [];
-let isIklanAktif = false;
-let namaIklanAktif = "";
-
+// Variabel Ekstensi Enterprise
 let namaUser = localStorage.getItem("evora_nama") || "Farhan";
 let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let printCharacteristic = null;
 let bluetoothDevice = null;
+
+// Variabel Ekstensi Iklan V2.0
+let iklanAktif = false;
+let budgetIklanHarian = 0;
+let budgetIklanBulanan = 0;
+let currentKasirSource = "Organik"; // Default
 
 let dSkrg = new Date();
 let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padStart(2, "0") + "-" + String(dSkrg.getDate()).padStart(2, "0");
@@ -631,6 +1072,7 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
+// INITIALIZE SETTINGS
 function initEnterpriseSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
   let btnDark = document.getElementById("btnDarkMode");
@@ -642,51 +1084,76 @@ function initEnterpriseSettings() {
 }
 initEnterpriseSettings();
 
+// SHORTCUT FUNCTIONS
 function shortcutRestock() {
   switchTab("kasir");
-  setTimeout(() => { document.getElementById("panelRestock").scrollIntoView({ behavior: "smooth", block: "start" }); }, 250);
+  setTimeout(() => {
+    document.getElementById("panelRestock").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 250);
 }
 
 function shortcutKasir() {
   switchTab("kasir");
-  setTimeout(() => { document.getElementById("panelKasir").scrollIntoView({ behavior: "smooth", block: "start" }); }, 250);
+  setTimeout(() => {
+    document.getElementById("panelKasir").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 250);
 }
 
+// NOTIFIKASI STOK
 function checkLowStockAlert() {
   let lowItems = [];
   if (stokBotol < 15) lowItems.push(`<i class="fa-solid fa-wine-bottle"></i> Botol Kosong: <b>${stokBotol} pcs</b>`);
   if (stokBox < 15) lowItems.push(`<i class="fa-solid fa-box"></i> Box Packing: <b>${stokBox} pcs</b>`);
-  barang.forEach(b => { if (b.stok < 5) lowItems.push(`<i class="fa-solid fa-flask"></i> ${b.nama}: <b>${b.stok} pcs</b>`); });
-  
+  barang.forEach(b => {
+    if (b.stok < 5) lowItems.push(`<i class="fa-solid fa-flask"></i> ${b.nama}: <b>${b.stok} pcs</b>`);
+  });
   if (lowItems.length > 0) {
     let msg = "Item logistik / varian berikut perlu segera di-restock:<br>";
     msg += "<ul style='margin: 8px 0 0 20px; padding: 0; font-weight: 500; font-size: 13px; line-height: 1.7;'>";
-    lowItems.forEach(item => { msg += `<li>${item}</li>`; });
+    lowItems.forEach(item => {
+      msg += `<li>${item}</li>`;
+    });
     msg += "</ul>";
     document.getElementById("notificationMessage").innerHTML = msg;
-    document.getElementById("topNotification").classList.add("show");
+    let notif = document.getElementById("topNotification");
+    notif.classList.add("show");
+    
     setTimeout(() => { closeNotification(); }, 10000);
   }
 }
 
-function closeNotification() { document.getElementById("topNotification").classList.remove("show"); }
+function closeNotification() {
+  document.getElementById("topNotification").classList.remove("show");
+}
 
+// RIPPLE EFFECT
 document.addEventListener('click', function (e) {
   const button = e.target.closest('button');
   if (!button) return;
+  
   const ripple = document.createElement('span');
   const diameter = Math.max(button.clientWidth, button.clientHeight);
   const radius = diameter / 2;
+  
   ripple.style.width = ripple.style.height = `${diameter}px`;
   const rect = button.getBoundingClientRect();
   ripple.style.left = `${e.clientX - rect.left - radius}px`;
   ripple.style.top = `${e.clientY - rect.top - radius}px`;
   ripple.classList.add('ripple-span');
+  
   const oldRipple = button.querySelector('.ripple-span');
   if (oldRipple) oldRipple.remove();
+  
   button.appendChild(ripple);
 });
 
+// ALERT CUSTOM
 function customAlert(title, message, type = 'primary') {
   return new Promise((resolve) => {
     const modal = document.getElementById("globalDialogModal");
@@ -700,11 +1167,18 @@ function customAlert(title, message, type = 'primary') {
     if(type === 'danger') { icon = '<i class="fa-solid fa-circle-xmark"></i>'; color = "var(--danger)"; }
     if(type === 'warning') { icon = '<i class="fa-solid fa-triangle-exclamation"></i>'; color = "var(--warning)"; }
 
-    iconEl.innerHTML = icon; titleEl.innerText = title; titleEl.style.color = color; msgEl.innerHTML = message;
+    iconEl.innerHTML = icon;
+    titleEl.innerText = title;
+    titleEl.style.color = color;
+    msgEl.innerHTML = message;
+
     btnContainer.style.gridTemplateColumns = "1fr";
     btnContainer.innerHTML = `<button id="dialogBtnOk" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">OK</button>`;
     modal.style.display = "flex";
-    document.getElementById("dialogBtnOk").onclick = () => { modal.style.display = "none"; resolve(); };
+    document.getElementById("dialogBtnOk").onclick = () => {
+      modal.style.display = "none";
+      resolve();
+    };
   });
 }
 
@@ -721,22 +1195,39 @@ function customConfirm(title, message, type = 'primary') {
     if(type === 'danger') { icon = '<i class="fa-solid fa-trash"></i>'; color = "var(--danger)"; }
     if(type === 'warning') { icon = '<i class="fa-solid fa-triangle-exclamation"></i>'; color = "var(--warning)"; }
 
-    iconEl.innerHTML = icon; titleEl.innerText = title; titleEl.style.color = color; msgEl.innerHTML = message;
+    iconEl.innerHTML = icon;
+    titleEl.innerText = title;
+    titleEl.style.color = color;
+    msgEl.innerHTML = message;
+
     btnContainer.style.gridTemplateColumns = "1fr 1fr";
     btnContainer.innerHTML = `
       <button id="dialogBtnCancel" style="background:#94a3b8; box-shadow:none; padding:12px; border-radius:10px;">Batal</button>
       <button id="dialogBtnConfirm" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">Konfirmasi</button>
     `;
     modal.style.display = "flex";
-    document.getElementById("dialogBtnCancel").onclick = () => { modal.style.display = "none"; resolve(false); };
-    document.getElementById("dialogBtnConfirm").onclick = () => { modal.style.display = "none"; resolve(true); };
+
+    document.getElementById("dialogBtnCancel").onclick = () => {
+      modal.style.display = "none";
+      resolve(false);
+    };
+    document.getElementById("dialogBtnConfirm").onclick = () => {
+      modal.style.display = "none";
+      resolve(true);
+    };
   });
 }
 
+// PROFILE SETUP & SAPAAN
 function simpanNamaProfil() {
   let namaBaru = document.getElementById("inputNamaProfil").value.trim();
-  if(!namaBaru) { customAlert("Peringatan", "Nama tidak boleh kosong!", "warning"); return; }
-  namaUser = namaBaru; localStorage.setItem("evora_nama", namaUser);
+  if(!namaBaru) {
+    customAlert("Peringatan", "Nama tidak boleh kosong!", "warning");
+    return;
+  }
+  namaUser = namaBaru;
+ 
+  localStorage.setItem("evora_nama", namaUser);
   parsePremiumGreeting();
   customAlert("Tersimpan", `Nama profil berhasil diubah menjadi <b>${namaUser}</b>.`, "success");
 }
@@ -751,27 +1242,40 @@ function parsePremiumGreeting() {
 }
 parsePremiumGreeting();
 
+// TEMA DARK MODE
 function toggleDarkMode() {
   isDarkMode = !isDarkMode;
   localStorage.setItem("evora_darkmode", isDarkMode);
   let btnDark = document.getElementById("btnDarkMode");
   if(isDarkMode) {
     document.body.classList.add("dark-theme");
-    btnDark.innerText = "Nonaktifkan"; btnDark.style.background = "var(--danger)";
+    btnDark.innerText = "Nonaktifkan";
+    btnDark.style.background = "var(--danger)";
   } else {
     document.body.classList.remove("dark-theme");
-    btnDark.innerText = "Aktifkan"; btnDark.style.background = "#94a3b8";
+    btnDark.innerText = "Aktifkan";
+    btnDark.style.background = "#94a3b8";
   }
+  renderWeeklyChart();
+  renderIklanChart();
 }
 
+// BLUETOOTH THERMAL PRINTER CORE ENGINE
 async function hubungkanPrinter() {
-  if (!navigator.bluetooth) { customAlert("Tidak Didukung", "Browser tidak mendukung Web Bluetooth API.", "danger"); return; }
+  if (!navigator.bluetooth) {
+    customAlert("Tidak Didukung", "Browser tidak mendukung Web Bluetooth API. Gunakan Google Chrome terbaru.", "danger");
+    return;
+  }
   try {
     document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-rotate"></i> Mencari...';
     document.getElementById("statusPrinter").style.color = "var(--warning)";
     bluetoothDevice = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
-      optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2', '49535343-fe7d-4ae5-8fa9-9fafd205e455']
+      optionalServices: [
+        '000018f0-0000-1000-8000-00805f9b34fb',
+        'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
+        '49535343-fe7d-4ae5-8fa9-9fafd205e455'
+      ]
     });
     const server = await bluetoothDevice.gatt.connect();
     const services = await server.getPrimaryServices();
@@ -779,17 +1283,20 @@ async function hubungkanPrinter() {
     const service = services[0]; 
     const characteristics = await service.getCharacteristics();
     printCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
-    if (!printCharacteristic) throw new Error("Karakteristik Write tidak ditemukan.");
+    if (!printCharacteristic) throw new Error("Karakteristik Write printer tidak ditemukan.");
 
     document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + bluetoothDevice.name;
     document.getElementById("statusPrinter").style.color = "var(--success)";
     let btnTest = document.getElementById("btnTestPrint");
-    btnTest.disabled = false; btnTest.style.background = "var(--success)"; btnTest.style.color = "#fff";
-    
+    btnTest.disabled = false;
+    btnTest.style.background = "var(--success)";
+    btnTest.style.color = "#fff";
     bluetoothDevice.addEventListener('gattserverdisconnected', () => {
       document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Terputus';
       document.getElementById("statusPrinter").style.color = "var(--danger)";
-      printCharacteristic = null; btnTest.disabled = true; btnTest.style.background = "#cbd5e1";
+      printCharacteristic = null;
+      btnTest.disabled = true;
+      btnTest.style.background = "#cbd5e1";
     });
   } catch (error) {
     console.error(error);
@@ -802,34 +1309,61 @@ async function hubungkanPrinter() {
 async function kirimTeksKePrinter(teks) {
   if (!printCharacteristic) return;
   try {
-    let encoder = new TextEncoder(); let data = encoder.encode(teks);
-    for (let i = 0; i < data.length; i += 20) { await printCharacteristic.writeValue(data.slice(i, i + 20)); }
-  } catch (err) { console.error("Gagal mengirim data print:", err); }
+    let encoder = new TextEncoder();
+    let data = encoder.encode(teks);
+    for (let i = 0; i < data.length; i += 20) {
+      let chunk = data.slice(i, i + 20);
+      await printCharacteristic.writeValue(chunk);
+    }
+  } catch (err) {
+    console.error("Gagal mengirim data print:", err);
+  }
 }
 
 async function cetakStrukOtomatis(namaBarang, qty, total) {
   if (!printCharacteristic) return;
   const ESC = '\x1B';
   let teksStruk = 
-    ESC + '@' + ESC + 'a' + '\x01' + 
-    "=== EVORA TRACKER PRO ===\nPremium Perfume Suite\n--------------------------------\n" + ESC + 'a' + '\x00' +
-    "Tanggal : " + new Date().toLocaleString('id-ID') + "\nKasir   : " + namaUser + "\n--------------------------------\n" +
-    namaBarang + "\n" + qty + " Pcs x Rp " + HARGA.toLocaleString('id-ID') + "\n" +
-    ESC + 'a' + '\x02' + "TOTAL: Rp " + total.toLocaleString('id-ID') + "\n" +
-    ESC + 'a' + '\x01' + "--------------------------------\nTerima Kasih Atas Kunjungan Anda\n\n\n\n";
+    ESC + '@' + 
+    ESC + 'a' + '\x01' + 
+    "=== EVORA TRACKER PRO ===\n" +
+    "Premium Perfume Suite\n" +
+    "--------------------------------\n" +
+    ESC + 'a' + '\x00' +
+    "Tanggal : " + new Date().toLocaleString('id-ID') + "\n" +
+    "Kasir   : " + namaUser + "\n" +
+    "--------------------------------\n" +
+    namaBarang + "\n" +
+    qty + " Pcs x Rp " + 
+    HARGA.toLocaleString('id-ID') + "\n" +
+    ESC + 'a' + '\x02' + 
+    "TOTAL: Rp " + total.toLocaleString('id-ID') + "\n" +
+    ESC + 'a' + '\x01' + 
+    "--------------------------------\n" +
+    "Terima Kasih Atas Kunjungan Anda\n\n\n\n";
   await kirimTeksKePrinter(teksStruk);
 }
 
 async function testPrint() {
   if (!printCharacteristic) return;
   const ESC = '\x1B';
-  let text = ESC + '@' + ESC + 'a' + '\x01' + "=== EVORA TRACKER PRO ===\n\n" + ESC + 'a' + '\x00' + 
-    "Tgl   : " + new Date().toLocaleString('id-ID') + "\nKasir : " + namaUser + "\n--------------------------------\n" +
-    ESC + 'a' + '\x01' + "KONEKSI PRINTER BERHASIL!\n" + ESC + 'a' + '\x00' + "--------------------------------\n\n\n\n";
+  let text = 
+    ESC + '@' + 
+    ESC + 'a' + '\x01' + 
+    "=== EVORA TRACKER PRO ===\n\n" +
+    ESC + 'a' + '\x00' + 
+    "Tgl   : " + new Date().toLocaleString('id-ID') + "\n" +
+    "Kasir : " + namaUser + "\n" +
+    "--------------------------------\n" +
+    ESC + 'a' + '\x01' + 
+    "KONEKSI PRINTER BERHASIL!\n" +
+    ESC + 'a' + '\x00' + 
+    "--------------------------------\n\n\n\n";
   await kirimTeksKePrinter(text);
   customAlert("Sukses", "Struk test berhasil dicetak ke printer!", "success");
 }
 
+// SIMPLE CONFETTI SYSTEM
 let isConfettiFired = false;
 function fireConfetti() {
   if (isConfettiFired || document.getElementById('evora-confetti')) return;
@@ -850,24 +1384,39 @@ function fireConfetti() {
   setTimeout(()=> { c.remove(); style.remove(); }, 6000);
 }
 
+
+// COUNT UP ANIMATION LOGIC FOR METRICS
 function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
   const el = document.getElementById(elementId);
   if (!el) return;
+  
   let startValue = currentValuesRegistry[elementId] || 0;
   if (startValue === targetValue) {
-    el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
+    el.innerText = isCurrency ?
+    "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
     return;
   }
+  
   currentValuesRegistry[elementId] = targetValue;
-  const duration = 750; const startTime = performance.now();
+  const duration = 750;
+  const startTime = performance.now();
+  
   function step(now) {
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
     const easeQuadOut = progress * (2 - progress);
     const currentFrameVal = Math.floor(startValue + (targetValue - startValue) * easeQuadOut);
-    el.innerText = isCurrency ? "Rp " + currentFrameVal.toLocaleString("id-ID") : currentFrameVal.toLocaleString("id-ID") + suffix;
-    if (progress < 1) requestAnimationFrame(step);
-    else el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
+    if (isCurrency) {
+      el.innerText = "Rp " + currentFrameVal.toLocaleString("id-ID");
+    } else {
+      el.innerText = currentFrameVal.toLocaleString("id-ID") + suffix;
+    }
+    
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
+    }
   }
   requestAnimationFrame(step);
 }
@@ -875,6 +1424,7 @@ function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
 function switchTab(tabName) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
   document.getElementById(`tab-${tabName}`).classList.add('active');
   document.getElementById(`nav-${tabName}`).classList.add('active');
 }
@@ -895,19 +1445,32 @@ async function loadDataFromCloud() {
       pengeluaran = dataUtama.pengeluaran || [];
       pesanan = dataUtama.pesanan || []; 
       HARGA = Number(dataUtama.hargaGlobal || 27000);
-      
-      iklanHistory = dataUtama.iklanHistory || [];
-      isIklanAktif = dataUtama.isIklanAktif || false;
-      namaIklanAktif = dataUtama.namaIklanAktif || "";
 
+      // Legacy Data Support & New Variables
+      iklanAktif = dataUtama.iklanAktif || false;
+      budgetIklanHarian = Number(dataUtama.budgetIklanHarian || 0);
+      budgetIklanBulanan = Number(dataUtama.budgetIklanBulanan || 0);
+      
+      // Upgrade old data silently for AI compatibility
+      penjualan.forEach(p => {
+        if(!p.sumber) p.sumber = "Organik";
+      });
+      
       document.getElementById("inputHargaGlobal").value = HARGA;
+      document.getElementById("toggleIklan").checked = iklanAktif;
+      document.getElementById("inputBudgetHarian").value = budgetIklanHarian > 0 ? budgetIklanHarian : "";
+      document.getElementById("inputBudgetBulanan").value = budgetIklanBulanan > 0 ? budgetIklanBulanan : "";
+      
+      updateKasirSourceUI();
+
       setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else {
       setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB");
     }
     
     document.body.classList.remove("skeleton-loading");
-    render(); checkLowStockAlert();
+    render();
+    checkLowStockAlert();
   } catch (error) {
     console.error("Gagal load Supabase:", error);
     setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Offline");
@@ -917,14 +1480,23 @@ async function loadDataFromCloud() {
 
 async function saveData() {
   setSyncStatus("<i class='fa-solid fa-bolt'></i> Saving...");
+  
   let paketData = {
-    stokBotol: stokBotol, stokBox: stokBox, barang: barang, penjualan: penjualan, pengeluaran: pengeluaran,
-    pesanan: pesanan, hargaGlobal: HARGA, 
-    iklanHistory: iklanHistory, isIklanAktif: isIklanAktif, namaIklanAktif: namaIklanAktif
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran,
+    pesanan: pesanan, 
+    hargaGlobal: HARGA,
+    iklanAktif: iklanAktif,
+    budgetIklanHarian: budgetIklanHarian,
+    budgetIklanBulanan: budgetIklanBulanan
   };
   try {
     const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
     if (error) throw error;
+    
     setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved");
     render();
   } catch (error) {
@@ -938,22 +1510,40 @@ async function simpanHargaBaru() {
   let hargaBaru = Number(elHarga.value);
   if(hargaBaru <= 0 || isNaN(hargaBaru)) return;
   let konfirmasi = await customConfirm("Ubah Harga Global", `Apakah Anda yakin ingin mengubah harga produk menjadi <b>Rp ${hargaBaru.toLocaleString("id-ID")}</b>?`, "warning");
-  if(!konfirmasi) { elHarga.value = HARGA; return; }
-  HARGA = hargaBaru; saveData();
+  if(!konfirmasi) {
+    elHarga.value = HARGA;
+    return;
+  }
+  HARGA = hargaBaru;
+  saveData();
 }
 
-function setSyncStatus(teks) { document.getElementById("syncStatus").innerHTML = teks; }
+function setSyncStatus(teks) {
+  document.getElementById("syncStatus").innerHTML = teks;
+}
 
-function getMonthKey(date){ let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
-function getDayKey(date){ let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-function getMonthLabel(key){ let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]; let [y,m]=key.split("-"); return bulan[Number(m)-1]+" "+y; }
+function getMonthKey(date){
+  let d = new Date(date);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+function getDayKey(date){
+  let d = new Date(date);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function getMonthLabel(key){
+  let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  let [y,m]=key.split("-");
+  return bulan[Number(m)-1]+" "+y;
+}
 
 function updateMonthSelect(){
   let set = new Set();
   penjualan.forEach(x=>set.add(getMonthKey(x.tanggal)));
   pengeluaran.forEach(x=>set.add(getMonthKey(x.tanggal)));
   set.add(getMonthKey(new Date()));
-  document.getElementById("bulanSelect").innerHTML = [...set].sort().reverse().map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
+  document.getElementById("bulanSelect").innerHTML =
+  [...set].sort().reverse()
+  .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
 function handleSearchInput() {
@@ -969,32 +1559,265 @@ function clearSearchField() {
 }
 
 function renderWeeklyChart() {
-  let labels = []; let dataOmzet = [];
+  let labels = [];
+  let dataOmzet = [];
+  
   for(let i = 6; i >= 0; i--) {
-    let d = new Date(); d.setDate(d.getDate() - i); let key = getDayKey(d);
-    labels.push(String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'));
+    let d = new Date();
+    d.setDate(d.getDate() - i);
+    let key = getDayKey(d);
+    
+    let labelStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+    labels.push(labelStr);
     let transaksiHariIni = penjualan.filter(x => getDayKey(x.tanggal) === key);
-    dataOmzet.push(transaksiHariIni.reduce((a, b) => a + b.nominal, 0));
+    let omzetHariIni = transaksiHariIni.reduce((a, b) => a + b.nominal, 0);
+    dataOmzet.push(omzetHariIni);
   }
 
   let ctx = document.getElementById('grafikMingguan').getContext('2d');
-  let lineColor = isDarkMode ? '#2dd4bf' : '#0f616d'; let bgColor = isDarkMode ? 'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
+  let lineColor = isDarkMode ? '#2dd4bf' : '#0f616d';
+  let bgColor = isDarkMode ? 'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
+  
   if(chartInstance) {
-    chartInstance.data.labels = labels; chartInstance.data.datasets[0].data = dataOmzet;
-    chartInstance.data.datasets[0].borderColor = lineColor; chartInstance.data.datasets[0].backgroundColor = bgColor;
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = dataOmzet;
+    chartInstance.data.datasets[0].borderColor = lineColor;
+    chartInstance.data.datasets[0].backgroundColor = bgColor;
     chartInstance.update();
   } else {
     chartInstance = new Chart(ctx, {
-      type: 'line', data: { labels: labels, datasets: [{ label: 'Omzet', data: dataOmzet, borderColor: lineColor, backgroundColor: bgColor, borderWidth: 2, tension: 0.3, fill: true }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); }, font: { size: 9 } } }, x: { ticks: { font: { size: 10 } } } } }
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Omzet',
+          data: dataOmzet,
+          borderColor: lineColor,
+          backgroundColor: bgColor,
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); },
+              font: { size: 9 }
+            }
+          },
+          x: { ticks: { font: { size: 10 } } }
+        }
+      }
     });
   }
 }
 
+function renderIklanChart() {
+  let labels = [];
+  let dataOrganik = [];
+  let dataIklan = [];
+  
+  for(let i = 6; i >= 0; i--) {
+    let d = new Date();
+    d.setDate(d.getDate() - i);
+    let key = getDayKey(d);
+    
+    let labelStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+    labels.push(labelStr);
+    let trHariIni = penjualan.filter(x => getDayKey(x.tanggal) === key);
+    
+    let oOrganik = trHariIni.filter(x => x.sumber === "Organik").reduce((a,b) => a + b.nominal, 0);
+    let oIklan = trHariIni.filter(x => x.sumber === "Iklan").reduce((a,b) => a + b.nominal, 0);
+    
+    dataOrganik.push(oOrganik);
+    dataIklan.push(oIklan);
+  }
+
+  let ctx = document.getElementById('grafikIklan').getContext('2d');
+  
+  if(chartIklanInstance) {
+    chartIklanInstance.data.labels = labels;
+    chartIklanInstance.data.datasets[0].data = dataOrganik;
+    chartIklanInstance.data.datasets[1].data = dataIklan;
+    chartIklanInstance.update();
+  } else {
+    chartIklanInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Organik',
+            data: dataOrganik,
+            backgroundColor: '#0d9488',
+            borderRadius: 4
+          },
+          {
+            label: 'Iklan',
+            data: dataIklan,
+            backgroundColor: '#8b5cf6',
+            borderRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { stacked: true, ticks: { font: { size: 10 } } },
+          y: { stacked: true, beginAtZero: true, ticks: { callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); }, font: { size: 9 } } }
+        }
+      }
+    });
+  }
+}
+
+// --- ADS & AI SECTION ---
+function toggleIklanStatus() {
+  iklanAktif = document.getElementById("toggleIklan").checked;
+  if(!iklanAktif) currentKasirSource = "Organik"; // Auto reset
+  updateKasirSourceUI();
+  saveData();
+}
+
+function simpanBudgetIklan() {
+  budgetIklanHarian = Number(document.getElementById("inputBudgetHarian").value) || 0;
+  budgetIklanBulanan = Number(document.getElementById("inputBudgetBulanan").value) || 0;
+  saveData();
+}
+
+function updateKasirSourceUI() {
+  let control = document.getElementById("kasirSourceControl");
+  let statusText = document.getElementById("iklanStatusText");
+  
+  if (iklanAktif) {
+    control.style.display = "block";
+    statusText.innerText = "Iklan Sedang Aktif. Jangan lupa memilih sumber penjualan (Organik/Iklan) di panel Kasir untuk kalkulasi ROAS yang akurat.";
+    setKasirSource(currentKasirSource);
+  } else {
+    control.style.display = "none";
+    statusText.innerText = "Iklan sedang dinonaktifkan. Seluruh penjualan otomatis tercatat sebagai penjualan organik.";
+    currentKasirSource = "Organik";
+  }
+}
+
+function setKasirSource(source) {
+  currentKasirSource = source;
+  let btnO = document.getElementById("btnSourceOrganik");
+  let btnI = document.getElementById("btnSourceIklan");
+  if(source === "Organik") {
+    btnO.style.background = "var(--success)"; btnO.style.color = "#fff"; btnO.style.border = "none";
+    btnI.style.background = "var(--bg-main)"; btnI.style.color = "var(--text-main)"; btnI.style.border = "1px solid #cbd5e1";
+  } else {
+    btnI.style.background = "var(--ads)"; btnI.style.color = "#fff"; btnI.style.border = "none";
+    btnO.style.background = "var(--bg-main)"; btnO.style.color = "var(--text-main)"; btnO.style.border = "1px solid #cbd5e1";
+  }
+}
+
+function runAIEngine() {
+  // AI Indexing and Self-Learning Engine based strictly on all historical data
+  if (penjualan.length === 0) {
+    document.getElementById("aiAnalysisContainer").innerHTML = "<div style='text-align:center; color:var(--text-muted); padding:20px;'>Data belum cukup untuk membuat analisa yang akurat. Mulai catat transaksi Anda untuk melatih model AI.</div>";
+    document.getElementById("aiIklanContainer").innerHTML = "Menunggu transaksi berjalan...";
+    return;
+  }
+
+  // Calculate overall metrics
+  let totalOmzetAllTime = penjualan.reduce((a, b) => a + b.nominal, 0);
+  let totalPcsAllTime = penjualan.reduce((a, b) => a + b.qty, 0);
+  let totalExpensesAllTime = pengeluaran.reduce((a, b) => a + b.nominal, 0);
+  let netProfitAllTime = totalOmzetAllTime - totalExpensesAllTime;
+
+  // Find unique days
+  let uniqueDaysSet = new Set(penjualan.map(x => getDayKey(x.tanggal)));
+  let totalDaysActive = Math.max(1, uniqueDaysSet.size);
+
+  let avgDailyOmzet = totalOmzetAllTime / totalDaysActive;
+  let avgDailyPcs = totalPcsAllTime / totalDaysActive;
+
+  // Best variant all time
+  let allTimeMap = {};
+  penjualan.forEach(x => { if(x.qty > 0) allTimeMap[x.barang] = (allTimeMap[x.barang] || 0) + x.qty; });
+  let topAllTime = Object.entries(allTimeMap).sort((a,b) => b[1] - a[1]);
+  let bestVariant = topAllTime.length > 0 ? topAllTime[0][0] : "-";
+
+  // Trend last 7 vs prev 7 days
+  let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
+  let msPerDay = 24 * 60 * 60 * 1000;
+  let sales7D = 0; let salesPrev7D = 0;
+  let pcs7D = 0; let pcsPrev7D = 0;
+
+  penjualan.forEach(p => {
+    let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
+    let selisih = Math.floor((dSkrgZero - pDate) / msPerDay);
+    if(selisih >= 0 && selisih < 7) { sales7D += p.nominal; pcs7D += p.qty; }
+    else if(selisih >= 7 && selisih < 14) { salesPrev7D += p.nominal; pcsPrev7D += p.qty; }
+  });
+
+  let trendTeks = "";
+  if(salesPrev7D > 0) {
+    let pct = ((sales7D - salesPrev7D) / salesPrev7D) * 100;
+    if(pct > 0) trendTeks = `<span style="color:var(--success); font-weight:bold;"><i class="fa-solid fa-arrow-trend-up"></i> Pertumbuhan Positif (+${pct.toFixed(1)}%)</span> dari minggu lalu.`;
+    else if (pct < 0) trendTeks = `<span style="color:var(--danger); font-weight:bold;"><i class="fa-solid fa-arrow-trend-down"></i> Penurunan (${pct.toFixed(1)}%)</span> dari minggu lalu.`;
+    else trendTeks = "Stabil (0%) dibandingkan minggu lalu.";
+  } else {
+    trendTeks = "Mengumpulkan lebih banyak data minggu lalu untuk komparasi.";
+  }
+
+  // AI Ads Insight Generation
+  let hariIniKey = getDayKey(new Date());
+  let jualHariIni = penjualan.filter(x => getDayKey(x.tanggal) === hariIniKey);
+  let omzetOrgHariIni = jualHariIni.filter(x => x.sumber === "Organik").reduce((a,b) => a + b.nominal, 0);
+  let omzetAdsHariIni = jualHariIni.filter(x => x.sumber === "Iklan").reduce((a,b) => a + b.nominal, 0);
+  let totalOmzetHariIni = omzetOrgHariIni + omzetAdsHariIni;
+
+  let aiAdsText = "";
+  if(totalOmzetHariIni > 0) {
+    let pctAds = (omzetAdsHariIni / totalOmzetHariIni) * 100;
+    let pctOrg = (omzetOrgHariIni / totalOmzetHariIni) * 100;
+    if (iklanAktif) {
+      if(pctAds > 50) aiAdsText = `Iklan Anda berjalan sangat baik. Hari ini <b>${pctAds.toFixed(0)}%</b> pendapatan dihasilkan dari traffic Iklan. Teruskan momentum ini.`;
+      else if(pctAds > 0) aiAdsText = `Hari ini Iklan menyumbang <b>${pctAds.toFixed(0)}%</b> penjualan. Penjualan organik masih mendominasi sebesar <b>${pctOrg.toFixed(0)}%</b>.`;
+      else aiAdsText = `Walaupun Iklan aktif, belum ada konversi dari Iklan hari ini. Seluruh penjualan berasal dari Organik. Coba evaluasi targeting atau materi iklan Anda.`;
+    } else {
+      if(pctAds > 0) aiAdsText = `Iklan dimatikan, namun ada <b>${pctAds.toFixed(0)}%</b> penjualan yang tercatat dari jejak Iklan sebelumnya (atribusi tertunda). Organik menyumbang <b>${pctOrg.toFixed(0)}%</b>.`;
+      else aiAdsText = `Hari ini seluruh penjualan murni berasal dari Organik. Penjualan organik Anda terlihat mandiri tanpa dorongan Iklan saat ini.`;
+    }
+  } else {
+    aiAdsText = "Belum ada transaksi hari ini untuk dianalisis performa sumbernya.";
+  }
+
+  document.getElementById("aiAnalysisContainer").innerHTML = `
+    <div style="margin-bottom:12px;">Berdasarkan seluruh histori data (<b>${penjualan.length} transaksi</b> selama <b>${totalDaysActive} hari</b> aktif), berikut adalah hasil indeks model mesin cerdas kami:</div>
+    <ul style="margin:0 0 0 16px; padding:0;">
+      <li style="margin-bottom:6px;">Rata-rata penjualan bisnis Anda adalah <b>${avgDailyPcs.toFixed(1)} Pcs/hari</b> dengan omzet harian rata-rata sebesar <b>Rp ${Math.floor(avgDailyOmzet).toLocaleString("id-ID")}</b>.</li>
+      <li style="margin-bottom:6px;">Laba bersih (profit) sepanjang waktu setelah dikurangi seluruh pengeluaran operasional adalah <b>Rp ${netProfitAllTime.toLocaleString("id-ID")}</b>.</li>
+      <li style="margin-bottom:6px;">Varian yang menjadi "Hero Product" (paling diminati sepanjang masa) adalah <b>${bestVariant}</b>.</li>
+      <li style="margin-bottom:6px;">Tren Performa Mingguan: ${trendTeks}</li>
+    </ul>
+    <div style="margin-top:12px; font-size:11px; text-align:right; color:var(--text-muted);"><i class="fa-solid fa-check-double"></i> Model di-update secara real-time.</div>
+  `;
+
+  document.getElementById("aiIklanContainer").innerHTML = `
+    <div style="font-weight:700; margin-bottom:4px; color:var(--text-main);">Analisis Atribusi Harian:</div>
+    ${aiAdsText}
+  `;
+}
+
+// END ADS & AI SECTION
+
+
 function editLogistik(jenis) {
   currentLogistikJenis = jenis;
   document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
-  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ? stokBotol : stokBox;
+  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ?
+  stokBotol : stokBox;
   document.getElementById("logistikJumlahManual").value = "";
   document.getElementById("logistikModal").style.display = "flex";
 }
@@ -1002,21 +1825,32 @@ function editLogistik(jenis) {
 function eksekusiLogistik(aksi) {
   let inputVal = Number(document.getElementById("logistikJumlahManual").value);
   if (inputVal <= 0 || isNaN(inputVal)) return;
+  
   let nilai = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
   nilai = aksi === 'tambah' ? nilai + inputVal : Math.max(0, nilai - inputVal);
-  if (currentLogistikJenis === 'botol') stokBotol = nilai; else stokBox = nilai;
+  if (currentLogistikJenis === 'botol') {
+    stokBotol = nilai;
+  } else {
+    stokBox = nilai;
+  }
+  
   document.getElementById("logistikStokSekarang").innerText = nilai;
-  document.getElementById("logistikJumlahManual").value = ""; saveData(); 
+  document.getElementById("logistikJumlahManual").value = ""; 
+  saveData(); 
 }
 
-function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none"; }
+function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none";
+}
 
 async function tambahBarang(){
-  let nama = namaBarang.value.trim().toUpperCase(); let qty = Number(qtyBarang.value);
+  let nama = namaBarang.value.trim().toUpperCase();
+  let qty = Number(qtyBarang.value);
   if(!nama || qty<=0) return;
   let konfirmasi = await customConfirm("Tambah Varian", `Daftarkan varian parfum baru <b>"${nama}"</b> dengan stok awal <b>${qty} pcs</b>?`, "primary");
   if(!konfirmasi) return;
-  barang.push({nama:nama, stok:qty}); namaBarang.value=""; qtyBarang.value=""; saveData();
+  barang.push({nama:nama, stok:qty});
+  namaBarang.value=""; qtyBarang.value="";
+  saveData();
 }
 
 function editBarang(originalIndex){
@@ -1038,53 +1872,66 @@ function tutupModalEdit() { document.getElementById("editModal").style.display =
 function simpanModalEdit() {
   let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
   if(!namaBaru) return;
-  barang[currentEditIndex].nama = namaBaru; barang[currentEditIndex].stok = tempStok;
-  tutupModalEdit(); saveData();
+  barang[currentEditIndex].nama = namaBaru;
+  barang[currentEditIndex].stok = tempStok;
+  
+  tutupModalEdit();
+  saveData();
 }
 
 async function quickJual(originalIndex) {
   let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`);
   let qty = Number(qtySelect.value || 1);
-  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) { await customAlert("Stok Tidak Cukup", "Sisa stok logistik di gudang Anda tidak mencukupi!", "danger"); return; }
+  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) {
+    await customAlert("Stok Tidak Cukup", "Sisa stok logistik di gudang Anda tidak mencukupi untuk kuantitas transaksi ini!", "danger");
+    return;
+  }
   
   let totalNilai = qty * HARGA;
-  let konfirmasi = await customConfirm("Konfirmasi Kasir", `Jual <b>${qty} pcs</b> ${barang[originalIndex].nama}?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
+  let konfirmasi = await customConfirm("Konfirmasi Kasir", `Jual <b>${qty} pcs</b> ${barang[originalIndex].nama} via <b>${currentKasirSource}</b>?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
   if(!konfirmasi) return;
   
-  barang[originalIndex].stok -= qty; stokBotol -= qty; stokBox -= qty;
-  let sumberJual = isIklanAktif ? `Iklan: ${namaIklanAktif}` : "Organik";
-  penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai, sumber: sumberJual });
+  barang[originalIndex].stok -= qty;
+  stokBotol -= qty; stokBox -= qty;
+  penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai, sumber: currentKasirSource });
   await cetakStrukOtomatis(barang[originalIndex].nama, qty, totalNilai);
   saveData();
 }
 
 async function jualBarang(){
-  let idx = Number(barangJual.value); let qty = Number(qtyJual.value);
-  if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) { await customAlert("Stok Tidak Valid", "Stok tidak mencukupi untuk memproses grosir!", "danger"); return; }
+  let idx = Number(barangJual.value);
+  let qty = Number(qtyJual.value);
+  if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) {
+    await customAlert("Stok Tidak Valid", "Stok produk atau logistik tidak mencukupi untuk memproses grosir!", "danger");
+    return;
+  }
   
   let totalNilai = qty * HARGA;
-  let konfirmasi = await customConfirm("Konfirmasi Grosir", `Jual <b>${qty} pcs</b> ${barang[idx].nama} via order grosir?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
+  let konfirmasi = await customConfirm("Konfirmasi Grosir", `Jual <b>${qty} pcs</b> ${barang[idx].nama} via order grosir (<b>${currentKasirSource}</b>)?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
   if(!konfirmasi) return;
+  barang[idx].stok -= qty;
+  stokBotol -= qty; stokBox -= qty;
+  penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai, sumber: currentKasirSource });
   
-  barang[idx].stok -= qty; stokBotol -= qty; stokBox -= qty;
-  let sumberJual = isIklanAktif ? `Iklan: ${namaIklanAktif}` : "Organik";
-  penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai, sumber: sumberJual });
   await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai);
   qtyJual.value=""; saveData();
 }
 
 async function tambahOmzetManual() {
-  let nom = Number(manualOmzet.value); let ket = manualKet.value.trim() || "Manual";
+  let nom = Number(manualOmzet.value);
+  let ket = manualKet.value.trim() || "Manual";
   if(nom <= 0) return;
+  
   let konfirmasi = await customConfirm("Pendapatan Manual", `Simpan pendapatan manual sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> (${ket})?`, "success");
   if(!konfirmasi) return;
-  let sumberJual = isIklanAktif ? `Iklan: ${namaIklanAktif}` : "Organik";
-  penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket, sumber: sumberJual });
-  manualOmzet.value = ""; manualKet.value = ""; saveData();
+  penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket, sumber: currentKasirSource });
+  manualOmzet.value = ""; manualKet.value = "";
+  saveData();
 }
 
 async function tambahPengeluaran(){
-  let nom = Number(nominalKeluar.value); let ket = ketKeluar.value.trim();
+  let nom = Number(nominalKeluar.value);
+  let ket = ketKeluar.value.trim();
   if(nom<=0 || !ket) return;
   let konfirmasi = await customConfirm("Catat Pengeluaran", `Simpan log pengeluaran sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> untuk keperluan: <i>"${ket}"</i>?`, "danger");
   if(!konfirmasi) return;
@@ -1095,13 +1942,15 @@ async function tambahPengeluaran(){
 async function batalkanPenjualan(originalIndex) {
   let konfirmasi = await customConfirm("Batalkan Penjualan", "Apakah Anda yakin ingin membatalkan transaksi penjualan ini? Semua sisa stok item & logistik terkait akan dikembalikan.", "danger");
   if(!konfirmasi) return;
+  
   let target = penjualan[originalIndex];
   if(target.barang !== "OMZET MANUAL") {
     let bIndex = barang.findIndex(x => x.nama === target.barang);
     if(bIndex !== -1) barang[bIndex].stok += target.qty;
     stokBotol += target.qty; stokBox += target.qty;
   }
-  penjualan.splice(originalIndex, 1); saveData();
+  penjualan.splice(originalIndex, 1);
+  saveData();
 }
 
 function editPengeluaran(originalIndex) {
@@ -1112,230 +1961,170 @@ function editPengeluaran(originalIndex) {
 }
 function tutupModalPengeluaran() { document.getElementById("editPengeluaranModal").style.display = "none"; }
 async function simpanModalPengeluaran() {
-  let nom = Number(document.getElementById("modalNominalKeluar").value); let ket = document.getElementById("modalKetKeluar").value.trim();
+  let nom = Number(document.getElementById("modalNominalKeluar").value);
+  let ket = document.getElementById("modalKetKeluar").value.trim();
   if(nom <= 0 || !ket) return;
+  
   let konfirmasi = await customConfirm("Ubah Log Keluar", "Simpan perubahan data log nominal dan keterangan pengeluaran ini?", "warning");
   if(!konfirmasi) return;
-  pengeluaran[currentEditPengeluaranIndex].nominal = nom; pengeluaran[currentEditPengeluaranIndex].keterangan = ket;
-  tutupModalPengeluaran(); saveData();
+  
+  pengeluaran[currentEditPengeluaranIndex].nominal = nom;
+  pengeluaran[currentEditPengeluaranIndex].keterangan = ket;
+  tutupModalPengeluaran();
+  saveData();
 }
 async function hapusPengeluaran(originalIndex) {
   let konfirmasi = await customConfirm("Hapus Log Keluar", "Hapus catatan log pengeluaran ini secara permanen dari database cloud?", "danger");
-  if(konfirmasi) { pengeluaran.splice(originalIndex, 1); saveData(); }
+  if(konfirmasi) { 
+    pengeluaran.splice(originalIndex, 1); 
+    saveData(); 
+  }
 }
 
 function updateDropdownPemesanan() {
   let elTarget = document.getElementById("targetPesan");
   if (!elTarget) return;
-  let opsi = `<optgroup label="Logistik Utama"><option value="LOGISTIK_BOTOL">Botol Kosong</option><option value="LOGISTIK_BOX">Box Packing</option></optgroup><optgroup label="Semua Varian Parfum EVORA">`;
+  let opsi = `
+    <optgroup label="Logistik Utama">
+      <option value="LOGISTIK_BOTOL">Botol Kosong</option>
+      <option value="LOGISTIK_BOX">Box Packing</option>
+    </optgroup>
+    <optgroup label="Semua Varian Parfum EVORA">
+  `;
   opsi += barang.map(x => `<option value="${x.nama}">Parfum: ${x.nama}</option>`).join("");
-  opsi += `</optgroup>`; elTarget.innerHTML = opsi;
+  opsi += `</optgroup>`;
+  
+  elTarget.innerHTML = opsi;
 }
 
 async function buatPesanan() {
-  let target = document.getElementById("targetPesan").value; let qty = Number(document.getElementById("qtyPesan").value);
+  let target = document.getElementById("targetPesan").value;
+  let qty = Number(document.getElementById("qtyPesan").value);
+  
   if (qty <= 0 || !target) return;
   let namaTampilan = target;
   if (target === "LOGISTIK_BOTOL") namaTampilan = "Botol Kosong";
   if (target === "LOGISTIK_BOX") namaTampilan = "Box Packing";
   let konfirmasi = await customConfirm("Konfirmasi Pesanan", `Buat daftar pesanan <b>${qty} pcs</b> untuk <b>${namaTampilan}</b>?`, "warning");
   if (!konfirmasi) return;
-  pesanan.push({ id: Date.now(), target: target, qty: qty, tanggal: new Date().toISOString() });
-  document.getElementById("qtyPesan").value = ""; saveData();
+  pesanan.push({
+    id: Date.now(),
+    target: target,
+    qty: qty,
+    tanggal: new Date().toISOString()
+  });
+  document.getElementById("qtyPesan").value = "";
+  saveData();
 }
 
 async function terimaPesanan(idPesanan) {
   let idx = pesanan.findIndex(x => x.id === idPesanan);
   if (idx === -1) return;
-  let p = pesanan[idx]; let namaTampilan = p.target;
+  
+  let p = pesanan[idx];
+  let namaTampilan = p.target;
   if (p.target === "LOGISTIK_BOTOL") namaTampilan = "Stok Botol";
   if (p.target === "LOGISTIK_BOX") namaTampilan = "Stok Box";
   let konfirmasi = await customConfirm("Barang Diterima", `Stok barang fisik sudah datang?<br>Konfirmasi untuk memasukkan <b>+ ${p.qty} pcs</b> secara otomatis ke database <b>${namaTampilan}</b>.`, "success");
   if (!konfirmasi) return;
 
-  if (p.target === "LOGISTIK_BOTOL") stokBotol += p.qty;
-  else if (p.target === "LOGISTIK_BOX") stokBox += p.qty;
-  else {
+  if (p.target === "LOGISTIK_BOTOL") {
+    stokBotol += p.qty;
+  } else if (p.target === "LOGISTIK_BOX") {
+    stokBox += p.qty;
+  } else {
     let bIdx = barang.findIndex(x => x.nama === p.target);
-    if (bIdx !== -1) barang[bIdx].stok += p.qty; else barang.push({ nama: p.target, stok: p.qty });
+    if (bIdx !== -1) {
+      barang[bIdx].stok += p.qty;
+    } else {
+      barang.push({ nama: p.target, stok: p.qty });
+    }
   }
-  pesanan.splice(idx, 1); saveData();
+
+  pesanan.splice(idx, 1);
+  saveData();
 }
 
-function hapusPesanan(idPesanan) { pesanan = pesanan.filter(x => x.id !== idPesanan); saveData(); }
+function hapusPesanan(idPesanan) {
+  pesanan = pesanan.filter(x => x.id !== idPesanan);
+  saveData();
+}
 
 async function salinDataKeClipboard() {
-  let paketData = { stokBotol: stokBotol, stokBox: stokBox, barang: barang, penjualan: penjualan, pengeluaran: pengeluaran, pesanan: pesanan, hargaGlobal: HARGA, iklanHistory: iklanHistory, isIklanAktif: isIklanAktif, namaIklanAktif: namaIklanAktif };
-  try { await navigator.clipboard.writeText(JSON.stringify(paketData)); customAlert("Berhasil Disalin", "Seluruh data sukses disalin ke clipboard! Simpan teks ini sebagai backup.", "success"); } 
-  catch (err) { customAlert("Gagal Menyalin", "Browser Anda tidak mendukung fitur copy otomatis.", "danger"); }
+  let paketData = {
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran,
+    pesanan: pesanan,
+    hargaGlobal: HARGA,
+    iklanAktif: iklanAktif,
+    budgetIklanHarian: budgetIklanHarian,
+    budgetIklanBulanan: budgetIklanBulanan
+  };
+  let stringData = JSON.stringify(paketData);
+  try {
+    await navigator.clipboard.writeText(stringData);
+    customAlert("Berhasil Disalin", "Seluruh data sukses disalin ke clipboard! Simpan teks ini sebagai backup.", "success");
+  } catch (err) {
+    customAlert("Gagal Menyalin", "Browser Anda tidak mendukung fitur copy otomatis.", "danger");
+  }
 }
 
 async function pasteDataTransfer() {
   let stringData = document.getElementById("inputTransferData").value.trim();
-  if(!stringData) { customAlert("Kolom Kosong", "Teks data masih kosong. Silakan paste kode data terlebih dahulu.", "warning"); return; }
+  if(!stringData) {
+    customAlert("Kolom Kosong", "Teks data masih kosong. Silakan paste kode data terlebih dahulu.", "warning");
+    return;
+  }
   let konfirmasi = await customConfirm("Peringatan Kritis", "Yakin ingin menimpa SELURUH DATA saat ini? Data lama akan terhapus permanen dari cloud!", "danger");
   if(!konfirmasi) return;
 
   try {
     let dataBaru = JSON.parse(stringData);
-    if(dataBaru.barang === undefined || dataBaru.stokBotol === undefined) throw new Error("Format tidak valid");
-    stokBotol = Number(dataBaru.stokBotol || 0); stokBox = Number(dataBaru.stokBox || 0);
-    barang = dataBaru.barang || []; penjualan = dataBaru.penjualan || []; pengeluaran = dataBaru.pengeluaran || [];
-    pesanan = dataBaru.pesanan || []; HARGA = Number(dataBaru.hargaGlobal || 27000);
-    iklanHistory = dataBaru.iklanHistory || []; isIklanAktif = dataBaru.isIklanAktif || false; namaIklanAktif = dataBaru.namaIklanAktif || "";
+    if(dataBaru.barang === undefined || dataBaru.stokBotol === undefined) {
+      throw new Error("Format tidak valid");
+    }
+    stokBotol = Number(dataBaru.stokBotol || 0);
+    stokBox = Number(dataBaru.stokBox || 0);
+    barang = dataBaru.barang || [];
+    penjualan = dataBaru.penjualan || [];
+    pengeluaran = dataBaru.pengeluaran || [];
+    pesanan = dataBaru.pesanan || [];
+    HARGA = Number(dataBaru.hargaGlobal || 27000);
     
-    document.getElementById("inputHargaGlobal").value = HARGA; document.getElementById("inputTransferData").value = "";
-    saveData(); customAlert("Transfer Berhasil", "Seluruh data sukses ditimpa dan diperbarui dengan data baru!", "success");
-  } catch (err) { customAlert("Transfer Gagal", "Kode data yang dimasukkan salah atau korup.", "danger"); }
-}
+    iklanAktif = dataBaru.iklanAktif || false;
+    budgetIklanHarian = Number(dataBaru.budgetIklanHarian || 0);
+    budgetIklanBulanan = Number(dataBaru.budgetIklanBulanan || 0);
 
-// --- FUNGSI IKLAN & AI LANJUTAN ---
-async function toggleIklan() {
-  if (!isIklanAktif) {
-    let platform = prompt("Masukkan platform/nama Iklan (contoh: FB Ads, Promo TikTok, dll):", "Meta Ads");
-    if (!platform) return;
-    isIklanAktif = true; namaIklanAktif = platform;
-    iklanHistory.push({ id: Date.now(), nama: platform, tanggal: new Date().toISOString() });
-  } else {
-    let konfirmasi = await customConfirm("Matikan Iklan", "Nonaktifkan iklan saat ini? Penjualan berikutnya akan otomatis kembali dicatat sebagai Organik.", "warning");
-    if (!konfirmasi) return;
-    isIklanAktif = false; namaIklanAktif = "";
+    penjualan.forEach(p => { if(!p.sumber) p.sumber = "Organik"; });
+
+    document.getElementById("inputHargaGlobal").value = HARGA;
+    document.getElementById("inputTransferData").value = "";
+    document.getElementById("toggleIklan").checked = iklanAktif;
+    document.getElementById("inputBudgetHarian").value = budgetIklanHarian > 0 ? budgetIklanHarian : "";
+    document.getElementById("inputBudgetBulanan").value = budgetIklanBulanan > 0 ? budgetIklanBulanan : "";
+    
+    updateKasirSourceUI();
+    saveData(); 
+    render();   
+    customAlert("Transfer Berhasil", "Seluruh data sukses ditimpa dan diperbarui dengan data baru!", "success");
+  } catch (err) {
+    customAlert("Transfer Gagal", "Kode data yang dimasukkan salah atau korup.", "danger");
   }
-  saveData();
-}
-
-async function hapusRiwayatIklan(id) {
-  let konfirmasi = await customConfirm("Hapus Riwayat Iklan", "Hapus log iklan ini? <b>TENANG:</b> Data penjualan yang berasal dari iklan ini TETAP AMAN.", "danger");
-  if (!konfirmasi) return;
-  iklanHistory = iklanHistory.filter(x => x.id !== id); saveData();
-}
-
-function kalkulasiPrediksiBesok(sisaTarget, reqPcsPerDay, avgPcsPerDay) {
-  let msPerDay = 24 * 60 * 60 * 1000;
-  let dHariIni = new Date(); dHariIni.setHours(0,0,0,0);
-  
-  // WMA 7 Hari Terakhir
-  let history7Hari = [0,0,0,0,0,0,0]; 
-  penjualan.forEach(p => {
-    let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
-    let selisih = Math.floor((dHariIni - pDate) / msPerDay);
-    if(selisih >= 0 && selisih < 7) { history7Hari[selisih] += p.qty; }
-  });
-
-  let totalBobot = 0, weightedSum = 0;
-  for(let i=0; i<7; i++) {
-    let bobot = 7 - i; 
-    weightedSum += (history7Hari[i] * bobot); totalBobot += bobot;
-  }
-  let prediksiBase = totalBobot > 0 ? (weightedSum / totalBobot) : 0;
-  
-  // MULTIPLIER 1: Payday (Gajian)
-  let besok = new Date(dHariIni); besok.setDate(besok.getDate() + 1);
-  let besokDate = besok.getDate();
-  let isGajianBesok = (besokDate >= 25 || besokDate <= 5);
-  
-  let multiplier = 1.0;
-  if(isGajianBesok) multiplier += 0.35; // Boost 35%
-  
-  // MULTIPLIER 2: Iklan Aktif
-  if(isIklanAktif) multiplier += 0.40;  // Boost 40%
-
-  let prediksiFinalQty = Math.ceil(prediksiBase * multiplier);
-  if(stokBotol === 0 || stokBox === 0) prediksiFinalQty = 0; // Habis Logistik
-  
-  document.getElementById("prediksiQty").innerText = prediksiFinalQty + " Pcs";
-  document.getElementById("prediksiOmzet").innerText = "Rp " + (prediksiFinalQty * HARGA).toLocaleString("id-ID");
-
-  // RENDER AI CONSULTANT (Mengapa & Solusi)
-  let elSaran = document.getElementById("pesanSaranAI");
-  let aiStatus = "", aiMengapa = "", aiSolusi = "", colorTheme = "";
-
-  if (sisaTarget > 0 && reqPcsPerDay > avgPcsPerDay && avgPcsPerDay > 0) {
-    colorTheme = "var(--danger)"; aiStatus = "<i class='fa-solid fa-triangle-exclamation'></i> Performa Tertinggal (Off-Track)";
-    aiMengapa = `Kecepatan jual <b>(${avgPcsPerDay.toFixed(1)} pcs/hari)</b> terlalu lambat. Dibutuhkan minimal <b>${reqPcsPerDay} pcs/hari</b>.`;
-    aiSolusi = "Segera <b>Aktifkan Iklan</b> untuk menjangkau audiens baru atau sebar promo Flash Sale ke pelanggan lama.";
-  } else if (sisaTarget === 0) {
-    colorTheme = "var(--success)"; aiStatus = "<i class='fa-solid fa-trophy'></i> Target Bulanan Tercapai!";
-    aiMengapa = "Total penjualan telah melebihi target sebelum akhir bulan.";
-    aiSolusi = "Pertahankan ritme. Anda bisa <b>Menonaktifkan Iklan</b> sementara untuk menekan biaya dan memaksimalkan Margin Profit.";
-  } else if (avgPcsPerDay === 0) {
-    colorTheme = "var(--text-muted)"; aiStatus = "<i class='fa-solid fa-hourglass-start'></i> Membutuhkan Data Baru";
-    aiMengapa = "Sistem belum mendeteksi penjualan bulan ini.";
-    aiSolusi = "Catat transaksi pertamamu atau jalankan kampanye Awareness di awal bulan.";
-  } else {
-    colorTheme = "var(--primary)"; aiStatus = "<i class='fa-solid fa-circle-check'></i> Performa Aman (On-Track)";
-    aiMengapa = `Rata-rata jual <b>(${avgPcsPerDay.toFixed(1)} pcs/hari)</b> sudah melampaui batas aman <b>(${reqPcsPerDay} pcs/hari)</b>.`;
-    aiSolusi = "Jaga ketersediaan stok fisik (botol/box). Iklan bersifat opsional jika ingin melampaui target secara agresif.";
-  }
-
-  // Tambahkan konteks Payday jika relevan
-  if(isGajianBesok) {
-    aiMengapa += " <span style='color:var(--accent)'><i class='fa-solid fa-sack-dollar'></i> Besok masuk siklus Payday (Tgl 25-5), daya beli tinggi.</span>";
-    aiSolusi += " Tawarkan *Upsell* (beli 2 gratis ongkir) secara agresif.";
-  }
-  // Tambahkan konteks Logistik kosong
-  if(stokBotol === 0 || stokBox === 0) {
-    colorTheme = "var(--danger)"; aiStatus = "<i class='fa-solid fa-box-open'></i> Peringatan Logistik Kosong!";
-    aiSolusi = "Prediksi besok 0 Pcs karena Anda KEHABISAN STOK BOTOL/BOX! Restock segera!";
-  }
-
-  if(elSaran) {
-    elSaran.innerHTML = `
-      <div style="background:var(--bg-main); border:1px solid ${colorTheme}; border-radius:12px; overflow:hidden;">
-        <div style="background:${colorTheme}; color:#fff; font-weight:800; font-size:12px; padding:8px 12px; text-transform:uppercase;">
-          ${aiStatus}
-        </div>
-        <div style="padding:12px; font-size:12px; color:var(--text-main);">
-          <div style="margin-bottom:8px;">
-            <span style="color:var(--accent); font-weight:800;"><i class="fa-solid fa-microscope"></i> Mengapa:</span><br>
-            <span style="line-height:1.5;">${aiMengapa}</span>
-          </div>
-          <div style="border-top:1px dashed #cbd5e1; padding-top:8px;">
-            <span style="color:${colorTheme}; font-weight:800;"><i class="fa-solid fa-lightbulb"></i> Solusi:</span><br>
-            <span style="line-height:1.5; font-weight:600;">${aiSolusi}</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-}
-
-function renderUI_Iklan() {
-  let elTeksIklan = document.getElementById("statusIklanTeks");
-  let btnIklan = document.getElementById("btnToggleIklan");
-  let listIklan = document.getElementById("listRiwayatIklan");
-
-  if(!elTeksIklan) return;
-  if (isIklanAktif) {
-    elTeksIklan.innerHTML = `<i class="fa-solid fa-bolt" style="color:var(--accent)"></i> Aktif: <b>${namaIklanAktif}</b><br><span style="font-size:10px;">(Penjualan baru akan masuk ke jalur iklan ini)</span>`;
-    btnIklan.innerText = "Matikan Iklan"; btnIklan.style.background = "var(--danger)";
-  } else {
-    elTeksIklan.innerHTML = "Organik (Tidak ada iklan yang berjalan)";
-    btnIklan.innerText = "Aktifkan Iklan"; btnIklan.style.background = "var(--success)";
-  }
-
-  listIklan.innerHTML = iklanHistory.length > 0 ? iklanHistory.slice().reverse().map(iklan => {
-    let tgl = new Date(iklan.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-    return `
-      <div style="background:var(--bg-card); border:1px solid #e2e8f0; padding:10px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <div style="text-align:left;">
-          <b style="font-size:13px; color:var(--text-main);">${iklan.nama}</b>
-          <div style="font-size:11px; color:var(--text-muted);"><i class="fa-solid fa-calendar-days"></i> Dimulai: ${tgl}</div>
-        </div>
-        <button onclick="hapusRiwayatIklan(${iklan.id})" style="width:auto; padding:6px 12px; font-size:11px; background:transparent; color:var(--danger); border:1px solid var(--danger); box-shadow:none;"><i class="fa-solid fa-trash"></i> Hapus</button>
-      </div>
-    `;
-  }).join("") : `<div style="font-size:11px; color:var(--text-muted); text-align:center; padding:10px;">Belum ada riwayat iklan.</div>`;
 }
 
 function render(){
   updateDropdownPemesanan();
+  
   let elListPesan = document.getElementById("listPesanPending");
   if (elListPesan) {
     elListPesan.innerHTML = pesanan.length > 0 ? pesanan.map(p => {
       let cleanLabel = p.target;
       if (p.target === "LOGISTIK_BOTOL") cleanLabel = "<i class='fa-solid fa-wine-bottle'></i> BOTOL KOSONG";
       if (p.target === "LOGISTIK_BOX") cleanLabel = "<i class='fa-solid fa-box'></i> BOX PACKING";
+      
       let tgl = new Date(p.tanggal);
       let tglStr = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0');
       
@@ -1352,21 +2141,50 @@ function render(){
         </div>
       </div>
       `;
-    }).join("") : `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px; border: 1px dashed #cbd5e1; border-radius:8px; background:var(--bg-main);">Tidak ada antrean pesanan.</div>`;
+    }).join("") : `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px; border: 1px dashed #cbd5e1; border-radius:8px; background:var(--bg-main);">Tidak ada antrean pemesanan barang yang pending.</div>`;
   }
 
-  updateMonthSelect(); renderWeeklyChart(); parsePremiumGreeting();
-  let hariIniKey = getDayKey(new Date()); let bulanAktif = getMonthKey(new Date());
+  updateMonthSelect();
+  renderWeeklyChart(); 
+  renderIklanChart();
+  parsePremiumGreeting();
+  let hariIniKey = getDayKey(new Date());
+  let bulanAktif = getMonthKey(new Date());
 
   let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
   let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
   let totalTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
+
+  // ADS STATS RENDER
+  let iklanJualHariIni = jualHariIni.filter(x => x.sumber === "Iklan");
+  let organikJualHariIni = jualHariIni.filter(x => x.sumber === "Organik");
+  
+  let omzetIklanHariIni = iklanJualHariIni.reduce((a,b) => a+b.nominal, 0);
+  let orderIklanHariIni = iklanJualHariIni.length; // per transaksi
+  
+  let omzetOrganikHariIni = organikJualHariIni.reduce((a,b) => a+b.nominal, 0);
+  let orderOrganikHariIni = organikJualHariIni.length;
+
+  document.getElementById("iklanOrderOrganik").innerText = orderOrganikHariIni;
+  document.getElementById("iklanOmzetOrganik").innerText = "Rp " + omzetOrganikHariIni.toLocaleString("id-ID");
+  
+  document.getElementById("iklanOrderAds").innerText = orderIklanHariIni;
+  document.getElementById("iklanOmzetAds").innerText = "Rp " + omzetIklanHariIni.toLocaleString("id-ID");
+
+  let roasHariIni = budgetIklanHarian > 0 ? (omzetIklanHariIni / budgetIklanHarian).toFixed(2) : 0;
+  let profitIklanHariIni = omzetIklanHariIni - budgetIklanHarian;
+  
+  document.getElementById("iklanRoasValue").innerText = budgetIklanHarian > 0 ? roasHariIni + "x" : "-";
+  document.getElementById("iklanProfitValue").innerText = "Rp " + profitIklanHariIni.toLocaleString("id-ID");
+  document.getElementById("iklanProfitValue").style.color = profitIklanHariIni >= 0 ? "var(--success)" : "var(--danger)";
+  // END ADS STATS
   
   runCountUp("omzetHariIni", totalOmzetHariIni, true);
   runCountUp("hariIniOmzetText", totalOmzetHariIni, true);
   runCountUp("hariIniQtyText", totalTerjualHariIni, false, " Pcs");
 
-  let dKemarin = new Date(); dKemarin.setDate(dKemarin.getDate() - 1);
+  let dKemarin = new Date();
+  dKemarin.setDate(dKemarin.getDate() - 1);
   let kemarinKey = getDayKey(dKemarin);
   let jualKemarin = penjualan.filter(x => getDayKey(x.tanggal) === kemarinKey);
   let totalOmzetKemarin = jualKemarin.reduce((a, b) => a + b.nominal, 0);
@@ -1374,19 +2192,30 @@ function render(){
   let elTrendBadge = document.getElementById("trendBadge");
   if (totalOmzetKemarin > 0) {
     let selisihPersen = ((totalOmzetHariIni - totalOmzetKemarin) / totalOmzetKemarin) * 100;
-    if (selisihPersen > 0) { elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-up"></i> ${selisihPersen.toFixed(0)}%`; elTrendBadge.className = "trend-badge up"; }
-    else if (selisihPersen < 0) { elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-down"></i> ${Math.abs(selisihPersen).toFixed(0)}%`; elTrendBadge.className = "trend-badge down"; }
-    else { elTrendBadge.innerText = `0%`; elTrendBadge.className = "trend-badge neutral"; }
+    if (selisihPersen > 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-up"></i> ${selisihPersen.toFixed(0)}%`;
+      elTrendBadge.className = "trend-badge up";
+    } else if (selisihPersen < 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-down"></i> ${Math.abs(selisihPersen).toFixed(0)}%`;
+      elTrendBadge.className = "trend-badge down";
+    } else {
+      elTrendBadge.innerText = `0%`;
+      elTrendBadge.className = "trend-badge neutral";
+    }
   } else {
-    if (totalOmzetHariIni > 0) { elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-up"></i> 100%`; elTrendBadge.className = "trend-badge up"; }
-    else { elTrendBadge.innerText = `0%`; elTrendBadge.className = "trend-badge neutral"; }
+    if (totalOmzetHariIni > 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-up"></i> 100%`;
+      elTrendBadge.className = "trend-badge up";
+    } else {
+      elTrendBadge.innerText = `0%`;
+      elTrendBadge.className = "trend-badge neutral";
+    }
   }
 
   let salesMapHari = {};
   jualHariIni.forEach(x => { if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; });
   let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
   document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
-  
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
@@ -1399,19 +2228,18 @@ function render(){
   runCountUp("omzet", omzetVal, true);
   runCountUp("pengeluaran", keluarVal, true);
   runCountUp("laba", (omzetVal - keluarVal), true);
-  
   let salesMapBln = {};
   jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
   let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
   
-  topVarianAvatars.innerHTML = rankingBln.length ? rankingBln.map((x, i) => `
+  topVarianAvatars.innerHTML = rankingBln.length ?
+  rankingBln.map((x, i) => `
     <div class="product-badge-card">
       <div class="product-badge-rank">Rank #<span>${i+1}</span></div>
       <div class="product-badge-name">${x[0]}</div>
       <div class="product-badge-qty">${x[1]} Pcs</div>
     </div>
   `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
-  
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
@@ -1419,35 +2247,55 @@ function render(){
   
   listBarang.innerHTML = barangUrut.map(x => {  
     let badgeTag = "";  
-    if (x.stok === 0) badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`;  
-    else if (x.stok <= 10) badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`;  
-    else badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;  
+    if (x.stok === 0) {  
+      badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`;  
+    } else if (x.stok <= 10) {  
+      badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`;  
+    } else {  
+      badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;  
+    }  
     
+    // AI RESTOCK ANALYSIS
     let msPerDay = 24 * 60 * 60 * 1000;
     let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
-    let qty7Hari = 0; let qty7HariSebelumnya = 0;
+    
+    let qty7Hari = 0;
+    let qty7HariSebelumnya = 0;
     
     penjualan.forEach(p => {
       if (p.barang === x.nama && p.qty > 0) {
         let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
         let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
+        
         if (selisihHari >= 0 && selisihHari < 7) qty7Hari += p.qty;
         else if (selisihHari >= 7 && selisihHari < 14) qty7HariSebelumnya += p.qty;
       }
     });
     let avg7Hari = qty7Hari / 7;
     let prediksiHabisHari = avg7Hari > 0 ? Math.floor(x.stok / avg7Hari) : Infinity;
-    let colorPredict = "var(--success)"; let textPredict = "<i class='fa-solid fa-circle-check'></i> Aman (>30 hari)";
-    
-    if (x.stok === 0) { colorPredict = "var(--danger)"; textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis"; }
-    else if (prediksiHabisHari < 7) { colorPredict = "var(--danger)"; textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ± Habis dlm ${prediksiHabisHari} hari`; }
-    else if (prediksiHabisHari < 14) { colorPredict = "var(--warning)"; textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ± Habis dlm ${prediksiHabisHari} hari`; }
-    else if (prediksiHabisHari <= 30) { colorPredict = "#eab308"; textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ± Habis dlm ${prediksiHabisHari} hari`; }
+    let colorPredict = "var(--success)";
+    let textPredict = "<i class='fa-solid fa-circle-check'></i> Aman (>30 hari)";
+    if (x.stok === 0) {
+      colorPredict = "var(--danger)";
+      textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
+    } else if (prediksiHabisHari < 7) { 
+      colorPredict = "var(--danger)";
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ± Habis dalam ${prediksiHabisHari} hari`;
+    } else if (prediksiHabisHari < 14) { 
+      colorPredict = "var(--warning)";
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ± Habis dalam ${prediksiHabisHari} hari`;
+    } else if (prediksiHabisHari <= 30) { 
+      colorPredict = "#eab308";
+      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ± Habis dalam ${prediksiHabisHari} hari`;
+    }
     
     let trenMeroket = false;
     if (qty7HariSebelumnya > 0) {
-      if (((qty7Hari - qty7HariSebelumnya) / qty7HariSebelumnya) * 100 > 30) trenMeroket = true;
-    } else if (qty7Hari > 3 && qty7HariSebelumnya === 0) trenMeroket = true;
+      let persentaseNaik = ((qty7Hari - qty7HariSebelumnya) / qty7HariSebelumnya) * 100;
+      if (persentaseNaik > 30) trenMeroket = true;
+    } else if (qty7Hari > 3 && qty7HariSebelumnya === 0) {
+      trenMeroket = true;
+    }
 
     let aiCardHtml = `
       <div style="margin-top:10px; padding:8px; background:var(--bg-main); border-radius:8px; border:1px solid #e2e8f0; font-size:11px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
@@ -1456,11 +2304,13 @@ function render(){
           <span><b>${avg7Hari.toFixed(1)}</b> avg/hari</span>
         </div>
         <div style="color:${colorPredict}; font-weight:800;">${textPredict}</div>
-        ${trenMeroket ? `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis.</div>` : ''}
+        ${trenMeroket ?
+        `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
       </div>
     `;
 
-    let dropdownOptions = ""; for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
+    let dropdownOptions = "";
+    for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
     return `
       <div class="item-barang">  
         <div class="item-info" style="text-align:left;">  
@@ -1469,11 +2319,17 @@ function render(){
           ${badgeTag}  
           ${aiCardHtml}
         </div>  
+     
+      
         <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; gap:6px; align-items:center;">
             <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
-            <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">${dropdownOptions}</select>
+            <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">
+              ${dropdownOptions}
+            </select>
           </div>
+         
+ 
           <div style="display:flex; gap:6px;">
             <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;"><i class="fa-solid fa-bolt"></i> Jual</button>
             <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
@@ -1496,36 +2352,58 @@ function render(){
     jH.forEach(x => {
       if(x.qty > 0 || x.barang === "OMZET MANUAL") {
         if(!mapHarian[x.barang]) mapHarian[x.barang] = {qty: 0, nominal: 0};
-        mapHarian[x.barang].qty += x.qty; mapHarian[x.barang].nominal += x.nominal;
+        mapHarian[x.barang].qty += x.qty;
+        mapHarian[x.barang].nominal += x.nominal;
       }
     });
     
     let rankHarian = Object.entries(mapHarian).sort((a,b) => b[1].qty - a[1].qty);
-    let htmlPenjualan = rankHarian.length > 0 ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('') : '<li>Belum ada penjualan</li>';
-    let htmlPengeluaran = eH.length > 0 ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('') : '<li>Tidak ada pengeluaran</li>';
+    let htmlPenjualan = rankHarian.length > 0 
+      ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('')
+      : '<li>Belum ada penjualan</li>';
+    let htmlPengeluaran = eH.length > 0
+      ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('')
+      : '<li>Tidak ada pengeluaran</li>';
     summaryHarian.innerHTML = `
       <div style="background: var(--primary-light); padding:12px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; flex-direction:column; gap:8px;">
-        <div style="display:flex; justify-content:space-between;"><span><i class="fa-solid fa-box"></i> Total Terjual:</span><span>${totalPcsHarian} Pcs</span></div>
-        <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;"><span><i class="fa-solid fa-money-bill-wave"></i> Pendapatan:</span><span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span></div>
+        <div style="display:flex; justify-content:space-between;">
+          <span><i class="fa-solid fa-box"></i> Total Terjual Hari Ini:</span>
+          <span>${totalPcsHarian} Pcs</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;">
+          <span><i class="fa-solid fa-money-bill-wave"></i> Total Pendapatan:</span>
+    
+          <span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span>
+        </div>
       </div>
-      <div style="margin-bottom:12px; text-align:left;"><strong style="color:var(--primary); font-size:14px;"><i class="fa-solid fa-clipboard-list"></i> Performa Hari Ini</strong><ul style="margin:6px 0 10px 18px; padding:0; line-height: 1.6;">${htmlPenjualan}</ul></div>
-      <div style="text-align:left;"><strong style="color:var(--danger); font-size:14px;"><i class="fa-solid fa-wallet"></i> Info Pengeluaran</strong><ul style="margin:6px 0 0 18px; padding:0; color:var(--text-muted); font-size:12px; line-height: 1.6;">${htmlPengeluaran}</ul></div>
+      <div style="margin-bottom:12px; text-align:left;">
+        <strong style="color:var(--primary); font-size:14px;"><i class="fa-solid fa-clipboard-list"></i> Performa Hari Ini</strong>
+        <ul style="margin:6px 0 10px 18px; padding:0; line-height: 1.6;">${htmlPenjualan}</ul>
+      </div>
+      <div style="text-align:left;">
+        <strong style="color:var(--danger); font-size:14px;"><i class="fa-solid fa-wallet"></i> Info Pengeluaran</strong>
+        <ul style="margin:6px 0 0 18px; padding:0; color:var(--text-muted); font-size:12px; line-height: 1.6;">${htmlPengeluaran}</ul>
+      </div>
     `;
   }
 
   let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
   let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
-  let oB = jB.reduce((a,b)=>a+b.nominal,0); let pB = kB.reduce((a,b)=>a+b.nominal,0);
-  let labaB = oB - pB; let totalPcsBulanan = jB.reduce((sum, item) => sum + item.qty, 0);
+  let oB = jB.reduce((a,b)=>a+b.nominal,0);
+  let pB = kB.reduce((a,b)=>a+b.nominal,0);
+  let labaB = oB - pB;
+  let totalPcsBulanan = jB.reduce((sum, item) => sum + item.qty, 0);
 
   let mapBulanan = {};
   jB.forEach(x => {
     if(!mapBulanan[x.barang]) mapBulanan[x.barang] = {qty: 0, nominal: 0};
-    mapBulanan[x.barang].qty += x.qty; mapBulanan[x.barang].nominal += x.nominal;
+    mapBulanan[x.barang].qty += x.qty;
+    mapBulanan[x.barang].nominal += x.nominal;
   });
   
-  let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => b[1].qty - a[1].qty).map(x => `
+  let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => 
+  b[1].qty - a[1].qty).map(x => `
     <tr>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x[0]}</td>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:700;">${x[1].qty > 0 ? x[1].qty : '-'}</td>
@@ -1534,47 +2412,75 @@ function render(){
   `).join("");
 
   let htmlTabelKeluar = kB.map(x => {
-    let tgl = new Date(x.tanggal); let tglStr = String(tgl.getDate()).padStart(2,"0") + "/" + String(tgl.getMonth()+1).padStart(2,"0");
-    return `<tr>
+    let tgl = new Date(x.tanggal);
+    let tglStr = String(tgl.getDate()).padStart(2,"0") + "/" + String(tgl.getMonth()+1).padStart(2,"0");
+    return `
+    <tr>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:600;">${tglStr}</td>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x.keterangan || 'Operasional'}</td>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700; color:var(--danger);">Rp ${x.nominal.toLocaleString('id-ID')}</td>
-    </tr>`}).join("");
+    </tr>
+  `}).join("");
 
   summaryBulanan.innerHTML = `
+    
     <strong style="color:var(--primary); font-size:13px; display:block; margin-bottom:6px; text-align:left;">1. Rincian Penjualan Bulanan</strong>
     <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
       <table style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead><tr style="background:var(--bg-main); color:var(--text-main);"><th style="padding:10px 8px; text-align:left; font-weight:700;">Produk</th><th style="padding:10px 8px; text-align:center; font-weight:700;">Qty</th><th style="padding:10px 8px; text-align:right; font-weight:700;">Total Rp</th></tr></thead>
-        <tbody>${htmlTabelJual || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
-          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;"><td style="padding:12px 8px; text-align:left;">TOTAL</td><td style="padding:12px 8px; text-align:center; color:var(--primary); font-weight:800;">${totalPcsBulanan} Pcs</td><td style="padding:12px 8px; text-align:right; color:var(--primary); font-weight:800;">Rp ${oB.toLocaleString('id-ID')}</td></tr>
+        <thead>
+          <tr style="background:var(--bg-main); color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Nama Produk</th>
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Qty</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Total Rp</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelJual || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
+            <td style="padding:12px 8px; text-align:left;">TOTAL PENJUALAN</td>
+            <td style="padding:12px 8px; text-align:center; color:var(--primary); font-weight:800;">${totalPcsBulanan} Pcs</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--primary); font-weight:800;">Rp ${oB.toLocaleString('id-ID')}</td>
+          </tr>
         </tbody>
       </table>
     </div>
+
     <strong style="color:var(--danger); font-size:13px; display:block; margin-bottom:6px; text-align:left;">2. Rincian Pengeluaran Bulanan</strong>
     <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
       <table style="width:100%; border-collapse:collapse; font-size:12px;">
-        <thead><tr style="background:var(--bg-main); color:var(--text-main);"><th style="padding:10px 8px; text-align:center; font-weight:700;">Tgl</th><th style="padding:10px 8px; text-align:left; font-weight:700;">Keperluan</th><th style="padding:10px 8px; text-align:right; font-weight:700;">Nominal</th></tr></thead>
-        <tbody>${htmlTabelKeluar || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
-          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;"><td colspan="2" style="padding:12px 8px; text-align:left;">TOTAL KELUAR</td><td style="padding:12px 8px; text-align:right; color:var(--danger); font-weight:800;">Rp ${pB.toLocaleString('id-ID')}</td></tr>
+        <thead>
+          <tr style="background:var(--bg-main); color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Tgl</th>
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Keperluan</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Nominal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelKeluar || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
+            <td colspan="2" style="padding:12px 8px; text-align:left;">TOTAL PENGELUARAN</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--danger); font-weight:800;">Rp ${pB.toLocaleString('id-ID')}</td>
+          </tr>
         </tbody>
       </table>
     </div>
+
     <div style="margin-top:10px; padding:16px; background:var(--bg-card); border:2px dashed #cbd5e1; border-radius:14px; font-weight:800; font-size:16px; text-align:center; box-shadow: var(--shadow-sm); color:${labaB >= 0 ? 'var(--success)' : 'var(--danger)'};">
       <i class="fa-solid fa-chart-column"></i> LABA BERSIH: Rp ${labaB.toLocaleString("id-ID")}
     </div>
   `;
 
-  let modeRiwayat = document.getElementById("modeRiwayat").value; let tglRiwayat = document.getElementById("tanggalRiwayat").value;
+  let modeRiwayat = document.getElementById("modeRiwayat").value;
+  let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
   let riwayatKeluarFiltered = pengeluaran.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
 
   riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
     <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
       <div style="text-align:left;">
-        <b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}
-        <br><span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span>
-        <br><span style="font-size:10px; color:var(--text-muted);"><i class="fa-solid fa-tags"></i> ${x.sumber || "Organik"}</span>
+        <b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}<br>
+        <div style="font-size:10px; margin-top:2px; color:var(--text-muted);"><i class="fa-solid ${x.sumber === 'Iklan' ? 'fa-bullhorn' : 'fa-seedling'}"></i> ${x.sumber}</div>
+        <span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span>
       </div>
       <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Batal</button>
     </div>
@@ -1589,13 +2495,14 @@ function render(){
       </div>
     </div>
   `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
-  
+    
   let targetBulanIni = 400; 
   let currentPcs = totalPcsBulanan; 
   let progressPct = Math.min((currentPcs / targetBulanIni) * 100, 100).toFixed(1);
   let sisaTarget = Math.max(0, targetBulanIni - currentPcs);
   
-  let dHariIni = new Date(); let hariBerjalan = dHariIni.getDate();
+  let dHariIni = new Date();
+  let hariBerjalan = dHariIni.getDate();
   let totalHariBulanIni = new Date(dHariIni.getFullYear(), dHariIni.getMonth() + 1, 0).getDate();
   let sisaHariDalamBulan = Math.max(1, totalHariBulanIni - hariBerjalan);
   
@@ -1609,9 +2516,12 @@ function render(){
   } else if (avgPcsPerDay > 0 && sisaTarget > 0) {
     let estHariLagi = Math.ceil(sisaTarget / avgPcsPerDay);
     if (hariBerjalan + estHariLagi <= totalHariBulanIni) {
-       let estDate = new Date(dHariIni); estDate.setDate(estDate.getDate() + estHariLagi);
+       let estDate = new Date(dHariIni);
+       estDate.setDate(estDate.getDate() + estHariLagi);
        estTercapaiTeks = estDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-    } else estTercapaiTeks = "Bulan Depan (Terancam meleset)";
+    } else {
+       estTercapaiTeks = "Bulan Depan (Target terancam meleset)";
+    }
   }
 
   let elTargetProgress = document.getElementById("targetProgressFill");
@@ -1621,15 +2531,15 @@ function render(){
   if (elTargetProgress && elTargetText && elTargetAvg) {
     elTargetProgress.style.width = progressPct + '%';
     elTargetText.innerHTML = `${currentPcs} / ${targetBulanIni} Pcs (${progressPct}%)<br><span style="font-size:10px; color:var(--text-muted); font-weight:500;">Sisa: ${sisaTarget} Pcs</span>`;
+    
     elTargetAvg.innerHTML = `
       <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Rata-rata Penjualan:</span> <b>${avgPcsPerDay.toFixed(1)} Pcs/hari</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Harus Dijual (Sisa Hari):</span> <b style="color:var(--warning);">${reqPcsPerDay} Pcs/hari</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Estimasi Target Tercapai:</span> <b style="color:var(--primary);">${estTercapaiTeks}</b></div>
     `;
   }
-  
-  kalkulasiPrediksiBesok(sisaTarget, reqPcsPerDay, avgPcsPerDay);
-  renderUI_Iklan();
+
+  runAIEngine(); // SELF-LEARNING AI UPDATE ON EVERY RENDER
 }
 
 loadDataFromCloud();
