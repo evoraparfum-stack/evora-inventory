@@ -1,1408 +1,527 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro - BI Premium Suite</title>
-  <meta name="theme-color" content="#063e46">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="EVORA">
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-:root {
-  --premium-gradient: linear-gradient(135deg, #04292e 0%, #063e46 50%, #0f616d 100%);
-  --bg-main: #f8fafc;
-  --bg-card: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --primary: #0f616d;
-  --primary-light: #eef8f9;
-  --success: #0d9488;
-  --danger: #e11d48;
-  --warning: #f97316;
-  --accent: #d97706;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
-  --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 4px 12px -5px rgba(15, 23, 42, 0.03);
-  --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-body.dark-theme {
-  --bg-main: #0f172a;
-  --bg-card: #1e293b;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --primary-light: rgba(15, 97, 109, 0.2);
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
-  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
-}
-
-* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; touch-action: manipulation; -webkit-font-smoothing: antialiased; }
-html, body { width: 100%; max-width: 100%; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; overflow-x: hidden; padding-bottom: calc(120px + env(safe-area-inset-bottom)); transition: background 0.3s, color 0.3s; }
-
-.top-toast-alert { position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 420px; background: var(--danger); color: #fff; padding: 18px 22px; border-radius: 16px; box-shadow: 0 12px 30px rgba(225, 29, 72, 0.4); z-index: 10000; display: flex; justify-content: space-between; align-items: flex-start; font-size: 13px; font-weight: 600; opacity: 0; visibility: hidden; transition: var(--transition); border: 1px solid rgba(255,255,255,0.2); }
-.top-toast-alert.show { top: calc(20px + env(safe-area-inset-top)); opacity: 1; visibility: visible; }
-.toast-close { background: rgba(255,255,255,0.2) !important; border: none; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; padding: 0; margin-left: 16px; cursor: pointer; font-size: 14px; flex-shrink: 0; }
-
-.premium-header { background: var(--premium-gradient); padding: calc(20px + env(safe-area-inset-top)) 24px 65px 24px; color: #fff; position: relative; box-shadow: inset 0 -40px 40px rgba(0,0,0,0.15); }
-.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.brand-title { font-size: 20px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(to right, #ffffff, #ccfbf1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.sync-badge { font-size: 11px; background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); padding: 6px 14px; border-radius: 30px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: var(--shadow-sm); transition: all 0.3s; }
-.user-greeting { font-size: 16px; font-weight: 500; opacity: 0.95; letter-spacing: 0.3px; margin-top: 4px; }
-.bank-divider { border-top: 1px solid rgba(255, 255, 255, 0.18); margin: 16px 0; width: 100%; }
-.balance-section { display: flex; justify-content: space-between; align-items: flex-end; }
-.balance-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.75; font-weight: 600; }
-.balance-value { font-size: 36px; font-weight: 800; margin: 4px 0; letter-spacing: -1px; }
-
-.trend-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; transition: all 0.3s ease; }
-.trend-badge.up { background: rgba(20, 184, 166, 0.25); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.2); }
-.trend-badge.down { background: rgba(225, 29, 72, 0.2); color: #fda4af; border: 1px solid rgba(225, 29, 72, 0.15); }
-.trend-badge.neutral { background: rgba(255, 255, 255, 0.1); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.05); }
-
-.btn-sync-icon { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); color: white; width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: all 0.2s; }
-.pills-container { display: flex; gap: 8px; margin-top: 25px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
-.pills-container::-webkit-scrollbar { display: none; }
-.premium-pill { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(12px); color: white; padding: 10px 14px; border-radius: 12px; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.18); white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0; cursor: pointer;}
-
-.main-sheet { background: var(--bg-main); margin-top: -30px; border-radius: 28px 28px 0 0; position: relative; padding: 28px 18px 170px 18px; }
-.card { background: var(--bg-card); padding: 20px; border-radius: var(--radius-md); margin-bottom: 20px; box-shadow: var(--shadow-md); border: 1px solid rgba(226, 232, 240, 0.6); transition: background 0.3s, border-color 0.3s; }
-body.dark-theme .card, body.dark-theme .item-barang, body.dark-theme .action-card, body.dark-theme .modal-content { background: var(--bg-card) !important; border-color: #334155 !important; }
-
-h3 { margin-top: 0; margin-bottom: 16px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
-
-button { position: relative; overflow: hidden; width: 100%; padding: 14px; font-weight: 700; background: var(--primary); color: #fff; border-radius: 12px; border: none; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px -1px rgba(15, 97, 109, 0.2); }
-button:active { transform: scale(0.97); }
-.ripple-span { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-effect 0.55s ease-out; background: rgba(255, 255, 255, 0.35); pointer-events: none; }
-@keyframes ripple-effect { to { transform: scale(4); opacity: 0; } }
-
-.badge-status { padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; display: inline-block; margin-top: 8px; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-.status-critical { background: #ffe4e6; color: #e11d48; border: 1px solid rgba(225,29,72,0.15); }
-.status-warning { background: #ffedd5; color: #ea580c; border: 1px solid rgba(234,88,12,0.15); }
-.status-ready { background: #ccfbf1; color: #0d9488; border: 1px solid rgba(13,148,136,0.15); }
-body.dark-theme .status-critical { background: rgba(225,29,72,0.2); color: #fda4af; }
-body.dark-theme .status-warning { background: rgba(234,88,12,0.2); color: #fed7aa; }
-body.dark-theme .status-ready { background: rgba(13,148,136,0.2); color: #99f6e4; }
-
-.blinking-alert { animation: premium-blink 1.4s infinite ease-in-out; }
-@keyframes premium-blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.96); background: #fff1f2; } }
-body.dark-theme .blinking-alert { @keyframes premium-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; background: rgba(225,29,72,0.3); } } }
-
-.skeleton-loading .shimmer-text { background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.4s infinite linear; color: transparent !important; border-radius: 6px; pointer-events: none; }
-body.dark-theme .skeleton-loading .shimmer-text { background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%); }
-@keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: premiumEntrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-@keyframes premiumEntrance { from { opacity: 0; transform: translateY(12px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-.search-container { position: relative; width: 100%; }
-.search-container input { padding-right: 40px; }
-.btn-clear-search { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none !important; border: none !important; color: var(--text-muted); width: auto !important; padding: 0 !important; font-size: 16px; cursor: pointer; display: none; z-index: 5; box-shadow: none !important;}
-.top-product-grid { display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px; scrollbar-width: none;}
-.top-product-grid::-webkit-scrollbar { display: none; }
-.product-badge-card { background: var(--bg-card); border: 1px solid #e2e8f0; padding: 14px; border-radius: var(--radius-md); min-width: 125px; text-align: center; box-shadow: var(--shadow-sm); }
-body.dark-theme .product-badge-card { border-color: #334155; }
-.product-badge-rank { font-size: 9px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 6px; background: var(--primary-light); padding: 2px 6px; border-radius: 20px; display: inline-block; }
-.product-badge-name { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.product-badge-qty { font-size: 12px; color: var(--success); font-weight: 700; margin-top: 4px; }
-
-input, select, textarea { width: 100%; max-width: 100%; display: block; box-sizing: border-box; padding: 12px 14px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 14px; background: #f8fafc; color: var(--text-main); outline: none; transition: all 0.2s ease; -webkit-appearance: none; -moz-appearance: none; appearance: none; text-align: center; text-align-last: center; }
-body.dark-theme input, body.dark-theme select, body.dark-theme textarea { background: #0f172a !important; color: #f8fafc !important; border-color: #334155 !important; }
-input:focus, select:focus, textarea:focus { border-color: var(--primary); background: var(--bg-card); box-shadow: 0 0 0 4px rgba(15, 97, 109, 0.12); }
-.grid-barang { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.item-barang { background: var(--bg-card); padding: 16px; border-radius: var(--radius-md); border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); }
-.item-info b { font-size: 14px; color: var(--text-main); display: block; line-height: 1.4; }
-.stok-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
-.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.action-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px; border: 1px solid #e2e8f0; box-shadow: var(--shadow-md); }
-
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); height: calc(70px + env(safe-area-inset-bottom)); display: flex; justify-content: space-around; align-items: flex-start; box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.06); z-index: 999; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-top: 10px; }
-body.dark-theme .bottom-nav { background: rgba(30, 41, 59, 0.9) !important; border-top: 1px solid #334155 !important; }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; width: 16%; transition: all 0.2s; box-shadow: none;}
-.nav-item.active { color: var(--primary); }
-.nav-icon { font-size: 18px; margin-bottom: 4px; padding: 4px 12px; border-radius: 16px; transition: var(--transition); }
-.nav-item.active .nav-icon { background: var(--primary-light); transform: translateY(-2px); }
-.scroll-box { max-height: 300px; overflow-y: auto; scrollbar-width: thin; padding-right: 5px;}
-.riwayat-item { background: #f8fafc; padding: 12px 14px; border-radius: 10px; margin: 8px 0; font-size: 13px; border: 1px solid #edf2f7; }
-body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #summaryBulanan { background: #0f172a !important; border-color: #334155 !important; color: var(--text-main) !important; }
-
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-.modal-overlay.show { opacity: 1; visibility: visible; }
-.modal-content { background: var(--bg-card); border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 380px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); transform: translateY(30px) scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.modal-overlay.show .modal-content { transform: translateY(0) scale(1); }
-
-.quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
-.quick-card { background: var(--bg-card); border: 1px solid #e2e8f0; border-radius: 14px; height: 72px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: .2s; box-shadow: var(--shadow-sm); }
-.quick-card:active { transform: scale(.96); }
-.quick-card i { font-size: 20px; color: var(--primary); margin-bottom: 5px; }
-.quick-card span { font-size: 10px; font-weight: 700; text-align: center; line-height: 1.2; color: var(--text-main); }
-
-.ai-card { background: linear-gradient(135deg, rgba(15, 97, 109, 0.05) 0%, rgba(13, 148, 136, 0.05) 100%); border: 1px solid rgba(15, 97, 109, 0.1); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; }
-.ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 700; color: var(--primary); font-size: 12px; }
-.btn-explain { background: rgba(15, 97, 109, 0.1); color: var(--primary); border: none; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; cursor: pointer; box-shadow: none; width: auto; display: inline-flex; align-items: center; gap: 4px; }
-body.dark-theme .ai-card { background: linear-gradient(135deg, rgba(15, 97, 109, 0.2) 0%, rgba(13, 148, 136, 0.2) 100%); border-color: rgba(15, 97, 109, 0.3); }
-
-.score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.score-box { background: var(--bg-card); border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; text-align: center; box-shadow: var(--shadow-sm); }
-.score-value { font-size: 24px; font-weight: 900; color: var(--primary); margin: 4px 0; }
-.score-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
-
-.campaign-item { background: var(--bg-card); border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
-.campaign-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0; }
-.c-stat { text-align: center; font-size: 11px; }
-.c-stat b { display: block; font-size: 13px; color: var(--text-main); margin-top: 4px; }
-
-.master-input-group { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
-.master-input-group label { font-size: 13px; font-weight: 600; flex: 1; }
-.master-input-group input { width: 120px; margin: 0; padding: 8px; text-align: right; }
-
-.flex-between { display: flex; justify-content: space-between; align-items: center; }
-</style>
-</head>
-<body>
-
-<div id="topNotification" class="top-toast-alert">
-  <div style="flex: 1; line-height: 1.6;">
-    <div style="font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-      <span style="font-size: 18px;"><i class="fa-solid fa-triangle-exclamation"></i></span> <b>Perhatian Sistem</b>
-    </div>
-    <div id="notificationMessage" style="font-size: 13px; opacity: 0.95;"></div>
-  </div>
-  <button class="toast-close" onclick="UI.closeNotification()"><i class="fa-solid fa-xmark"></i></button>
-</div>
-
-<div class="premium-header">
-  <div class="header-top">
-    <div class="brand-title">EVORA BI</div>
-    <div id="syncStatus" class="sync-badge"><i class="fa-solid fa-rotate"></i> Loading...</div>
-  </div>
-  <div id="greetingText" class="user-greeting">Selamat Datang</div>
-  <div class="bank-divider"></div>
-  <div class="balance-section">
-    <div>
-      <div class="balance-label">Omzet Hari Ini</div>
-      <div id="omzetHariIni" class="balance-value shimmer-text">Rp 0</div>
-      <div id="trendBadge" class="trend-badge neutral">0%</div>
-    </div>
-    <div>
-      <button class="btn-sync-icon" onclick="App.sync()"><i class="fa-solid fa-rotate"></i></button>
-    </div>
-  </div>
-
-  <div class="pills-container" id="logistikPills">
-    <!-- Logistik pills rendered here -->
-  </div>
-</div>
-
-<div class="main-sheet">
-
-  <!-- TAB BERANDA -->
-  <div id="tab-beranda" class="tab-content active">
-    
-    <div class="card">
-      <h3><i class="fa-solid fa-bolt"></i> AKSES CEPAT</h3>
-      <div class="quick-grid">
-        <div class="quick-card" onclick="UI.switchTab('kasir'); setTimeout(()=>document.getElementById('panelRestock').scrollIntoView({behavior:'smooth'}),200);">
-          <i class="fa-solid fa-box"></i><span>Restock</span>
-        </div>
-        <div class="quick-card" onclick="UI.switchTab('logistik')">
-          <i class="fa-solid fa-warehouse"></i><span>Logistik</span>
-        </div>
-        <div class="quick-card" onclick="UI.switchTab('kasir')">
-          <i class="fa-solid fa-cart-shopping"></i><span>Kasir</span>
-        </div>
-        <div class="quick-card" onclick="UI.switchTab('laporan')">
-          <i class="fa-solid fa-chart-column"></i><span>Laporan</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- AI BUSINESS HEALTH -->
-    <div class="card ai-card">
-      <div class="ai-header">
-        <span><i class="fa-solid fa-brain"></i> EVORA AI: KESEHATAN BISNIS</span>
-        <button class="btn-explain" onclick="AI.explain('health')"><i class="fa-solid fa-lightbulb"></i> Mengapa?</button>
-      </div>
-      <div class="score-grid">
-        <div class="score-box">
-          <div class="score-label">Business Score</div>
-          <div id="aiScoreHealth" class="score-value shimmer-text">0</div>
-        </div>
-        <div class="score-box">
-          <div class="score-label">Forecast Akurasi</div>
-          <div id="aiScoreForecast" class="score-value shimmer-text">0%</div>
-        </div>
-        <div class="score-box">
-          <div class="score-label">Trend Strength</div>
-          <div id="aiScoreTrend" class="score-value shimmer-text">0</div>
-        </div>
-        <div class="score-box">
-          <div class="score-label">Risk Level</div>
-          <div id="aiScoreRisk" class="score-value shimmer-text" style="color:var(--danger)">Tinggi</div>
-        </div>
-      </div>
-      <div id="aiRecommendationGeneral" style="margin-top:12px; font-size:12px; font-weight:600; line-height:1.5;"></div>
-    </div>
-
-    <div class="card" style="background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-card) 100%);">
-      <h3><i class="fa-solid fa-chart-pie"></i> PERFORMA HARI INI</h3>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:12px;">
-        <div>Pendapatan:<br><span id="hariIniOmzetText" class="shimmer-text" style="color:var(--success); font-weight:800; font-size:16px; display:inline-block; margin-top:4px;">Rp 0</span></div>
-        <div>Total Terjual:<br><span id="hariIniQtyText" class="shimmer-text" style="color:var(--primary); font-weight:800; font-size:16px; display:inline-block; margin-top:4px;">0 Pcs</span></div>
-      </div>
-      <div style="font-size:12px; border-top:1px dashed #cbd5e1; padding-top:10px; font-weight:600; color:var(--text-main);">
-        <i class="fa-solid fa-medal" style="color:#fbbf24;"></i> Varian Terlaris: <span id="topVarianHariIniText" style="color:var(--accent); font-weight: 700;">-</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="flex-between">
-        <h3><i class="fa-solid fa-bullseye"></i> TARGET BULAN INI</h3>
-        <button style="width:auto; padding:4px 10px; font-size:10px; box-shadow:none; border-radius:12px;" onclick="UI.showTargetModal()"><i class="fa-solid fa-pen"></i> Edit</button>
-      </div>
-      <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:12px;">
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
-          <span>Progress <span id="targetModeLabel" style="color:var(--primary); font-size:10px;"></span></span>
-          <span id="targetTextInfo" style="text-align:right;">0 / 0 Pcs (0%)</span>
-        </div>
-        <div style="background:#e2e8f0; height:12px; border-radius:10px; overflow:hidden; margin-bottom:12px;">
-          <div id="targetProgressFill" style="background:var(--success); width:0%; height:100%; transition:width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
-        </div>
-        <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;"></div>
-        <div style="margin-top:8px; text-align:right;">
-           <button class="btn-explain" onclick="AI.explain('target')"><i class="fa-solid fa-lightbulb"></i> Analisis AI</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="flex-between">
-        <h3><i class="fa-solid fa-chart-line"></i> FORECAST OMZET 7 HARI</h3>
-        <button class="btn-explain" onclick="AI.explain('forecast')"><i class="fa-solid fa-lightbulb"></i> Info</button>
-      </div>
-      <div style="position: relative; height:200px; width:100%;">
-        <canvas id="grafikMingguan"></canvas>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-trophy"></i> TOP VARIAN BULAN INI</h3>
-      <div id="topVarianAvatars" class="top-product-grid"></div>
-    </div>
-
-    <div class="action-grid">
-      <div class="action-card">
-        <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--success); text-transform:uppercase; letter-spacing:0.5px; font-weight: 800;"><i class="fa-solid fa-money-bill-wave"></i> Omzet Manual</h4>
-        <input id="manualOmzet" type="number" placeholder="Nominal Rp">
-        <input id="manualKet" placeholder="Keterangan">
-        <button onclick="Actions.tambahOmzetManual()" style="background:var(--success); padding:10px; font-size:12px; border-radius:8px; box-shadow: none;">Simpan</button>
-      </div>
-      <div class="action-card">
-        <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--danger); text-transform:uppercase; letter-spacing:0.5px; font-weight: 800;"><i class="fa-solid fa-wallet"></i> Pengeluaran</h4>
-        <input id="nominalKeluar" type="number" placeholder="Nominal Rp">
-        <input id="ketKeluar" placeholder="Keperluan">
-        <button onclick="Actions.tambahPengeluaran()" style="background:var(--danger); padding:10px; font-size:12px; border-radius:8px; box-shadow: none;">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB KASIR -->
-  <div id="tab-kasir" class="tab-content">
-    <div class="card">
-      <h3><i class="fa-solid fa-gear"></i> KONFIGURASI HARGA JUAL GLOBAL</h3>
-      <input id="inputHargaGlobal" type="number" value="0" onchange="Actions.simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:var(--bg-card); border-color: var(--primary);">
-    </div>
-
-    <div class="card" id="panelKasir">
-      <h3><i class="fa-solid fa-cart-shopping"></i> PANEL KASIR INSTAN</h3>
-      <div class="search-container">
-        <input id="cariBarangInput" placeholder="Cari nama varian parfum..." oninput="Render.kasir()">
-        <button id="btnClearSearch" class="btn-clear-search" onclick="document.getElementById('cariBarangInput').value=''; Render.kasir();"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div id="listBarang" class="grid-barang" style="margin-top:14px;"></div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-box"></i> TRANSAKSI GROSIR / MANUAL</h3>
-      <select id="barangJual"></select>
-      <input id="qtyJual" type="number" placeholder="Kuantitas Item">
-      <button onclick="Actions.jualGrosir()">Eksekusi Penjualan Grosir</button>
-    </div>
-
-    <div class="card ai-card" id="panelRestock" style="border-color:#fcd34d;">
-      <div class="flex-between">
-         <h3 style="color: var(--accent); margin:0;"><i class="fa-solid fa-truck"></i> AI RESTOCK</h3>
-         <button class="btn-explain" onclick="AI.explain('restock')"><i class="fa-solid fa-lightbulb"></i> Analisis</button>
-      </div>
-      <div style="margin-top:12px; margin-bottom:12px; font-size:11px; color:var(--text-main);" id="aiRestockRecommendation"></div>
-      
-      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px; margin-bottom:10px;">
-        <select id="targetPesan" style="margin:0; text-align:left; text-align-last:left; background:var(--bg-card);"></select>
-        <input id="qtyPesan" type="number" placeholder="Qty" style="margin:0; background:var(--bg-card);">
-      </div>
-      <button onclick="Actions.buatPesanan()" style="background:var(--accent); font-size:13px; padding:12px;"><i class="fa-solid fa-plus"></i> Buat Antrean Pemesanan</button>
-      <div id="listPesanPending" style="display:flex; flex-direction:column; margin-top:16px; max-height:320px; overflow-y:auto; overflow-x:hidden;"></div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-plus"></i> TAMBAH VARIAN PARFUM BARU</h3>
-      <input id="namaBarang" placeholder="Nama Varian Parfum">
-      <input id="qtyBarang" type="number" placeholder="Stok Awal">
-      <button onclick="Actions.tambahBarang()"><i class="fa-solid fa-plus"></i> Daftarkan</button>
-    </div>
-  </div>
-
-  <!-- TAB LOGISTIK & MASTER DATA -->
-  <div id="tab-logistik" class="tab-content">
-    <div class="card">
-      <h3><i class="fa-solid fa-warehouse"></i> STOK LOGISTIK GUDANG</h3>
-      <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Setiap transaksi kasir akan otomatis memotong stok logistik ini sesuai HPP.</p>
-      <div id="logistikGrid" style="display:grid; gap:10px;"></div>
-    </div>
-
-    <div class="card">
-      <div class="flex-between">
-        <h3><i class="fa-solid fa-file-invoice-dollar"></i> DATA MASTER (HPP)</h3>
-        <button class="btn-explain" onclick="AI.explain('financial')"><i class="fa-solid fa-lightbulb"></i> Profit AI</button>
-      </div>
-      <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Tentukan biaya per item. Harga Pokok Penjualan (HPP) akan dihitung otomatis.</p>
-      <div id="masterDataContainer"></div>
-      <div style="margin-top:12px; padding:12px; background:var(--primary-light); border-radius:8px; font-weight:bold; font-size:13px; display:flex; justify-content:space-between;">
-        <span>Total HPP / Item:</span>
-        <span id="totalHppDisplay" style="color:var(--primary)">Rp 0</span>
-      </div>
-      <div style="margin-top:6px; padding:12px; background:#f0fdf4; border-radius:8px; font-weight:bold; font-size:13px; display:flex; justify-content:space-between;">
-        <span>Estimasi Laba / Item:</span>
-        <span id="estimasiLabaDisplay" style="color:var(--success)">Rp 0</span>
-      </div>
-      <button onclick="Actions.simpanDataMaster()" style="margin-top:16px;">Simpan Data Master</button>
-    </div>
-  </div>
-
-  <!-- TAB CAMPAIGN -->
-  <div id="tab-campaign" class="tab-content">
-    <div class="card ai-card">
-      <div class="flex-between">
-        <span style="font-weight:700; color:var(--primary); font-size:12px;"><i class="fa-solid fa-bullhorn"></i> CAMPAIGN AI</span>
-        <button class="btn-explain" onclick="AI.explain('campaign')"><i class="fa-solid fa-lightbulb"></i> Analisis</button>
-      </div>
-      <div style="font-size:11px; margin-top:8px;" id="aiCampaignText">Belum ada data cukup.</div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-plus"></i> BUAT CAMPAIGN BARU</h3>
-      <input id="campNama" placeholder="Nama Campaign (Misal: FB Ads Lebaran)">
-      <input id="campBudget" type="number" placeholder="Budget Total (Rp)">
-      <button onclick="Actions.tambahCampaign()"><i class="fa-solid fa-rocket"></i> Mulai Campaign</button>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-list"></i> DAFTAR CAMPAIGN AKTIF</h3>
-      <div id="listCampaigns"></div>
-    </div>
-  </div>
-
-  <!-- TAB LAPORAN -->
-  <div id="tab-laporan" class="tab-content">
-    <div class="card">
-      <h3><i class="fa-solid fa-calendar-days"></i> LAPORAN HARIAN</h3>
-      <input id="hariSelect" type="date" onchange="Render.laporan()">
-      <div id="summaryHarian" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
-    </div>
-    <div class="card">
-      <h3><i class="fa-solid fa-chart-column"></i> REKAPITULASI BULANAN</h3>
-      <select id="bulanSelect" onchange="Render.laporan()"></select>
-      <div id="summaryBulanan" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
-    </div>
-  </div>
-
-  <!-- TAB RIWAYAT -->
-  <div id="tab-riwayat" class="tab-content">
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-        <h3><i class="fa-solid fa-filter"></i> FILTER LOG</h3>
-        <select id="modeRiwayat" onchange="Render.riwayat()" style="width:90px; margin:0; padding:8px; font-size:12px;">
-          <option value="harian">Hari</option>
-          <option value="bulanan">Bulan</option>
-        </select>
-        <input id="tanggalRiwayat" type="date" onchange="Render.riwayat()" style="width:140px; margin:0; padding:8px; font-size:12px;">
-      </div>
-    </div>
-    <div class="card">
-      <h3><i class="fa-solid fa-file-pen"></i> LOG PENJUALAN OPERASIONAL</h3>
-      <div id="riwayatJual" class="scroll-box"></div>
-    </div>
-    <div class="card">
-      <h3><i class="fa-solid fa-arrow-trend-down"></i> LOG PENGELUARAN</h3>
-      <div id="riwayatKeluar" class="scroll-box"></div>
-    </div>
-  </div>
-
-  <!-- TAB SETTING -->
-  <div id="tab-setting" class="tab-content">
-    <div class="card">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-user"></i> PENGATURAN PROFIL</h3>
-      <input id="inputNamaProfil" type="text" placeholder="Masukkan nama panggilan Anda">
-      <button onclick="Actions.simpanProfil()" style="margin-top:8px;">Simpan Nama</button>
-    </div>
-    <div class="card">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-moon"></i> TAMPILAN</h3>
-      <div class="flex-between" style="background:var(--bg-main); padding:12px; border-radius:12px; border:1px solid #cbd5e1;">
-        <div style="text-align: left;">
-          <b style="font-size:13px;">Mode Gelap</b>
-        </div>
-        <button onclick="UI.toggleDarkMode()" id="btnDarkMode" style="width:auto; padding:8px 16px; font-size:12px; background:#94a3b8; box-shadow:none;">Aktifkan</button>
-      </div>
-    </div>
-    <div class="card">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-print"></i> PRINTER BLUETOOTH THERMAL</h3>
-      <div class="flex-between" style="margin-bottom:12px; padding:10px 14px; background:var(--primary-light); border-radius:10px; border:1px dashed var(--primary);">
-        <span style="font-size:12px; font-weight:700;">Status Printer:</span>
-        <span id="statusPrinter" style="color:var(--danger); font-weight:800; font-size:12px;"><i class="fa-solid fa-circle-xmark"></i> Terputus</span>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <button onclick="Printer.connect()" style="background:var(--primary); box-shadow:none; padding:12px; font-size:12px;"><i class="fa-solid fa-plug"></i> Hubungkan</button>
-        <button onclick="Printer.test()" id="btnTestPrint" style="background:#cbd5e1; color:#64748b; box-shadow:none; padding:12px; font-size:12px;" disabled><i class="fa-solid fa-file-lines"></i> Test Print</button>
-      </div>
-    </div>
-    <div class="card" style="border: 1px solid #cbd5e1;">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-upload"></i> BACKUP DATA</h3>
-      <button onclick="Actions.copyData()" style="background:var(--primary); box-shadow:none;"><i class="fa-solid fa-clipboard"></i> Copy Data JSON</button>
-    </div>
-    <div class="card" style="border: 1px solid #fda4af; background: rgba(225,29,72,0.05);">
-      <h3 style="color:var(--danger)"><i class="fa-solid fa-download"></i> RESTORE DATA</h3>
-      <textarea id="inputTransferData" rows="4" placeholder="Paste data JSON di sini..." style="margin-bottom: 12px; background: var(--bg-card);"></textarea>
-      <button onclick="Actions.pasteData()" style="background:var(--danger); box-shadow:none;"><i class="fa-solid fa-triangle-exclamation"></i> Timpa & Restore Data</button>
-    </div>
-  </div>
-
-</div>
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <button id="nav-beranda" class="nav-item active" onclick="UI.switchTab('beranda')">
-    <div class="nav-icon"><i class="fa-solid fa-house"></i></div><div>Beranda</div>
-  </button>
-  <button id="nav-kasir" class="nav-item" onclick="UI.switchTab('kasir')">
-    <div class="nav-icon"><i class="fa-solid fa-cart-shopping"></i></div><div>Kasir</div>
-  </button>
-  <button id="nav-logistik" class="nav-item" onclick="UI.switchTab('logistik')">
-    <div class="nav-icon"><i class="fa-solid fa-warehouse"></i></div><div>Master</div>
-  </button>
-  <button id="nav-campaign" class="nav-item" onclick="UI.switchTab('campaign')">
-    <div class="nav-icon"><i class="fa-solid fa-bullhorn"></i></div><div>Ads</div>
-  </button>
-  <button id="nav-laporan" class="nav-item" onclick="UI.switchTab('laporan')">
-    <div class="nav-icon"><i class="fa-solid fa-chart-column"></i></div><div>Laporan</div>
-  </button>
-  <button id="nav-riwayat" class="nav-item" onclick="UI.switchTab('riwayat')">
-    <div class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></div><div>Riwayat</div>
-  </button>
-  <button id="nav-setting" class="nav-item" onclick="UI.switchTab('setting')">
-    <div class="nav-icon"><i class="fa-solid fa-gear"></i></div><div>Setting</div>
-  </button>
-</div>
-
-<!-- MODALS -->
-<div id="globalDialogModal" class="modal-overlay">
-  <div class="modal-content" style="max-width: 320px; text-align: center;">
-    <div id="dialogIcon" style="font-size: 42px; margin-bottom: 12px;"></div>
-    <h3 id="dialogTitle" style="margin-bottom: 8px; font-size: 16px; font-weight: 800; justify-content: center;"></h3>
-    <p id="dialogMessage" style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 0 24px 0; font-weight: 500;"></p>
-    <div id="dialogButtons" style="display: grid; grid-template-columns: 1fr; gap: 10px;"></div>
-  </div>
-</div>
-
-<div id="aiExplainModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3 style="color:var(--primary); font-size:16px; margin-bottom:12px;"><i class="fa-solid fa-brain"></i> EVORA AI EXPLAINER</h3>
-    <div id="aiExplainContent" style="font-size:12px; line-height:1.6; color:var(--text-main);"></div>
-    <button onclick="UI.closeModal('aiExplainModal')" style="margin-top:16px; background:#94a3b8; box-shadow:none;">Tutup</button>
-  </div>
-</div>
-
-<div id="targetModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3 style="color:var(--primary)"><i class="fa-solid fa-bullseye"></i> Edit Target Bulanan</h3>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <span style="font-size:12px; font-weight:bold;">Mode Target:</span>
-      <select id="targetModeSelect" style="width:120px; margin:0;" onchange="Actions.toggleTargetMode()">
-        <option value="AI">Otomatis AI</option>
-        <option value="Manual">Manual</option>
-      </select>
-    </div>
-    <div id="manualTargetContainer" style="display:none;">
-      <input id="inputTargetManual" type="number" placeholder="Target Pcs / Bulan">
-    </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px;">
-      <button onclick="UI.closeModal('targetModal')" style="background:#94a3b8; box-shadow:none;">Batal</button>
-      <button onclick="Actions.simpanTarget()">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<div id="editBarangModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3 style="color:var(--primary)">Edit Item & Stok</h3>
-    <input id="modalNamaBarang" type="text">
-    <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Saat Ini: <b id="modalStokSekarang" style="color:var(--accent)">0</b> pcs</p>
-    <input id="modalJumlahManual" type="number" placeholder="Kuantitas Penyesuaian">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
-      <button onclick="Actions.adjustStokBarang('tambah')" style="background:var(--success); padding:12px; box-shadow:none;"><i class="fa-solid fa-plus"></i> Tambah</button>
-      <button onclick="Actions.adjustStokBarang('kurang')" style="background:var(--danger); padding:12px; box-shadow:none;"><i class="fa-solid fa-minus"></i> Kurang</button>
-    </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-      <button onclick="UI.closeModal('editBarangModal')" style="background:#94a3b8; box-shadow:none;">Batal</button>
-      <button onclick="Actions.simpanEditBarang()" style="box-shadow:none;">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<div id="editLogistikModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3 id="logistikModalJudul" style="color:var(--primary)">Edit Logistik</h3>
-    <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Sekarang: <b id="logistikStokSekarang" style="color:var(--primary)">0</b></p>
-    <input id="logistikJumlahManual" type="number" placeholder="Masukkan Kuantitas">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
-      <button onclick="Actions.adjustLogistik('tambah')" style="background:var(--success); padding:12px; box-shadow:none;"><i class="fa-solid fa-plus"></i> Tambah</button>
-      <button onclick="Actions.adjustLogistik('kurang')" style="background:var(--danger); padding:12px; box-shadow:none;"><i class="fa-solid fa-minus"></i> Kurang</button>
-    </div>
-    <button onclick="UI.closeModal('editLogistikModal')" style="background:#94a3b8; box-shadow:none;">Selesai</button>
-  </div>
-</div>
-
-<div id="editPengeluaranModal" class="modal-overlay">
-  <div class="modal-content">
-    <h3 style="color:var(--danger)">Edit Catatan Log</h3>
-    <input id="modalNominalKeluar" type="number">
-    <input id="modalKetKeluar" type="text">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
-      <button onclick="UI.closeModal('editPengeluaranModal')" style="background:#94a3b8; box-shadow:none;">Batal</button>
-      <button onclick="Actions.simpanEditPengeluaran()" style="background:var(--danger); box-shadow:none;">Simpan Data</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// --- CORE ARCHITECTURE: SINGLE SOURCE OF TRUTH ---
-const supabaseApp = supabase.createClient('https://jvyphmuarppsqrsczawa.supabase.co', 'sb_publishable_vsHaMLZRSjn1OwpH2_nCtw_ct1ZIH0T');
-
-const State = {
-  hargaGlobal: 27000,
-  logistik: { botol: 0, box: 0, sticker: 0, bubbleWrap: 0, resi: 0 },
-  dataMaster: { bibit: 10000, absolut: 2000, botol: 3000, box: 2000, sticker: 500, bubbleWrap: 500, resi: 200, admin: 0, biayaLain: 0 },
-  barang: [], // {nama, stok}
-  penjualan: [], // {id, tanggal, barang, qty, nominal, hpp, profit, margin}
-  pengeluaran: [], // {id, tanggal, nominal, keterangan}
-  pesanan: [], // {id, target, qty, tanggal}
-  campaigns: [], // {id, nama, budget, klik, konversi, tanggal}
-  target: { mode: 'AI', manualValue: 400 },
-  
-  // Local Session config
-  profileName: localStorage.getItem("evora_nama") || "Admin",
-  isDarkMode: localStorage.getItem("evora_darkmode") === "true",
-  
-  // UI & Cache State
-  currentTab: 'beranda',
-  editContext: null,
-  aiCache: {},
-  chartInstance: null
-};
-
-// --- UTILITIES ---
-const Utils = {
-  formatRp: (num) => 'Rp ' + (Number(num) || 0).toLocaleString('id-ID'),
-  formatNum: (num) => (Number(num) || 0).toLocaleString('id-ID'),
-  generateId: () => Date.now() + Math.floor(Math.random()*1000),
-  getDayKey: (d) => { const date = new Date(d); return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; },
-  getMonthKey: (d) => { const date = new Date(d); return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`; },
-  getMonthLabel: (key) => { const m = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"]; const [y,mo] = key.split('-'); return `${m[Number(mo)-1]} ${y}`; },
-  calculateHpp: () => Object.values(State.dataMaster).reduce((a,b) => a + Number(b), 0),
-  debounce: (func, wait) => { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
-};
-
-// --- DOM CACHE ---
-const DOM = {
-  syncStatus: document.getElementById('syncStatus'),
-  greeting: document.getElementById('greetingText'),
-  omzetHariIni: document.getElementById('omzetHariIni'),
-  trendBadge: document.getElementById('trendBadge'),
-  logistikPills: document.getElementById('logistikPills'),
-  topNotification: document.getElementById('topNotification'),
-  notifMsg: document.getElementById('notificationMessage'),
-  globalModal: document.getElementById('globalDialogModal')
-};
-
-// --- UI CONTROLLER ---
-const UI = {
-  switchTab: (tabName) => {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    document.getElementById(`nav-${tabName}`).classList.add('active');
-    State.currentTab = tabName;
-    Render.all(); // Optimized render will check current tab
-  },
-  toggleDarkMode: () => {
-    State.isDarkMode = !State.isDarkMode;
-    localStorage.setItem("evora_darkmode", State.isDarkMode);
-    UI.applyTheme();
-  },
-  applyTheme: () => {
-    const btn = document.getElementById("btnDarkMode");
-    if(State.isDarkMode) { document.body.classList.add("dark-theme"); btn.innerText="Nonaktifkan"; btn.style.background="var(--danger)"; } 
-    else { document.body.classList.remove("dark-theme"); btn.innerText="Aktifkan"; btn.style.background="#94a3b8"; }
-    if(State.chartInstance) Render.chart();
-  },
-  showNotification: (msg) => {
-    DOM.notifMsg.innerHTML = msg;
-    DOM.topNotification.classList.add('show');
-    setTimeout(UI.closeNotification, 8000);
-  },
-  closeNotification: () => DOM.topNotification.classList.remove('show'),
-  openModal: (id) => document.getElementById(id).classList.add('show'),
-  closeModal: (id) => document.getElementById(id).classList.remove('show'),
-  
-  customAlert: (title, message, type='primary') => new Promise(resolve => {
-    const icons = { primary: '<i class="fa-solid fa-lightbulb"></i>', success: '<i class="fa-solid fa-circle-check"></i>', danger: '<i class="fa-solid fa-circle-xmark"></i>', warning: '<i class="fa-solid fa-triangle-exclamation"></i>' };
-    const colors = { primary: 'var(--primary)', success: 'var(--success)', danger: 'var(--danger)', warning: 'var(--warning)' };
-    document.getElementById('dialogIcon').innerHTML = icons[type];
-    const t = document.getElementById('dialogTitle'); t.innerText = title; t.style.color = colors[type];
-    document.getElementById('dialogMessage').innerHTML = message;
-    const btns = document.getElementById('dialogButtons'); btns.style.gridTemplateColumns = "1fr";
-    btns.innerHTML = `<button id="btnOk" style="background:${colors[type]};">OK</button>`;
-    UI.openModal('globalDialogModal');
-    document.getElementById('btnOk').onclick = () => { UI.closeModal('globalDialogModal'); resolve(); };
-  }),
-  customConfirm: (title, message, type='primary') => new Promise(resolve => {
-    const icons = { primary: '<i class="fa-solid fa-circle-question"></i>', success: '<i class="fa-solid fa-money-bill-wave"></i>', danger: '<i class="fa-solid fa-trash"></i>', warning: '<i class="fa-solid fa-triangle-exclamation"></i>' };
-    const colors = { primary: 'var(--primary)', success: 'var(--success)', danger: 'var(--danger)', warning: 'var(--warning)' };
-    document.getElementById('dialogIcon').innerHTML = icons[type];
-    const t = document.getElementById('dialogTitle'); t.innerText = title; t.style.color = colors[type];
-    document.getElementById('dialogMessage').innerHTML = message;
-    const btns = document.getElementById('dialogButtons'); btns.style.gridTemplateColumns = "1fr 1fr";
-    btns.innerHTML = `<button id="btnCancel" style="background:#94a3b8;">Batal</button><button id="btnConfirm" style="background:${colors[type]};">Konfirmasi</button>`;
-    UI.openModal('globalDialogModal');
-    document.getElementById('btnCancel').onclick = () => { UI.closeModal('globalDialogModal'); resolve(false); };
-    document.getElementById('btnConfirm').onclick = () => { UI.closeModal('globalDialogModal'); resolve(true); };
-  }),
-  showTargetModal: () => {
-    document.getElementById('targetModeSelect').value = State.target.mode;
-    document.getElementById('inputTargetManual').value = State.target.manualValue;
-    Actions.toggleTargetMode();
-    UI.openModal('targetModal');
-  },
-  runCountUp: (id, target, isRp=false, suffix="") => {
-    const el = document.getElementById(id); if(!el) return;
-    el.innerText = isRp ? Utils.formatRp(target) : Utils.formatNum(target)+suffix;
-    // Simplified removing RAF for performance on massive renders, direct assignment is faster.
-  },
-  fireConfetti: () => {
-    if(document.getElementById('confetti')) return;
-    const c = document.createElement('div'); c.id = 'confetti'; c.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden;';
-    document.body.appendChild(c);
-    for(let i=0; i<30; i++){
-      let d = document.createElement('div'); d.innerHTML = '<i class="fa-solid fa-star" style="color:#fcd34d"></i>';
-      d.style.cssText = `position:absolute;left:${Math.random()*100}%;top:-10%;font-size:${Math.random()*15+10}px;animation:drop ${Math.random()*2+2}s linear forwards;`;
-      c.appendChild(d);
-    }
-    const s = document.createElement('style'); s.innerHTML = `@keyframes drop{to{transform:translateY(120vh) rotate(360deg);}}`; document.head.appendChild(s);
-    setTimeout(()=>{c.remove();s.remove();}, 4000);
-  }
-};
-
-// --- APP DATA SYNC ---
-const App = {
-  init: async () => {
-    UI.applyTheme();
-    document.getElementById("inputNamaProfil").value = State.profileName;
-    const h = new Date().getHours();
-    let greet = "Selamat Malam"; if(h>=4&&h<11) greet="Selamat Pagi"; else if(h>=11&&h<15) greet="Selamat Siang"; else if(h>=15&&h<18) greet="Selamat Sore";
-    DOM.greeting.innerText = `${greet}, ${State.profileName}`;
-    
-    document.getElementById('hariSelect').value = Utils.getDayKey(new Date());
-    document.getElementById('tanggalRiwayat').value = Utils.getDayKey(new Date());
-
-    await App.load();
-  },
-  load: async () => {
-    DOM.syncStatus.innerHTML = "<i class='fa-solid fa-rotate'></i> Sync...";
-    try {
-      const { data, error } = await supabaseApp.from('pos_data').select('konten').eq('id', 1).single();
-      if(error && error.code !== 'PGRST116') throw error;
-      if(data && data.konten) App.migrateData(data.konten);
-      DOM.syncStatus.innerHTML = "<i class='fa-solid fa-circle-check'></i> Connected";
-    } catch(e) {
-      console.error(e); DOM.syncStatus.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> Offline";
-    }
-    Render.all();
-    AI.checkRestockAlerts();
-  },
-  save: async () => {
-    DOM.syncStatus.innerHTML = "<i class='fa-solid fa-bolt'></i> Saving...";
-    try {
-      const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: State });
-      if(error) throw error;
-      DOM.syncStatus.innerHTML = "<i class='fa-solid fa-circle-check'></i> Saved";
-    } catch(e) {
-      DOM.syncStatus.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> Failed";
-    }
-    Render.all();
-  },
-  migrateData: (d) => {
-    // Backward compatibility merge
-    State.hargaGlobal = d.hargaGlobal || d.HARGA || 27000;
-    State.logistik.botol = d.logistik?.botol ?? d.stokBotol ?? 0;
-    State.logistik.box = d.logistik?.box ?? d.stokBox ?? 0;
-    State.logistik.sticker = d.logistik?.sticker ?? 0;
-    State.logistik.bubbleWrap = d.logistik?.bubbleWrap ?? 0;
-    State.logistik.resi = d.logistik?.resi ?? 0;
-    if(d.dataMaster) State.dataMaster = {...State.dataMaster, ...d.dataMaster};
-    State.barang = d.barang || [];
-    State.penjualan = d.penjualan || [];
-    State.pengeluaran = d.pengeluaran || [];
-    State.pesanan = d.pesanan || [];
-    State.campaigns = d.campaigns || [];
-    if(d.target) State.target = {...State.target, ...d.target};
-  }
-};
-
-// --- AI BUSINESS INTELLIGENCE ENGINE ---
-const AI = {
-  calculateScores: () => {
-    const today = new Date();
-    const currentMonthKey = Utils.getMonthKey(today);
-    
-    // Health logic
-    const currentMonthSales = State.penjualan.filter(p => Utils.getMonthKey(p.tanggal) === currentMonthKey);
-    const omzet = currentMonthSales.reduce((a,b)=>a+b.nominal, 0);
-    const profit = currentMonthSales.reduce((a,b)=>a+(b.profit||0), 0);
-    const healthScore = Math.min(100, Math.max(0, (profit/Math.max(1,omzet)) * 200 + 50)); // Simple formula
-    const hpp = Utils.calculateHpp();
-    const avgMargin = State.hargaGlobal > 0 ? ((State.hargaGlobal - hpp)/State.hargaGlobal)*100 : 0;
-    
-    State.aiCache = {
-      health: Math.round(healthScore),
-      forecastAcc: Math.round(Math.random()*20 + 80), // Simulated accuracy
-      trend: currentMonthSales.length > 20 ? 'Kuat' : 'Lemah',
-      risk: avgMargin < 30 ? 'Tinggi' : 'Rendah',
-      margin: avgMargin
-    };
-  },
-  analyzeTarget: () => {
-    const currentMonthKey = Utils.getMonthKey(new Date());
-    const sales = State.penjualan.filter(x => Utils.getMonthKey(x.tanggal) === currentMonthKey);
-    const pcsSold = sales.reduce((a,b)=>a+b.qty, 0);
-    
-    // Forecast monthly logic
-    let targetPcs = State.target.mode === 'Manual' ? State.target.manualValue : 0;
-    if(State.target.mode === 'AI') {
-      // Find past months average
-      const pastMonths = {};
-      State.penjualan.forEach(p => { const k=Utils.getMonthKey(p.tanggal); if(k!==currentMonthKey) pastMonths[k]=(pastMonths[k]||0)+p.qty; });
-      const vals = Object.values(pastMonths);
-      const avg = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 100; // default 100
-      targetPcs = Math.round(avg * 1.1); // 10% growth
-    }
-    
-    const dayOfMonth = new Date().getDate();
-    const totalDays = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
-    const runRate = pcsSold / dayOfMonth;
-    const estTotal = Math.round(runRate * totalDays);
-    
-    return { target: targetPcs, sold: pcsSold, estTotal, runRate, progress: Math.min(100, (pcsSold/Math.max(1,targetPcs))*100).toFixed(1) };
-  },
-  analyzeProduct: (nama) => {
-    const now = new Date(); now.setHours(0,0,0,0);
-    let q7=0, q14_7=0;
-    State.penjualan.forEach(p => {
-      if(p.barang === nama && p.qty>0){
-        const pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
-        const diff = Math.floor((now-pDate)/(86400000));
-        if(diff<7) q7+=p.qty; else if(diff<14) q14_7+=p.qty;
-      }
-    });
-    const avgDay = q7/7;
-    const b = State.barang.find(x=>x.nama===nama);
-    const stok = b ? b.stok : 0;
-    const daysLeft = avgDay>0 ? Math.floor(stok/avgDay) : Infinity;
-    const trend = q7 > q14_7*1.3 ? 'Meroket' : (q7 < q14_7*0.7 ? 'Turun' : 'Stabil');
-    return { avgDay, daysLeft, trend };
-  },
-  checkRestockAlerts: () => {
-    let alerts = [];
-    Object.keys(State.logistik).forEach(k => { if(State.logistik[k] < 15) alerts.push(`Logistik ${k.toUpperCase()} sisa ${State.logistik[k]}`); });
-    State.barang.forEach(b => { if(b.stok < 5) alerts.push(`Varian ${b.nama} sisa ${b.stok}`); });
-    if(alerts.length > 0) UI.showNotification("Segera Restock:<br><ul style='margin:5px 0 0 20px;padding:0;'><li>"+alerts.join("</li><li>")+"</li></ul>");
-  },
-  explain: (context) => {
-    let html = "";
-    if(context === 'health') {
-      AI.calculateScores();
-      html = `<b>Data Digunakan:</b> Histori penjualan, HPP (Rp ${Utils.formatNum(Utils.calculateHpp())}), Omzet, Profit.<br><br><b>Analisis:</b> Margin saat ini ${State.aiCache.margin.toFixed(1)}%. <br><b>Rekomendasi:</b> Jaga margin di atas 40% untuk meminimalisir risiko arus kas.`;
-    } else if(context === 'target') {
-      const t = AI.analyzeTarget();
-      html = `<b>Data:</b> Run-rate harian ${t.runRate.toFixed(1)} pcs/hari.<br><br><b>Prediksi:</b> Akhir bulan akan mencapai ~${t.estTotal} pcs.<br><b>Status:</b> ${t.estTotal >= t.target ? 'Aman (Target akan tercapai)' : 'Kritis (Perlu intervensi/Campaign)'}.`;
-    } else if(context === 'forecast') {
-      html = `<b>Metode:</b> AI membaca tren 7 dan 14 hari terakhir untuk memetakan grafik. <br><b>Alasan:</b> Lonjakan pada hari tertentu biasanya dipengaruhi hari libur atau campaign aktif.`;
-    } else if(context === 'restock') {
-       html = `<b>Logika AI:</b> Menganalisis Velocity (Kecepatan terjual per hari).<br>Jika Sisa Stok / Velocity < 7 hari = Kritis.<br><b>Tindakan:</b> Utamakan restock barang berstatus Merah.`;
-    } else if(context === 'financial') {
-       const hpp = Utils.calculateHpp();
-       html = `<b>HPP Otomatis:</b> Rp ${Utils.formatNum(hpp)}.<br><b>Profit Kotor per Item:</b> Rp ${Utils.formatNum(State.hargaGlobal - hpp)}.<br>Setiap penjualan akan otomatis mencatat HPP dan Profit ke histori untuk laporan akurat.`;
-    } else if(context === 'campaign') {
-       html = `<b>ROI AI:</b> AI mengukur budget campaign dibanding kenaikan omzet di tanggal terkait.<br>ROI > 0 berarti untung.`;
-    }
-    document.getElementById('aiExplainContent').innerHTML = html;
-    UI.openModal('aiExplainModal');
-  }
-};
-
-// --- RENDER ENGINE ---
-const Render = {
-  all: () => {
-    Render.header();
-    if(State.currentTab === 'beranda') Render.beranda();
-    if(State.currentTab === 'kasir') Render.kasir();
-    if(State.currentTab === 'logistik') Render.logistik();
-    if(State.currentTab === 'campaign') Render.campaign();
-    if(State.currentTab === 'laporan') Render.laporan();
-    if(State.currentTab === 'riwayat') Render.riwayat();
-    if(State.currentTab === 'setting') Render.setting();
-  },
-  header: () => {
-    const today = Utils.getDayKey(new Date());
-    const salesToday = State.penjualan.filter(p => Utils.getDayKey(p.tanggal) === today);
-    const omzet = salesToday.reduce((a,b)=>a+b.nominal, 0);
-    UI.runCountUp("omzetHariIni", omzet, true);
-    
-    let htmlPills = '';
-    const logItems = [
-      {k:'botol', i:'fa-wine-bottle'}, {k:'box', i:'fa-box-open'}, {k:'sticker', i:'fa-note-sticky'}, 
-      {k:'bubbleWrap', i:'fa-box'}, {k:'resi', i:'fa-receipt'}
-    ];
-    logItems.forEach(x => {
-      htmlPills += `<div class="premium-pill" onclick="Actions.openEditLogistik('${x.k}')"><i class="fa-solid ${x.i}"></i> ${x.k.toUpperCase()}: ${State.logistik[x.k]}</div>`;
-    });
-    htmlPills += `<div class="premium-pill">Varian: ${State.barang.length}</div>`;
-    DOM.logistikPills.innerHTML = htmlPills;
-  },
-  chart: () => {
-    let labels=[], data=[];
-    for(let i=6; i>=0; i--) {
-      let d=new Date(); d.setDate(d.getDate()-i);
-      labels.push(`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`);
-      const key=Utils.getDayKey(d);
-      data.push(State.penjualan.filter(x=>Utils.getDayKey(x.tanggal)===key).reduce((a,b)=>a+b.nominal,0));
-    }
-    const ctx = document.getElementById('grafikMingguan').getContext('2d');
-    const color = State.isDarkMode ? '#2dd4bf' : '#0f616d';
-    const bg = State.isDarkMode ? 'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
-    if(State.chartInstance) {
-      State.chartInstance.data.labels = labels;
-      State.chartInstance.data.datasets[0].data = data;
-      State.chartInstance.data.datasets[0].borderColor = color;
-      State.chartInstance.data.datasets[0].backgroundColor = bg;
-      State.chartInstance.update();
-    } else {
-      State.chartInstance = new Chart(ctx, { type: 'line', data: { labels, datasets:[{data, borderColor:color, backgroundColor:bg, borderWidth:2, tension:0.3, fill:true}] }, options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{font:{size:9}}}, x:{ticks:{font:{size:10}}}} } });
-    }
-  },
-  beranda: () => {
-    AI.calculateScores();
-    document.getElementById('aiScoreHealth').innerText = State.aiCache.health;
-    document.getElementById('aiScoreForecast').innerText = State.aiCache.forecastAcc + '%';
-    document.getElementById('aiScoreTrend').innerText = State.aiCache.trend;
-    const rEl = document.getElementById('aiScoreRisk'); rEl.innerText = State.aiCache.risk;
-    rEl.style.color = State.aiCache.risk === 'Tinggi' ? 'var(--danger)' : 'var(--success)';
-    
-    document.getElementById('aiRecommendationGeneral').innerHTML = `<i class="fa-solid fa-robot"></i> Rekomendasi: ${State.aiCache.health < 60 ? 'Tekan pengeluaran, evaluasi HPP.' : 'Bisnis sehat, scale-up campaign Ads.'}`;
-
-    const today = Utils.getDayKey(new Date());
-    const sT = State.penjualan.filter(p => Utils.getDayKey(p.tanggal) === today);
-    UI.runCountUp("hariIniOmzetText", sT.reduce((a,b)=>a+b.nominal,0), true);
-    UI.runCountUp("hariIniQtyText", sT.reduce((a,b)=>a+b.qty,0), false, " Pcs");
-    
-    // Target
-    const t = AI.analyzeTarget();
-    document.getElementById('targetModeLabel').innerText = `(${State.target.mode})`;
-    document.getElementById('targetTextInfo').innerText = `${t.sold} / ${t.target} Pcs (${t.progress}%)`;
-    document.getElementById('targetProgressFill').style.width = `${t.progress}%`;
-    document.getElementById('targetAvgInfo').innerHTML = `
-      <div class="flex-between"><span>Rata-rata Penjualan:</span> <b>${t.runRate.toFixed(1)} Pcs/hari</b></div>
-      <div class="flex-between"><span>Prediksi Akhir Bulan:</span> <b style="color:var(--primary)">${t.estTotal} Pcs</b></div>
-    `;
-    if(t.sold >= t.target && t.target > 0) UI.fireConfetti();
-
-    // Top Varian
-    const curMonth = Utils.getMonthKey(new Date());
-    const mSales = State.penjualan.filter(p => Utils.getMonthKey(p.tanggal) === curMonth && p.qty>0);
-    const map = {}; mSales.forEach(s => map[s.barang] = (map[s.barang]||0)+s.qty);
-    const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]);
-    document.getElementById('topVarianHariIniText').innerText = sorted.length ? `${sorted[0][0]} (${sorted[0][1]} Pcs)` : '-';
-    
-    document.getElementById('topVarianAvatars').innerHTML = sorted.slice(0,5).map((x,i)=>`
-      <div class="product-badge-card">
-        <div class="product-badge-rank">Rank #${i+1}</div>
-        <div class="product-badge-name">${x[0]}</div>
-        <div class="product-badge-qty">${x[1]} Pcs</div>
-      </div>`).join('') || '<div style="font-size:12px; padding:10px;">Belum ada data</div>';
-
-    Render.chart();
-  },
-  kasir: () => {
-    document.getElementById('inputHargaGlobal').value = State.hargaGlobal;
-    const q = document.getElementById('cariBarangInput').value.toUpperCase();
-    let b = State.barang.map((x,i)=>({...x, idx:i}));
-    if(q) b = b.filter(x=>x.nama.includes(q));
-    b.sort((a,b)=>a.stok-b.stok);
-    
-    let opt = '';
-    for(let i=1; i<=10; i++) opt += `<option value="${i}">${i}</option>`;
-
-    document.getElementById('listBarang').innerHTML = b.map(x => {
-      const ai = AI.analyzeProduct(x.nama);
-      let badge = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;
-      let predict = `<div style="color:var(--success); font-weight:800;"><i class="fa-solid fa-circle-check"></i> Aman</div>`;
-      if(x.stok===0) { badge = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`; predict=`<div style="color:var(--danger); font-weight:800;"><i class="fa-solid fa-circle-xmark"></i> Stok Habis</div>`; }
-      else if(ai.daysLeft < 7) { badge = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`; predict=`<div style="color:var(--danger); font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> ± Habis ${ai.daysLeft} hari</div>`; }
-      
-      const fire = ai.trend === 'Meroket' ? `<div style="color:var(--accent); font-size:10px; margin-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan Naik!</div>` : '';
-
-      return `
-      <div class="item-barang">
-        <div class="item-info">
-          <b>${x.nama}</b>
-          ${badge}
-          <div style="margin-top:8px; padding:6px; background:var(--bg-main); border-radius:6px; font-size:10px;">
-            <div class="flex-between"><span>AI Prediksi:</span> <b>${ai.avgDay.toFixed(1)}/hari</b></div>
-            ${predict} ${fire}
-          </div>
-        </div>
-        <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
-          <div style="display:flex; gap:6px; align-items:center;">
-            <span style="font-size:11px; font-weight:600;">Qty:</span>
-            <select id="qty-${x.idx}" style="padding:4px; margin:0; height:28px;">${opt}</select>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <button onclick="Actions.jualInstan(${x.idx})" style="padding:6px; font-size:11px; flex:1;"><i class="fa-solid fa-bolt"></i> Jual</button>
-            <button onclick="Actions.openEditBarang(${x.idx})" style="padding:6px; font-size:11px; background:var(--accent); width:45px;">Edit</button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-
-    // Grosir & Restock
-    const bJual = document.getElementById('barangJual'); bJual.innerHTML = State.barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join('');
-    
-    let optPesan = `<optgroup label="Logistik">`;
-    Object.keys(State.logistik).forEach(k => optPesan+=`<option value="LOG_${k}">${k.toUpperCase()}</option>`);
-    optPesan += `</optgroup><optgroup label="Varian">`;
-    State.barang.forEach(b => optPesan+=`<option value="VAR_${b.nama}">${b.nama}</option>`);
-    optPesan += `</optgroup>`;
-    document.getElementById('targetPesan').innerHTML = optPesan;
-    
-    Render.pesananPending();
-  },
-  pesananPending: () => {
-    document.getElementById('listPesanPending').innerHTML = State.pesanan.length ? State.pesanan.map(p => `
-      <div style="background:var(--bg-card); border:1px solid #fcd34d; padding:12px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <div>
-          <span style="font-size:10px; color:var(--text-muted);"><i class="fa-solid fa-clock"></i> ${new Date(p.tanggal).toLocaleDateString('id-ID')}</span><br>
-          <b style="font-size:12px;">${p.target.replace('LOG_','').replace('VAR_','').toUpperCase()}</b><br>
-          <span style="color:var(--accent); font-weight:900;">+ ${p.qty} Pcs</span>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <button onclick="Actions.terimaPesanan(${p.id})" style="padding:6px 12px; font-size:10px; background:var(--success);">Terima</button>
-          <button onclick="Actions.hapusPesanan(${p.id})" style="padding:6px 12px; font-size:10px; background:transparent; border:1px solid var(--danger); color:var(--danger);">Batal</button>
-        </div>
-      </div>`).join('') : '<div style="font-size:11px; text-align:center; padding:10px; color:var(--text-muted);">Tidak ada antrean</div>';
-  },
-  logistik: () => {
-    // Logistik Grid
-    let lHtml = '';
-    const icons = {botol:'fa-wine-bottle', box:'fa-box-open', sticker:'fa-note-sticky', bubbleWrap:'fa-box', resi:'fa-receipt'};
-    Object.keys(State.logistik).forEach(k => {
-      lHtml += `
-      <div class="flex-between" style="background:var(--bg-card); padding:12px; border-radius:10px; border:1px solid #e2e8f0;">
-        <div><i class="fa-solid ${icons[k]||'fa-box'}"></i> <b>${k.toUpperCase()}</b></div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-weight:bold; color:var(--primary);">${State.logistik[k]} pcs</span>
-          <button onclick="Actions.openEditLogistik('${k}')" style="width:auto; padding:4px 10px; font-size:10px;">Edit</button>
-        </div>
-      </div>`;
-    });
-    document.getElementById('logistikGrid').innerHTML = lHtml;
-
-    // Master Data
-    let mHtml = '';
-    const labels = {bibit:'Bibit Parfum', absolut:'Absolut/Campuran', botol:'Botol Kosong', box:'Box Packing', sticker:'Sticker Label', bubbleWrap:'Bubble Wrap', resi:'Print Resi', admin:'Biaya Admin', biayaLain:'Biaya Lainnya'};
-    Object.keys(State.dataMaster).forEach(k => {
-      mHtml += `
-      <div class="master-input-group">
-        <label>${labels[k]}</label>
-        <input type="number" id="master_${k}" value="${State.dataMaster[k]}" oninput="Render.hppPreview()">
-      </div>`;
-    });
-    document.getElementById('masterDataContainer').innerHTML = mHtml;
-    Render.hppPreview();
-  },
-  hppPreview: () => {
-    let total = 0;
-    Object.keys(State.dataMaster).forEach(k => {
-      const el = document.getElementById(`master_${k}`);
-      if(el) total += Number(el.value) || 0;
-    });
-    document.getElementById('totalHppDisplay').innerText = Utils.formatRp(total);
-    document.getElementById('estimasiLabaDisplay').innerText = Utils.formatRp(State.hargaGlobal - total);
-  },
-  campaign: () => {
-    // Basic rendering of campaigns
-    const list = document.getElementById('listCampaigns');
-    list.innerHTML = State.campaigns.length ? State.campaigns.map(c => {
-      // Calculate ROI
-      return `
-      <div class="campaign-item">
-        <div class="flex-between">
-          <b style="font-size:14px;"><i class="fa-solid fa-bullhorn" style="color:var(--primary)"></i> ${c.nama}</b>
-          <button onclick="Actions.hapusCampaign(${c.id})" style="width:auto; background:var(--danger); padding:4px 10px; font-size:10px; border-radius:8px;"><i class="fa-solid fa-trash"></i></button>
-        </div>
-        <div class="campaign-stats">
-          <div class="c-stat">Budget<b>${Utils.formatRp(c.budget)}</b></div>
-          <div class="c-stat">Tanggal<b>${new Date(c.tanggal).toLocaleDateString('id-ID')}</b></div>
-          <div class="c-stat">Status<b style="color:var(--success)">Aktif</b></div>
-        </div>
-      </div>`;
-    }).join('') : '<div style="font-size:11px; text-align:center; padding:10px; color:var(--text-muted);">Belum ada campaign.</div>';
-    
-    document.getElementById('aiCampaignText').innerHTML = State.campaigns.length ? 
-      `<i class="fa-solid fa-robot"></i> AI mendeteksi ${State.campaigns.length} campaign berjalan. Pastikan budget tidak melebihi 20% dari laba bersih bulanan untuk ROAS optimal.` : 'Belum ada data campaign untuk dianalisis.';
-  },
-  laporan: () => {
-    // Populate dropdown
-    const set = new Set();
-    State.penjualan.forEach(x=>set.add(Utils.getMonthKey(x.tanggal)));
-    State.pengeluaran.forEach(x=>set.add(Utils.getMonthKey(x.tanggal)));
-    set.add(Utils.getMonthKey(new Date()));
-    document.getElementById('bulanSelect').innerHTML = [...set].sort().reverse().map(m=>`<option value="${m}">${Utils.getMonthLabel(m)}</option>`).join('');
-
-    // Harian
-    const dKey = Utils.getDayKey(document.getElementById('hariSelect').value);
-    const jH = State.penjualan.filter(x=>Utils.getDayKey(x.tanggal)===dKey);
-    const eH = State.pengeluaran.filter(x=>Utils.getDayKey(x.tanggal)===dKey);
-    const totalPcs = jH.reduce((a,b)=>a+b.qty,0);
-    const totalOmz = jH.reduce((a,b)=>a+b.nominal,0);
-    const totalProf = jH.reduce((a,b)=>a+(b.profit||0),0);
-    
-    const mapH = {}; jH.forEach(x=>{ if(x.qty>0||x.barang==="OMZET MANUAL"){ if(!mapH[x.barang]) mapH[x.barang]={q:0,n:0}; mapH[x.barang].q+=x.qty; mapH[x.barang].n+=x.nominal; }});
-    const htmlJH = Object.entries(mapH).sort((a,b)=>b[1].q-a[1].q).map(x=>`<li><b>${x[0]}</b>: ${x[1].q>0?x[1].q+' pcs':Utils.formatRp(x[1].n)}</li>`).join('');
-    const htmlEH = eH.map(x=>`<li>${x.keterangan} (${Utils.formatRp(x.nominal)})</li>`).join('');
-
-    document.getElementById('summaryHarian').innerHTML = `
-      <div style="background:var(--primary-light); padding:12px; border-radius:10px; font-weight:800; color:var(--primary); font-size:13px; margin-bottom:12px;">
-        <div class="flex-between"><span>Terjual:</span><span>${totalPcs} Pcs</span></div>
-        <div class="flex-between" style="border-top:1px dashed #cbd5e1; padding-top:6px; margin-top:6px;"><span>Omzet:</span><span>${Utils.formatRp(totalOmz)}</span></div>
-        <div class="flex-between" style="border-top:1px dashed #cbd5e1; padding-top:6px; margin-top:6px; color:var(--success)"><span>Laba Kotor:</span><span>${Utils.formatRp(totalProf)}</span></div>
-      </div>
-      <b>Penjualan:</b> <ul style="margin:4px 0 10px 18px; padding:0;">${htmlJH||'<li>Kosong</li>'}</ul>
-      <b style="color:var(--danger)">Pengeluaran:</b> <ul style="margin:4px 0 0 18px; padding:0;">${htmlEH||'<li>Kosong</li>'}</ul>
-    `;
-
-    // Bulanan
-    const mKey = document.getElementById('bulanSelect').value || Utils.getMonthKey(new Date());
-    const jM = State.penjualan.filter(x=>Utils.getMonthKey(x.tanggal)===mKey);
-    const eM = State.pengeluaran.filter(x=>Utils.getMonthKey(x.tanggal)===mKey);
-    const oM = jM.reduce((a,b)=>a+b.nominal,0);
-    const pM = eM.reduce((a,b)=>a+b.nominal,0);
-    const profM = jM.reduce((a,b)=>a+(b.profit||0),0);
-    const labaBersih = profM - pM; // HPP is already deducted in profit, so Laba Kotor - Pengeluaran = Laba Bersih
-    
-    document.getElementById('summaryBulanan').innerHTML = `
-      <div class="flex-between" style="margin-bottom:8px; font-size:12px; font-weight:bold;"><span>Total Omzet:</span> <span style="color:var(--primary)">${Utils.formatRp(oM)}</span></div>
-      <div class="flex-between" style="margin-bottom:8px; font-size:12px; font-weight:bold;"><span>Total HPP (Modal Produk):</span> <span style="color:var(--warning)">${Utils.formatRp(oM-profM)}</span></div>
-      <div class="flex-between" style="margin-bottom:8px; font-size:12px; font-weight:bold;"><span>Laba Kotor:</span> <span style="color:var(--success)">${Utils.formatRp(profM)}</span></div>
-      <div class="flex-between" style="margin-bottom:12px; font-size:12px; font-weight:bold;"><span>Pengeluaran Operasional:</span> <span style="color:var(--danger)">- ${Utils.formatRp(pM)}</span></div>
-      <div style="padding:16px; background:var(--bg-card); border:2px dashed #cbd5e1; border-radius:14px; font-weight:900; font-size:16px; text-align:center; color:${labaBersih>=0?'var(--success)':'var(--danger)'};">
-        LABA BERSIH: ${Utils.formatRp(labaBersih)}
-      </div>
-    `;
-  },
-  riwayat: () => {
-    const mode = document.getElementById('modeRiwayat').value;
-    const tgl = document.getElementById('tanggalRiwayat').value;
-    
-    const fJ = State.penjualan.map((x,i)=>({...x, idx:i})).filter(x=> mode==='harian'?Utils.getDayKey(x.tanggal)===Utils.getDayKey(tgl):Utils.getMonthKey(x.tanggal)===Utils.getMonthKey(tgl)).reverse();
-    const fE = State.pengeluaran.map((x,i)=>({...x, idx:i})).filter(x=> mode==='harian'?Utils.getDayKey(x.tanggal)===Utils.getDayKey(tgl):Utils.getMonthKey(x.tanggal)===Utils.getMonthKey(tgl)).reverse();
-
-    document.getElementById('riwayatJual').innerHTML = fJ.length ? fJ.map(x=>`
-      <div class="riwayat-item flex-between">
-        <div><b>${x.barang}</b> ${x.qty>0?`(${x.qty} pcs)`:''}<br><span style="color:var(--primary); font-weight:700;">${Utils.formatRp(x.nominal)}</span></div>
-        <button onclick="Actions.batalJual(${x.idx})" style="width:auto; padding:6px 12px; font-size:10px; background:var(--danger); border-radius:8px;">Batal</button>
-      </div>`).join('') : '<div style="text-align:center; font-size:11px; padding:10px;">Kosong</div>';
-      
-    document.getElementById('riwayatKeluar').innerHTML = fE.length ? fE.map(x=>`
-      <div class="riwayat-item flex-between">
-        <div><b>${x.keterangan}</b><br><span style="color:var(--danger); font-weight:700;">${Utils.formatRp(x.nominal)}</span></div>
-        <div style="display:flex; gap:6px;">
-          <button onclick="Actions.openEditPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:10px; background:var(--accent); border-radius:8px;">Edit</button>
-          <button onclick="Actions.hapusPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:10px; background:var(--danger); border-radius:8px;">Hapus</button>
-        </div>
-      </div>`).join('') : '<div style="text-align:center; font-size:11px; padding:10px;">Kosong</div>';
-  },
-  setting: () => {}
-};
-
-// --- ACTIONS & BUSINESS LOGIC ---
-const Actions = {
-  simpanProfil: () => {
-    const val = document.getElementById("inputNamaProfil").value.trim();
-    if(!val) return UI.customAlert("Warning", "Nama kosong!", "warning");
-    State.profileName = val; localStorage.setItem("evora_nama", val);
-    UI.customAlert("Sukses", "Profil disimpan.", "success");
-    App.init();
-  },
-  simpanHargaBaru: async () => {
-    const v = Number(document.getElementById('inputHargaGlobal').value);
-    if(v<=0) return;
-    if(await UI.customConfirm("Ubah Harga", `Ubah harga global ke ${Utils.formatRp(v)}?`, "warning")) {
-      State.hargaGlobal = v; App.save();
-    } else { document.getElementById('inputHargaGlobal').value = State.hargaGlobal; }
-  },
-  simpanDataMaster: () => {
-    Object.keys(State.dataMaster).forEach(k => {
-      const el = document.getElementById(`master_${k}`);
-      if(el) State.dataMaster[k] = Number(el.value) || 0;
-    });
-    App.save();
-    UI.customAlert("Berhasil", "Data Master HPP berhasil diperbarui.", "success");
-  },
-  tambahBarang: async () => {
-    const nama = document.getElementById('namaBarang').value.trim().toUpperCase();
-    const qty = Number(document.getElementById('qtyBarang').value);
-    if(!nama || qty<=0) return;
-    if(await UI.customConfirm("Tambah", `Daftarkan ${nama} (${qty} pcs)?`, "primary")){
-      State.barang.push({nama, stok:qty});
-      document.getElementById('namaBarang').value=''; document.getElementById('qtyBarang').value='';
-      App.save();
-    }
-  },
-  openEditBarang: (idx) => {
-    State.editContext = idx;
-    document.getElementById('modalNamaBarang').value = State.barang[idx].nama;
-    document.getElementById('modalStokSekarang').innerText = State.barang[idx].stok;
-    document.getElementById('modalJumlahManual').value = '';
-    UI.openModal('editBarangModal');
-  },
-  adjustStokBarang: (aksi) => {
-    const v = Number(document.getElementById('modalJumlahManual').value); if(v<=0) return;
-    let s = State.barang[State.editContext].stok;
-    State.barang[State.editContext].stok = aksi==='tambah' ? s+v : Math.max(0, s-v);
-    document.getElementById('modalStokSekarang').innerText = State.barang[State.editContext].stok;
-  },
-  simpanEditBarang: () => {
-    const n = document.getElementById('modalNamaBarang').value.trim().toUpperCase();
-    if(n) State.barang[State.editContext].nama = n;
-    UI.closeModal('editBarangModal'); App.save();
-  },
-  openEditLogistik: (key) => {
-    State.editContext = key;
-    document.getElementById('logistikModalJudul').innerText = `Edit Stok ${key.toUpperCase()}`;
-    document.getElementById('logistikStokSekarang').innerText = State.logistik[key];
-    document.getElementById('logistikJumlahManual').value = '';
-    UI.openModal('editLogistikModal');
-  },
-  adjustLogistik: (aksi) => {
-    const v = Number(document.getElementById('logistikJumlahManual').value); if(v<=0) return;
-    const k = State.editContext;
-    State.logistik[k] = aksi==='tambah' ? State.logistik[k]+v : Math.max(0, State.logistik[k]-v);
-    document.getElementById('logistikStokSekarang').innerText = State.logistik[k];
-  },
-  // CORE TRANSACTION LOGIC (With SSOT HPP & Logistics Deduction)
-  _processSale: async (namaBarang, qty, isManualOmzet=false, manualNominal=0) => {
-    if(!isManualOmzet) {
-      // Check limits
-      const bIdx = State.barang.findIndex(x=>x.nama===namaBarang);
-      if(bIdx !== -1 && State.barang[bIdx].stok < qty) return UI.customAlert("Gagal", `Stok varian ${namaBarang} tidak cukup!`, "danger");
-      // For strict logistics check, uncomment below. For flexible, allow negative.
-      // if(State.logistik.botol < qty || State.logistik.box < qty) return UI.customAlert("Gagal", "Logistik gudang tidak cukup!", "danger");
-
-      const hppTotal = Utils.calculateHpp() * qty;
-      const nominalTotal = State.hargaGlobal * qty;
-      const profitTotal = nominalTotal - hppTotal;
-      const margin = ((nominalTotal - hppTotal)/nominalTotal)*100;
-
-      // Deduct
-      if(bIdx !== -1) State.barang[bIdx].stok -= qty;
-      Object.keys(State.logistik).forEach(k => State.logistik[k] = Math.max(0, State.logistik[k]-qty));
-
-      State.penjualan.push({ id: Utils.generateId(), tanggal: new Date().toISOString(), barang: namaBarang, qty, nominal: nominalTotal, hpp: hppTotal, profit: profitTotal, margin });
-      Printer.printReceipt(namaBarang, qty, nominalTotal);
-    } else {
-      State.penjualan.push({ id: Utils.generateId(), tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: manualNominal, keterangan: namaBarang, profit: manualNominal }); // Manual assumed 100% profit for simplicty, or handle as separate category
-    }
-    await App.save();
-  },
-  jualInstan: async (idx) => {
-    const qty = Number(document.getElementById(`qty-${idx}`).value||1);
-    const b = State.barang[idx];
-    if(await UI.customConfirm("Kasir", `Jual ${qty} pcs ${b.nama}? <br><br>Total: <b>${Utils.formatRp(qty*State.hargaGlobal)}</b>`, "success")) {
-      Actions._processSale(b.nama, qty);
-    }
-  },
-  jualGrosir: async () => {
-    const idx = Number(document.getElementById('barangJual').value);
-    const qty = Number(document.getElementById('qtyJual').value);
-    if(qty<=0) return;
-    const b = State.barang[idx];
-    if(await UI.customConfirm("Grosir", `Jual Grosir ${qty} pcs ${b.nama}? <br><br>Total: <b>${Utils.formatRp(qty*State.hargaGlobal)}</b>`, "success")) {
-      await Actions._processSale(b.nama, qty);
-      document.getElementById('qtyJual').value = '';
-    }
-  },
-  tambahOmzetManual: async () => {
-    const n = Number(document.getElementById('manualOmzet').value);
-    const k = document.getElementById('manualKet').value.trim() || 'Manual';
-    if(n>0 && await UI.customConfirm("Omzet Manual", `Catat pendapatan Rp ${Utils.formatNum(n)} (${k})?`, "success")) {
-      await Actions._processSale(k, 0, true, n);
-      document.getElementById('manualOmzet').value=''; document.getElementById('manualKet').value='';
-    }
-  },
-  batalJual: async (idx) => {
-    if(await UI.customConfirm("Batal", "Hapus transaksi dan kembalikan stok?", "danger")) {
-      const p = State.penjualan[idx];
-      if(p.barang !== "OMZET MANUAL") {
-        const bIdx = State.barang.findIndex(x=>x.nama===p.barang);
-        if(bIdx !== -1) State.barang[bIdx].stok += p.qty;
-        Object.keys(State.logistik).forEach(k => State.logistik[k] += p.qty);
-      }
-      State.penjualan.splice(idx, 1); App.save();
-    }
-  },
-  tambahPengeluaran: async () => {
-    const n = Number(document.getElementById('nominalKeluar').value);
-    const k = document.getElementById('ketKeluar').value.trim();
-    if(n>0 && k && await UI.customConfirm("Catat", `Pengeluaran ${Utils.formatRp(n)} untuk ${k}?`, "danger")){
-      State.pengeluaran.push({ id: Utils.generateId(), tanggal: new Date().toISOString(), nominal: n, keterangan: k });
-      document.getElementById('nominalKeluar').value=''; document.getElementById('ketKeluar').value='';
-      App.save();
-    }
-  },
-  openEditPengeluaran: (idx) => {
-    State.editContext = idx;
-    document.getElementById('modalNominalKeluar').value = State.pengeluaran[idx].nominal;
-    document.getElementById('modalKetKeluar').value = State.pengeluaran[idx].keterangan;
-    UI.openModal('editPengeluaranModal');
-  },
-  simpanEditPengeluaran: () => {
-    const n = Number(document.getElementById('modalNominalKeluar').value);
-    const k = document.getElementById('modalKetKeluar').value.trim();
-    if(n>0 && k) {
-      State.pengeluaran[State.editContext].nominal = n; State.pengeluaran[State.editContext].keterangan = k;
-      UI.closeModal('editPengeluaranModal'); App.save();
-    }
-  },
-  hapusPengeluaran: async (idx) => { if(await UI.customConfirm("Hapus", "Hapus log pengeluaran ini?", "danger")){ State.pengeluaran.splice(idx,1); App.save(); } },
-  buatPesanan: async () => {
-    const t = document.getElementById('targetPesan').value; const q = Number(document.getElementById('qtyPesan').value);
-    if(t && q>0 && await UI.customConfirm("Pesan", `Buat antrean ${q} pcs untuk ${t.replace('LOG_','').replace('VAR_','')}?`, "warning")){
-      State.pesanan.push({ id: Utils.generateId(), target: t, qty: q, tanggal: new Date().toISOString() });
-      document.getElementById('qtyPesan').value=''; App.save();
-    }
-  },
-  terimaPesanan: async (id) => {
-    const idx = State.pesanan.findIndex(x=>x.id===id); if(idx===-1) return;
-    const p = State.pesanan[idx];
-    if(await UI.customConfirm("Terima", `Masukkan ${p.qty} pcs ke stok?`, "success")) {
-      if(p.target.startsWith('LOG_')) {
-        const k = p.target.replace('LOG_',''); if(State.logistik[k]!==undefined) State.logistik[k] += p.qty;
-      } else if(p.target.startsWith('VAR_')) {
-        const n = p.target.replace('VAR_',''); const b = State.barang.find(x=>x.nama===n); if(b) b.stok += p.qty;
-      }
-      State.pesanan.splice(idx,1); App.save();
-    }
-  },
-  hapusPesanan: (id) => { State.pesanan = State.pesanan.filter(x=>x.id!==id); App.save(); },
-  toggleTargetMode: () => {
-    const m = document.getElementById('targetModeSelect').value;
-    document.getElementById('manualTargetContainer').style.display = m==='Manual' ? 'block' : 'none';
-  },
-  simpanTarget: () => {
-    State.target.mode = document.getElementById('targetModeSelect').value;
-    State.target.manualValue = Number(document.getElementById('inputTargetManual').value)||0;
-    UI.closeModal('targetModal'); App.save();
-  },
-  tambahCampaign: async () => {
-    const n = document.getElementById('campNama').value.trim(); const b = Number(document.getElementById('campBudget').value);
-    if(n && b>0 && await UI.customConfirm("Campaign", `Buat campaign ${n} dengan budget ${Utils.formatRp(b)}?`, "primary")){
-      State.campaigns.push({ id: Utils.generateId(), nama: n, budget: b, tanggal: new Date().toISOString() });
-      document.getElementById('campNama').value=''; document.getElementById('campBudget').value=''; App.save();
-    }
-  },
-  hapusCampaign: async (id) => {
-    if(await UI.customConfirm("Hapus", "Hapus campaign ini? (Data penjualan tetap aman)", "danger")){
-      State.campaigns = State.campaigns.filter(x=>x.id!==id); App.save();
-    }
-  },
-  copyData: async () => {
-    try { await navigator.clipboard.writeText(JSON.stringify(State)); UI.customAlert("Disalin", "Data JSON berhasil disalin.", "success"); } 
-    catch(e) { UI.customAlert("Gagal", "Browser tidak mendukung copy otomatis.", "danger"); }
-  },
-  pasteData: async () => {
-    const t = document.getElementById('inputTransferData').value.trim(); if(!t) return;
-    if(await UI.customConfirm("Kritis", "Timpa SELURUH data dengan JSON ini?", "danger")) {
-      try { const d = JSON.parse(t); App.migrateData(d); document.getElementById('inputTransferData').value=''; App.save(); UI.customAlert("Sukses", "Data direstore.", "success"); }
-      catch(e) { UI.customAlert("Error", "JSON tidak valid.", "danger"); }
-    }
-  }
-};
-
-// --- BLUETOOTH PRINTER ---
-const Printer = {
-  device: null, char: null,
-  connect: async () => {
-    if(!navigator.bluetooth) return UI.customAlert("Gagal", "Web Bluetooth tidak didukung.", "danger");
-    try {
-      document.getElementById('statusPrinter').innerHTML = '<i class="fa-solid fa-rotate"></i> Mencari...';
-      Printer.device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2', '49535343-fe7d-4ae5-8fa9-9fafd205e455'] });
-      const s = await Printer.device.gatt.connect(); const srvs = await s.getPrimaryServices(); const c = await srvs[0].getCharacteristics();
-      Printer.char = c.find(x => x.properties.write || x.properties.writeWithoutResponse);
-      if(!Printer.char) throw new Error("No char");
-      document.getElementById('statusPrinter').innerHTML = `<i class="fa-solid fa-circle-check"></i> ${Printer.device.name}`; document.getElementById('statusPrinter').style.color="var(--success)";
-      const b = document.getElementById('btnTestPrint'); b.disabled=false; b.style.background="var(--success)"; b.style.color="#fff";
-      Printer.device.addEventListener('gattserverdisconnected', () => {
-        Printer.char = null; document.getElementById('statusPrinter').innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Terputus'; document.getElementById('statusPrinter').style.color="var(--danger)";
-        b.disabled=true; b.style.background="#cbd5e1";
-      });
-    } catch(e) { document.getElementById('statusPrinter').innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Gagal'; document.getElementById('statusPrinter').style.color="var(--danger)"; }
-  },
-  send: async (text) => {
-    if(!Printer.char) return;
-    try {
-      const data = new TextEncoder().encode(text);
-      for(let i=0; i<data.length; i+=20) await Printer.char.writeValue(data.slice(i, i+20));
-    } catch(e) { console.error(e); }
-  },
-  printReceipt: async (nama, qty, total) => {
-    if(!Printer.char) return;
-    const esc = '\x1B';
-    const text = esc+'@'+esc+'a\x01'+"=== EVORA BI ===\nPremium Suite\n--------------------------------\n"+esc+'a\x00'+"Tgl: "+new Date().toLocaleString('id-ID')+"\nKasir: "+State.profileName+"\n--------------------------------\n"+nama+"\n"+qty+" x "+Utils.formatRp(State.hargaGlobal)+"\n"+esc+'a\x02'+"TOTAL: "+Utils.formatRp(total)+"\n"+esc+'a\x01'+"--------------------------------\nTerima Kasih\n\n\n\n";
-    await Printer.send(text);
-  },
-  test: async () => {
-    if(!Printer.char) return;
-    await Printer.send('\x1B@\x1Ba\x01=== EVORA BI ===\n\x1Ba\x00Tgl: '+new Date().toLocaleString('id-ID')+'\n--------------------------------\n\x1Ba\x01KONEKSI SUKSES!\n\x1Ba\x00--------------------------------\n\n\n\n');
-  }
-};
-
-// Bootstrap
-window.onload = () => App.init();
-</script>
-</body>
-</html>
+=========================================================
+EVORA AI BUSINESS INTELLIGENCE
+=========================================================
+
+Sekarang upgrade seluruh sistem AI menjadi Business Intelligence Engine.
+
+AI bukan hanya menampilkan angka.
+
+AI harus mampu:
+
+menganalisis
+
+memprediksi
+
+menjelaskan
+
+memberikan rekomendasi
+
+memberikan alasan
+
+memberikan confidence
+
+memberikan tindakan berikutnya.
+
+=========================================================
+SINGLE SOURCE OF TRUTH
+=========================================================
+
+Semua modul wajib menggunakan satu sumber data.
+
+Target Bulanan
+
+Forecast
+
+Dashboard
+
+Campaign
+
+AI
+
+Progress
+
+Grafik
+
+Laporan
+
+harus membaca data yang sama.
+
+JANGAN menghitung target di banyak tempat.
+
+Gunakan satu object pusat.
+
+Contoh
+
+currentMonthlyTarget
+
+Semua halaman membaca object tersebut.
+
+=========================================================
+MODE TARGET
+=========================================================
+
+Tambahkan dua mode.
+
+Mode AI
+
+Mode Manual
+
+Default:
+
+Mode AI
+
+Jika Mode Manual aktif
+
+user dapat menentukan target sendiri.
+
+Tambahkan:
+
+Tombol Edit Target
+
+Modal Edit Target
+
+Input angka
+
+Batal
+
+Simpan
+
+Target langsung sinkron ke:
+
+Dashboard
+
+Forecast
+
+Progress
+
+Grafik
+
+AI
+
+Campaign
+
+Laporan
+
+Riwayat
+
+Target disimpan di localStorage.
+
+Saat aplikasi dibuka kembali
+
+target tetap tersimpan.
+
+=========================================================
+AI HARUS MEMBACA DATA LAMA
+=========================================================
+
+AI tidak boleh hanya membaca hari ini.
+
+AI wajib membaca:
+
+seluruh histori penjualan
+
+seluruh histori omzet
+
+seluruh histori stok
+
+seluruh histori campaign
+
+seluruh histori target
+
+seluruh histori logistik
+
+seluruh histori pengeluaran
+
+seluruh histori restock
+
+Semakin banyak histori
+
+semakin akurat prediksi.
+
+=========================================================
+SELF LEARNING ENGINE
+=========================================================
+
+AI harus belajar dari histori.
+
+Semakin lama aplikasi digunakan
+
+semakin baik rekomendasinya.
+
+AI harus mengetahui:
+
+produk paling laku
+
+produk paling lambat
+
+hari terlaris
+
+jam terlaris
+
+bulan terbaik
+
+bulan terburuk
+
+campaign terbaik
+
+campaign gagal
+
+produk yang sering habis
+
+produk yang jarang habis
+
+=========================================================
+AI ANALYTICS
+=========================================================
+
+Tambahkan:
+
+Business Health Score
+
+Sales Score
+
+Growth Score
+
+Efficiency Score
+
+Profit Score
+
+Inventory Score
+
+Campaign Score
+
+Forecast Accuracy
+
+Trend Strength
+
+Risk Level
+
+=========================================================
+FORECAST
+=========================================================
+
+AI membuat prediksi:
+
+Besok
+
+7 Hari
+
+14 Hari
+
+30 Hari
+
+Bulan Ini
+
+Bulan Depan
+
+Tahun Ini
+
+Forecast harus menggunakan histori.
+
+Bukan angka random.
+
+=========================================================
+TARGET ANALYSIS
+=========================================================
+
+AI menghitung:
+
+Persentase target
+
+Target tersisa
+
+Target harian
+
+Target mingguan
+
+Estimasi tercapai
+
+Estimasi gagal
+
+Confidence
+
+=========================================================
+RESTOCK AI
+=========================================================
+
+AI menentukan:
+
+produk yang harus direstock
+
+berapa jumlah restock
+
+kapan restock
+
+prioritas restock
+
+estimasi stok habis
+
+=========================================================
+VARIAN AI
+=========================================================
+
+AI menentukan:
+
+Fast Moving
+
+Slow Moving
+
+Dead Stock
+
+Best Seller
+
+Worst Seller
+
+Produk naik
+
+Produk turun
+
+Produk stagnan
+
+=========================================================
+CAMPAIGN AI
+=========================================================
+
+AI menganalisis:
+
+ROI
+
+ROAS
+
+CPA
+
+CPC
+
+CTR
+
+Conversion
+
+Campaign terbaik
+
+Campaign terburuk
+
+Budget ideal
+
+=========================================================
+FINANCIAL AI
+=========================================================
+
+AI menganalisis:
+
+Omzet
+
+Pengeluaran
+
+Profit
+
+Margin
+
+Cashflow
+
+Break Even
+
+Estimasi laba
+
+Estimasi rugi
+
+=========================================================
+EXPLAINABLE AI
+=========================================================
+
+Setiap hasil AI WAJIB memiliki tombol:
+
+Mengapa?
+
+Saat ditekan AI menjelaskan:
+
+Data yang digunakan
+
+Cara menghitung
+
+Alasan
+
+Confidence
+
+Risiko
+
+Peluang
+
+Rekomendasi
+
+=========================================================
+CACHE AI
+=========================================================
+
+Semua AI dihitung SATU KALI.
+
+Hasil disimpan.
+
+Dashboard membaca cache.
+
+Forecast membaca cache.
+
+Campaign membaca cache.
+
+Target membaca cache.
+
+JANGAN menghitung ulang AI di setiap render.
+
+=========================================================
+OPTIMASI
+=========================================================
+
+Kurangi:
+
+DOM Query
+
+JSON Parse
+
+JSON Stringify
+
+Loop berulang
+
+Render berulang
+
+Chart rebuild
+
+Storage write
+
+Storage read
+
+=========================================================
+ICON
+=========================================================
+
+JANGAN gunakan emoji Unicode.
+
+Contoh yang DILARANG:
+
+🧠
+
+📈
+
+📊
+
+📦
+
+🔥
+
+🎯
+
+💰
+
+Gunakan Font Awesome.
+
+Contoh:
+
+fa-brain
+
+fa-chart-line
+
+fa-chart-column
+
+fa-wallet
+
+fa-box
+
+fa-bullseye
+
+fa-lightbulb
+
+fa-chart-pie
+
+fa-rocket
+
+fa-circle-check
+
+fa-circle-xmark
+
+Seluruh ikon harus konsisten.
+
+=========================================================
+UI PREMIUM
+=========================================================
+
+Pertahankan desain premium.
+
+Jangan mengubah identitas aplikasi.
+
+Animasi harus tetap halus.
+
+Dark mode tetap bekerja.
+
+Safe area iPhone tetap aman.
+
+=========================================================
+SECURITY
+=========================================================
+
+Validasi seluruh input.
+
+Cegah data kosong.
+
+Cegah angka negatif.
+
+Cegah NaN.
+
+Cegah Infinity.
+
+Cegah localStorage corrupt.
+
+=========================================================
+TESTING
+=========================================================
+
+Lakukan audit otomatis.
+
+Pastikan:
+
+Dashboard benar.
+
+Kasir benar.
+
+Campaign benar.
+
+Riwayat benar.
+
+Forecast benar.
+
+AI benar.
+
+Printer benar.
+
+Import benar.
+
+Export benar.
+
+Data Master benar.
+
+HPP benar.
+
+Logistik benar.
+
+Target benar.
+
+Grafik benar.
+
+=========================================================
+OUTPUT
+=========================================================
+
+SETELAH seluruh audit, refactor, optimasi, dan penambahan fitur selesai:
+
+JANGAN memberikan penjelasan.
+
+JANGAN memberikan ringkasan.
+
+JANGAN memberikan patch.
+
+JANGAN memberikan potongan kode.
+
+JANGAN menggunakan placeholder.
+
+JANGAN menulis "...lanjutkan sendiri..." atau "...kode lainnya...".
+
+WAJIB mengembalikan SATU FILE HTML lengkap dari baris pertama hingga baris terakhir.
+
+Pastikan seluruh fitur lama tetap berfungsi, seluruh data lama tetap kompatibel, seluruh bug telah diperbaiki, seluruh fitur baru telah ditambahkan, dan aplikasi siap langsung menggantikan file lama tanpa kehilangan data pengguna.
