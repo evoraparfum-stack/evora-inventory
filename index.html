@@ -2117,21 +2117,34 @@ function render(){
   }
 
   let elTargetProgress = document.getElementById("targetProgressFill");
+    let elTargetProgress = document.getElementById("targetProgressFill");
   let elTargetText = document.getElementById("targetTextInfo");
-  let elTargetAvg = document.getElementById("targetAvgInfo");
   
-  if (elTargetProgress && elTargetText && elTargetAvg) {
-    elTargetProgress.style.width = progressPct + '%';
-    elTargetText.innerHTML = `${currentPcs} / ${targetBulanIni} Pcs (${progressPct}%)<br><span style="font-size:10px; color:var(--text-muted); font-weight:500;">Sisa: ${sisaTarget} Pcs</span>`;
-    
-    elTargetAvg.innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Rata-rata Penjualan:</span> <b>${avgPcsPerDay.toFixed(1)} Pcs/hari</b></div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Harus Dijual (Sisa Hari):</span> <b style="color:var(--warning);">${reqPcsPerDay} Pcs/hari</b></div>
-      <div style="display:flex; justify-content:space-between;"><span>Estimasi Target Tercapai:</span> <b style="color:var(--primary);">${estTercapaiTeks}</b></div>
+  if (elTargetProgress && elTargetText) {
+    elTargetProgress.style.width = progressPct + "%";
+    elTargetText.innerText = `${currentPcs} / ${targetBulanIni} Botol (${progressPct}%)`;
+  }
+
+  let elTargetAvgInfo = document.getElementById("targetAvgInfo");
+  if (elTargetAvgInfo) {
+    elTargetAvgInfo.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+        <span>Rata-rata Penjualan:</span>
+        <b>${avgPcsPerDay.toFixed(1)} Botol/hari</b>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+        <span>Kebutuhan Harian:</span>
+        <b>${reqPcsPerDay} Botol/hari</b> (${sisaHariDalamBulan} hari tersisa)
+      </div>
+      <div style="display:flex; justify-content:space-between; color:var(--primary); font-weight:700; margin-top:4px; border-top:1px dashed #cbd5e1; padding-top:4px;">
+        <span>Estimasi Target:</span>
+        <span>${estTercapaiTeks}</span>
+      </div>
     `;
   }
 }
 
+// Jalankan pengambilan data dari cloud saat aplikasi dibuka
 loadDataFromCloud();
 </script>
 </body>
