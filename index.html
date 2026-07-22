@@ -1,10 +1,9 @@
-<!-- Reference to bug.txt: File fully audited, refactored, and optimized according to EVORA Tracker Pro v2.2 specifications -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro - Premium Suite v2.2</title>
+  <title>EVORA Tracker Pro - Premium Suite</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -13,6 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="EVORA">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -28,8 +28,6 @@
   --danger: #e11d48;
   --warning: #f97316;
   --accent: #d97706;
-  --ai-color: #8b5cf6;
-  --ai-light: #ede9fe;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -37,13 +35,13 @@
   --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 4px 12px -5px rgba(15, 23, 42, 0.03);
 }
 
+/* --- DARK MODE CSS OVERRIDES --- */
 body.dark-theme {
   --bg-main: #0f172a;
   --bg-card: #1e293b;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --primary-light: rgba(15, 97, 109, 0.2);
-  --ai-light: rgba(139, 92, 246, 0.2);
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
   --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
 }
@@ -67,8 +65,10 @@ html, body {
   transition: background 0.3s, color 0.3s;
 }
 
+/* TOAST NOTIFICATION */
 .top-toast-alert {
   position: fixed;
+  /* Jauhkan secara fisik dari atas agar iOS tidak menjiplak warnanya */
   top: -200px; 
   left: 50%;
   transform: translateX(-50%);
@@ -85,13 +85,16 @@ html, body {
   align-items: flex-start;
   font-size: 13px;
   font-weight: 600;
+  /* Tambahkan efek pudar dan sembunyi total */
   opacity: 0;
   visibility: hidden;
+  /* Transisi sekarang mengatur semua properti (top, opacity, visibility) */
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid rgba(255,255,255,0.2);
 }
 
 .top-toast-alert.show {
+  /* Munculkan tepat di bawah poni / dynamic island iPhone */
   top: calc(20px + env(safe-area-inset-top));
   opacity: 1;
   visibility: visible;
@@ -102,6 +105,7 @@ html, body {
   color: white;
   border-radius: 50%;
   width: 32px;
+  /* Tombol silang diperbesar */
   height: 32px;
   display: flex;
   align-items: center;
@@ -114,6 +118,7 @@ html, body {
   flex-shrink: 0;
 }
 
+/* PREMIUM BANK-STYLE HEADER */
 .premium-header {
   background: var(--premium-gradient);
   padding: 40px 24px 65px 24px;
@@ -179,6 +184,7 @@ html, body {
   letter-spacing: -1px;
 }
 
+/* DYNAMIC BANK GROWTH BADGES */
 .trend-badge {
   display: inline-flex;
   align-items: center;
@@ -221,6 +227,7 @@ html, body {
   transition: all 0.2s;
 }
 
+/* PILLS CONTAINER - GRID 3 KOLOM SIMETRIS */
 .pills-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -247,6 +254,7 @@ html, body {
   width: 100%;
 }
 
+/* MAIN BODY SHEET */
 .main-sheet {
   background: var(--bg-main);
   margin-top: -30px;
@@ -287,6 +295,7 @@ h3 {
   gap: 6px;
 }
 
+/* PREMIUM ACTION BUTTON & RIPPLE EFFECT */
 button {
   position: relative;
   overflow: hidden;
@@ -317,6 +326,58 @@ button:active {
   to { transform: scale(4); opacity: 0; }
 }
 
+/* PREMIUM BADGES & INTERACTIVE COLORS */
+.badge-status {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-block;
+  margin-top: 8px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.status-critical { background: #ffe4e6; color: #e11d48; border: 1px solid rgba(225,29,72,0.15); }
+.status-warning { background: #ffedd5; color: #ea580c; border: 1px solid rgba(234,88,12,0.15); }
+.status-ready { background: #ccfbf1; color: #0d9488; border: 1px solid rgba(13,148,136,0.15); }
+
+body.dark-theme .status-critical { background: rgba(225,29,72,0.2); color: #fda4af; }
+body.dark-theme .status-warning { background: rgba(234,88,12,0.2); color: #fed7aa; }
+body.dark-theme .status-ready { background: rgba(13,148,136,0.2); color: #99f6e4; }
+
+/* Blinking continuous animation for critical stock */
+.blinking-alert {
+  animation: premium-blink 1.4s infinite ease-in-out;
+}
+@keyframes premium-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.96); background: #fff1f2; }
+}
+body.dark-theme .blinking-alert {
+  @keyframes premium-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; background: rgba(225,29,72,0.3); }
+  }
+}
+
+/* SKELETON SHIMMER LOADING EFFECT */
+.skeleton-loading .shimmer-text {
+  background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+  color: transparent !important;
+  border-radius: 6px;
+  pointer-events: none;
+}
+body.dark-theme .skeleton-loading .shimmer-text {
+  background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* SMART FADE & SCALE ENTRANCE ANIMATION FOR TABS */
 .tab-content { 
   display: none;
 }
@@ -329,6 +390,7 @@ button:active {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* OTHER SYSTEM LAYOUTS */
 .search-container { position: relative; width: 100%; }
 .search-container input { padding-right: 40px; }
 .btn-clear-search {
@@ -395,36 +457,39 @@ input:focus, select:focus { border-color: var(--primary); background: var(--bg-c
   position: fixed; bottom: 0; left: 0; right: 0;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); height: 80px;
-  display: flex; justify-content: flex-start; align-items: center;
+  display: flex; justify-content: space-around; align-items: center;
   box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.06);
   z-index: 999; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-bottom: env(safe-area-inset-bottom);
-  overflow-x: auto;
-  gap: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
 }
-.bottom-nav::-webkit-scrollbar { display: none; }
 body.dark-theme .bottom-nav {
   background: rgba(30, 41, 59, 0.9) !important;
   border-top: 1px solid #334155 !important;
 }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; min-width: 65px;
+.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; width: 20%;
   transition: all 0.2s; }
 .nav-item.active { color: var(--primary); }
-.nav-item.active-ai { color: var(--ai-color); }
 .nav-icon { font-size: 20px; margin-bottom: 4px; padding: 4px 16px; border-radius: 16px;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .nav-item.active .nav-icon { background: var(--primary-light); transform: translateY(-2px); }
-.nav-item.active-ai .nav-icon { background: var(--ai-light); transform: translateY(-2px); }
 .scroll-box { max-height: 240px; overflow-y: auto; }
+.riwayat-item { background: #f8fafc; padding: 12px 14px; border-radius: 10px; margin: 8px 0; font-size: 13px; border: 1px solid #edf2f7; }
 
+body.dark-theme .riwayat-item,
+body.dark-theme #summaryHarian,
+body.dark-theme #summaryBulanan {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: var(--text-main) !important;
+}
+
+/* MODALS WITH PREMIUM POP ANIMATIONS */
 .modal-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px;
 }
 .modal-content {
-  background: var(--bg-card); border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 380px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+  background: var(--bg-card); border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 350px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
   animation: premiumModalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 @keyframes premiumModalPop {
@@ -432,71 +497,50 @@ body.dark-theme .bottom-nav {
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-.quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
-.quick-card { background: var(--bg-card); border: 1px solid #e2e8f0; border-radius: 14px; height: 72px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: .2s; box-shadow: var(--shadow-sm); }
-.quick-card:active { transform: scale(.96); }
-.quick-card i { font-size: 20px; color: var(--primary); margin-bottom: 5px; }
-.quick-card span { font-size: 10px; font-weight: 700; text-align: center; line-height: 1.2; color: var(--text-main); }
-
-.ai-card { background: var(--bg-card); border: 2px solid var(--ai-color); border-radius: var(--radius-md); padding: 16px; box-shadow: 0 4px 15px rgba(139,92,246,0.15); margin-bottom: 20px; }
-.ai-badge { background: var(--ai-light); color: var(--ai-color); padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 800; }
-
-.btn-explain {
-  background: var(--ai-light);
-  color: var(--ai-color);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  display: inline-flex;
+/* --- QUICK ACCESS CSS --- */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.quick-card {
+  background: var(--bg-card);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 6px;
-  margin-top: 10px;
   cursor: pointer;
-  box-shadow: none;
+  transition: .2s;
+  box-shadow: var(--shadow-sm);
 }
-.btn-explain:hover { background: rgba(139, 92, 246, 0.25); }
-
-.explain-box {
-  background: #f1f5f9;
-  border-left: 3px solid var(--ai-color);
-  padding: 12px 14px;
-  border-radius: 0 10px 10px 0;
-  font-size: 12px;
-  line-height: 1.6;
-  margin-top: 10px;
-  color: var(--text-main);
-  animation: fadeIn 0.3s ease;
+.quick-card:active {
+  transform: scale(.96);
 }
-body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-color); }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+.quick-card i {
+  font-size: 20px;
+  color: var(--primary);
+  margin-bottom: 5px;
 }
-
-.sub-tab-group { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; }
-.sub-tab-btn {
-  background: var(--bg-main);
-  color: var(--text-muted);
-  border: 1px solid #cbd5e1;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-size: 11px;
+.quick-card span {
+  font-size: 10px;
   font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  box-shadow: none;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--text-main);
 }
-.sub-tab-btn.active { background: var(--ai-color); color: #fff; border-color: var(--ai-color); }
 
-.sync-highlight { color: var(--accent); font-weight: 900; }
-
-.master-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.master-input-group { background: var(--bg-main); padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
-.master-input-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; }
-.master-input-group input { margin: 0; padding: 8px; font-size: 13px; font-weight: 800; color: var(--primary); }
+/* CUSTOM SCROLLBAR FOR PENDING ORDERS */
+#listPesanPending::-webkit-scrollbar {
+  width: 4px;
+}
+#listPesanPending::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
 </style>
 </head>
 <body>
@@ -513,11 +557,11 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
 
 <div id="premiumHeaderWrapper" class="premium-header">
   <div class="header-top">
-    <div class="brand-title">EVORA AI v2.2</div>
+    <div class="brand-title">EVORA</div>
     <div id="syncStatus" class="sync-badge"><i class="fa-solid fa-rotate"></i> Loading...</div>
   </div>
   
-  <div id="greetingText" class="user-greeting">Selamat Datang, Admin</div>
+  <div id="greetingText" class="user-greeting">Selamat Malam, Farhan</div>
   
   <div class="bank-divider"></div>
 
@@ -533,15 +577,14 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
   </div>
 
   <div class="pills-container">
-    <button class="premium-pill" onclick="editLogistik('botol')">Botol: <span id="stokBotol" class="shimmer-text">0</span></button>
-    <button class="premium-pill" onclick="editLogistik('box')">Box: <span id="stokBox" class="shimmer-text">0</span></button>
-    <div class="premium-pill">Varian: <span id="totalBarang">0</span></div>
+    <button class="premium-pill" onclick="editLogistik('botol')">Sisa Botol: <span id="stokBotol" class="shimmer-text">0</span></button>
+    <button class="premium-pill" onclick="editLogistik('box')">Sisa Box: <span id="stokBox" class="shimmer-text">0</span></button>
+    <div class="premium-pill">Total Varian: <span id="totalBarang">0</span></div>
   </div>
 </div>
 
 <div class="main-sheet">
 
-  <!-- ================= TAB BERANDA ================= -->
   <div id="tab-beranda" class="tab-content active">
     
     <div class="card">
@@ -577,39 +620,8 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
       </div>
     </div>
 
-    <!-- AI INSIGHT CARD (DASHBOARD) -->
-    <div class="ai-card">
-      <h3 style="color: var(--ai-color);"><i class="fa-solid fa-brain"></i> AI INSIGHT & PROYEKSI</h3>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; margin-bottom:10px;">
-        <div>Prediksi Besok:<br><span id="aiPrediksiBesok" style="font-size:16px; font-weight:800; color:var(--text-main);">0 Botol</span></div>
-        <div>Target Bulan Ini:<br><span id="dashTargetBulanVal" class="sync-highlight" style="font-size:16px;">0 Botol</span></div>
-        <div>Status Engine:<br><span id="aiStatusVal" class="ai-badge" style="display:inline-block; margin-top:4px;">Loading...</span></div>
-        <div>Confidence:<br><span id="aiConfidence" style="font-size:14px; font-weight:800; color:var(--success);">0%</span></div>
-      </div>
-      <button class="btn-explain" onclick="toggleExplain('exp-dash')"><i class="fa-solid fa-circle-question"></i> Penjelasan AI</button>
-      <div id="exp-dash" class="explain-box" style="display:none;"></div>
-    </div>
-
-    <!-- TARGET BULAN INI -->
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="color:var(--accent); margin:0;"><i class="fa-solid fa-bullseye"></i> TARGET BULAN INI</h3>
-        <button onclick="bukaModalTarget()" style="width:auto; padding:4px 10px; font-size:10px; background:var(--bg-main); color:var(--primary); border:1px solid var(--primary); box-shadow:none;"><i class="fa-solid fa-pen"></i> Mode</button>
-      </div>
-      <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-top:12px; margin-bottom:12px;">
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
-          <span>Progress <span id="labelModeTarget">AI</span> Target</span>
-          <span id="targetTextInfo" style="text-align:right;">0 / 0 Botol (0%)</span>
-        </div>
-        <div style="background:#e2e8f0; height:12px; border-radius:10px; overflow:hidden; margin-bottom:12px;">
-          <div id="targetProgressFill" style="background:var(--success); width:0%; height:100%; transition:width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
-        </div>
-        <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-chart-line"></i> GRAFIK PENJUALAN 7 HARI</h3>
+      <h3><i class="fa-solid fa-chart-line"></i> GRAFIK PENJUALAN 7 HARI TERAKHIR</h3>
       <div style="position: relative; height:200px; width:100%;">
         <canvas id="grafikMingguan"></canvas>
       </div>
@@ -634,13 +646,27 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
         <button onclick="tambahPengeluaran()" style="background:var(--danger); padding:10px; font-size:12px; border-radius:8px; box-shadow: none;">Simpan</button>
       </div>
     </div>
+    
+    <div class="card">
+      <h3 style="color:var(--accent);"><i class="fa-solid fa-bullseye"></i> TARGET BULAN INI</h3>
+      <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
+          <span>Progress Target</span>
+          <span id="targetTextInfo" style="text-align:right;">0 / 400 Botol (0%)</span>
+        </div>
+        <div style="background:#e2e8f0; height:12px; border-radius:10px; overflow:hidden; margin-bottom:12px;">
+          <div id="targetProgressFill" style="background:var(--success); width:0%; height:100%; transition:width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
+        </div>
+        <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;">
+          </div>
+      </div>
+    </div>
 
     <div class="card" style="margin-top:20px; background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-card) 100%);">
-      <h3><i class="fa-solid fa-chart-column"></i> RINGKASAN FINANSIAL BULANAN</h3>
+      <h3><i class="fa-solid fa-chart-column"></i> RINGKASAN PERFORMA BULANAN</h3>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:13px; font-weight:600;">
         <div>Total Omzet: <br><span id="omzet" class="shimmer-text" style="color:var(--primary); font-size:16px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
         <div>Total Belanja: <br><span id="pengeluaran" class="shimmer-text" style="color:var(--danger); font-size:16px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
-        <div>Est. HPP Total: <br><span id="hppBulanan" class="shimmer-text" style="color:var(--warning); font-size:16px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
         <div style="grid-column:span 2; margin-top:6px; padding-top:10px; border-top:1px dashed #b2f5ea; font-size:14px;">
           Laba Bersih Kumulatif: <br><span id="laba" class="shimmer-text" style="color:var(--success); font-size:20px; font-weight:900; display:inline-block; margin-top:4px;">Rp 0</span>
         </div>
@@ -648,10 +674,9 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
     </div>
   </div>
 
-  <!-- ================= TAB KASIR ================= -->
   <div id="tab-kasir" class="tab-content">
     <div class="card">
-      <h3><i class="fa-solid fa-gear"></i> HARGA JUAL GLOBAL</h3>
+      <h3><i class="fa-solid fa-gear"></i> KONFIGURASI HARGA GLOBAL</h3>
       <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:var(--bg-card); border-color: var(--primary);">
     </div>
 
@@ -666,6 +691,7 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
 
     <div class="card">
       <h3><i class="fa-solid fa-box"></i> TRANSAKSI GROSIR / MANUAL</h3>
+     
       <select id="barangJual"></select>
       <input id="qtyJual" type="number" placeholder="Kuantitas Item">
       <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
@@ -678,6 +704,7 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
         <input id="qtyPesan" type="number" placeholder="Qty" style="margin:0; background:var(--bg-card);">
       </div>
       <button onclick="buatPesanan()" style="background:var(--accent); font-size:13px; padding:12px;"><i class="fa-solid fa-plus"></i> Buat Antrean Pemesanan</button>
+      
       <div id="listPesanPending" style="display:flex; flex-direction:column; margin-top:16px; max-height:320px; overflow-y:auto; overflow-x:hidden;"></div>
     </div>
 
@@ -689,31 +716,29 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
     </div>
   </div>
 
-  <!-- ================= TAB LAPORAN ================= -->
   <div id="tab-laporan" class="tab-content">
     <div class="card">
-      <h3><i class="fa-solid fa-calendar-days"></i> LAPORAN HARIAN</h3>
-      <input id="hariSelect" type="date" onchange="renderLaporan()">
+      <h3><i class="fa-solid fa-calendar-days"></i> LAPORAN HARIAN (INFO)</h3>
+      <input id="hariSelect" type="date" onchange="render()">
       <div id="summaryHarian" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
     </div>
 
     <div class="card">
-      <h3><i class="fa-solid fa-chart-column"></i> REKAPITULASI BULANAN</h3>
-      <select id="bulanSelect" onchange="renderLaporan()"></select>
+      <h3><i class="fa-solid fa-chart-column"></i> REKAPITULASI BULANAN (DETAIL)</h3>
+      <select id="bulanSelect" onchange="render()"></select>
       <div id="summaryBulanan" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
     </div>
   </div>
 
-  <!-- ================= TAB RIWAYAT ================= -->
   <div id="tab-riwayat" class="tab-content">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
         <h3><i class="fa-solid fa-filter"></i> FILTER LOG</h3>
-        <select id="modeRiwayat" onchange="renderRiwayat()" style="width:90px; margin:0; padding:8px; font-size:12px;">
+        <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:8px; font-size:12px;">
           <option value="harian">Hari</option>
           <option value="bulanan">Bulan</option>
         </select>
-        <input id="tanggalRiwayat" type="date" onchange="renderRiwayat()" style="width:140px; margin:0; padding:8px; font-size:12px;">
+        <input id="tanggalRiwayat" type="date" onchange="render()" style="width:140px; margin:0; padding:8px; font-size:12px;">
       </div>
     </div>
 
@@ -728,98 +753,11 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
     </div>
   </div>
 
-  <!-- ================= TAB CAMPAIGN ================= -->
-  <div id="tab-campaign" class="tab-content">
-    <div class="card">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-bullhorn"></i> MANAJEMEN CAMPAIGN ADS</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Atur iklan untuk tracking ROI & ROAS.</p>
-      
-      <input id="campNama" placeholder="Nama Campaign">
-      <select id="campPlatform">
-        <option value="TikTok Ads">TikTok Ads</option>
-        <option value="Meta Ads">Meta Ads</option>
-        <option value="Shopee Ads">Shopee Ads</option>
-      </select>
-      <input id="campBudget" type="number" placeholder="Budget Harian (Rp)">
-      <input id="campDurasi" type="number" placeholder="Durasi (Hari)">
-      <button onclick="buatCampaign()" style="margin-top:8px;"><i class="fa-solid fa-play"></i> Mulai Campaign</button>
-    </div>
-
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <h3 style="margin:0;"><i class="fa-solid fa-list"></i> HISTORI CAMPAIGN</h3>
-        <button onclick="hapusSemuaCampaign()" style="background:var(--danger); width:auto; padding:6px 12px; font-size:11px; margin:0;"><i class="fa-solid fa-trash"></i> Hapus Semua</button>
-      </div>
-      <div id="listCampaigns" style="margin-top: 10px;"></div>
-    </div>
-  </div>
-
-  <!-- ================= TAB EVORA AI ENGINE v2.2 ================= -->
-  <div id="tab-ai" class="tab-content">
-    <div class="ai-card">
-      <h3 style="color:var(--ai-color)"><i class="fa-solid fa-brain"></i> EVORA AI v2.2 CORE ENGINE</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Business Intelligence dengan Self-Learning Engine.</p>
-      
-      <div style="background:var(--bg-main); padding:12px; border-radius:8px; font-size:12px; margin-bottom:12px; border:1px solid #e2e8f0;">
-        <b>Business Health Score:</b> <span id="aiHealthScore" style="color:var(--success); font-weight:bold;">0/100</span><br>
-        <b>Model Sync Target:</b> <span class="sync-highlight" id="aiModelSyncVal">0 Botol</span><br>
-        <b>Last Rebuild:</b> <span id="aiLastUpdate">-</span>
-      </div>
-      <button onclick="rebuildAIModel()" style="background:var(--ai-color); box-shadow:none;"><i class="fa-solid fa-microchip"></i> Recalibrate AI Model</button>
-    </div>
-
-    <div class="card" style="border: 1px solid var(--ai-color);">
-      <h3 style="color:var(--ai-color);"><i class="fa-solid fa-lightbulb"></i> REKOMENDASI BUSINESS ADVISOR</h3>
-      <div id="aiBusinessAdvisorContainer"></div>
-      <button class="btn-explain" onclick="toggleExplain('exp-advisor')"><i class="fa-solid fa-circle-question"></i> Penjelasan Detail</button>
-      <div id="exp-advisor" class="explain-box" style="display:none;"></div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-chart-pie"></i> FORECAST ENGINE</h3>
-      <div id="aiForecastDetail" style="font-size: 13px; line-height: 1.6;"></div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-flask"></i> VARIAN ANALYTICS</h3>
-      <div id="aiVarianDetail" style="font-size: 13px; line-height: 1.6;"></div>
-    </div>
-  </div>
-
-  <!-- ================= TAB SETTING / MASTER ================= -->
   <div id="tab-setting" class="tab-content">
-    
-    <div class="card" style="border: 1px solid var(--primary);">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-database"></i> DATA MASTER & HPP OPSI</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Atur biaya komponen untuk kalkulasi HPP otomatis per transaksi (Cost per Botol).</p>
-      <div class="master-grid">
-        <div class="master-input-group"><label>Bibit (Rp/Btl)</label><input id="dmBibit" type="number" onchange="simpanDataMaster()"></div>
-        <div class="master-input-group"><label>Absolut (Rp/Btl)</label><input id="dmAbsolut" type="number" onchange="simpanDataMaster()"></div>
-        <div class="master-input-group"><label>Botol Kosong</label><input id="dmBotol" type="number" onchange="simpanDataMaster()"></div>
-        <div class="master-input-group"><label>Box Packing</label><input id="dmBox" type="number" onchange="simpanDataMaster()"></div>
-        <div class="master-input-group"><label>Sticker</label><input id="dmSticker" type="number" onchange="simpanDataMaster()"></div>
-        <div class="master-input-group"><label>Bubble Wrap</label><input id="dmBubble" type="number" onchange="simpanDataMaster()"></div>
-        <div class="master-input-group"><label>Resi</label><input id="dmResi" type="number" onchange="simpanDataMaster()"></div>
-        <div class="master-input-group"><label>Biaya Admin</label><input id="dmAdmin" type="number" onchange="simpanDataMaster()"></div>
-        <div class="master-input-group" style="grid-column:span 2;"><label>Biaya Lainnya</label><input id="dmLain" type="number" onchange="simpanDataMaster()"></div>
-      </div>
-      <div style="margin-top:12px; padding:12px; background:var(--primary-light); border-radius:8px; text-align:center; font-weight:bold; font-size:13px;">
-        Total Est. HPP per Botol: <span id="hppPerBotolDisplay" style="color:var(--danger);">Rp 0</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-boxes-stacked"></i> LOGISTIK TAMBAHAN</h3>
-      <div class="pills-container" style="margin-top:0; grid-template-columns: 1fr 1fr 1fr;">
-        <button class="premium-pill" onclick="editLogistik('sticker')">Sticker: <span id="stokSticker">0</span></button>
-        <button class="premium-pill" onclick="editLogistik('bubble')">Bubble: <span id="stokBubble">0</span></button>
-        <button class="premium-pill" onclick="editLogistik('resi')">Resi: <span id="stokResi">0</span></button>
-      </div>
-    </div>
-
     <div class="card">
       <h3 style="color:var(--primary)"><i class="fa-solid fa-user"></i> PENGATURAN PROFIL</h3>
-      <input id="inputNamaProfil" type="text" placeholder="Masukkan nama panggilan">
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Ubah nama yang ditampilkan di sapaan layar utama.</p>
+      <input id="inputNamaProfil" type="text" placeholder="Masukkan nama panggilan Anda">
       <button onclick="simpanNamaProfil()" style="margin-top:8px;">Simpan Nama</button>
     </div>
 
@@ -827,39 +765,42 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
       <h3 style="color:var(--primary)"><i class="fa-solid fa-moon"></i> TAMPILAN APLIKASI</h3>
       <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:12px; border-radius:12px; border:1px solid #cbd5e1;">
         <div style="text-align: left;">
-          <b style="font-size:13px;">Mode Gelap</b>
+          <b style="font-size:13px;">Mode Gelap (Dark Mode)</b>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Gunakan tema gelap agar mata tidak silau</div>
         </div>
         <button onclick="toggleDarkMode()" id="btnDarkMode" style="width:auto; padding:8px 16px; font-size:12px; background:#94a3b8; box-shadow:none;">Aktifkan</button>
       </div>
     </div>
 
     <div class="card">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-print"></i> PRINTER BLUETOOTH</h3>
+      <h3 style="color:var(--primary)"><i class="fa-solid fa-print"></i> PRINTER BLUETOOTH THERMAL</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Hubungkan ke printer struk kasir (Mendukung fitur BLE / Web Bluetooth).</p>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:10px 14px; background:var(--primary-light); border-radius:10px; border:1px dashed var(--primary);">
         <span style="font-size:12px; font-weight:700;">Status Printer:</span>
         <span id="statusPrinter" style="color:var(--danger); font-weight:800; font-size:12px;"><i class="fa-solid fa-circle-xmark"></i> Terputus</span>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <button onclick="hubungkanPrinter()" style="background:var(--primary); box-shadow:none; padding:12px; font-size:12px;"><i class="fa-solid fa-plug"></i> Hubungkan</button>
+        <button onclick="hubungkanPrinter()" style="background:var(--primary); box-shadow:none; padding:12px; font-size:12px;"><i class="fa-solid fa-plug"></i> Cari & Hubungkan</button>
         <button onclick="testPrint()" id="btnTestPrint" style="background:#cbd5e1; color:#64748b; box-shadow:none; padding:12px; font-size:12px;" disabled><i class="fa-solid fa-file-lines"></i> Test Print</button>
       </div>
     </div>
 
-    <div class="card">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-upload"></i> BACKUP DATA</h3>
+    <div class="card" style="border: 1px solid #cbd5e1;">
+      <h3 style="color:var(--primary)"><i class="fa-solid fa-upload"></i> EKSPORT / COPY DATA</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px; line-height: 1.5;">Salin seluruh data menjadi format teks untuk cadangan (backup).</p>
       <button onclick="salinDataKeClipboard()" style="background:var(--primary); box-shadow:none;"><i class="fa-solid fa-clipboard"></i> Copy Seluruh Data</button>
     </div>
 
     <div class="card" style="border: 1px solid #fda4af; background: rgba(225,29,72,0.05);">
-      <h3 style="color:var(--danger)"><i class="fa-solid fa-download"></i> RESTORE DATA</h3>
-      <textarea id="inputTransferData" rows="4" placeholder="Paste kode data di sini..." style="margin-bottom: 12px; background: var(--bg-card);"></textarea>
-      <button onclick="pasteDataTransfer()" style="background:var(--danger); box-shadow:none;"><i class="fa-solid fa-triangle-exclamation"></i> Timpa & Restore</button>
+      <h3 style="color:var(--danger)"><i class="fa-solid fa-download"></i> IMPORT / TRANSFER DATA</h3>
+      <p style="font-size:12px; color:var(--danger); margin-bottom:12px; line-height: 1.5;"><b>PERHATIAN:</b> Memasukkan data di sini akan <b>menghapus dan menimpa</b> semua data saat ini secara permanen.</p>
+      <textarea id="inputTransferData" rows="4" placeholder="Paste (Tempel) kode data di sini..." style="margin-bottom: 12px; background: var(--bg-card);"></textarea>
+      <button onclick="pasteDataTransfer()" style="background:var(--danger); box-shadow:none;"><i class="fa-solid fa-triangle-exclamation"></i> Timpa & Transfer Data</button>
     </div>
   </div>
 
 </div>
 
-<!-- BOTTOM NAVIGATION -->
 <div class="bottom-nav">
   <button id="nav-beranda" class="nav-item active" onclick="switchTab('beranda')">
     <div class="nav-icon"><i class="fa-solid fa-house"></i></div>
@@ -868,14 +809,6 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
   <button id="nav-kasir" class="nav-item" onclick="switchTab('kasir')">
     <div class="nav-icon"><i class="fa-solid fa-cart-shopping"></i></div>
     <div>Kasir</div>
-  </button>
-  <button id="nav-campaign" class="nav-item" onclick="switchTab('campaign')">
-    <div class="nav-icon"><i class="fa-solid fa-bullhorn"></i></div>
-    <div>Campaign</div>
-  </button>
-  <button id="nav-ai" class="nav-item" onclick="switchTab('ai')">
-    <div class="nav-icon"><i class="fa-solid fa-brain"></i></div>
-    <div>EVORA AI</div>
   </button>
   <button id="nav-laporan" class="nav-item" onclick="switchTab('laporan')">
     <div class="nav-icon"><i class="fa-solid fa-chart-column"></i></div>
@@ -887,13 +820,13 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
   </button>
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
     <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
+  
     <div>Setting</div>
   </button>
 </div>
 
-<!-- MODALS -->
 <div id="globalDialogModal" class="modal-overlay" style="display: none;">
-  <div class="modal-content" style="max-width: 340px; text-align: center; padding: 26px;">
+  <div class="modal-content" style="max-width: 320px; text-align: center; padding: 26px;">
     <div id="dialogIcon" style="font-size: 42px; margin-bottom: 12px;"><i class="fa-solid fa-lightbulb"></i></div>
     <h3 id="dialogTitle" style="margin-bottom: 8px; font-size: 16px; font-weight: 800; justify-content: center;">Judul</h3>
     <p id="dialogMessage" style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin: 0 0 24px 0; font-weight: 500;"></p>
@@ -903,10 +836,10 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
 
 <div id="editModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
-    <h3 style="color:var(--primary)">Edit Varian</h3>
+    <h3 style="color:var(--primary)">Edit Item & Stok</h3>
     <input id="modalNamaBarang" type="text">
     <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Saat Ini: <b id="modalStokSekarang" style="color:var(--accent)">0</b> pcs</p>
-    <input id="modalJumlahManual" type="number" placeholder="Kuantitas">
+    <input id="modalJumlahManual" type="number" placeholder="Kuantitas Penyesuaian">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
       <button onclick="eksekusiManualModal('tambah')" style="background:var(--success); padding:12px; box-shadow:none;"><i class="fa-solid fa-plus"></i> Tambah</button>
       <button onclick="eksekusiManualModal('kurang')" style="background:var(--danger); padding:12px; box-shadow:none;"><i class="fa-solid fa-minus"></i> Kurang</button>
@@ -921,13 +854,13 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
 <div id="logistikModal" class="modal-overlay" style="display: none;">
   <div class="modal-content">
     <h3 id="logistikModalJudul" style="color:var(--primary)">Edit Logistik</h3>
-    <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Sekarang: <b id="logistikStokSekarang" style="color:var(--primary)">0</b></p>
-    <input id="logistikJumlahManual" type="number" placeholder="Masukkan Angka">
+    <p style="font-size:13px; text-align:center; margin:10px 0;">Stok Logistik Sekarang: <b id="logistikStokSekarang" style="color:var(--primary)">0</b></p>
+    <input id="logistikJumlahManual" type="number" placeholder="Masukkan Angka Kuantitas">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
       <button onclick="eksekusiLogistik('tambah')" style="background:var(--success); padding:12px; box-shadow:none;"><i class="fa-solid fa-plus"></i> Tambah</button>
       <button onclick="eksekusiLogistik('kurang')" style="background:var(--danger); padding:12px; box-shadow:none;"><i class="fa-solid fa-minus"></i> Kurang</button>
     </div>
-    <button onclick="tutupLogistikModal()" style="background:#94a3b8; box-shadow:none;">Selesai & Tutup</button>
+    <button onclick="tutupLogistikModal()" style="background:#94a3b8; box-shadow:none;">Selesai & Balik</button>
   </div>
 </div>
 
@@ -938,25 +871,7 @@ body.dark-theme .explain-box { background: #0f172a; border-left-color: var(--ai-
     <input id="modalKetKeluar" type="text">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
       <button onclick="tutupModalPengeluaran()" style="background:#94a3b8; box-shadow:none;">Batal</button>
-      <button onclick="simpanModalPengeluaran()" style="background:var(--danger); box-shadow:none;">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<div id="targetModal" class="modal-overlay" style="display: none;">
-  <div class="modal-content">
-    <h3 style="color:var(--accent)"><i class="fa-solid fa-bullseye"></i> KONFIGURASI TARGET</h3>
-    <select id="modeTargetSelect" onchange="toggleTargetInput()">
-      <option value="ai">AI Auto-Target (Recommended)</option>
-      <option value="manual">Manual Target</option>
-    </select>
-    <div id="manualTargetContainer" style="display:none;">
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Masukkan Target Bulanan (Botol):</p>
-      <input id="manualTargetInput" type="number">
-    </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
-      <button onclick="tutupModalTarget()" style="background:#94a3b8; box-shadow:none;">Batal</button>
-      <button onclick="simpanModalTarget()" style="background:var(--accent); box-shadow:none;">Simpan</button>
+      <button onclick="simpanModalPengeluaran()" style="background:var(--danger); box-shadow:none;">Simpan Data</button>
     </div>
   </div>
 </div>
@@ -969,502 +884,1254 @@ const supabaseUrl = 'https://jvyphmuarppsqrsczawa.supabase.co';
 const supabaseKey = 'sb_publishable_vsHaMLZRSjn1OwpH2_nCtw_ct1ZIH0T';
 const supabaseApp = createClient(supabaseUrl, supabaseKey);
 
-// ==========================================
-// STATE UTAMA (SINGLE SOURCE OF TRUTH)
-// ==========================================
-let state = {
-  hargaGlobal: 27000,
-  stokBotol: 0,
-  stokBox: 0,
-  stokSticker: 0,
-  stokBubble: 0,
-  stokResi: 0,
-  barang: [],
-  penjualan: [],
-  pengeluaran: [],
-  pesanan: [],
-  campaigns: [],
-  dataMaster: { costBibit: 0, costAbsolut: 0, costBotol: 0, costBox: 0, costSticker: 0, costBubble: 0, costResi: 0, costAdmin: 0, costLain: 0 },
-  appSettings: { targetMode: 'ai', manualTarget: 400 }
-};
-
-let currentLogistikJenis = null; 
-let currentEditIndex = null;
-let currentEditPengeluaranIndex = null;
-let tempStok = 0;
-
+let HARGA = 27000; 
+let stokBotol = 0;
+let stokBox = 0;
+let barang = [];
+let penjualan = [];
+let pengeluaran = [];
+let pesanan = []; 
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
-let aiCache = {
-  prediksiAkhirBulan: 0, prediksiBesok: 0, prediksi7Hari: 0, confidence: 0, trendDirection: "Stagnan", healthScore: 0, targetAktif: 0, butuhCampaign: false, explanations: {}, prioritas: []
-};
-
-let activeSubInsight = "harian";
-let namaUser = localStorage.getItem("evora_nama") || "Admin";
+// Variabel Ekstensi Enterprise
+let namaUser = localStorage.getItem("evora_nama") || "Farhan";
 let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let printCharacteristic = null;
 let bluetoothDevice = null;
-let debounceTimer;
 
-const getMonthKey = (date) => { let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); };
-const getDayKey = (date) => { let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
-const getMonthLabel = (key) => { let bulan=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"]; let [y,m]=key.split("-"); return bulan[Number(m)-1]+" "+y; };
+let dSkrg = new Date();
+let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padStart(2, "0") + "-" + String(dSkrg.getDate()).padStart(2, "0");
 
-document.getElementById("hariSelect").value = getDayKey(new Date());
-document.getElementById("tanggalRiwayat").value = getDayKey(new Date());
+document.getElementById("hariSelect").value = hariIniFull;
+document.getElementById("tanggalRiwayat").value = hariIniFull;
 
-const initSettings = () => {
+let currentEditIndex = null;
+let tempStok = 0;
+let currentLogistikJenis = null; 
+let currentEditPengeluaranIndex = null;
+
+// INITIALIZE SETTINGS
+function initEnterpriseSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
   let btnDark = document.getElementById("btnDarkMode");
-  if (isDarkMode) { document.body.classList.add("dark-theme"); btnDark.innerText = "Nonaktifkan"; btnDark.style.background = "var(--danger)"; }
-  parsePremiumGreeting();
-};
-
-const setSyncStatus = (html) => { document.getElementById("syncStatus").innerHTML = html; };
-
-const parsePremiumGreeting = () => {
-  const jam = new Date().getHours(); let statusSapaan = "Selamat Malam";
-  if (jam >= 4 && jam < 11) statusSapaan = "Selamat Pagi";
-  else if (jam >= 11 && jam < 15) statusSapaan = "Selamat Siang";
-  else if (jam >= 15 && jam < 18) statusSapaan = "Selamat Sore";
-  document.getElementById("greetingText").innerText = `${statusSapaan}, ${namaUser}`;
-};
-
-const hitungTotalHPP = () => {
-  const m = state.dataMaster;
-  return (m.costBibit || 0) + (m.costAbsolut || 0) + (m.costBotol || 0) + (m.costBox || 0) + (m.costSticker || 0) + (m.costBubble || 0) + (m.costResi || 0) + (m.costAdmin || 0) + (m.costLain || 0);
-};
-
-const updateDataMasterUI = () => {
-  document.getElementById("dmBibit").value = state.dataMaster.costBibit || 0;
-  document.getElementById("dmAbsolut").value = state.dataMaster.costAbsolut || 0;
-  document.getElementById("dmBotol").value = state.dataMaster.costBotol || 0;
-  document.getElementById("dmBox").value = state.dataMaster.costBox || 0;
-  document.getElementById("dmSticker").value = state.dataMaster.costSticker || 0;
-  document.getElementById("dmBubble").value = state.dataMaster.costBubble || 0;
-  document.getElementById("dmResi").value = state.dataMaster.costResi || 0;
-  document.getElementById("dmAdmin").value = state.dataMaster.costAdmin || 0;
-  document.getElementById("dmLain").value = state.dataMaster.costLain || 0;
-  document.getElementById("hppPerBotolDisplay").innerText = `Rp ${hitungTotalHPP().toLocaleString('id-ID')}`;
-};
-
-const simpanDataMaster = () => {
-  state.dataMaster = {
-    costBibit: Number(document.getElementById("dmBibit").value) || 0,
-    costAbsolut: Number(document.getElementById("dmAbsolut").value) || 0,
-    costBotol: Number(document.getElementById("dmBotol").value) || 0,
-    costBox: Number(document.getElementById("dmBox").value) || 0,
-    costSticker: Number(document.getElementById("dmSticker").value) || 0,
-    costBubble: Number(document.getElementById("dmBubble").value) || 0,
-    costResi: Number(document.getElementById("dmResi").value) || 0,
-    costAdmin: Number(document.getElementById("dmAdmin").value) || 0,
-    costLain: Number(document.getElementById("dmLain").value) || 0,
-  };
-  updateDataMasterUI();
-  saveData();
-};
-
-const simpanHargaBaru = () => {
-  let val = Number(document.getElementById("inputHargaGlobal").value);
-  if(val > 0) { state.hargaGlobal = val; saveData(); }
-};
-
-const checkLowStockAlert = () => {
-  let lowItems = [];
-  if (state.stokBotol < 15) lowItems.push(`<i class="fa-solid fa-wine-bottle"></i> Botol Kosong: <b>${state.stokBotol} pcs</b>`);
-  if (state.stokBox < 15) lowItems.push(`<i class="fa-solid fa-box"></i> Box Packing: <b>${state.stokBox} pcs</b>`);
-  state.barang.forEach(b => { if (b.stok < 5) lowItems.push(`<i class="fa-solid fa-flask"></i> ${b.nama}: <b>${b.stok} pcs</b>`); });
-  if (lowItems.length > 0) {
-    let msg = "Item perlu di-restock:<br><ul style='margin: 8px 0 0 20px; padding: 0; font-weight: 500; font-size: 13px; line-height: 1.7;'>";
-    lowItems.forEach(item => { msg += `<li>${item}</li>`; });
-    msg += "</ul>";
-    document.getElementById("notificationMessage").innerHTML = msg;
-    document.getElementById("topNotification").classList.add("show");
-    setTimeout(closeNotification, 10000);
+  if (isDarkMode) {
+    document.body.classList.add("dark-theme");
+    btnDark.innerText = "Nonaktifkan";
+    btnDark.style.background = "var(--danger)";
   }
-};
-const closeNotification = () => document.getElementById("topNotification").classList.remove("show");
+}
+initEnterpriseSettings();
 
-const customAlert = (title, message, type = 'primary') => {
+// SHORTCUT FUNCTIONS
+function shortcutRestock() {
+  switchTab("kasir");
+  setTimeout(() => {
+    document.getElementById("panelRestock").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 250);
+}
+
+function shortcutKasir() {
+  switchTab("kasir");
+  setTimeout(() => {
+    document.getElementById("panelKasir").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 250);
+}
+
+// NOTIFIKASI STOK
+function checkLowStockAlert() {
+  let lowItems = [];
+  // Aturan baru: Botol dan Box akan memunculkan notif jika sisa di bawah 15
+  if (stokBotol < 15) lowItems.push(`<i class="fa-solid fa-wine-bottle"></i> Botol Kosong: <b>${stokBotol} pcs</b>`);
+  if (stokBox < 15) lowItems.push(`<i class="fa-solid fa-box"></i> Box Packing: <b>${stokBox} pcs</b>`);
+  // Aturan untuk parfum tetap di bawah 5 (Jika ingin diubah ke 15, ganti angka 5 di bawah)
+  barang.forEach(b => {
+    if (b.stok < 5) lowItems.push(`<i class="fa-solid fa-flask"></i> ${b.nama}: <b>${b.stok} pcs</b>`);
+  });
+  if (lowItems.length > 0) {
+    // Membuat daftar pesan berformat bullet point
+    let msg = "Item logistik / varian berikut perlu segera di-restock:<br>";
+    msg += "<ul style='margin: 8px 0 0 20px; padding: 0; font-weight: 500; font-size: 13px; line-height: 1.7;'>";
+    lowItems.forEach(item => {
+      msg += `<li>${item}</li>`;
+    });
+    msg += "</ul>";
+    // Gunakan innerHTML agar tag HTML (seperti <b> dan <li>) tereksekusi
+    document.getElementById("notificationMessage").innerHTML = msg;
+    let notif = document.getElementById("topNotification");
+    notif.classList.add("show");
+    
+    // Auto-close notifikasi diubah menjadi 10 detik agar lebih lama untuk dibaca
+    setTimeout(() => { closeNotification(); }, 10000);
+  }
+}
+
+function closeNotification() {
+  document.getElementById("topNotification").classList.remove("show");
+}
+
+// RIPPLE EFFECT
+document.addEventListener('click', function (e) {
+  const button = e.target.closest('button');
+  if (!button) return;
+  
+  const ripple = document.createElement('span');
+  const diameter = Math.max(button.clientWidth, button.clientHeight);
+  const radius = diameter / 2;
+  
+  ripple.style.width = ripple.style.height = `${diameter}px`;
+  const rect = button.getBoundingClientRect();
+  ripple.style.left = `${e.clientX - rect.left - radius}px`;
+  ripple.style.top = `${e.clientY - rect.top - radius}px`;
+  ripple.classList.add('ripple-span');
+  
+  const oldRipple = button.querySelector('.ripple-span');
+  if (oldRipple) oldRipple.remove();
+  
+  button.appendChild(ripple);
+});
+
+// ALERT CUSTOM
+function customAlert(title, message, type = 'primary') {
   return new Promise((resolve) => {
     const modal = document.getElementById("globalDialogModal");
     const iconEl = document.getElementById("dialogIcon");
     const titleEl = document.getElementById("dialogTitle");
     const msgEl = document.getElementById("dialogMessage");
     const btnContainer = document.getElementById("dialogButtons");
+
     let icon = '<i class="fa-solid fa-lightbulb"></i>'; let color = "var(--primary)";
-    if(type === 'success') { icon = '<i class="fa-solid fa-check"></i>'; color = "var(--success)"; }
-    if(type === 'danger') { icon = '<i class="fa-solid fa-xmark"></i>'; color = "var(--danger)"; }
+    if(type === 'success') { icon = '<i class="fa-solid fa-circle-check"></i>'; color = "var(--success)"; }
+    if(type === 'danger') { icon = '<i class="fa-solid fa-circle-xmark"></i>'; color = "var(--danger)"; }
     if(type === 'warning') { icon = '<i class="fa-solid fa-triangle-exclamation"></i>'; color = "var(--warning)"; }
-    iconEl.innerHTML = icon; titleEl.innerText = title; titleEl.style.color = color; msgEl.innerHTML = message;
+
+    iconEl.innerHTML = icon;
+    titleEl.innerText = title;
+    titleEl.style.color = color;
+    msgEl.innerHTML = message;
+
     btnContainer.style.gridTemplateColumns = "1fr";
     btnContainer.innerHTML = `<button id="dialogBtnOk" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">OK</button>`;
     modal.style.display = "flex";
-    document.getElementById("dialogBtnOk").onclick = () => { modal.style.display = "none"; resolve(); };
+    document.getElementById("dialogBtnOk").onclick = () => {
+      modal.style.display = "none";
+      resolve();
+    };
   });
-};
+}
 
-const customConfirm = (title, message, type = 'primary') => {
+function customConfirm(title, message, type = 'primary') {
   return new Promise((resolve) => {
     const modal = document.getElementById("globalDialogModal");
     const iconEl = document.getElementById("dialogIcon");
     const titleEl = document.getElementById("dialogTitle");
     const msgEl = document.getElementById("dialogMessage");
     const btnContainer = document.getElementById("dialogButtons");
+
     let icon = '<i class="fa-solid fa-circle-question"></i>'; let color = "var(--primary)";
     if(type === 'success') { icon = '<i class="fa-solid fa-money-bill-wave"></i>'; color = "var(--success)"; }
     if(type === 'danger') { icon = '<i class="fa-solid fa-trash"></i>'; color = "var(--danger)"; }
     if(type === 'warning') { icon = '<i class="fa-solid fa-triangle-exclamation"></i>'; color = "var(--warning)"; }
-    iconEl.innerHTML = icon; titleEl.innerText = title; titleEl.style.color = color; msgEl.innerHTML = message;
-    btnContainer.style.gridTemplateColumns = "1fr 1fr";
-    btnContainer.innerHTML = `<button id="dialogBtnCancel" style="background:#94a3b8; box-shadow:none; padding:12px; border-radius:10px;">Batal</button><button id="dialogBtnConfirm" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">Konfirmasi</button>`;
-    modal.style.display = "flex";
-    document.getElementById("dialogBtnCancel").onclick = () => { modal.style.display = "none"; resolve(false); };
-    document.getElementById("dialogBtnConfirm").onclick = () => { modal.style.display = "none"; resolve(true); };
-  });
-};
 
-// ==========================================
-// CORE DATA CLOUD & SYNC
-// ==========================================
-const loadDataFromCloud = async () => {
+    iconEl.innerHTML = icon;
+    titleEl.innerText = title;
+    titleEl.style.color = color;
+    msgEl.innerHTML = message;
+
+    btnContainer.style.gridTemplateColumns = "1fr 1fr";
+    btnContainer.innerHTML = `
+      <button id="dialogBtnCancel" style="background:#94a3b8; box-shadow:none; padding:12px; border-radius:10px;">Batal</button>
+      <button id="dialogBtnConfirm" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">Konfirmasi</button>
+    `;
+    modal.style.display = "flex";
+
+    document.getElementById("dialogBtnCancel").onclick = () => {
+      modal.style.display = "none";
+      resolve(false);
+    };
+    document.getElementById("dialogBtnConfirm").onclick = () => {
+      modal.style.display = "none";
+      resolve(true);
+    };
+  });
+}
+
+// PROFILE SETUP & SAPAAN
+function simpanNamaProfil() {
+  let namaBaru = document.getElementById("inputNamaProfil").value.trim();
+  if(!namaBaru) {
+    customAlert("Peringatan", "Nama tidak boleh kosong!", "warning");
+    return;
+  }
+  namaUser = namaBaru;
+ 
+  localStorage.setItem("evora_nama", namaUser);
+  parsePremiumGreeting();
+  customAlert("Tersimpan", `Nama profil berhasil diubah menjadi <b>${namaUser}</b>.`, "success");
+}
+
+function parsePremiumGreeting() {
+  const jam = new Date().getHours();
+  let statusSapaan = "Selamat Malam";
+  if (jam >= 4 && jam < 11) statusSapaan = "Selamat Pagi";
+  else if (jam >= 11 && jam < 15) statusSapaan = "Selamat Siang";
+  else if (jam >= 15 && jam < 18) statusSapaan = "Selamat Sore";
+  document.getElementById("greetingText").innerText = `${statusSapaan}, ${namaUser}`;
+}
+parsePremiumGreeting();
+
+// TEMA DARK MODE
+function toggleDarkMode() {
+  isDarkMode = !isDarkMode;
+  localStorage.setItem("evora_darkmode", isDarkMode);
+  let btnDark = document.getElementById("btnDarkMode");
+  if(isDarkMode) {
+    document.body.classList.add("dark-theme");
+    btnDark.innerText = "Nonaktifkan";
+    btnDark.style.background = "var(--danger)";
+  } else {
+    document.body.classList.remove("dark-theme");
+    btnDark.innerText = "Aktifkan";
+    btnDark.style.background = "#94a3b8";
+  }
+}
+
+// BLUETOOTH THERMAL PRINTER CORE ENGINE
+async function hubungkanPrinter() {
+  if (!navigator.bluetooth) {
+    customAlert("Tidak Didukung", "Browser tidak mendukung Web Bluetooth API. Gunakan Google Chrome terbaru.", "danger");
+    return;
+  }
+  try {
+    document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-rotate"></i> Mencari...';
+    document.getElementById("statusPrinter").style.color = "var(--warning)";
+    bluetoothDevice = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [
+        '000018f0-0000-1000-8000-00805f9b34fb',
+        'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
+        '49535343-fe7d-4ae5-8fa9-9fafd205e455'
+      ]
+    });
+    const server = await bluetoothDevice.gatt.connect();
+    const services = await server.getPrimaryServices();
+    if (services.length === 0) throw new Error("Service printer tidak ditemukan.");
+    const service = services[0]; 
+    const characteristics = await service.getCharacteristics();
+    printCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+    if (!printCharacteristic) throw new Error("Karakteristik Write printer tidak ditemukan.");
+
+    document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + bluetoothDevice.name;
+    document.getElementById("statusPrinter").style.color = "var(--success)";
+    let btnTest = document.getElementById("btnTestPrint");
+    btnTest.disabled = false;
+    btnTest.style.background = "var(--success)";
+    btnTest.style.color = "#fff";
+    bluetoothDevice.addEventListener('gattserverdisconnected', () => {
+      document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Terputus';
+      document.getElementById("statusPrinter").style.color = "var(--danger)";
+      printCharacteristic = null;
+      btnTest.disabled = true;
+      btnTest.style.background = "#cbd5e1";
+    });
+  } catch (error) {
+    console.error(error);
+    document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Gagal Hubung';
+    document.getElementById("statusPrinter").style.color = "var(--danger)";
+    customAlert("Koneksi Gagal", "Gagal menyambungkan perangkat printer bluetooth.", "warning");
+  }
+}
+
+async function kirimTeksKePrinter(teks) {
+  if (!printCharacteristic) return;
+  try {
+    let encoder = new TextEncoder();
+    let data = encoder.encode(teks);
+    for (let i = 0; i < data.length; i += 20) {
+      let chunk = data.slice(i, i + 20);
+      await printCharacteristic.writeValue(chunk);
+    }
+  } catch (err) {
+    console.error("Gagal mengirim data print:", err);
+  }
+}
+
+async function cetakStrukOtomatis(namaBarang, qty, total) {
+  if (!printCharacteristic) return;
+  // Silent skip jika printer tidak terhubung
+  const ESC = '\x1B';
+  let teksStruk = 
+    ESC + '@' + 
+    ESC + 'a' + '\x01' + 
+    "=== EVORA TRACKER PRO ===\n" +
+    "Premium Perfume Suite\n" +
+    "--------------------------------\n" +
+    ESC + 'a' + '\x00' +
+    "Tanggal : " + new Date().toLocaleString('id-ID') + "\n" +
+    "Kasir   : " + namaUser + "\n" +
+    "--------------------------------\n" +
+    namaBarang + "\n" +
+    qty + " Pcs x Rp " + 
+    HARGA.toLocaleString('id-ID') + "\n" +
+    ESC + 'a' + '\x02' + 
+    "TOTAL: Rp " + total.toLocaleString('id-ID') + "\n" +
+    ESC + 'a' + '\x01' + 
+    "--------------------------------\n" +
+    "Terima Kasih Atas Kunjungan Anda\n\n\n\n";
+  await kirimTeksKePrinter(teksStruk);
+}
+
+async function testPrint() {
+  if (!printCharacteristic) return;
+  const ESC = '\x1B';
+  let text = 
+    ESC + '@' + 
+    ESC + 'a' + '\x01' + 
+    "=== EVORA TRACKER PRO ===\n\n" +
+    ESC + 'a' + '\x00' + 
+    "Tgl   : " + new Date().toLocaleString('id-ID') + "\n" +
+    "Kasir : " + namaUser + "\n" +
+    "--------------------------------\n" +
+    ESC + 'a' + '\x01' + 
+    "KONEKSI PRINTER BERHASIL!\n" +
+    ESC + 'a' + '\x00' + 
+    "--------------------------------\n\n\n\n";
+  await kirimTeksKePrinter(text);
+  customAlert("Sukses", "Struk test berhasil dicetak ke printer!", "success");
+}
+
+// SIMPLE CONFETTI SYSTEM
+let isConfettiFired = false;
+function fireConfetti() {
+  if (isConfettiFired || document.getElementById('evora-confetti')) return;
+  isConfettiFired = true;
+  let c = document.createElement('div');
+  c.id = 'evora-confetti';
+  c.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;overflow:hidden;';
+  document.body.appendChild(c);
+  for(let i=0; i<40; i++){
+    let d = document.createElement('div');
+    d.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="color: #fcd34d;"></i>';
+    d.style.cssText = `position:absolute;left:${Math.random()*100}%;top:-10%;font-size:${Math.random()*15+15}px;animation:confetti-drop ${Math.random()*2+2}s linear infinite;`;
+    c.appendChild(d);
+  }
+  let style = document.createElement('style');
+  style.innerHTML = `@keyframes confetti-drop { to { transform: translateY(120vh) rotate(360deg); } }`;
+  document.head.appendChild(style);
+  setTimeout(()=> { c.remove(); style.remove(); }, 6000);
+}
+
+
+// COUNT UP ANIMATION LOGIC FOR METRICS
+function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  
+  let startValue = currentValuesRegistry[elementId] || 0;
+  if (startValue === targetValue) {
+    el.innerText = isCurrency ?
+    "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
+    return;
+  }
+  
+  currentValuesRegistry[elementId] = targetValue;
+  const duration = 750;
+  const startTime = performance.now();
+  
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easeQuadOut = progress * (2 - progress);
+    const currentFrameVal = Math.floor(startValue + (targetValue - startValue) * easeQuadOut);
+    if (isCurrency) {
+      el.innerText = "Rp " + currentFrameVal.toLocaleString("id-ID");
+    } else {
+      el.innerText = currentFrameVal.toLocaleString("id-ID") + suffix;
+    }
+    
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+  document.getElementById(`nav-${tabName}`).classList.add('active');
+}
+
+async function loadDataFromCloud() {
   setSyncStatus("<i class='fa-solid fa-rotate'></i> Sync...");
   document.body.classList.add("skeleton-loading");
   try {
     const { data, error } = await supabaseApp.from('pos_data').select('konten').eq('id', 1).single();
     if (error && error.code !== 'PGRST116') throw error; 
-    if (data && data.konten) {
-      const d = data.konten;
-      state.stokBotol = Number(d.stokBotol || 0); state.stokBox = Number(d.stokBox || 0);
-      state.stokSticker = Number(d.stokSticker || 0); state.stokBubble = Number(d.stokBubble || 0); state.stokResi = Number(d.stokResi || 0);
-      state.hargaGlobal = Number(d.hargaGlobal || 27000);
-      state.barang = d.barang || [];
-      state.penjualan = d.penjualan || [];
-      state.pengeluaran = d.pengeluaran || [];
-      state.pesanan = d.pesanan || [];
-      state.campaigns = d.campaigns || [];
-      state.dataMaster = d.dataMaster || state.dataMaster;
-      state.appSettings = d.appSettings || state.appSettings;
 
-      document.getElementById("inputHargaGlobal").value = state.hargaGlobal;
-      updateDataMasterUI();
-      setSyncStatus("<i class='fa-solid fa-check'></i> Connected");
-    } else { setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB"); }
+    if (data && data.konten) {
+      let dataUtama = data.konten;
+      stokBotol = Number(dataUtama.stokBotol || 0);
+      stokBox = Number(dataUtama.stokBox || 0);
+      barang = dataUtama.barang || [];
+      penjualan = dataUtama.penjualan || [];
+      pengeluaran = dataUtama.pengeluaran || [];
+      pesanan = dataUtama.pesanan || []; 
+      HARGA = Number(dataUtama.hargaGlobal || 27000);
+      
+      document.getElementById("inputHargaGlobal").value = HARGA;
+      setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
+    } else {
+      setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB");
+    }
     
     document.body.classList.remove("skeleton-loading");
-    hitungAIEngine(); 
-    renderAll();
+    render();
     checkLowStockAlert();
   } catch (error) {
-    console.error("Gagal load Supabase:", error); setSyncStatus("<i class='fa-solid fa-xmark'></i> Offline");
+    console.error("Gagal load Supabase:", error);
+    setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Offline");
     document.body.classList.remove("skeleton-loading");
-    hitungAIEngine(); renderAll();
   }
-};
+}
 
-const saveData = async () => {
+async function saveData() {
   setSyncStatus("<i class='fa-solid fa-bolt'></i> Saving...");
-  try {
-    const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: state });
-    if (error) throw error;
-    setSyncStatus("<i class='fa-solid fa-check'></i> Saved");
-    hitungAIEngine(); renderAll();
-  } catch (error) { console.error("Gagal save Supabase:", error); setSyncStatus("<i class='fa-solid fa-xmark'></i> Failed"); }
-};
-
-// ==========================================
-// EVORA AI BUSINESS INTELLIGENCE v2.2
-// ==========================================
-const hitungAIEngine = () => {
-  let dNow = new Date();
-  let currentMonthKey = getMonthKey(dNow);
   
-  let salesMonth = state.penjualan.filter(x => getMonthKey(x.tanggal) === currentMonthKey && x.qty > 0);
-  let mtdQty = salesMonth.reduce((sum, item) => sum + item.qty, 0);
+  let paketData = {
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran,
+    pesanan: pesanan, 
+    hargaGlobal: HARGA 
+  };
+  try {
+    const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
+    if (error) throw error;
+    
+    setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved");
+    render();
+  } catch (error) {
+    console.error("Gagal save Supabase:", error);
+    setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Failed");
+  }
+}
 
-  let past30Days = []; let past7Days = [];
-  for(let i = 1; i <= 30; i++) {
-    let td = new Date(dNow); td.setDate(td.getDate() - i);
-    let qty = state.penjualan.filter(x => getDayKey(x.tanggal) === getDayKey(td) && x.qty > 0).reduce((s, it) => s + it.qty, 0);
-    past30Days.unshift(qty);
-    if(i <= 7) past7Days.unshift(qty);
+async function simpanHargaBaru() {
+  let elHarga = document.getElementById("inputHargaGlobal");
+  let hargaBaru = Number(elHarga.value);
+  if(hargaBaru <= 0 || isNaN(hargaBaru)) return;
+  let konfirmasi = await customConfirm("Ubah Harga Global", `Apakah Anda yakin ingin mengubah harga produk menjadi <b>Rp ${hargaBaru.toLocaleString("id-ID")}</b>?`, "warning");
+  if(!konfirmasi) {
+    elHarga.value = HARGA;
+    return;
+  }
+  HARGA = hargaBaru;
+  saveData();
+}
+
+function setSyncStatus(teks) {
+  document.getElementById("syncStatus").innerHTML = teks;
+}
+
+function getMonthKey(date){
+  let d = new Date(date);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+function getDayKey(date){
+  let d = new Date(date);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function getMonthLabel(key){
+  let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  let [y,m]=key.split("-");
+  return bulan[Number(m)-1]+" "+y;
+}
+
+function updateMonthSelect(){
+  let set = new Set();
+  penjualan.forEach(x=>set.add(getMonthKey(x.tanggal)));
+  pengeluaran.forEach(x=>set.add(getMonthKey(x.tanggal)));
+  set.add(getMonthKey(new Date()));
+  document.getElementById("bulanSelect").innerHTML =
+  [...set].sort().reverse()
+  .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
+}
+
+function handleSearchInput() {
+  let q = document.getElementById("cariBarangInput").value;
+  document.getElementById("btnClearSearch").style.display = q ? "block" : "none";
+  render();
+}
+
+function clearSearchField() {
+  document.getElementById("cariBarangInput").value = "";
+  document.getElementById("btnClearSearch").style.display = "none";
+  render();
+}
+
+function renderWeeklyChart() {
+  let labels = [];
+  let dataOmzet = [];
+  
+  for(let i = 6; i >= 0; i--) {
+    let d = new Date();
+    d.setDate(d.getDate() - i);
+    let key = getDayKey(d);
+    
+    let labelStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+    labels.push(labelStr);
+    let transaksiHariIni = penjualan.filter(x => getDayKey(x.tanggal) === key);
+    let omzetHariIni = transaksiHariIni.reduce((a, b) => a + b.nominal, 0);
+    dataOmzet.push(omzetHariIni);
+  }
+
+  let ctx = document.getElementById('grafikMingguan').getContext('2d');
+  let lineColor = isDarkMode ? '#2dd4bf' : '#0f616d';
+  let bgColor = isDarkMode ?
+  'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
+  
+  if(chartInstance) {
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = dataOmzet;
+    chartInstance.data.datasets[0].borderColor = lineColor;
+    chartInstance.data.datasets[0].backgroundColor = bgColor;
+    chartInstance.update();
+  } else {
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Omzet',
+          data: dataOmzet,
+          borderColor: lineColor,
+          backgroundColor: bgColor,
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: 
+          {
+            beginAtZero: true,
+            ticks: {
+              callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); },
+              font: { size: 9 }
+            }
+          },
+          x: { 
+          ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+  }
+}
+
+function editLogistik(jenis) {
+  currentLogistikJenis = jenis;
+  document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
+  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ?
+  stokBotol : stokBox;
+  document.getElementById("logistikJumlahManual").value = "";
+  document.getElementById("logistikModal").style.display = "flex";
+}
+
+function eksekusiLogistik(aksi) {
+  let inputVal = Number(document.getElementById("logistikJumlahManual").value);
+  if (inputVal <= 0 || isNaN(inputVal)) return;
+  
+  let nilai = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
+  nilai = aksi === 'tambah' ? nilai + inputVal : Math.max(0, nilai - inputVal);
+  if (currentLogistikJenis === 'botol') {
+    stokBotol = nilai;
+  } else {
+    stokBox = nilai;
   }
   
-  let wmaSum = 0; let weightSum = 0;
-  for(let i = 0; i < past7Days.length; i++) { let w = i + 1; wmaSum += past7Days[i] * w; weightSum += w; }
-  let dailyAvg = weightSum > 0 ? (wmaSum / weightSum) : 12;
-  if(dailyAvg < 5) dailyAvg = 12;
+  document.getElementById("logistikStokSekarang").innerText = nilai;
+  document.getElementById("logistikJumlahManual").value = ""; 
+  saveData(); 
+}
 
-  let remDays = Math.max(1, new Date(dNow.getFullYear(), dNow.getMonth() + 1, 0).getDate() - dNow.getDate());
-  let projectedEOM = mtdQty + Math.round(dailyAvg * remDays);
-  if(projectedEOM <= 0) projectedEOM = 398;
+function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none";
+}
 
-  let activeCamp = state.campaigns.find(c => c.status === 'Aktif');
+async function tambahBarang(){
+  let nama = namaBarang.value.trim().toUpperCase();
+  let qty = Number(qtyBarang.value);
+  if(!nama || qty<=0) return;
+  let konfirmasi = await customConfirm("Tambah Varian", `Daftarkan varian parfum baru <b>"${nama}"</b> dengan stok awal <b>${qty} pcs</b>?`, "primary");
+  if(!konfirmasi) return;
+  barang.push({nama:nama, stok:qty});
+  namaBarang.value=""; qtyBarang.value="";
+  saveData();
+}
+
+function editBarang(originalIndex){
+  currentEditIndex = originalIndex;
+  document.getElementById("modalNamaBarang").value = barang[originalIndex].nama;
+  tempStok = Number(barang[originalIndex].stok || 0);
+  document.getElementById("modalStokSekarang").innerText = tempStok;
+  document.getElementById("modalJumlahManual").value = "";
+  document.getElementById("editModal").style.display = "flex";
+}
+function eksekusiManualModal(aksi) {
+  let inputVal = Number(document.getElementById("modalJumlahManual").value);
+  if (inputVal <= 0) return;
+  tempStok = aksi === 'tambah' ? tempStok + inputVal : Math.max(0, tempStok - inputVal);
+  document.getElementById("modalStokSekarang").innerText = tempStok;
+}
+function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
+
+function simpanModalEdit() {
+  let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
+  if(!namaBaru) return;
+  barang[currentEditIndex].nama = namaBaru;
+  barang[currentEditIndex].stok = tempStok;
   
-  // SINGLE SOURCE TARGET
-  aiCache.targetAktif = state.appSettings.targetMode === 'manual' ? state.appSettings.manualTarget : projectedEOM;
-  aiCache.prediksiAkhirBulan = projectedEOM;
-  aiCache.prediksiBesok = Math.max(1, Math.round(dailyAvg));
-  aiCache.prediksi7Hari = Math.round(dailyAvg * 7);
+  tutupModalEdit();
+  saveData();
+}
+
+async function quickJual(originalIndex) {
+  let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`);
+  let qty = Number(qtySelect.value || 1);
+  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) {
+    await customAlert("Stok Tidak Cukup", "Sisa stok logistik di gudang Anda tidak mencukupi untuk kuantitas transaksi ini!", "danger");
+    return;
+  }
   
-  let f3 = past7Days.slice(0, 3).reduce((a, b) => a + b, 0);
-  let l3 = past7Days.slice(4, 7).reduce((a, b) => a + b, 0);
-  aiCache.trendDirection = l3 > f3 * 1.05 ? "Naik" : (l3 < f3 * 0.95 ? "Turun" : "Stagnan");
-
-  aiCache.confidence = Math.min(98, Math.max(60, 70 + (past7Days.filter(q => q > 0).length * 4)));
-  aiCache.butuhCampaign = projectedEOM < aiCache.targetAktif;
+  let totalNilai = qty * HARGA;
+  let konfirmasi = await customConfirm("Konfirmasi Kasir", `Jual <b>${qty} pcs</b> ${barang[originalIndex].nama}?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
+  if(!konfirmasi) return;
   
-  let omzetMonth = salesMonth.reduce((a,b)=>a+b.nominal, 0);
-  let hppEstMonth = salesMonth.reduce((a,b)=>a+(b.hpp_total || (b.qty * hitungTotalHPP())), 0);
-  let margin = omzetMonth > 0 ? ((omzetMonth - hppEstMonth) / omzetMonth) * 100 : 0;
-  aiCache.healthScore = Math.min(100, Math.round((margin > 20 ? 40 : 20) + (aiCache.confidence * 0.3) + (projectedEOM >= aiCache.targetAktif ? 30 : 10)));
+  barang[originalIndex].stok -= qty;
+  stokBotol -= qty; stokBox -= qty;
+  penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai });
+  await cetakStrukOtomatis(barang[originalIndex].nama, qty, totalNilai);
+  saveData();
+}
 
-  // EXPLAINABLE AI
-  let topVariant = "Tidak Ada";
-  if(state.barang.length) topVariant = state.barang.slice().sort((a,b)=>b.stok-a.stok)[0].nama; // simplified mock
+async function jualBarang(){
+  let idx = Number(barangJual.value);
+  let qty = Number(qtyJual.value);
+  if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) {
+    await customAlert("Stok Tidak Valid", "Stok produk atau logistik tidak mencukupi untuk memproses grosir!", "danger");
+    return;
+  }
+  
+  let totalNilai = qty * HARGA;
+  let konfirmasi = await customConfirm("Konfirmasi Grosir", `Jual <b>${qty} pcs</b> ${barang[idx].nama} via order grosir?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
+  if(!konfirmasi) return;
+  barang[idx].stok -= qty;
+  stokBotol -= qty; stokBox -= qty;
+  penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai });
+  
+  await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai);
+  qtyJual.value=""; saveData();
+}
 
-  aiCache.explanations = {
-    dash: `<b>Metrik Kesehatan Bisnis (${aiCache.healthScore}/100)</b><br>Dihitung dari Margin Laba (${margin.toFixed(1)}%), Keandalan Data (${aiCache.confidence}%), dan Pencapaian Target. ${aiCache.butuhCampaign ? 'Dibutuhkan intervensi pemasaran.' : 'Tren organik sangat baik.'}`,
-    advisor: `AI menyarankan ${aiCache.butuhCampaign ? 'pengaktifan campaign ads' : 'pemeliharaan organik'} untuk menyeimbangkan velocity penjualan. Target tersinkronisasi pada mode ${state.appSettings.targetMode.toUpperCase()}.`
+async function tambahOmzetManual() {
+  let nom = Number(manualOmzet.value);
+  let ket = manualKet.value.trim() || "Manual";
+  if(nom <= 0) return;
+  
+  let konfirmasi = await customConfirm("Pendapatan Manual", `Simpan pendapatan manual sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> (${ket})?`, "success");
+  if(!konfirmasi) return;
+  penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket });
+  manualOmzet.value = ""; manualKet.value = "";
+  saveData();
+}
+
+async function tambahPengeluaran(){
+  let nom = Number(nominalKeluar.value);
+  let ket = ketKeluar.value.trim();
+  if(nom<=0 || !ket) return;
+  let konfirmasi = await customConfirm("Catat Pengeluaran", `Simpan log pengeluaran sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> untuk keperluan: <i>"${ket}"</i>?`, "danger");
+  if(!konfirmasi) return;
+  pengeluaran.push({ tanggal:new Date().toISOString(), nominal:nom, keterangan:ket });
+  nominalKeluar.value=""; ketKeluar.value=""; saveData();
+}
+
+async function batalkanPenjualan(originalIndex) {
+  let konfirmasi = await customConfirm("Batalkan Penjualan", "Apakah Anda yakin ingin membatalkan transaksi penjualan ini? Semua sisa stok item & logistik terkait akan dikembalikan.", "danger");
+  if(!konfirmasi) return;
+  
+  let target = penjualan[originalIndex];
+  if(target.barang !== "OMZET MANUAL") {
+    let bIndex = barang.findIndex(x => x.nama === target.barang);
+    if(bIndex !== -1) barang[bIndex].stok += target.qty;
+    stokBotol += target.qty; stokBox += target.qty;
+  }
+  penjualan.splice(originalIndex, 1);
+  saveData();
+}
+
+function editPengeluaran(originalIndex) {
+  currentEditPengeluaranIndex = originalIndex;
+  document.getElementById("modalNominalKeluar").value = pengeluaran[originalIndex].nominal;
+  document.getElementById("modalKetKeluar").value = pengeluaran[originalIndex].keterangan || "";
+  document.getElementById("editPengeluaranModal").style.display = "flex";
+}
+function tutupModalPengeluaran() { document.getElementById("editPengeluaranModal").style.display = "none"; }
+async function simpanModalPengeluaran() {
+  let nom = Number(document.getElementById("modalNominalKeluar").value);
+  let ket = document.getElementById("modalKetKeluar").value.trim();
+  if(nom <= 0 || !ket) return;
+  
+  let konfirmasi = await customConfirm("Ubah Log Keluar", "Simpan perubahan data log nominal dan keterangan pengeluaran ini?", "warning");
+  if(!konfirmasi) return;
+  
+  pengeluaran[currentEditPengeluaranIndex].nominal = nom;
+  pengeluaran[currentEditPengeluaranIndex].keterangan = ket;
+  tutupModalPengeluaran();
+  saveData();
+}
+async function hapusPengeluaran(originalIndex) {
+  let konfirmasi = await customConfirm("Hapus Log Keluar", "Hapus catatan log pengeluaran ini secara permanen dari database cloud?", "danger");
+  if(konfirmasi) { 
+    pengeluaran.splice(originalIndex, 1); 
+    saveData(); 
+  }
+}
+
+function updateDropdownPemesanan() {
+  let elTarget = document.getElementById("targetPesan");
+  if (!elTarget) return;
+  let opsi = `
+    <optgroup label="Logistik Utama">
+      <option value="LOGISTIK_BOTOL">Botol Kosong</option>
+      <option value="LOGISTIK_BOX">Box Packing</option>
+    </optgroup>
+    <optgroup label="Semua Varian Parfum EVORA">
+  `;
+  opsi += barang.map(x => `<option value="${x.nama}">Parfum: ${x.nama}</option>`).join("");
+  opsi += `</optgroup>`;
+  
+  elTarget.innerHTML = opsi;
+}
+
+async function buatPesanan() {
+  let target = document.getElementById("targetPesan").value;
+  let qty = Number(document.getElementById("qtyPesan").value);
+  
+  if (qty <= 0 || !target) return;
+  let namaTampilan = target;
+  if (target === "LOGISTIK_BOTOL") namaTampilan = "Botol Kosong";
+  if (target === "LOGISTIK_BOX") namaTampilan = "Box Packing";
+  let konfirmasi = await customConfirm("Konfirmasi Pesanan", `Buat daftar pesanan <b>${qty} pcs</b> untuk <b>${namaTampilan}</b>?`, "warning");
+  if (!konfirmasi) return;
+  pesanan.push({
+    id: Date.now(),
+    target: target,
+    qty: qty,
+    tanggal: new Date().toISOString()
+  });
+  document.getElementById("qtyPesan").value = "";
+  saveData();
+}
+
+async function terimaPesanan(idPesanan) {
+  let idx = pesanan.findIndex(x => x.id === idPesanan);
+  if (idx === -1) return;
+  
+  let p = pesanan[idx];
+  let namaTampilan = p.target;
+  if (p.target === "LOGISTIK_BOTOL") namaTampilan = "Stok Botol";
+  if (p.target === "LOGISTIK_BOX") namaTampilan = "Stok Box";
+  let konfirmasi = await customConfirm("Barang Diterima", `Stok barang fisik sudah datang?<br>Konfirmasi untuk memasukkan <b>+ ${p.qty} pcs</b> secara otomatis ke database <b>${namaTampilan}</b>.`, "success");
+  if (!konfirmasi) return;
+
+  if (p.target === "LOGISTIK_BOTOL") {
+    stokBotol += p.qty;
+  } else if (p.target === "LOGISTIK_BOX") {
+    stokBox += p.qty;
+  } else {
+    let bIdx = barang.findIndex(x => x.nama === p.target);
+    if (bIdx !== -1) {
+      barang[bIdx].stok += p.qty;
+    } else {
+      barang.push({ nama: p.target, stok: p.qty });
+    }
+  }
+
+  pesanan.splice(idx, 1);
+  saveData();
+}
+
+function hapusPesanan(idPesanan) {
+  pesanan = pesanan.filter(x => x.id !== idPesanan);
+  saveData();
+}
+
+async function salinDataKeClipboard() {
+  let paketData = {
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran,
+    pesanan: pesanan,
+    hargaGlobal: HARGA 
   };
-};
+  let stringData = JSON.stringify(paketData);
+  try {
+    await navigator.clipboard.writeText(stringData);
+    customAlert("Berhasil Disalin", "Seluruh data sukses disalin ke clipboard! Simpan teks ini sebagai backup.", "success");
+  } catch (err) {
+    customAlert("Gagal Menyalin", "Browser Anda tidak mendukung fitur copy otomatis.", "danger");
+  }
+}
 
-const rebuildAIModel = async () => {
-  let conf = await customConfirm("Rebuild AI Model", "Latih ulang model dengan histori penuh?", "primary");
-  if(!conf) return;
-  document.body.classList.add("skeleton-loading");
-  setTimeout(() => {
-    hitungAIEngine();
-    document.getElementById("aiLastUpdate").innerText = new Date().toLocaleString('id-ID');
-    document.body.classList.remove("skeleton-loading");
-    renderAll(); customAlert("Sukses", "AI Model berhasil dikalibrasi ulang!", "success");
-  }, 800);
-};
+async function pasteDataTransfer() {
+  let stringData = document.getElementById("inputTransferData").value.trim();
+  if(!stringData) {
+    customAlert("Kolom Kosong", "Teks data masih kosong. Silakan paste kode data terlebih dahulu.", "warning");
+    return;
+  }
+  let konfirmasi = await customConfirm("Peringatan Kritis", "Yakin ingin menimpa SELURUH DATA saat ini? Data lama akan terhapus permanen dari cloud!", "danger");
+  if(!konfirmasi) return;
 
-// ==========================================
-// RENDERING ENGINES
-// ==========================================
-const runCountUp = (id, target, isCurrency = true, suffix = "") => {
-  const el = document.getElementById(id); if (!el) return;
-  let start = currentValuesRegistry[id] || 0;
-  if (start === target) { el.innerText = isCurrency ? "Rp " + target.toLocaleString("id-ID") : target.toLocaleString("id-ID") + suffix; return; }
-  currentValuesRegistry[id] = target;
-  let dur = 600; let startT = performance.now();
-  const step = (now) => {
-    let p = Math.min((now - startT) / dur, 1);
-    let val = Math.floor(start + (target - start) * (p * (2 - p)));
-    el.innerText = isCurrency ? "Rp " + val.toLocaleString("id-ID") : val.toLocaleString("id-ID") + suffix;
-    if (p < 1) requestAnimationFrame(step); else el.innerText = isCurrency ? "Rp " + target.toLocaleString("id-ID") : target.toLocaleString("id-ID") + suffix;
-  }; requestAnimationFrame(step);
-};
+  try {
+    let dataBaru = JSON.parse(stringData);
+    if(dataBaru.barang === undefined || dataBaru.stokBotol === undefined) {
+      throw new Error("Format tidak valid");
+    }
+    stokBotol = Number(dataBaru.stokBotol || 0);
+    stokBox = Number(dataBaru.stokBox || 0);
+    barang = dataBaru.barang || [];
+    penjualan = dataBaru.penjualan || [];
+    pengeluaran = dataBaru.pengeluaran || [];
+    pesanan = dataBaru.pesanan || [];
+    HARGA = Number(dataBaru.hargaGlobal || 27000);
+    document.getElementById("inputHargaGlobal").value = HARGA;
+    document.getElementById("inputTransferData").value = "";
+    
+    saveData(); 
+    render();   
+    customAlert("Transfer Berhasil", "Seluruh data sukses ditimpa dan diperbarui dengan data baru!", "success");
+  } catch (err) {
+    customAlert("Transfer Gagal", "Kode data yang dimasukkan salah atau korup.", "danger");
+  }
+}
 
-const renderKasirItems = () => {
-  let query = document.getElementById("cariBarangInput").value.trim().toUpperCase();
-  let list = state.barang.map((x, i) => ({ ...x, originalIndex: i }));
-  if(query) list = list.filter(x => x.nama.includes(query));
-  list.sort((a, b) => b.stok - a.stok);
+function render(){
+  updateDropdownPemesanan();
   
-  document.getElementById("listBarang").innerHTML = list.map(x => {
-    let statusClass = x.stok <= 0 ? "status-critical" : (x.stok < 5 ? "status-warning" : "status-ready");
-    let statusText = x.stok <= 0 ? "Habis" : "Tersedia";
-    return `<div class="item-barang"><div class="item-info"><b>${x.nama}</b><div class="stok-text">Sisa: <span style="font-weight:800; color:var(--text-main);">${x.stok}</span></div><span class="badge-status ${statusClass}">${statusText}</span></div><div style="margin-top:12px;"><div style="display:flex; gap:6px; margin-bottom:8px;"><select id="qtyQuick-${x.originalIndex}" style="margin:0; padding:6px; font-size:12px; width:70px;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="5">5</option></select><button onclick="quickJual(${x.originalIndex})" style="padding:8px; font-size:11px; margin:0;"><i class="fa-solid fa-cart-plus"></i></button></div><button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:#94a3b8;"><i class="fa-solid fa-pen"></i> Edit</button></div></div>`;
-  }).join("") || `<div style="grid-column:span 2; font-size:12px; text-align:center; padding:20px;">Varian tidak ditemukan.</div>`;
+  let elListPesan = document.getElementById("listPesanPending");
+  if (elListPesan) {
+    elListPesan.innerHTML = pesanan.length > 0 ? pesanan.map(p => {
+      let cleanLabel = p.target;
+      if (p.target === "LOGISTIK_BOTOL") cleanLabel = "<i class='fa-solid fa-wine-bottle'></i> BOTOL KOSONG";
+      if (p.target === "LOGISTIK_BOX") cleanLabel = "<i class='fa-solid fa-box'></i> BOX PACKING";
+      
+      let tgl = new Date(p.tanggal);
+      let tglStr = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0');
+      
+      return `
+      <div style="background:var(--bg-card); border:1px solid #fcd34d; padding:16px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow-sm); margin-bottom:12px;">
+        <div style="text-align:left; flex:1;">
+          <span style="font-size:10px; color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-calendar-days"></i> ${tglStr} &nbsp; <i class="fa-solid fa-hourglass-half"></i> MENUNGGU FISIK</span><br>
+          <b style="font-size:13px; color:var(--text-main); display:inline-block; margin:4px 0;">${cleanLabel}</b><br>
+          <span style="color:var(--accent); font-weight:900; font-size:14px;">+ ${p.qty} Pcs</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; width:85px; flex-shrink:0;">
+          <button onclick="terimaPesanan(${p.id})" style="padding:8px 0; background:var(--success); border-radius:8px; font-size:11px; width:100%; box-shadow:none; margin:0; font-weight:bold; border:none; color:#fff;"><i class="fa-solid fa-circle-check"></i> Terima</button>
+          <button onclick="hapusPesanan(${p.id})" style="padding:8px 0; background:transparent; border:1px solid var(--danger); color:var(--danger); border-radius:8px; font-size:11px; width:100%; box-shadow:none; margin:0; font-weight:bold;"><i class="fa-solid fa-xmark"></i> Batal</button>
+        </div>
+      </div>
+      `;
+    }).join("") : `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px; border: 1px dashed #cbd5e1; border-radius:8px; background:var(--bg-main);">Tidak ada antrean pemesanan barang yang pending.</div>`;
+  }
+
+  updateMonthSelect();
+  renderWeeklyChart(); 
+  parsePremiumGreeting();
+  let hariIniKey = getDayKey(new Date());
+  let bulanAktif = getMonthKey(new Date());
+
+  let jualHariIni = penjualan.filter(x=>getDayKey(x.tanggal)===hariIniKey);
+  let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
+  let totalTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
   
-  document.getElementById("barangJual").innerHTML = state.barang.map((x,i)=>`<option value="${i}">${x.nama} (Stok: ${x.stok})</option>`).join("");
-};
+  runCountUp("omzetHariIni", totalOmzetHariIni, true);
+  runCountUp("hariIniOmzetText", totalOmzetHariIni, true);
+  runCountUp("hariIniQtyText", totalTerjualHariIni, false, " Pcs");
 
-const handleSearchInput = () => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    document.getElementById("btnClearSearch").style.display = document.getElementById("cariBarangInput").value ? "block" : "none";
-    renderKasirItems();
-  }, 200);
-};
-const clearSearchField = () => { document.getElementById("cariBarangInput").value = ""; handleSearchInput(); };
+  let dKemarin = new Date();
+  dKemarin.setDate(dKemarin.getDate() - 1);
+  let kemarinKey = getDayKey(dKemarin);
+  let jualKemarin = penjualan.filter(x => getDayKey(x.tanggal) === kemarinKey);
+  let totalOmzetKemarin = jualKemarin.reduce((a, b) => a + b.nominal, 0);
 
-const renderDashboard = () => {
-  let today = getDayKey(new Date()); let month = getMonthKey(new Date());
-  let salesToday = state.penjualan.filter(x=>getDayKey(x.tanggal)===today);
-  let omzetToday = salesToday.reduce((a,b)=>a+b.nominal,0);
-  let qtyToday = salesToday.reduce((a,b)=>a+b.qty,0);
+  let elTrendBadge = document.getElementById("trendBadge");
+  if (totalOmzetKemarin > 0) {
+    let selisihPersen = ((totalOmzetHariIni - totalOmzetKemarin) / totalOmzetKemarin) * 100;
+    if (selisihPersen > 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-up"></i> ${selisihPersen.toFixed(0)}%`;
+      elTrendBadge.className = "trend-badge up";
+    } else if (selisihPersen < 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-down"></i> ${Math.abs(selisihPersen).toFixed(0)}%`;
+      elTrendBadge.className = "trend-badge down";
+    } else {
+      elTrendBadge.innerText = `0%`;
+      elTrendBadge.className = "trend-badge neutral";
+    }
+  } else {
+    if (totalOmzetHariIni > 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-up"></i> 100%`;
+      elTrendBadge.className = "trend-badge up";
+    } else {
+      elTrendBadge.innerText = `0%`;
+      elTrendBadge.className = "trend-badge neutral";
+    }
+  }
+
+  let salesMapHari = {};
+  jualHariIni.forEach(x => { if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; });
+  let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
+  document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
+  let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
+  let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
+  let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
+  let keluarVal = keluarAktif.reduce((a,b)=>a+b.nominal,0);
+
+  document.getElementById("stokBotol").innerText = stokBotol;
+  document.getElementById("stokBox").innerText = stokBox;
+  document.getElementById("totalBarang").innerText = barang.length;
   
-  runCountUp("omzetHariIni", omzetToday, true); runCountUp("hariIniOmzetText", omzetToday, true); runCountUp("hariIniQtyText", qtyToday, false, " Pcs");
-
-  let mtd = state.penjualan.filter(x=>getMonthKey(x.tanggal)===month);
-  let omzetMonth = mtd.reduce((a,b)=>a+b.nominal,0);
-  let expMonth = state.pengeluaran.filter(x=>getMonthKey(x.tanggal)===month).reduce((a,b)=>a+b.nominal,0);
-  let hppEstMonth = mtd.reduce((a,b)=>a+(b.hpp_total || (b.qty * hitungTotalHPP())), 0);
-
-  runCountUp("omzet", omzetMonth, true); runCountUp("pengeluaran", expMonth, true); 
-  runCountUp("hppBulanan", hppEstMonth, true); runCountUp("laba", (omzetMonth - expMonth - hppEstMonth), true);
-
-  document.getElementById("stokBotol").innerText = state.stokBotol; document.getElementById("stokBox").innerText = state.stokBox;
-  document.getElementById("stokSticker").innerText = state.stokSticker; document.getElementById("stokBubble").innerText = state.stokBubble; document.getElementById("stokResi").innerText = state.stokResi;
-  document.getElementById("totalBarang").innerText = state.barang.length;
-
-  // Single Source Target Bindings
-  let eomSync = aiCache.targetAktif;
-  let mtdQty = mtd.reduce((s, i) => s + i.qty, 0);
-  let prog = Math.min(100, Math.round((mtdQty / (eomSync || 1)) * 100));
-
-  document.getElementById("aiPrediksiBesok").innerText = `${aiCache.prediksiBesok} Botol`;
-  document.getElementById("dashTargetBulanVal").innerText = `${eomSync} Botol`;
-  document.getElementById("aiModelSyncVal").innerText = `${eomSync} Botol`;
-  document.getElementById("aiConfidence").innerText = `${aiCache.confidence}%`;
-  document.getElementById("aiHealthScore").innerText = `${aiCache.healthScore}/100`;
+  runCountUp("omzet", omzetVal, true);
+  runCountUp("pengeluaran", keluarVal, true);
+  runCountUp("laba", (omzetVal - keluarVal), true);
+  let salesMapBln = {};
+  jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
+  let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
   
-  let stBadge = document.getElementById("aiStatusVal");
-  stBadge.innerText = aiCache.butuhCampaign ? "Perlu Campaign" : "Target Aman"; 
-  stBadge.style.background = aiCache.butuhCampaign ? "var(--danger)" : "var(--success)";
+  topVarianAvatars.innerHTML = rankingBln.length ?
+  rankingBln.map((x, i) => `
+    <div class="product-badge-card">
+      <div class="product-badge-rank">Rank #<span>${i+1}</span></div>
+      <div class="product-badge-name">${x[0]}</div>
+      <div class="product-badge-qty">${x[1]} Pcs</div>
+    </div>
+  `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
+  let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
+  let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
+  if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
+  barangUrut.sort((a, b) => a.stok - b.stok);
+  // --- KODE PENGGANTI AI RESTOCK (DIMULAI DARI listBarang.innerHTML) ---
+  listBarang.innerHTML = barangUrut.map(x => {  
+    let badgeTag = "";  
+    if (x.stok === 0) {  
+      badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`;  
+    } else if (x.stok <= 10) {  
+      badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`;  
+    } else {  
+      badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;  
+    }  
+    
+    // --- INJEKSI ANALISIS AI RESTOCK ---
+    let msPerDay = 24 * 60 * 60 * 1000;
+    let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
+    
+    let qty7Hari = 0;
+    let qty7HariSebelumnya = 0;
+    
+    // Loop sejarah penjualan untuk mencari pola
+    penjualan.forEach(p => {
+      if (p.barang === x.nama && p.qty > 0) {
+        let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
+        let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
+        
+        if (selisihHari >= 0 && selisihHari < 7) qty7Hari += p.qty;
+        else if (selisihHari >= 7 && selisihHari < 14) qty7HariSebelumnya += p.qty;
+      }
+    });
+    let avg7Hari = qty7Hari / 7;
+    let prediksiHabisHari = avg7Hari > 0 ? Math.floor(x.stok / avg7Hari) : Infinity;
+    let colorPredict = "var(--success)";
+    let textPredict = "<i class='fa-solid fa-circle-check'></i> Aman (>30 hari)";
+    if (x.stok === 0) {
+      colorPredict = "var(--danger)";
+      textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
+    } else if (prediksiHabisHari < 7) { 
+      colorPredict = "var(--danger)";
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Â± Habis dalam ${prediksiHabisHari} hari`;
+    } else if (prediksiHabisHari < 14) { 
+      colorPredict = "var(--warning)";
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> Â± Habis dalam ${prediksiHabisHari} hari`;
+    } else if (prediksiHabisHari <= 30) { 
+      colorPredict = "#eab308";
+      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> Â± Habis dalam ${prediksiHabisHari} hari`;
+      // Kuning gelap
+    }
+    
+    let trenMeroket = false;
+    if (qty7HariSebelumnya > 0) {
+      let persentaseNaik = ((qty7Hari - qty7HariSebelumnya) / qty7HariSebelumnya) * 100;
+      if (persentaseNaik > 30) trenMeroket = true;
+    } else if (qty7Hari > 3 && qty7HariSebelumnya === 0) {
+      trenMeroket = true;
+    }
 
-  document.getElementById("labelModeTarget").innerText = state.appSettings.targetMode.toUpperCase();
-  document.getElementById("targetTextInfo").innerText = `${mtdQty} / ${eomSync} Botol (${prog}%)`;
-  document.getElementById("targetProgressFill").style.width = `${prog}%`;
+    let aiCardHtml = `
+      <div style="margin-top:10px; padding:8px; background:var(--bg-main); border-radius:8px; border:1px solid #e2e8f0; font-size:11px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-robot"></i> AI Prediksi:</span>
+          <span><b>${avg7Hari.toFixed(1)}</b> avg/hari</span>
+        </div>
+        <div style="color:${colorPredict}; font-weight:800;">${textPredict}</div>
+        ${trenMeroket ?
+        `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
+      </div>
+    `;
+    // --- END INJEKSI AI ---
 
-  document.getElementById("exp-dash").innerHTML = aiCache.explanations.dash || "";
-  document.getElementById("aiBusinessAdvisorContainer").innerHTML = `<div style="background:var(--bg-main); border-left:4px solid var(--primary); padding:10px;">${aiCache.explanations.advisor || ""}</div>`;
-};
+    let dropdownOptions = "";
+    for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
+    return `
+      <div class="item-barang">  
+        <div class="item-info" style="text-align:left;">  
+          <b>${x.nama}</b>  
+          <div class="stok-text">Sisa: ${x.stok} pcs</div>  
+          ${badgeTag}  
+          ${aiCardHtml}
+        </div>  
+     
+      
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
+            <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">
+              ${dropdownOptions}
+            </select>
+          </div>
+         
+ 
+          <div style="display:flex; gap:6px;">
+            <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;"><i class="fa-solid fa-bolt"></i> Jual</button>
+            <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+  barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
-const renderLaporan = () => {
-  let targetHari = document.getElementById("hariSelect").value;
-  let jH = state.penjualan.filter(x=>getDayKey(x.tanggal)===targetHari);
-  let omzetH = jH.reduce((a,b)=>a+b.nominal,0); let qtyH = jH.reduce((a,b)=>a+b.qty,0);
-  let expH = state.pengeluaran.filter(x=>getDayKey(x.tanggal)===targetHari).reduce((a,b)=>a+b.nominal,0);
-  let hppH = jH.reduce((a,b)=>a+(b.hpp_total || (b.qty * hitungTotalHPP())), 0);
-  document.getElementById("summaryHarian").innerHTML = `<b>Laporan ${targetHari}:</b><br>• Terjual: <b>${qtyH} Pcs</b><br>• Omzet: <b style="color:var(--success)">Rp ${omzetH.toLocaleString("id-ID")}</b><br>• HPP Total: <b style="color:var(--warning)">Rp ${hppH.toLocaleString("id-ID")}</b><br>• Laba Kotor: <b>Rp ${(omzetH - hppH).toLocaleString("id-ID")}</b>`;
+  let tglDipilih = document.getElementById("hariSelect").value;
+  if(tglDipilih){
+    let kH = getDayKey(tglDipilih);
+    let jH = penjualan.filter(x=>getDayKey(x.tanggal)===kH);
+    let eH = pengeluaran.filter(x=>getDayKey(x.tanggal)===kH);
+    let totalPcsHarian = jH.reduce((sum, item) => sum + item.qty, 0);
+    let totalOmzetHarian = jH.reduce((sum, item) => sum + item.nominal, 0);
 
-  let set = new Set(); state.penjualan.forEach(x=>set.add(getMonthKey(x.tanggal))); set.add(getMonthKey(new Date()));
-  let selBln = document.getElementById("bulanSelect");
-  if(!selBln.options.length) selBln.innerHTML = [...set].sort().reverse().map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
+    let mapHarian = {};
+    jH.forEach(x => {
+      if(x.qty > 0 || x.barang === "OMZET MANUAL") {
+        if(!mapHarian[x.barang]) mapHarian[x.barang] = {qty: 0, nominal: 0};
+        mapHarian[x.barang].qty += x.qty;
+        mapHarian[x.barang].nominal += x.nominal;
+      }
+    });
+    
+    let rankHarian = Object.entries(mapHarian).sort((a,b) => b[1].qty - a[1].qty);
+    let htmlPenjualan = rankHarian.length > 0 
+      ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('')
+      : '<li>Belum ada penjualan</li>';
+    let htmlPengeluaran = eH.length > 0
+      ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('')
+      : '<li>Tidak ada pengeluaran</li>';
+    summaryHarian.innerHTML = `
+      <div style="background: var(--primary-light); padding:12px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span><i class="fa-solid fa-box"></i> Total Terjual Hari Ini:</span>
+          <span>${totalPcsHarian} Pcs</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;">
+          <span><i class="fa-solid fa-money-bill-wave"></i> Total Pendapatan:</span>
+    
+          <span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span>
+        </div>
+      </div>
+      <div style="margin-bottom:12px; text-align:left;">
+        <strong style="color:var(--primary); font-size:14px;"><i class="fa-solid fa-clipboard-list"></i> Performa Hari Ini</strong>
+        <ul style="margin:6px 0 10px 18px; padding:0; line-height: 1.6;">${htmlPenjualan}</ul>
+      </div>
+      <div style="text-align:left;">
+        <strong style="color:var(--danger); font-size:14px;"><i class="fa-solid fa-wallet"></i> Info Pengeluaran</strong>
+        <ul style="margin:6px 0 0 18px; padding:0; color:var(--text-muted); font-size:12px; line-height: 1.6;">${htmlPengeluaran}</ul>
+      </div>
+    `;
+  }
+
+  let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
+  let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
+  let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
+  let oB = jB.reduce((a,b)=>a+b.nominal,0);
+  let pB = kB.reduce((a,b)=>a+b.nominal,0);
+  let labaB = oB - pB;
+  let totalPcsBulanan = jB.reduce((sum, item) => sum + item.qty, 0);
+
+  let mapBulanan = {};
+  jB.forEach(x => {
+    if(!mapBulanan[x.barang]) mapBulanan[x.barang] = {qty: 0, nominal: 0};
+    mapBulanan[x.barang].qty += x.qty;
+    mapBulanan[x.barang].nominal += x.nominal;
+  });
   
-  let tBln = selBln.value; let jB = state.penjualan.filter(x=>getMonthKey(x.tanggal)===tBln);
-  let omzetB = jB.reduce((a,b)=>a+b.nominal,0); let qtyB = jB.reduce((a,b)=>a+b.qty,0);
-  let expB = state.pengeluaran.filter(x=>getMonthKey(x.tanggal)===tBln).reduce((a,b)=>a+b.nominal,0);
-  let hppB = jB.reduce((a,b)=>a+(b.hpp_total || (b.qty * hitungTotalHPP())), 0);
-  document.getElementById("summaryBulanan").innerHTML = `<b>Bulan ${getMonthLabel(tBln)}:</b><br>• Volume: <b>${qtyB} Pcs</b><br>• Omzet: <b style="color:var(--success)">Rp ${omzetB.toLocaleString("id-ID")}</b><br>• HPP Total: <b style="color:var(--warning)">Rp ${hppB.toLocaleString("id-ID")}</b><br>• Pengeluaran: <b style="color:var(--danger)">Rp ${expB.toLocaleString("id-ID")}</b><br>• Laba Bersih: <b style="color:var(--primary)">Rp ${(omzetB - expB - hppB).toLocaleString("id-ID")}</b>`;
-};
+  let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => 
+  b[1].qty - a[1].qty).map(x => `
+    <tr>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x[0]}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:700;">${x[1].qty > 0 ? x[1].qty : '-'}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700;">Rp ${x[1].nominal.toLocaleString('id-ID')}</td>
+    </tr>
+  `).join("");
 
-const renderRiwayat = () => {
-  let mR = document.getElementById("modeRiwayat").value; let tR = document.getElementById("tanggalRiwayat").value;
-  let key = mR === "harian" ? tR : getMonthKey(tR);
+  let htmlTabelKeluar = kB.map(x => {
+    let tgl = new Date(x.tanggal);
+    let tglStr = String(tgl.getDate()).padStart(2,"0") + "/" + String(tgl.getMonth()+1).padStart(2,"0");
+    return `
+    <tr>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:600;">${tglStr}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x.keterangan || 'Operasional'}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700; color:var(--danger);">Rp ${x.nominal.toLocaleString('id-ID')}</td>
+    </tr>
+  `}).join("");
+
+  summaryBulanan.innerHTML = `
+    
+    <strong style="color:var(--primary); font-size:13px; display:block; margin-bottom:6px; text-align:left;">1. Rincian Penjualan Bulanan</strong>
+    <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:var(--bg-main); color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Nama Produk</th>
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Qty</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Total Rp</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelJual || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
+            <td style="padding:12px 8px; text-align:left;">TOTAL PENJUALAN</td>
+            <td style="padding:12px 8px; text-align:center; color:var(--primary); font-weight:800;">${totalPcsBulanan} Pcs</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--primary); font-weight:800;">Rp ${oB.toLocaleString('id-ID')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <strong style="color:var(--danger); font-size:13px; display:block; margin-bottom:6px; text-align:left;">2. Rincian Pengeluaran Bulanan</strong>
+    <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:var(--bg-main); color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Tgl</th>
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Keperluan</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Nominal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelKeluar || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
+            <td colspan="2" style="padding:12px 8px; text-align:left;">TOTAL PENGELUARAN</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--danger); font-weight:800;">Rp ${pB.toLocaleString('id-ID')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:10px; padding:16px; background:var(--bg-card); border:2px dashed #cbd5e1; border-radius:14px; font-weight:800; font-size:16px; text-align:center; box-shadow: var(--shadow-sm); color:${labaB >= 0 ? 'var(--success)' : 'var(--danger)'};">
+      <i class="fa-solid fa-chart-column"></i> LABA BERSIH: Rp ${labaB.toLocaleString("id-ID")}
+    </div>
+  `;
+
+  let modeRiwayat = document.getElementById("modeRiwayat").value;
+  let tglRiwayat = document.getElementById("tanggalRiwayat").value;
+  let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
+  let riwayatKeluarFiltered = pengeluaran.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
+
+  riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
+    <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="text-align:left;"><b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}<br><span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Batal</button>
+    </div>
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
+
+  riwayatKeluar.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => `
+    <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="text-align:left;"><b>${x.keterangan || "Pengeluaran"}</b><br><span style="color:var(--danger); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <div style="display:flex; gap:6px;">
+        <button onclick="editPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--accent); box-shadow:none; border-radius:8px;">Edit</button>
+        <button onclick="hapusPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Hapus</button>
+      </div>
+    </div>
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
+    // --- INJEKSI TARGET BULANAN ---
+  let targetBulanIni = 400; 
+  let currentPcs = totalPcsBulanan; // Menggunakan variabel yang sudah dihitung render()
+  let progressPct = Math.min((currentPcs / targetBulanIni) * 100, 100).toFixed(1);
+  let sisaTarget = Math.max(0, targetBulanIni - currentPcs);
   
-  document.getElementById("riwayatJual").innerHTML = state.penjualan.map((x, i) => ({ ...x, i })).filter(x => (mR === "harian" ? getDayKey(x.tanggal) : getMonthKey(x.tanggal)) === key).reverse().map(x => `
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding:10px 0;">
-      <div><b style="color:var(--text-main);">${x.barang}</b><br><span style="font-size:11px; color:var(--text-muted);">${new Date(x.tanggal).toLocaleTimeString('id-ID')} | ${x.qty} Pcs</span><br><b style="color:var(--success);">Rp ${x.nominal.toLocaleString("id-ID")}</b></div>
-      <button onclick="batalkanPenjualan(${x.i})" style="width:auto; padding:6px; font-size:10px; background:var(--danger);"><i class="fa-solid fa-rotate-left"></i> Batal</button>
-    </div>`).join("") || `<div style="font-size:12px; text-align:center; padding:10px;">Tidak ada log penjualan.</div>`;
-
-  document.getElementById("riwayatKeluar").innerHTML = state.pengeluaran.map((x, i) => ({ ...x, i })).filter(x => (mR === "harian" ? getDayKey(x.tanggal) : getMonthKey(x.tanggal)) === key).reverse().map(x => `
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding:10px 0;">
-      <div><b style="color:var(--danger);">${x.keterangan}</b><br><span style="font-size:11px; color:var(--text-muted);">${new Date(x.tanggal).toLocaleTimeString('id-ID')}</span><br><b style="color:var(--danger);">Rp ${x.nominal.toLocaleString("id-ID")}</b></div>
-      <div style="display:flex; gap:6px;"><button onclick="editPengeluaran(${x.i})" style="width:auto; padding:6px; background:#94a3b8;"><i class="fa-solid fa-pen"></i></button><button onclick="hapusPengeluaran(${x.i})" style="width:auto; padding:6px; background:var(--danger);"><i class="fa-solid fa-trash"></i></button></div>
-    </div>`).join("") || `<div style="font-size:12px; text-align:center; padding:10px;">Tidak ada log pengeluaran.</div>`;
-};
-
-const renderAll = () => {
-  renderDashboard();
-  renderKasirItems();
-  renderLaporan();
-  renderRiwayat();
-  document.getElementById("targetPesan").innerHTML = `<optgroup label="Logistik"><option value="LOGISTIK_BOTOL">Botol</option><option value="LOGISTIK_BOX">Box</option><option value="LOGISTIK_STICKER">Sticker</option><option value="LOGISTIK_BUBBLE">Bubble Wrap</option><option value="LOGISTIK_RESI">Resi</option></optgroup><optgroup label="Varian">${state.barang.map(x=>`<option value="${x.nama}">${x.nama}</option>`).join("")}</optgroup>`;
-};
-
-// ==========================================
-// TRANSACTIONS & LOGISTICS
-// ==========================================
-const kurangiLogistik = (qty) => {
-  state.stokBotol = Math.max(0, state.stokBotol - qty); state.stokBox = Math.max(0, state.stokBox - qty);
-  state.stokSticker = Math.max(0, state.stokSticker - qty); state.stokBubble = Math.max(0, state.stokBubble - qty); state.stokResi = Math.max(0, state.stokResi - qty);
-};
-const tambahLogistik = (qty) => {
-  state.stokBotol += qty; state.stokBox += qty; state.stokSticker += qty; state.stokBubble += qty; state.stokResi += qty;
-};
-
-const cetakStrukOtomatis = async (nama, qty, total) => {
-  if (!printCharacteristic) return;
-  const ESC = '\x1B'; let teks = ESC + '@' + ESC + 'a' + '\x01' + "EVORA PRO\n-----------------\n" + ESC + 'a' + '\x00' + "Kasir: " + namaUser + "\n" + nama + "\n" + qty + " x Rp " + state.hargaGlobal + "\n" + ESC + 'a' + '\x02' + "TOTAL: Rp " + total + "\n\n\n\n";
-  try { let data = new TextEncoder().encode(teks); for (let i = 0; i < data.length; i += 20) await printCharacteristic.writeValue(data.slice(i, i + 20)); } catch (err) {}
-};
-
-const quickJual = async (i) => {
-  let qty = Number(document.getElementById(`qtyQuick-${i}`).value || 1);
-  if(state.barang[i].stok < qty || state.stokBotol < qty || state.stokBox < qty) { await customAlert("Stok Kurang", "Stok varian/logistik tidak cukup!", "danger"); return; }
-  let tot = qty * state.hargaGlobal;
-  if(!await customConfirm("Konfirmasi", `Jual <b>${qty}</b> ${state.barang[i].nama}? Total: Rp ${tot.toLocaleString()}`, "success")) return;
+  let dHariIni = new Date();
+  let hariBerjalan = dHariIni.getDate();
+  let totalHariBulanIni = new Date(dHariIni.getFullYear(), dHariIni.getMonth() + 1, 0).getDate();
+  let sisaHariDalamBulan = Math.max(1, totalHariBulanIni - hariBerjalan);
   
-  let actCamp = state.campaigns.find(c => c.status === 'Aktif');
-  let hpp_tot = qty * hitungTotalHPP();
-  state.barang[i].stok -= qty; kurangiLogistik(qty);
-  state.penjualan.push({ tanggal: new Date().toISOString(), barang: state.barang[i].nama, qty: qty, nominal: tot, hpp_total: hpp_tot, campaign_id: actCamp ? actCamp.id : null, iklan: !!actCamp });
-  await cetakStrukOtomatis(state.barang[i].nama, qty, tot); saveData();
-};
+  let avgPcsPerDay = currentPcs / hariBerjalan;
+  let reqPcsPerDay = sisaTarget > 0 ? Math.ceil(sisaTarget / sisaHariDalamBulan) : 0;
+  
+  let estTercapaiTeks = "-";
+  if (sisaTarget === 0 && currentPcs >= targetBulanIni) {
+    estTercapaiTeks = "Tercapai! <i class='fa-solid fa-trophy' style='color:#fbbf24'></i>";
+    if(bulanAktif === getMonthKey(new Date())) fireConfetti(); // Hanya fire jika di bulan berjalan
+  } else if (avgPcsPerDay > 0 && sisaTarget > 0) {
+    let estHariLagi = Math.ceil(sisaTarget / avgPcsPerDay);
+    if (hariBerjalan + estHariLagi <= totalHariBulanIni) {
+       let estDate = new Date(dHariIni);
+       estDate.setDate(estDate.getDate() + estHariLagi);
+       estTercapaiTeks = estDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    } else {
+       estTercapaiTeks = "Bulan Depan (Target terancam meleset)";
+    }
+  }
 
-const jualBarang = async () => {
-  let i = Number(document.getElementById("barangJual").value); let qty = Number(document.getElementById("qtyJual").value);
-  if(qty<=0 || state.barang[i].stok<qty || state.stokBotol<qty) { await customAlert("Error", "Input/Stok tidak valid!", "danger"); return; }
-  let tot = qty * state.hargaGlobal;
-  if(!await customConfirm("Konfirmasi", `Jual Grosir <b>${qty}</b> ${state.barang[i].nama}? Total: Rp ${tot.toLocaleString()}`, "success")) return;
-  let actCamp = state.campaigns.find(c => c.status === 'Aktif');
-  state.barang[i].stok -= qty; kurangiLogistik(qty);
-  state.penjualan.push({ tanggal: new Date().toISOString(), barang: state.barang[i].nama, qty: qty, nominal: tot, hpp_total: qty * hitungTotalHPP(), campaign_id: actCamp ? actCamp.id : null, iklan: !!actCamp });
-  document.getElementById("qtyJual").value=""; await cetakStrukOtomatis(state.barang[i].nama, qty, tot); saveData();
-};
+  let elTargetProgress = document.getElementById("targetProgressFill");
+  let elTargetText = document.getElementById("targetTextInfo");
+  let elTargetAvg = document.getElementById("targetAvgInfo");
+  
+  if (elTargetProgress && elTargetText && elTargetAvg) {
+    elTargetProgress.style.width = progressPct + '%';
+    elTargetText.innerHTML = `${currentPcs} / ${targetBulanIni} Pcs (${progressPct}%)<br><span style="font-size:10px; color:var(--text-muted); font-weight:500;">Sisa: ${sisaTarget} Pcs</span>`;
+    
+    elTargetAvg.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Rata-rata Penjualan:</span> <b>${avgPcsPerDay.toFixed(1)} Pcs/hari</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Harus Dijual (Sisa Hari):</span> <b style="color:var(--warning);">${reqPcsPerDay} Pcs/hari</b></div>
+      <div style="display:flex; justify-content:space-between;"><span>Estimasi Target Tercapai:</span> <b style="color:var(--primary);">${estTercapaiTeks}</b></div>
+    `;
+  }
+}
 
-const batalkanPenjualan = async (i) => {
-  if(!await customConfirm("Batal Penjualan", "Kembalikan transaksi dan stok?", "danger")) return;
-  let t = state.penjualan[i];
-  if(t.barang !== "OMZET MANUAL") { let b = state.barang.find(x => x.nama === t.barang); if(b) b.stok += t.qty; tambahLogistik(t.qty); }
-  state.penjualan.splice(i, 1); saveData();
-};
-
-// ==========================================
-// VARIOUS MODALS & SETTINGS
-// ==========================================
-const editLogistik = (j) => { currentLogistikJenis = j; document.getElementById("logistikStokSekarang").innerText = state['stok'+j.charAt(0).toUpperCase()+j.slice(1)]; document.getElementById("logistikModal").style.display = "flex"; };
-const eksekusiLogistik = (act) => {
-  let v = Number(document.getElementById("logistikJumlahManual").value); if(v<=0) return;
-  let k = 'stok'+currentLogistikJenis.charAt(0).toUpperCase()+currentLogistikJenis.slice(1);
-  state[k] = act==='tambah' ? state[k]+v : Math.max(0, state[k]-v);
-  document.getElementById("logistikStokSekarang").innerText = state[k]; saveData();
-};
-const tutupLogistikModal = () => document.getElementById("logistikModal").style.display = "none";
-
-const bukaModalTarget = () => {
-  document.getElementById("modeTargetSelect").value = state.appSettings.targetMode;
-  document.getElementById("manualTargetInput").value = state.appSettings.manualTarget;
-  toggleTargetInput(); document.getElementById("targetModal").style.display = "flex";
-};
-const toggleTargetInput = () => { document.getElementById("manualTargetContainer").style.display = document.getElementById("modeTargetSelect").value === 'manual' ? 'block' : 'none'; };
-const tutupModalTarget = () => document.getElementById("targetModal").style.display = "none";
-const simpanModalTarget = () => {
-  state.appSettings.targetMode = document.getElementById("modeTargetSelect").value;
-  state.appSettings.manualTarget = Number(document.getElementById("manualTargetInput").value) || 400;
-  tutupModalTarget(); saveData();
-};
-
-const toggleDarkMode = () => {
-  isDarkMode = !isDarkMode; localStorage.setItem("evora_darkmode", isDarkMode); initSettings();
-};
-const switchTab = (tab) => {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'active-ai'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
-  document.getElementById(`nav-${tab}`).classList.add(tab === 'ai' ? 'active-ai' : 'active');
-};
-const toggleExplain = (id) => { let e = document.getElementById(id); if(e) e.style.display = e.style.display === 'none' ? 'block' : 'none'; };
-
-// EVENT DELEGATION
-document.addEventListener('click', e => {
-  let b = e.target.closest('button'); if(!b) return;
-  let r = document.createElement('span'); let d = Math.max(b.clientWidth, b.clientHeight);
-  r.style.width = r.style.height = `${d}px`; let rect = b.getBoundingClientRect();
-  r.style.left = `${e.clientX - rect.left - d/2}px`; r.style.top = `${e.clientY - rect.top - d/2}px`;
-  r.className = 'ripple-span'; let old = b.querySelector('.ripple-span'); if(old) old.remove(); b.appendChild(r);
-});
-
-// START
-initSettings();
 loadDataFromCloud();
 </script>
 </body>
