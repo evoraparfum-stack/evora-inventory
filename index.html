@@ -35,6 +35,7 @@
   --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 4px 12px -5px rgba(15, 23, 42, 0.03);
 }
 
+/* --- DARK MODE CSS OVERRIDES --- */
 body.dark-theme {
   --bg-main: #0f172a;
   --bg-card: #1e293b;
@@ -64,8 +65,10 @@ html, body {
   transition: background 0.3s, color 0.3s;
 }
 
+/* TOAST NOTIFICATION */
 .top-toast-alert {
   position: fixed;
+  /* Jauhkan secara fisik dari atas agar iOS tidak menjiplak warnanya */
   top: -200px; 
   left: 50%;
   transform: translateX(-50%);
@@ -82,13 +85,16 @@ html, body {
   align-items: flex-start;
   font-size: 13px;
   font-weight: 600;
+  /* Tambahkan efek pudar dan sembunyi total */
   opacity: 0;
   visibility: hidden;
+  /* Transisi sekarang mengatur semua properti (top, opacity, visibility) */
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid rgba(255,255,255,0.2);
 }
 
 .top-toast-alert.show {
+  /* Munculkan tepat di bawah poni / dynamic island iPhone */
   top: calc(20px + env(safe-area-inset-top));
   opacity: 1;
   visibility: visible;
@@ -99,6 +105,7 @@ html, body {
   color: white;
   border-radius: 50%;
   width: 32px;
+  /* Tombol silang diperbesar */
   height: 32px;
   display: flex;
   align-items: center;
@@ -111,6 +118,7 @@ html, body {
   flex-shrink: 0;
 }
 
+/* PREMIUM BANK-STYLE HEADER */
 .premium-header {
   background: var(--premium-gradient);
   padding: 40px 24px 65px 24px;
@@ -176,6 +184,7 @@ html, body {
   letter-spacing: -1px;
 }
 
+/* DYNAMIC BANK GROWTH BADGES */
 .trend-badge {
   display: inline-flex;
   align-items: center;
@@ -218,6 +227,7 @@ html, body {
   transition: all 0.2s;
 }
 
+/* PILLS CONTAINER - GRID 3 KOLOM SIMETRIS */
 .pills-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -244,6 +254,7 @@ html, body {
   width: 100%;
 }
 
+/* MAIN BODY SHEET */
 .main-sheet {
   background: var(--bg-main);
   margin-top: -30px;
@@ -284,6 +295,7 @@ h3 {
   gap: 6px;
 }
 
+/* PREMIUM ACTION BUTTON & RIPPLE EFFECT */
 button {
   position: relative;
   overflow: hidden;
@@ -314,6 +326,7 @@ button:active {
   to { transform: scale(4); opacity: 0; }
 }
 
+/* PREMIUM BADGES & INTERACTIVE COLORS */
 .badge-status {
   padding: 4px 10px;
   border-radius: 8px;
@@ -332,6 +345,7 @@ body.dark-theme .status-critical { background: rgba(225,29,72,0.2); color: #fda4
 body.dark-theme .status-warning { background: rgba(234,88,12,0.2); color: #fed7aa; }
 body.dark-theme .status-ready { background: rgba(13,148,136,0.2); color: #99f6e4; }
 
+/* Blinking continuous animation for critical stock */
 .blinking-alert {
   animation: premium-blink 1.4s infinite ease-in-out;
 }
@@ -339,7 +353,14 @@ body.dark-theme .status-ready { background: rgba(13,148,136,0.2); color: #99f6e4
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.6; transform: scale(0.96); background: #fff1f2; }
 }
+body.dark-theme .blinking-alert {
+  @keyframes premium-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; background: rgba(225,29,72,0.3); }
+  }
+}
 
+/* SKELETON SHIMMER LOADING EFFECT */
 .skeleton-loading .shimmer-text {
   background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
   background-size: 200% 100%;
@@ -356,6 +377,7 @@ body.dark-theme .skeleton-loading .shimmer-text {
   100% { background-position: -200% 0; }
 }
 
+/* SMART FADE & SCALE ENTRANCE ANIMATION FOR TABS */
 .tab-content { 
   display: none;
 }
@@ -368,6 +390,7 @@ body.dark-theme .skeleton-loading .shimmer-text {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* OTHER SYSTEM LAYOUTS */
 .search-container { position: relative; width: 100%; }
 .search-container input { padding-right: 40px; }
 .btn-clear-search {
@@ -459,6 +482,7 @@ body.dark-theme #summaryBulanan {
   color: var(--text-main) !important;
 }
 
+/* MODALS WITH PREMIUM POP ANIMATIONS */
 .modal-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(15, 23, 42, 0.6);
@@ -473,6 +497,7 @@ body.dark-theme #summaryBulanan {
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+/* --- QUICK ACCESS CSS --- */
 .quick-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -508,6 +533,7 @@ body.dark-theme #summaryBulanan {
   color: var(--text-main);
 }
 
+/* CUSTOM SCROLLBAR FOR PENDING ORDERS */
 #listPesanPending::-webkit-scrollbar {
   width: 4px;
 }
@@ -594,14 +620,6 @@ body.dark-theme #summaryBulanan {
       </div>
     </div>
 
-    <!-- KARTU AI PREDIKSI PENJUALAN BESOK (PINDAHAN DARI RIWAYAT / UPGRADE) -->
-    <div class="card" style="border: 1px solid var(--primary); background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-card) 100%);">
-      <h3><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary);"></i> PREDIKSI AI PENJUALAN BESOK</h3>
-      <div id="aiPrediksiBesokBox" style="font-size: 13px; line-height: 1.6; color: var(--text-main);">
-        Memuat analisis data kecerdasan buatan...
-      </div>
-    </div>
-
     <div class="card">
       <h3><i class="fa-solid fa-chart-line"></i> GRAFIK PENJUALAN 7 HARI TERAKHIR</h3>
       <div style="position: relative; height:200px; width:100%;">
@@ -629,12 +647,8 @@ body.dark-theme #summaryBulanan {
       </div>
     </div>
     
-    <!-- TARGET BULAN INI (DIBUAT LEBIH CERDAS & BISA DIUBAH MANUAL) -->
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-        <h3 style="color:var(--accent); margin:0;"><i class="fa-solid fa-bullseye"></i> TARGET BULAN INI</h3>
-        <button onclick="bukaModalEditTarget()" style="width:auto; padding:4px 10px; font-size:11px; background:var(--accent); border-radius:6px; box-shadow:none;"><i class="fa-solid fa-pen"></i> Ubah Target</button>
-      </div>
+      <h3 style="color:var(--accent);"><i class="fa-solid fa-bullseye"></i> TARGET BULAN INI</h3>
       <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:12px;">
         <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
           <span>Progress Target</span>
@@ -643,7 +657,8 @@ body.dark-theme #summaryBulanan {
         <div style="background:#e2e8f0; height:12px; border-radius:10px; overflow:hidden; margin-bottom:12px;">
           <div id="targetProgressFill" style="background:var(--success); width:0%; height:100%; transition:width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
         </div>
-        <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;"></div>
+        <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;">
+          </div>
       </div>
     </div>
 
@@ -653,7 +668,7 @@ body.dark-theme #summaryBulanan {
         <div>Total Omzet: <br><span id="omzet" class="shimmer-text" style="color:var(--primary); font-size:16px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
         <div>Total Belanja: <br><span id="pengeluaran" class="shimmer-text" style="color:var(--danger); font-size:16px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
         <div style="grid-column:span 2; margin-top:6px; padding-top:10px; border-top:1px dashed #b2f5ea; font-size:14px;">
-          Laba Bersih Kumulatif (Termasuk Piutang Lunas): <br><span id="laba" class="shimmer-text" style="color:var(--success); font-size:20px; font-weight:900; display:inline-block; margin-top:4px;">Rp 0</span>
+          Laba Bersih Kumulatif: <br><span id="laba" class="shimmer-text" style="color:var(--success); font-size:20px; font-weight:900; display:inline-block; margin-top:4px;">Rp 0</span>
         </div>
       </div>
     </div>
@@ -675,15 +690,11 @@ body.dark-theme #summaryBulanan {
     </div>
 
     <div class="card">
-      <h3><i class="fa-solid fa-box"></i> TRANSAKSI GROSIR / MANUAL & PIUTANG</h3>
+      <h3><i class="fa-solid fa-box"></i> TRANSAKSI GROSIR / MANUAL</h3>
+     
       <select id="barangJual"></select>
       <input id="qtyJual" type="number" placeholder="Kuantitas Item">
-      <div style="display:flex; align-items:center; gap:8px; margin: 10px 0; background: var(--bg-main); padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
-        <input type="checkbox" id="checkPiutang" style="width:20px; height:20px; margin:0; cursor:pointer;">
-        <label for="checkPiutang" style="font-size:13px; font-weight:700; cursor:pointer; color:var(--text-main);">Catat Sebagai Piutang (Belum Lunas)</label>
-      </div>
-      <input id="namaPelangganPiutang" type="text" placeholder="Nama Pelanggan (Wajib jika Piutang)" style="display:none;">
-      <button onclick="jualBarang()">Eksekusi Penjualan</button>
+      <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
     </div>
 
     <div class="card" style="border: 1px solid #fcd34d;" id="panelRestock">
@@ -705,46 +716,24 @@ body.dark-theme #summaryBulanan {
     </div>
   </div>
 
-  <!-- TAB LAPORAN (DIPERBARUI DENGAN KARTU KOTAK TABEL INTERAKTIF & RIWAYAT PINDAH SINI) -->
   <div id="tab-laporan" class="tab-content">
-    
-    <!-- KOTAK INTERAKTIF: LAPORAN HARIAN -->
-    <div class="card" style="cursor: pointer; transition: 0.2s;" onclick="bukaModalLaporan('harian')">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h3 style="margin-bottom: 4px;"><i class="fa-solid fa-calendar-days"></i> KOTAK LAPORAN HARIAN</h3>
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Klik untuk buka rincian, edit, atau hapus transaksi harian</p>
-        </div>
-        <i class="fa-solid fa-chevron-right" style="font-size: 16px; color: var(--primary);"></i>
-      </div>
-    </div>
-
-    <!-- KOTAK INTERAKTIF: REKAPITULASI BULANAN -->
-    <div class="card" style="cursor: pointer; transition: 0.2s;" onclick="bukaModalLaporan('bulanan')">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h3 style="margin-bottom: 4px;"><i class="fa-solid fa-chart-column"></i> KOTAK REKAPITULASI BULANAN</h3>
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Klik untuk melihat rekap detail bulanan dan laba bersih</p>
-        </div>
-        <i class="fa-solid fa-chevron-right" style="font-size: 16px; color: var(--primary);"></i>
-      </div>
-    </div>
-
-    <!-- KOTAK INTERAKTIF: DAFTAR PIUTANG -->
-    <div class="card" style="cursor: pointer; border: 1px solid var(--warning); transition: 0.2s;" onclick="bukaModalPiutang()">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h3 style="margin-bottom: 4px; color: var(--warning);"><i class="fa-solid fa-file-invoice-dollar"></i> KOTAK PIUTANG PELANGGAN</h3>
-          <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Kelola checklist piutang lunas / belum lunas</p>
-        </div>
-        <i class="fa-solid fa-chevron-right" style="font-size: 16px; color: var(--warning);"></i>
-      </div>
-    </div>
-
-    <!-- SEMUA LOG RIWAYAT YANG DIPINDAHKAN KE LAPORAN -->
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom: 12px;">
-        <h3 style="margin:0;"><i class="fa-solid fa-filter"></i> FILTER LOG</h3>
+      <h3><i class="fa-solid fa-calendar-days"></i> LAPORAN HARIAN (INFO)</h3>
+      <input id="hariSelect" type="date" onchange="render()">
+      <div id="summaryHarian" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
+    </div>
+
+    <div class="card">
+      <h3><i class="fa-solid fa-chart-column"></i> REKAPITULASI BULANAN (DETAIL)</h3>
+      <select id="bulanSelect" onchange="render()"></select>
+      <div id="summaryBulanan" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
+    </div>
+  </div>
+
+  <div id="tab-riwayat" class="tab-content">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <h3><i class="fa-solid fa-filter"></i> FILTER LOG</h3>
         <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:8px; font-size:12px;">
           <option value="harian">Hari</option>
           <option value="bulanan">Bulan</option>
@@ -761,25 +750,6 @@ body.dark-theme #summaryBulanan {
     <div class="card">
       <h3><i class="fa-solid fa-arrow-trend-down"></i> LOG OPERASIONAL PENGELUARAN</h3>
       <div id="riwayatKeluar" class="scroll-box"></div>
-    </div>
-  </div>
-
-  <!-- TAB RIWAYAT (DIUBAH MENJADI KARTU AI PUSAT PREDIKSI & PANGGILAN KECERDASAN TINGGI) -->
-  <div id="tab-riwayat" class="tab-content">
-    <div class="card" style="background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-card) 100%); border: 1px solid var(--primary);">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-brain"></i> PUSAT INTELijen & PREDIKSI AI</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px; line-height: 1.5;">Analisis tingkat lanjut yang dikalibrasi dari seluruh data historis Anda untuk kepastian operasional maksimal.</p>
-      
-      <div id="aiPusatAnalisisContent" style="display: flex; flex-direction: column; gap: 12px;">
-        <!-- Konten AI injeksi dinamis -->
-      </div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-shield-halved"></i> STATUS KALIBRASI DATA</h3>
-      <div id="statusKalibrasiAI" style="font-size: 13px; line-height: 1.6; color: var(--text-main);">
-        Memuat parameter kecerdasan mesin...
-      </div>
     </div>
   </div>
 
@@ -845,11 +815,12 @@ body.dark-theme #summaryBulanan {
     <div>Laporan</div>
   </button>
   <button id="nav-riwayat" class="nav-item" onclick="switchTab('riwayat')">
-    <div class="nav-icon"><i class="fa-solid fa-brain"></i></div>
-    <div>Pusat AI</div>
+    <div class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+    <div>Riwayat</div>
   </button>
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
     <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
+  
     <div>Setting</div>
   </button>
 </div>
@@ -905,32 +876,6 @@ body.dark-theme #summaryBulanan {
   </div>
 </div>
 
-<!-- MODAL INTERAKTIF LAPORAN / PIUTANG -->
-<div id="interaktifModal" class="modal-overlay" style="display: none;">
-  <div class="modal-content" style="max-width: 500px; max-height: 85vh; overflow-y: auto;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
-      <h3 id="modalLaporanJudul" style="color:var(--primary); margin:0;">Rincian Laporan</h3>
-      <button onclick="tutupModalLaporan()" style="width: auto; padding: 6px 12px; background: #94a3b8; font-size: 12px; box-shadow:none;"><i class="fa-solid fa-xmark"></i> Tutup</button>
-    </div>
-    <div id="modalLaporanBody">
-      <!-- Konten tabel / list injeksi -->
-    </div>
-  </div>
-</div>
-
-<!-- MODAL UBAH TARGET MANUAL -->
-<div id="modalEditTarget" class="modal-overlay" style="display: none;">
-  <div class="modal-content">
-    <h3 style="color:var(--accent)">Ubah Target Bulanan</h3>
-    <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Tentukan target kuantitas botol terjual untuk bulan ini secara manual.</p>
-    <input id="inputTargetManual" type="number" placeholder="Target Botol (Cth: 400)">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top: 12px;">
-      <button onclick="tutupModalEditTarget()" style="background:#94a3b8; box-shadow:none;">Batal</button>
-      <button onclick="simpanTargetManual()" style="background:var(--accent); box-shadow:none;">Simpan Target</button>
-    </div>
-  </div>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -946,11 +891,10 @@ let barang = [];
 let penjualan = [];
 let pengeluaran = [];
 let pesanan = []; 
-let piutang = []; // Array data piutang baru
-let targetBulananCustom = null; // Target custom manual
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
+// Variabel Ekstensi Enterprise
 let namaUser = localStorage.getItem("evora_nama") || "Farhan";
 let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let printCharacteristic = null;
@@ -967,6 +911,7 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
+// INITIALIZE SETTINGS
 function initEnterpriseSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
   let btnDark = document.getElementById("btnDarkMode");
@@ -978,18 +923,7 @@ function initEnterpriseSettings() {
 }
 initEnterpriseSettings();
 
-// Event listener checkbox piutang di kasir
-document.getElementById("checkPiutang").addEventListener("change", function() {
-  let namaPelangganInput = document.getElementById("namaPelangganPiutang");
-  if (this.checked) {
-    namaPelangganInput.style.display = "block";
-    namaPelangganInput.required = true;
-  } else {
-    namaPelangganInput.style.display = "none";
-    namaPelangganInput.value = "";
-  }
-});
-
+// SHORTCUT FUNCTIONS
 function shortcutRestock() {
   switchTab("kasir");
   setTimeout(() => {
@@ -1010,24 +944,30 @@ function shortcutKasir() {
   }, 250);
 }
 
+// NOTIFIKASI STOK
 function checkLowStockAlert() {
   let lowItems = [];
+  // Aturan baru: Botol dan Box akan memunculkan notif jika sisa di bawah 15
   if (stokBotol < 15) lowItems.push(`<i class="fa-solid fa-wine-bottle"></i> Botol Kosong: <b>${stokBotol} pcs</b>`);
   if (stokBox < 15) lowItems.push(`<i class="fa-solid fa-box"></i> Box Packing: <b>${stokBox} pcs</b>`);
+  // Aturan untuk parfum tetap di bawah 5 (Jika ingin diubah ke 15, ganti angka 5 di bawah)
   barang.forEach(b => {
     if (b.stok < 5) lowItems.push(`<i class="fa-solid fa-flask"></i> ${b.nama}: <b>${b.stok} pcs</b>`);
   });
   if (lowItems.length > 0) {
+    // Membuat daftar pesan berformat bullet point
     let msg = "Item logistik / varian berikut perlu segera di-restock:<br>";
     msg += "<ul style='margin: 8px 0 0 20px; padding: 0; font-weight: 500; font-size: 13px; line-height: 1.7;'>";
     lowItems.forEach(item => {
       msg += `<li>${item}</li>`;
     });
     msg += "</ul>";
+    // Gunakan innerHTML agar tag HTML (seperti <b> dan <li>) tereksekusi
     document.getElementById("notificationMessage").innerHTML = msg;
     let notif = document.getElementById("topNotification");
     notif.classList.add("show");
     
+    // Auto-close notifikasi diubah menjadi 10 detik agar lebih lama untuk dibaca
     setTimeout(() => { closeNotification(); }, 10000);
   }
 }
@@ -1036,6 +976,7 @@ function closeNotification() {
   document.getElementById("topNotification").classList.remove("show");
 }
 
+// RIPPLE EFFECT
 document.addEventListener('click', function (e) {
   const button = e.target.closest('button');
   if (!button) return;
@@ -1056,6 +997,7 @@ document.addEventListener('click', function (e) {
   button.appendChild(ripple);
 });
 
+// ALERT CUSTOM
 function customAlert(title, message, type = 'primary') {
   return new Promise((resolve) => {
     const modal = document.getElementById("globalDialogModal");
@@ -1120,6 +1062,7 @@ function customConfirm(title, message, type = 'primary') {
   });
 }
 
+// PROFILE SETUP & SAPAAN
 function simpanNamaProfil() {
   let namaBaru = document.getElementById("inputNamaProfil").value.trim();
   if(!namaBaru) {
@@ -1127,6 +1070,7 @@ function simpanNamaProfil() {
     return;
   }
   namaUser = namaBaru;
+ 
   localStorage.setItem("evora_nama", namaUser);
   parsePremiumGreeting();
   customAlert("Tersimpan", `Nama profil berhasil diubah menjadi <b>${namaUser}</b>.`, "success");
@@ -1142,6 +1086,7 @@ function parsePremiumGreeting() {
 }
 parsePremiumGreeting();
 
+// TEMA DARK MODE
 function toggleDarkMode() {
   isDarkMode = !isDarkMode;
   localStorage.setItem("evora_darkmode", isDarkMode);
@@ -1157,6 +1102,7 @@ function toggleDarkMode() {
   }
 }
 
+// BLUETOOTH THERMAL PRINTER CORE ENGINE
 async function hubungkanPrinter() {
   if (!navigator.bluetooth) {
     customAlert("Tidak Didukung", "Browser tidak mendukung Web Bluetooth API. Gunakan Google Chrome terbaru.", "danger");
@@ -1218,6 +1164,7 @@ async function kirimTeksKePrinter(teks) {
 
 async function cetakStrukOtomatis(namaBarang, qty, total) {
   if (!printCharacteristic) return;
+  // Silent skip jika printer tidak terhubung
   const ESC = '\x1B';
   let teksStruk = 
     ESC + '@' + 
@@ -1259,6 +1206,7 @@ async function testPrint() {
   customAlert("Sukses", "Struk test berhasil dicetak ke printer!", "success");
 }
 
+// SIMPLE CONFETTI SYSTEM
 let isConfettiFired = false;
 function fireConfetti() {
   if (isConfettiFired || document.getElementById('evora-confetti')) return;
@@ -1279,6 +1227,8 @@ function fireConfetti() {
   setTimeout(()=> { c.remove(); style.remove(); }, 6000);
 }
 
+
+// COUNT UP ANIMATION LOGIC FOR METRICS
 function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
   const el = document.getElementById(elementId);
   if (!el) return;
@@ -1337,8 +1287,6 @@ async function loadDataFromCloud() {
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
       pesanan = dataUtama.pesanan || []; 
-      piutang = dataUtama.piutang || []; // Muat data piutang lama tanpa menghapusnya
-      targetBulananCustom = dataUtama.targetBulananCustom !== undefined ? dataUtama.targetBulananCustom : null;
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       
       document.getElementById("inputHargaGlobal").value = HARGA;
@@ -1366,9 +1314,7 @@ async function saveData() {
     barang: barang,
     penjualan: penjualan,
     pengeluaran: pengeluaran,
-    pesanan: pesanan,
-    piutang: piutang, // Simpan data piutang
-    targetBulananCustom: targetBulananCustom,
+    pesanan: pesanan, 
     hargaGlobal: HARGA 
   };
   try {
@@ -1418,12 +1364,10 @@ function updateMonthSelect(){
   let set = new Set();
   penjualan.forEach(x=>set.add(getMonthKey(x.tanggal)));
   pengeluaran.forEach(x=>set.add(getMonthKey(x.tanggal)));
-  piutang.forEach(x=>set.add(getMonthKey(x.tanggal)));
   set.add(getMonthKey(new Date()));
-  let selectEl = document.getElementById("bulanSelect");
-  if(selectEl) {
-    selectEl.innerHTML = [...set].sort().reverse().map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
-  }
+  document.getElementById("bulanSelect").innerHTML =
+  [...set].sort().reverse()
+  .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
 }
 
 function handleSearchInput() {
@@ -1454,11 +1398,10 @@ function renderWeeklyChart() {
     dataOmzet.push(omzetHariIni);
   }
 
-  let ctx = document.getElementById('grafikMingguan');
-  if(!ctx) return;
-  let chartCtx = ctx.getContext('2d');
+  let ctx = document.getElementById('grafikMingguan').getContext('2d');
   let lineColor = isDarkMode ? '#2dd4bf' : '#0f616d';
-  let bgColor = isDarkMode ? 'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
+  let bgColor = isDarkMode ?
+  'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
   
   if(chartInstance) {
     chartInstance.data.labels = labels;
@@ -1467,7 +1410,7 @@ function renderWeeklyChart() {
     chartInstance.data.datasets[0].backgroundColor = bgColor;
     chartInstance.update();
   } else {
-    chartInstance = new Chart(chartCtx, {
+    chartInstance = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
@@ -1486,14 +1429,16 @@ function renderWeeklyChart() {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: {
+          y: 
+          {
             beginAtZero: true,
             ticks: {
               callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); },
               font: { size: 9 }
             }
           },
-          x: { ticks: { font: { size: 10 } } }
+          x: { 
+          ticks: { font: { size: 10 } } }
         }
       }
     });
@@ -1503,7 +1448,8 @@ function renderWeeklyChart() {
 function editLogistik(jenis) {
   currentLogistikJenis = jenis;
   document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
-  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ? stokBotol : stokBox;
+  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ?
+  stokBotol : stokBox;
   document.getElementById("logistikJumlahManual").value = "";
   document.getElementById("logistikModal").style.display = "flex";
 }
@@ -1525,17 +1471,17 @@ function eksekusiLogistik(aksi) {
   saveData(); 
 }
 
-function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none"; }
+function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none";
+}
 
 async function tambahBarang(){
-  let nama = document.getElementById("namaBarang").value.trim().toUpperCase();
-  let qty = Number(document.getElementById("qtyBarang").value);
+  let nama = namaBarang.value.trim().toUpperCase();
+  let qty = Number(qtyBarang.value);
   if(!nama || qty<=0) return;
   let konfirmasi = await customConfirm("Tambah Varian", `Daftarkan varian parfum baru <b>"${nama}"</b> dengan stok awal <b>${qty} pcs</b>?`, "primary");
   if(!konfirmasi) return;
   barang.push({nama:nama, stok:qty});
-  document.getElementById("namaBarang").value=""; 
-  document.getElementById("qtyBarang").value="";
+  namaBarang.value=""; qtyBarang.value="";
   saveData();
 }
 
@@ -1585,77 +1531,44 @@ async function quickJual(originalIndex) {
 }
 
 async function jualBarang(){
-  let idx = Number(document.getElementById("barangJual").value);
-  let qty = Number(document.getElementById("qtyJual").value);
-  let isPiutang = document.getElementById("checkPiutang").checked;
-  let namaPelanggan = document.getElementById("namaPelangganPiutang").value.trim();
-
+  let idx = Number(barangJual.value);
+  let qty = Number(qtyJual.value);
   if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) {
-    await customAlert("Stok Tidak Valid", "Stok produk atau logistik tidak mencukupi untuk memproses transaksi!", "danger");
-    return;
-  }
-  if(isPiutang && !namaPelanggan) {
-    await customAlert("Nama Pelanggan Kosong", "Harap masukkan nama pelanggan untuk catatan piutang.", "warning");
+    await customAlert("Stok Tidak Valid", "Stok produk atau logistik tidak mencukupi untuk memproses grosir!", "danger");
     return;
   }
   
   let totalNilai = qty * HARGA;
-  let judulKonfirmasi = isPiutang ? "Konfirmasi Piutang" : "Konfirmasi Penjualan";
-  let pesanKonfirmasi = isPiutang 
-    ? `Catat piutang atas nama <b>${namaPelanggan}</b> untuk <b>${qty} pcs</b> ${barang[idx].name || barang[idx].nama}?<br><br><b>Total: Rp ${totalNilai.toLocaleString("id-ID")}</b>`
-    : `Jual <b>${qty} pcs</b> ${barang[idx].nama}?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`;
-
-  let konfirmasi = await customConfirm(judulKonfirmasi, pesanKonfirmasi, isPiutang ? "warning" : "success");
+  let konfirmasi = await customConfirm("Konfirmasi Grosir", `Jual <b>${qty} pcs</b> ${barang[idx].nama} via order grosir?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
   if(!konfirmasi) return;
-
   barang[idx].stok -= qty;
   stokBotol -= qty; stokBox -= qty;
-
-  if(isPiutang) {
-    piutang.push({
-      id: Date.now(),
-      tanggal: new Date().toISOString(),
-      pelanggan: namaPelanggan,
-      barang: barang[idx].nama,
-      qty: qty,
-      nominal: totalNilai,
-      status: "belum" // belum lunas
-    });
-  } else {
-    penjualan.push({ tanggal: new Date().toISOString(), barang: barang[idx].nama, qty: qty, nominal: totalNilai });
-    await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai);
-  }
-
-  document.getElementById("qtyJual").value = "";
-  document.getElementById("checkPiutang").checked = false;
-  document.getElementById("namaPelangganPiutang").value = "";
-  document.getElementById("namaPelangganPiutang").style.display = "none";
-  saveData();
+  penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai });
+  
+  await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai);
+  qtyJual.value=""; saveData();
 }
 
 async function tambahOmzetManual() {
-  let nom = Number(document.getElementById("manualOmzet").value);
-  let ket = document.getElementById("manualKet").value.trim() || "Manual";
+  let nom = Number(manualOmzet.value);
+  let ket = manualKet.value.trim() || "Manual";
   if(nom <= 0) return;
   
   let konfirmasi = await customConfirm("Pendapatan Manual", `Simpan pendapatan manual sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> (${ket})?`, "success");
   if(!konfirmasi) return;
   penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket });
-  document.getElementById("manualOmzet").value = ""; 
-  document.getElementById("manualKet").value = "";
+  manualOmzet.value = ""; manualKet.value = "";
   saveData();
 }
 
 async function tambahPengeluaran(){
-  let nom = Number(document.getElementById("nominalKeluar").value);
-  let ket = document.getElementById("ketKeluar").value.trim();
+  let nom = Number(nominalKeluar.value);
+  let ket = ketKeluar.value.trim();
   if(nom<=0 || !ket) return;
   let konfirmasi = await customConfirm("Catat Pengeluaran", `Simpan log pengeluaran sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> untuk keperluan: <i>"${ket}"</i>?`, "danger");
   if(!konfirmasi) return;
   pengeluaran.push({ tanggal:new Date().toISOString(), nominal:nom, keterangan:ket });
-  document.getElementById("nominalKeluar").value=""; 
-  document.getElementById("ketKeluar").value=""; 
-  saveData();
+  nominalKeluar.value=""; ketKeluar.value=""; saveData();
 }
 
 async function batalkanPenjualan(originalIndex) {
@@ -1697,52 +1610,6 @@ async function hapusPengeluaran(originalIndex) {
   if(konfirmasi) { 
     pengeluaran.splice(originalIndex, 1); 
     saveData(); 
-  }
-}
-
-// Fungsi checklist piutang lunas (Otomatis nambah ke omzet / laba bersih)
-async function togglePiutangLunas(idPiutang) {
-  let idx = piutang.findIndex(x => x.id === idPiutang);
-  if(idx === -1) return;
-  
-  let p = piutang[idx];
-  if(p.status === "belum") {
-    let konfirmasi = await customConfirm("Lunasi Piutang", `Konfirmasi bahwa piutang atas nama <b>${p.pelanggan}</b> sebesar <b>Rp ${p.nominal.toLocaleString("id-ID")}</b> sudah dibayar? Nominal akan otomatis masuk ke perhitungan omzet/laba.`, "success");
-    if(!konfirmasi) {
-      render(); // reset checkbox UI
-      return;
-    }
-    p.status = "lunas";
-    // Masukkan ke penjualan agar tercatat di omzet & laba bersih
-    penjualan.push({
-      tanggal: new Date().toISOString(),
-      barang: `[PELUNASAN PIUTANG] ${p.barang} (${p.pelanggan})`,
-      qty: p.qty,
-      nominal: p.nominal
-    });
-  } else {
-    let konfirmasi = await customConfirm("Batalkan Status Lunas", "Kembalikan status piutang ini menjadi belum lunas?", "warning");
-    if(!konfirmasi) {
-      render();
-      return;
-    }
-    p.status = "belum";
-    // Cari dan hapus catatan pelunasan di penjualan terkait
-    let pnjIdx = penjualan.findIndex(x => x.barang.includes(`[PELUNASAN PIUTANG] ${p.barang} (${p.pelanggan})`));
-    if(pnjIdx !== -1) {
-      penjualan.splice(pnjIdx, 1);
-    }
-  }
-  saveData();
-  bukaModalPiutang(); // Refresh modal piutang jika sedang terbuka
-}
-
-async function hapusPiutang(idPiutang) {
-  let konfirmasi = await customConfirm("Hapus Piutang", "Hapus catatan piutang ini secara permanen?", "danger");
-  if(konfirmasi) {
-    piutang = piutang.filter(x => x.id !== idPiutang);
-    saveData();
-    bukaModalPiutang();
   }
 }
 
@@ -1823,8 +1690,6 @@ async function salinDataKeClipboard() {
     penjualan: penjualan,
     pengeluaran: pengeluaran,
     pesanan: pesanan,
-    piutang: piutang,
-    targetBulananCustom: targetBulananCustom,
     hargaGlobal: HARGA 
   };
   let stringData = JSON.stringify(paketData);
@@ -1856,8 +1721,6 @@ async function pasteDataTransfer() {
     penjualan = dataBaru.penjualan || [];
     pengeluaran = dataBaru.pengeluaran || [];
     pesanan = dataBaru.pesanan || [];
-    piutang = dataBaru.piutang || [];
-    targetBulananCustom = dataBaru.targetBulananCustom !== undefined ? dataBaru.targetBulananCustom : null;
     HARGA = Number(dataBaru.hargaGlobal || 27000);
     document.getElementById("inputHargaGlobal").value = HARGA;
     document.getElementById("inputTransferData").value = "";
@@ -1868,119 +1731,6 @@ async function pasteDataTransfer() {
   } catch (err) {
     customAlert("Transfer Gagal", "Kode data yang dimasukkan salah atau korup.", "danger");
   }
-}
-
-// FUNGSI MODAL INTERAKTIF LAPORAN
-function bukaModalLaporan(tipe) {
-  let modal = document.getElementById("interaktifModal");
-  let judulEl = document.getElementById("modalLaporanJudul");
-  let bodyEl = document.getElementById("modalLaporanBody");
-  
-  if (tipe === 'harian') {
-    judulEl.innerText = "Rincian & Manajemen Laporan Harian";
-    let tglDipilih = document.getElementById("hariSelect").value || hariIniFull;
-    let kH = getDayKey(tglDipilih);
-    let jH = penjualan.map((x,i)=>({...x, idx:i})).filter(x=>getDayKey(x.tanggal)===kH);
-    let eH = pengeluaran.map((x,i)=>({...x, idx:i})).filter(x=>getDayKey(x.tanggal)===kH);
-    
-    let htmlJual = jH.length ? jH.map(x => `
-      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px;">
-        <div><b>${x.barang}</b> ${x.qty>0? '('+x.qty+' pcs)':''} <br><span style="color:var(--success); font-weight:700;">Rp ${x.nominal.toLocaleString('id-ID')}</span></div>
-        <button onclick="batalkanPenjualan(${x.idx}); tutupModalLaporan();" style="width:auto; padding:6px 10px; font-size:11px; background:var(--danger); box-shadow:none;">Hapus</button>
-      </div>
-    `).join('') : '<p style="font-size:12px; color:var(--text-muted);">Tidak ada transaksi penjualan.</p>';
-
-    let htmlKeluar = eH.length ? eH.map(x => `
-      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:10px; border-radius:8px; margin-bottom:8px; font-size:13px;">
-        <div><b>${x.keterangan}</b><br><span style="color:var(--danger); font-weight:700;">Rp ${x.nominal.toLocaleString('id-ID')}</span></div>
-        <div style="display:flex; gap:6px;">
-          <button onclick="editPengeluaran(${x.idx}); tutupModalLaporan();" style="width:auto; padding:6px 8px; font-size:11px; background:var(--accent); box-shadow:none;">Edit</button>
-          <button onclick="hapusPengeluaran(${x.idx}); tutupModalLaporan();" style="width:auto; padding:6px 8px; font-size:11px; background:var(--danger); box-shadow:none;">Hapus</button>
-        </div>
-      </div>
-    `).join('') : '<p style="font-size:12px; color:var(--text-muted);">Tidak ada pengeluaran.</p>';
-
-    bodyEl.innerHTML = `
-      <div style="margin-bottom: 14px;">
-        <label style="font-size:12px; font-weight:bold; color:var(--text-muted);">Pilih Tanggal:</label>
-        <input type="date" id="modalHariSelect" value="${tglDipilih}" onchange="document.getElementById('hariSelect').value=this.value; bukaModalLaporan('harian'); render();" style="margin-top:4px;">
-      </div>
-      <h4 style="color:var(--primary); font-size:13px; margin: 12px 0 6px 0;"><i class="fa-solid fa-cart-shopping"></i> Penjualan Harian</h4>
-      ${htmlJual}
-      <h4 style="color:var(--danger); font-size:13px; margin: 16px 0 6px 0;"><i class="fa-solid fa-wallet"></i> Pengeluaran Harian</h4>
-      ${htmlKeluar}
-    `;
-  } else if (tipe === 'bulanan') {
-    judulEl.innerText = "Rincian Rekapitulasi Bulanan";
-    let bulanAktif = getMonthKey(new Date());
-    let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-    let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-    let oB = jB.reduce((a,b)=>a+b.nominal,0);
-    let pB = kB.reduce((a,b)=>a+b.nominal,0);
-    let labaB = oB - pB;
-
-    bodyEl.innerHTML = `
-      <div style="background:var(--primary-light); padding:16px; border-radius:12px; font-size:13px; line-height:1.6; border:1px solid var(--primary);">
-        <div style="display:flex; justify-content:space-between;"><span>Total Omzet Bulan Ini:</span> <b>Rp ${oB.toLocaleString('id-ID')}</b></div>
-        <div style="display:flex; justify-content:space-between;"><span>Total Pengeluaran Bulan Ini:</span> <b style="color:var(--danger);">Rp ${pB.toLocaleString('id-ID')}</b></div>
-        <div style="display:flex; justify-content:space-between; border-top:1px dashed var(--primary); margin-top:8px; padding-top:8px; font-size:15px; font-weight:800;"><span>Laba Bersih:</span> <span style="color:var(--success);">Rp ${labaB.toLocaleString('id-ID')}</span></div>
-      </div>
-      <p style="font-size:12px; color:var(--text-muted); margin-top:12px; text-align:center;">Gunakan tab Laporan utama untuk melihat tabel lengkap rekapitulasi bulanan.</p>
-    `;
-  }
-  modal.style.display = "flex";
-}
-
-function bukaModalPiutang() {
-  let modal = document.getElementById("interaktifModal");
-  let judulEl = document.getElementById("modalLaporanJudul");
-  let bodyEl = document.getElementById("modalLaporanBody");
-
-  judulEl.innerText = "Kelola Piutang Pelanggan";
-  
-  let htmlPiutang = piutang.length ? piutang.map(p => {
-    let isLunas = p.status === "lunas";
-    let tgl = new Date(p.tanggal).toLocaleDateString('id-ID');
-    return `
-      <div style="background:var(--bg-main); border:1px solid ${isLunas ? 'var(--success)' : 'var(--warning)'}; padding:12px; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="display:flex; align-items:flex-start; gap:10px;">
-          <input type="checkbox" ${isLunas ? 'checked' : ''} onchange="togglePiutangLunas(${p.id})" style="width:20px; height:20px; margin-top:2px; cursor:pointer;">
-          <div>
-            <b>${p.pelanggan}</b> <span style="font-size:11px; color:var(--text-muted);">(${tgl})</span><br>
-            <span style="font-size:12px; color:var(--text-main);">${p.barang} (${p.qty} Pcs)</span><br>
-            <span style="font-weight:800; color:${isLunas ? 'var(--success)' : 'var(--danger)'};">Rp ${p.nominal.toLocaleString('id-ID')} [${isLunas ? 'LUNAS' : 'BELUM LUNAS'}]</span>
-          </div>
-        </div>
-        <button onclick="hapusPiutang(${p.id})" style="width:auto; padding:6px 10px; font-size:11px; background:var(--danger); box-shadow:none;"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    `;
-  }).join('') : '<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Belum ada data piutang pelanggan.</p>';
-
-  bodyEl.innerHTML = `
-    <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Ceklis kotak piutang yang sudah dibayar oleh pelanggan. Status lunas akan otomatis memasukkan nominal ke perhitungan omzet dan laba bersih.</p>
-    ${htmlPiutang}
-  `;
-  modal.style.display = "flex";
-}
-
-function tutupModalLaporan() {
-  document.getElementById("interaktifModal").style.display = "none";
-}
-
-function bukaModalEditTarget() {
-  document.getElementById("inputTargetManual").value = targetBulananCustom || 400;
-  document.getElementById("modalEditTarget").style.display = "flex";
-}
-function tutupModalEditTarget() {
-  document.getElementById("modalEditTarget").style.display = "none";
-}
-async function simpanTargetManual() {
-  let val = Number(document.getElementById("inputTargetManual").value);
-  if(val <= 0 || isNaN(val)) return;
-  targetBulananCustom = val;
-  tutupModalEditTarget();
-  saveData();
-  customAlert("Target Diperbarui", `Target bulanan berhasil diubah menjadi <b>${val} Botol</b>.`, "success");
 }
 
 function render(){
@@ -2058,11 +1808,7 @@ function render(){
   let salesMapHari = {};
   jualHariIni.forEach(x => { if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; });
   let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
-  let topVarianHariText = document.getElementById("topVarianHariIniText");
-  if(topVarianHariText) {
-    topVarianHariText.innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
-  }
-
+  document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
@@ -2075,121 +1821,120 @@ function render(){
   runCountUp("omzet", omzetVal, true);
   runCountUp("pengeluaran", keluarVal, true);
   runCountUp("laba", (omzetVal - keluarVal), true);
-
   let salesMapBln = {};
   jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
   let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
   
-  let topVarianAvatars = document.getElementById("topVarianAvatars");
-  if(topVarianAvatars) {
-    topVarianAvatars.innerHTML = rankingBln.length ?
-    rankingBln.map((x, i) => `
-      <div class="product-badge-card">
-        <div class="product-badge-rank">Rank #<span>${i+1}</span></div>
-        <div class="product-badge-name">${x[0]}</div>
-        <div class="product-badge-qty">${x[1]} Pcs</div>
-      </div>
-    `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
-  }
-
+  topVarianAvatars.innerHTML = rankingBln.length ?
+  rankingBln.map((x, i) => `
+    <div class="product-badge-card">
+      <div class="product-badge-rank">Rank #<span>${i+1}</span></div>
+      <div class="product-badge-name">${x[0]}</div>
+      <div class="product-badge-qty">${x[1]} Pcs</div>
+    </div>
+  `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
   barangUrut.sort((a, b) => a.stok - b.stok);
-
-  let listBarang = document.getElementById("listBarang");
-  if(listBarang) {
-    listBarang.innerHTML = barangUrut.map(x => {  
-      let badgeTag = "";  
-      if (x.stok === 0) {  
-        badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`;  
-      } else if (x.stok <= 10) {  
-        badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`;  
-      } else {  
-        badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;  
-      }  
-      
-      let msPerDay = 24 * 60 * 60 * 1000;
-      let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
-      let qty7Hari = 0;
-      let qty7HariSebelumnya = 0;
-      
-      penjualan.forEach(p => {
-        if (p.barang === x.nama && p.qty > 0) {
-          let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
-          let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
-          if (selisihHari >= 0 && selisihHari < 7) qty7Hari += p.qty;
-          else if (selisihHari >= 7 && selisihHari < 14) qty7HariSebelumnya += p.qty;
-        }
-      });
-      let avg7Hari = qty7Hari / 7;
-      let prediksiHabisHari = avg7Hari > 0 ? Math.floor(x.stok / avg7Hari) : Infinity;
-      let colorPredict = "var(--success)";
-      let textPredict = "<i class='fa-solid fa-circle-check'></i> Aman (>30 hari)";
-      if (x.stok === 0) {
-        colorPredict = "var(--danger)";
-        textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
-      } else if (prediksiHabisHari < 7) { 
-        colorPredict = "var(--danger)";
-        textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ± Habis dalam ${prediksiHabisHari} hari`;
-      } else if (prediksiHabisHari < 14) { 
-        colorPredict = "var(--warning)";
-        textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ± Habis dalam ${prediksiHabisHari} hari`;
-      } else if (prediksiHabisHari <= 30) { 
-        colorPredict = "#eab308";
-        textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ± Habis dalam ${prediksiHabisHari} hari`;
+  // --- KODE PENGGANTI AI RESTOCK (DIMULAI DARI listBarang.innerHTML) ---
+  listBarang.innerHTML = barangUrut.map(x => {  
+    let badgeTag = "";  
+    if (x.stok === 0) {  
+      badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`;  
+    } else if (x.stok <= 10) {  
+      badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`;  
+    } else {  
+      badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;  
+    }  
+    
+    // --- INJEKSI ANALISIS AI RESTOCK ---
+    let msPerDay = 24 * 60 * 60 * 1000;
+    let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
+    
+    let qty7Hari = 0;
+    let qty7HariSebelumnya = 0;
+    
+    // Loop sejarah penjualan untuk mencari pola
+    penjualan.forEach(p => {
+      if (p.barang === x.nama && p.qty > 0) {
+        let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
+        let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
+        
+        if (selisihHari >= 0 && selisihHari < 7) qty7Hari += p.qty;
+        else if (selisihHari >= 7 && selisihHari < 14) qty7HariSebelumnya += p.qty;
       }
+    });
+    let avg7Hari = qty7Hari / 7;
+    let prediksiHabisHari = avg7Hari > 0 ? Math.floor(x.stok / avg7Hari) : Infinity;
+    let colorPredict = "var(--success)";
+    let textPredict = "<i class='fa-solid fa-circle-check'></i> Aman (>30 hari)";
+    if (x.stok === 0) {
+      colorPredict = "var(--danger)";
+      textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
+    } else if (prediksiHabisHari < 7) { 
+      colorPredict = "var(--danger)";
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Â± Habis dalam ${prediksiHabisHari} hari`;
+    } else if (prediksiHabisHari < 14) { 
+      colorPredict = "var(--warning)";
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> Â± Habis dalam ${prediksiHabisHari} hari`;
+    } else if (prediksiHabisHari <= 30) { 
+      colorPredict = "#eab308";
+      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> Â± Habis dalam ${prediksiHabisHari} hari`;
+      // Kuning gelap
+    }
+    
+    let trenMeroket = false;
+    if (qty7HariSebelumnya > 0) {
+      let persentaseNaik = ((qty7Hari - qty7HariSebelumnya) / qty7HariSebelumnya) * 100;
+      if (persentaseNaik > 30) trenMeroket = true;
+    } else if (qty7Hari > 3 && qty7HariSebelumnya === 0) {
+      trenMeroket = true;
+    }
+
+    let aiCardHtml = `
+      <div style="margin-top:10px; padding:8px; background:var(--bg-main); border-radius:8px; border:1px solid #e2e8f0; font-size:11px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-robot"></i> AI Prediksi:</span>
+          <span><b>${avg7Hari.toFixed(1)}</b> avg/hari</span>
+        </div>
+        <div style="color:${colorPredict}; font-weight:800;">${textPredict}</div>
+        ${trenMeroket ?
+        `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
+      </div>
+    `;
+    // --- END INJEKSI AI ---
+
+    let dropdownOptions = "";
+    for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
+    return `
+      <div class="item-barang">  
+        <div class="item-info" style="text-align:left;">  
+          <b>${x.nama}</b>  
+          <div class="stok-text">Sisa: ${x.stok} pcs</div>  
+          ${badgeTag}  
+          ${aiCardHtml}
+        </div>  
+     
       
-      let trenMeroket = false;
-      if (qty7HariSebelumnya > 0) {
-        let persentaseNaik = ((qty7Hari - qty7HariSebelumnya) / qty7HariSebelumnya) * 100;
-        if (persentaseNaik > 30) trenMeroket = true;
-      } else if (qty7Hari > 3 && qty7HariSebelumnya === 0) {
-        trenMeroket = true;
-      }
-
-      let aiCardHtml = `
-        <div style="margin-top:10px; padding:8px; background:var(--bg-main); border-radius:8px; border:1px solid #e2e8f0; font-size:11px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-            <span style="color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-robot"></i> AI Prediksi:</span>
-            <span><b>${avg7Hari.toFixed(1)}</b> avg/hari</span>
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
+            <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">
+              ${dropdownOptions}
+            </select>
           </div>
-          <div style="color:${colorPredict}; font-weight:800;">${textPredict}</div>
-          ${trenMeroket ? `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
-        </div>
-      `;
-
-      let dropdownOptions = "";
-      for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
-      return `
-        <div class="item-barang">  
-          <div class="item-info" style="text-align:left;">  
-            <b>${x.nama}</b>  
-            <div class="stok-text">Sisa: ${x.stok} pcs</div>  
-            ${badgeTag}  
-            ${aiCardHtml}
-          </div>  
-          <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
-            <div style="display:flex; gap:6px; align-items:center;">
-              <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
-              <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">
-                ${dropdownOptions}
-              </select>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;"><i class="fa-solid fa-bolt"></i> Jual</button>
-              <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
-            </div>
+         
+ 
+          <div style="display:flex; gap:6px;">
+            <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;"><i class="fa-solid fa-bolt"></i> Jual</button>
+            <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
           </div>
         </div>
-      `;
-    }).join("");
-  }
-
-  let barangJual = document.getElementById("barangJual");
-  if(barangJual) {
-    barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
-  }
+      </div>
+    `;
+  }).join("");
+  barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
   let tglDipilih = document.getElementById("hariSelect").value;
   if(tglDipilih){
@@ -2201,7 +1946,7 @@ function render(){
 
     let mapHarian = {};
     jH.forEach(x => {
-      if(x.qty > 0 || x.barang.includes("OMZET MANUAL") || x.barang.includes("PELUNASAN PIUTANG")) {
+      if(x.qty > 0 || x.barang === "OMZET MANUAL") {
         if(!mapHarian[x.barang]) mapHarian[x.barang] = {qty: 0, nominal: 0};
         mapHarian[x.barang].qty += x.qty;
         mapHarian[x.barang].nominal += x.nominal;
@@ -2215,25 +1960,30 @@ function render(){
     let htmlPengeluaran = eH.length > 0
       ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('')
       : '<li>Tidak ada pengeluaran</li>';
-    
-    let summaryHarian = document.getElementById("summaryHarian");
-    if(summaryHarian) {
-      summaryHarian.innerHTML = `
-        <div style="background: var(--primary-light); padding:12px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; justify-content:space-between;">
-            <span><i class="fa-solid fa-box"></i> Total Terjual Hari Ini:</span>
-            <span>${totalPcsHarian} Pcs</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;">
-            <span><i class="fa-solid fa-money-bill-wave"></i> Total Pendapatan:</span>
-            <span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span>
-          </div>
+    summaryHarian.innerHTML = `
+      <div style="background: var(--primary-light); padding:12px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span><i class="fa-solid fa-box"></i> Total Terjual Hari Ini:</span>
+          <span>${totalPcsHarian} Pcs</span>
         </div>
-      `;
-    }
+        <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;">
+          <span><i class="fa-solid fa-money-bill-wave"></i> Total Pendapatan:</span>
+    
+          <span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span>
+        </div>
+      </div>
+      <div style="margin-bottom:12px; text-align:left;">
+        <strong style="color:var(--primary); font-size:14px;"><i class="fa-solid fa-clipboard-list"></i> Performa Hari Ini</strong>
+        <ul style="margin:6px 0 10px 18px; padding:0; line-height: 1.6;">${htmlPenjualan}</ul>
+      </div>
+      <div style="text-align:left;">
+        <strong style="color:var(--danger); font-size:14px;"><i class="fa-solid fa-wallet"></i> Info Pengeluaran</strong>
+        <ul style="margin:6px 0 0 18px; padding:0; color:var(--text-muted); font-size:12px; line-height: 1.6;">${htmlPengeluaran}</ul>
+      </div>
+    `;
   }
 
-  let blnDipilih = document.getElementById("bulanSelect") ? document.getElementById("bulanSelect").value : bulanAktif;
+  let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
   let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
   let oB = jB.reduce((a,b)=>a+b.nominal,0);
@@ -2248,82 +1998,98 @@ function render(){
     mapBulanan[x.barang].nominal += x.nominal;
   });
   
-  let summaryBulanan = document.getElementById("summaryBulanan");
-  if(summaryBulanan) {
-    let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => b[1].qty - a[1].qty).map(x => `
-      <tr>
-        <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x[0]}</td>
-        <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:700;">${x[1].qty > 0 ? x[1].qty : '-'}</td>
-        <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700;">Rp ${x[1].nominal.toLocaleString('id-ID')}</td>
-      </tr>
-    `).join("");
+  let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => 
+  b[1].qty - a[1].qty).map(x => `
+    <tr>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x[0]}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:700;">${x[1].qty > 0 ? x[1].qty : '-'}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700;">Rp ${x[1].nominal.toLocaleString('id-ID')}</td>
+    </tr>
+  `).join("");
 
-    let htmlTabelKeluar = kB.map(x => {
-      let tgl = new Date(x.tanggal);
-      let tglStr = String(tgl.getDate()).padStart(2,"0") + "/" + String(tgl.getMonth()+1).padStart(2,"0");
-      return `
-      <tr>
-        <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:600;">${tglStr}</td>
-        <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x.keterangan || 'Operasional'}</td>
-        <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700; color:var(--danger);">Rp ${x.nominal.toLocaleString('id-ID')}</td>
-      </tr>
-    `}).join("");
+  let htmlTabelKeluar = kB.map(x => {
+    let tgl = new Date(x.tanggal);
+    let tglStr = String(tgl.getDate()).padStart(2,"0") + "/" + String(tgl.getMonth()+1).padStart(2,"0");
+    return `
+    <tr>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:600;">${tglStr}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x.keterangan || 'Operasional'}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700; color:var(--danger);">Rp ${x.nominal.toLocaleString('id-ID')}</td>
+    </tr>
+  `}).join("");
 
-    summaryBulanan.innerHTML = `
-      <strong style="color:var(--primary); font-size:13px; display:block; margin-bottom:6px; text-align:left;">1. Rincian Penjualan Bulanan</strong>
-      <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
-        <table style="width:100%; border-collapse:collapse; font-size:12px;">
-          <thead>
-            <tr style="background:var(--bg-main); color:var(--text-main);">
-              <th style="padding:10px 8px; text-align:left; font-weight:700;">Nama Produk</th>
-              <th style="padding:10px 8px; text-align:center; font-weight:700;">Qty</th>
-              <th style="padding:10px 8px; text-align:right; font-weight:700;">Total Rp</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${htmlTabelJual || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
-            <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
-              <td style="padding:12px 8px; text-align:left;">TOTAL PENJUALAN</td>
-              <td style="padding:12px 8px; text-align:center; color:var(--primary); font-weight:800;">${totalPcsBulanan} Pcs</td>
-              <td style="padding:12px 8px; text-align:right; color:var(--primary); font-weight:800;">Rp ${oB.toLocaleString('id-ID')}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
+  summaryBulanan.innerHTML = `
+    
+    <strong style="color:var(--primary); font-size:13px; display:block; margin-bottom:6px; text-align:left;">1. Rincian Penjualan Bulanan</strong>
+    <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:var(--bg-main); color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Nama Produk</th>
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Qty</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Total Rp</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelJual || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
+            <td style="padding:12px 8px; text-align:left;">TOTAL PENJUALAN</td>
+            <td style="padding:12px 8px; text-align:center; color:var(--primary); font-weight:800;">${totalPcsBulanan} Pcs</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--primary); font-weight:800;">Rp ${oB.toLocaleString('id-ID')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  let modeRiwayat = document.getElementById("modeRiwayat") ? document.getElementById("modeRiwayat").value : "harian";
-  let tglRiwayat = document.getElementById("tanggalRiwayat") ? document.getElementById("tanggalRiwayat").value : hariIniFull;
+    <strong style="color:var(--danger); font-size:13px; display:block; margin-bottom:6px; text-align:left;">2. Rincian Pengeluaran Bulanan</strong>
+    <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:var(--bg-main); color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Tgl</th>
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Keperluan</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Nominal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelKeluar || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
+            <td colspan="2" style="padding:12px 8px; text-align:left;">TOTAL PENGELUARAN</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--danger); font-weight:800;">Rp ${pB.toLocaleString('id-ID')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:10px; padding:16px; background:var(--bg-card); border:2px dashed #cbd5e1; border-radius:14px; font-weight:800; font-size:16px; text-align:center; box-shadow: var(--shadow-sm); color:${labaB >= 0 ? 'var(--success)' : 'var(--danger)'};">
+      <i class="fa-solid fa-chart-column"></i> LABA BERSIH: Rp ${labaB.toLocaleString("id-ID")}
+    </div>
+  `;
+
+  let modeRiwayat = document.getElementById("modeRiwayat").value;
+  let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
   let riwayatKeluarFiltered = pengeluaran.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
 
-  let riwayatJualEl = document.getElementById("riwayatJual");
-  if(riwayatJualEl) {
-    riwayatJualEl.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
-      <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
-        <div style="text-align:left;"><b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}<br><span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
-        <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Batal</button>
-      </div>
-    `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
-  }
+  riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
+    <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="text-align:left;"><b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}<br><span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Batal</button>
+    </div>
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
 
-  let riwayatKeluarEl = document.getElementById("riwayatKeluar");
-  if(riwayatKeluarEl) {
-    riwayatKeluarEl.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => `
-      <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
-        <div style="text-align:left;"><b>${x.keterangan || "Pengeluaran"}</b><br><span style="color:var(--danger); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
-        <div style="display:flex; gap:6px;">
-          <button onclick="editPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--accent); box-shadow:none; border-radius:8px;">Edit</button>
-          <button onclick="hapusPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Hapus</button>
-        </div>
+  riwayatKeluar.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => `
+    <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="text-align:left;"><b>${x.keterangan || "Pengeluaran"}</b><br><span style="color:var(--danger); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <div style="display:flex; gap:6px;">
+        <button onclick="editPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--accent); box-shadow:none; border-radius:8px;">Edit</button>
+        <button onclick="hapusPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Hapus</button>
       </div>
-    `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
-  }
-
-  // KALIBRASI TARGET BULANAN LEBIH CERDAS
-  let targetBulanIni = targetBulananCustom !== null ? targetBulananCustom : 400; 
-  let currentPcs = totalPcsBulanan; 
+    </div>
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
+    // --- INJEKSI TARGET BULANAN ---
+  let targetBulanIni = 400; 
+  let currentPcs = totalPcsBulanan; // Menggunakan variabel yang sudah dihitung render()
   let progressPct = Math.min((currentPcs / targetBulanIni) * 100, 100).toFixed(1);
   let sisaTarget = Math.max(0, targetBulanIni - currentPcs);
   
@@ -2338,7 +2104,7 @@ function render(){
   let estTercapaiTeks = "-";
   if (sisaTarget === 0 && currentPcs >= targetBulanIni) {
     estTercapaiTeks = "Tercapai! <i class='fa-solid fa-trophy' style='color:#fbbf24'></i>";
-    if(bulanAktif === getMonthKey(new Date())) fireConfetti();
+    if(bulanAktif === getMonthKey(new Date())) fireConfetti(); // Hanya fire jika di bulan berjalan
   } else if (avgPcsPerDay > 0 && sisaTarget > 0) {
     let estHariLagi = Math.ceil(sisaTarget / avgPcsPerDay);
     if (hariBerjalan + estHariLagi <= totalHariBulanIni) {
@@ -2356,65 +2122,12 @@ function render(){
   
   if (elTargetProgress && elTargetText && elTargetAvg) {
     elTargetProgress.style.width = progressPct + '%';
-    elTargetText.innerHTML = `${currentPcs} / ${targetBulanIni} Botol (${progressPct}%)<br><span style="font-size:10px; color:var(--text-muted); font-weight:500;">Sisa: ${sisaTarget} Pcs</span>`;
+    elTargetText.innerHTML = `${currentPcs} / ${targetBulanIni} Pcs (${progressPct}%)<br><span style="font-size:10px; color:var(--text-muted); font-weight:500;">Sisa: ${sisaTarget} Pcs</span>`;
     
     elTargetAvg.innerHTML = `
       <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Rata-rata Penjualan:</span> <b>${avgPcsPerDay.toFixed(1)} Pcs/hari</b></div>
       <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Harus Dijual (Sisa Hari):</span> <b style="color:var(--warning);">${reqPcsPerDay} Pcs/hari</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Estimasi Target Tercapai:</span> <b style="color:var(--primary);">${estTercapaiTeks}</b></div>
-    `;
-  }
-
-  // --- MESIN AI CERDAS & AKURAT (KALIBRASI DARI DATA LAMA) ---
-  // 1. Prediksi Penjualan Besok
-  let totalDataTransaksi = penjualan.length;
-  let totalQtySemua = penjualan.reduce((a,b)=>a+b.qty,0);
-  let estimasiBesokPcs = Math.round(totalQtySemua / Math.max(1, (new Set(penjualan.map(x => getDayKey(x.tanggal)))).size));
-  if(isNaN(estimasiBesokPcs) || estimasiBesokPcs === 0) estimasiBesokPcs = 3; // default baseline cerdas
-  let estimasiRupiahBesok = estimasiBesokPcs * HARGA;
-
-  let aiPrediksiBesokBox = document.getElementById("aiPrediksiBesokBox");
-  if(aiPrediksiBesokBox) {
-    aiPrediksiBesokBox.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom: 6px;">
-        <span style="font-size:18px; color:var(--primary);"><i class="fa-solid fa-chart-line-up"></i></span>
-        <span>Berdasarkan kalibrasi dari <b>${totalDataTransaksi} transaksi historis</b> sebelumnya:</span>
-      </div>
-      <div style="background:var(--bg-card); padding:12px; border-radius:10px; border:1px solid #cbd5e1; font-size:14px; font-weight:800; color:var(--primary); display:flex; justify-content:space-between;">
-        <span>Estimasi Volume Besok:</span>
-        <span>± ${estimasiBesokPcs} Pcs (Rp ${estimasiRupiahBesok.toLocaleString('id-ID')})</span>
-      </div>
-    `;
-  }
-
-  // 2. Pusat AI Lanjutan (Pusat AI di Tab Riwayat lama)
-  let aiPusatEl = document.getElementById("aiPusatAnalisisContent");
-  let statusKalibrasiEl = document.getElementById("statusKalibrasiAI");
-  
-  if(aiPusatEl && statusKalibrasiEl) {
-    // Cari varian paling laris secara keseluruhan
-    let globalSalesMap = {};
-    penjualan.forEach(x => { if(x.qty > 0) globalSalesMap[x.barang] = (globalSalesMap[x.barang] || 0) + x.qty; });
-    let globalRank = Object.entries(globalSalesMap).sort((a,b) => b[1] - a[1]);
-    let topVarianGlobal = globalRank.length ? globalRank[0][0] : "Belum teridentifikasi";
-
-    aiPusatEl.innerHTML = `
-      <div style="background:var(--bg-card); padding:12px; border-radius:10px; border:1px solid #cbd5e1; font-size:13px;">
-        <b style="color:var(--primary);"><i class="fa-solid fa-medal"></i> Varian Dominan Sepanjang Masa:</b>
-        <div style="margin-top:2px; font-size:14px; font-weight:800;">${topVarianGlobal}</div>
-      </div>
-      <div style="background:var(--bg-card); padding:12px; border-radius:10px; border:1px solid #cbd5e1; font-size:13px;">
-        <b style="color:var(--warning);"><i class="fa-solid fa-triangle-exclamation"></i> Saran Restock Logistik:</b>
-        <div style="margin-top:2px; font-size:12px; line-height:1.4;">Sisa Botol (${stokBotol}) & Box (${stokBox}). Pastikan rasio seimbang dengan stok parfum siap jual untuk mencegah penundaan transaksi.</div>
-      </div>
-    `;
-
-    statusKalibrasiEl.innerHTML = `
-      <ul style="margin:0 0 0 18px; padding:0; font-size:12px; line-height:1.6;">
-        <li><b>Total Sampel Data Kalibrasi:</b> ${totalDataTransaksi} Rekaman Transaksi.</li>
-        <li><b>Akurasi Model Prediktif:</b> Tinggi (Menggunakan rata-rata tertimbang historis).</li>
-        <li><b>Integritas Data:</b> Seluruh data lama tersimpan aman di cloud tanpa ada penghapusan otomatis.</li>
-      </ul>
     `;
   }
 }
