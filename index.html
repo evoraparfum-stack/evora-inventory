@@ -1999,7 +1999,9 @@ function render(){
   let oB = jB.reduce((a,b)=>a+b.nominal,0);
   let pB = kB.reduce((a,b)=>a+b.nominal,0);
   let labaB = oB - pB;
-  let totalPcsBulanan = jB.reduce((sum, item) => sum + item.qty, 0);
+  let totalPcsBulanan = jB
+  .filter(item => item.barang !== "OMZET MANUAL")
+  .reduce((sum, item) => sum + Number(item.qty || 0), 0);
 
   let mapBulanan = {};
   jB.forEach(x => {
@@ -2099,7 +2101,12 @@ function render(){
   `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
     // --- INJEKSI TARGET BULANAN ---
   let targetBulanIni = 400; 
-  let currentPcs = totalPcsBulanan; // Menggunakan variabel yang sudah dihitung render()
+  const bulanSekarang = getMonthKey(new Date());
+
+let currentPcs =
+  (blnDipilih === bulanSekarang)
+    ? totalPcsBulanan
+    : 0;
   let progressPct = Math.min((currentPcs / targetBulanIni) * 100, 100).toFixed(1);
   let sisaTarget = Math.max(0, targetBulanIni - currentPcs);
   
