@@ -1360,14 +1360,24 @@ function getMonthLabel(key){
   return bulan[Number(m)-1]+" "+y;
 }
 
-function updateMonthSelect(){
+function updateMonthSelect() {
+  const select = document.getElementById("bulanSelect");
+  const selected = select.value;
+
   let set = new Set();
-  penjualan.forEach(x=>set.add(getMonthKey(x.tanggal)));
-  pengeluaran.forEach(x=>set.add(getMonthKey(x.tanggal)));
+  penjualan.forEach(x => set.add(getMonthKey(x.tanggal)));
+  pengeluaran.forEach(x => set.add(getMonthKey(x.tanggal)));
   set.add(getMonthKey(new Date()));
-  document.getElementById("bulanSelect").innerHTML =
-  [...set].sort().reverse()
-  .map(m=>`<option value="${m}">${getMonthLabel(m)}</option>`).join("");
+
+  const bulanList = [...set].sort().reverse();
+
+  select.innerHTML = bulanList
+    .map(m => `<option value="${m}">${getMonthLabel(m)}</option>`)
+    .join("");
+
+  if (bulanList.includes(selected)) {
+    select.value = selected;
+  }
 }
 
 function handleSearchInput() {
