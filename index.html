@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro - Premium Suite V2.0</title>
+  <title>EVORA Tracker Pro - Premium Suite</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -68,6 +68,7 @@ html, body {
 /* TOAST NOTIFICATION */
 .top-toast-alert {
   position: fixed;
+  /* Jauhkan secara fisik dari atas agar iOS tidak menjiplak warnanya */
   top: -200px; 
   left: 50%;
   transform: translateX(-50%);
@@ -84,13 +85,16 @@ html, body {
   align-items: flex-start;
   font-size: 13px;
   font-weight: 600;
+  /* Tambahkan efek pudar dan sembunyi total */
   opacity: 0;
   visibility: hidden;
+  /* Transisi sekarang mengatur semua properti (top, opacity, visibility) */
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid rgba(255,255,255,0.2);
 }
 
 .top-toast-alert.show {
+  /* Munculkan tepat di bawah poni / dynamic island iPhone */
   top: calc(20px + env(safe-area-inset-top));
   opacity: 1;
   visibility: visible;
@@ -101,6 +105,7 @@ html, body {
   color: white;
   border-radius: 50%;
   width: 32px;
+  /* Tombol silang diperbesar */
   height: 32px;
   display: flex;
   align-items: center;
@@ -452,17 +457,15 @@ input:focus, select:focus { border-color: var(--primary); background: var(--bg-c
   position: fixed; bottom: 0; left: 0; right: 0;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); height: 80px;
-  display: flex; justify-content: flex-start; align-items: center;
+  display: flex; justify-content: space-around; align-items: center;
   box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.06);
   z-index: 999; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-bottom: env(safe-area-inset-bottom);
-  overflow-x: auto; white-space: nowrap;
 }
-.bottom-nav::-webkit-scrollbar { display: none; }
 body.dark-theme .bottom-nav {
   background: rgba(30, 41, 59, 0.9) !important;
   border-top: 1px solid #334155 !important;
 }
-.nav-item { display: inline-flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0 12px; min-width: 65px;
+.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 700; text-decoration: none; background: none; border: none; padding: 0; width: 20%;
   transition: all 0.2s; }
 .nav-item.active { color: var(--primary); }
 .nav-icon { font-size: 20px; margin-bottom: 4px; padding: 4px 16px; border-radius: 16px;
@@ -559,14 +562,13 @@ body.dark-theme #summaryBulanan {
   </div>
   
   <div id="greetingText" class="user-greeting">Selamat Malam, Farhan</div>
-  <div id="aiInsightText" style="font-size:12px; margin-top:8px; opacity:0.85; line-height:1.4;"><i>Loading AI Insight...</i></div>
   
   <div class="bank-divider"></div>
 
   <div class="balance-section">
     <div>
-      <div class="balance-label">Kas Saat Ini</div>
-      <div id="kasSaatIni" class="balance-value shimmer-text">Rp 0</div>
+      <div class="balance-label">Omzet Hari Ini</div>
+      <div id="omzetHariIni" class="balance-value shimmer-text">Rp 0</div>
       <div id="trendBadge" class="trend-badge neutral">0%</div>
     </div>
     <div>
@@ -618,17 +620,6 @@ body.dark-theme #summaryBulanan {
       </div>
     </div>
 
-    <!-- DASHBOARD BARU ENTERPRISE -->
-    <div class="card" style="background: var(--bg-card);">
-      <h3 style="color:var(--primary);"><i class="fa-solid fa-wallet"></i> KEUANGAN AKTIF</h3>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13px; font-weight:600;">
-        <div style="background:var(--bg-main); padding:10px; border-radius:10px;">Saldo Awal: <br><span id="saldoAwalText" style="color:var(--text-main); font-size:14px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
-        <div style="background:var(--bg-main); padding:10px; border-radius:10px;">Nilai Persediaan: <br><span id="nilaiPersediaan" style="color:var(--primary); font-size:14px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
-        <div style="background:#fff1f2; padding:10px; border-radius:10px; border:1px solid #fecdd3;">Total Hutang: <br><span id="totalHutangDash" style="color:var(--danger); font-size:14px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
-        <div style="background:#f0fdf4; padding:10px; border-radius:10px; border:1px solid #bbf7d0;">Total Piutang: <br><span id="totalPiutangDash" style="color:var(--success); font-size:14px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
-      </div>
-    </div>
-
     <div class="card">
       <h3><i class="fa-solid fa-chart-line"></i> GRAFIK PENJUALAN 7 HARI TERAKHIR</h3>
       <div style="position: relative; height:200px; width:100%;">
@@ -657,7 +648,7 @@ body.dark-theme #summaryBulanan {
     </div>
     
     <div class="card">
-      <h3 style="color:var(--accent);"><i class="fa-solid fa-bullseye"></i> AI TARGET (400 BOTOL)</h3>
+      <h3 style="color:var(--accent);"><i class="fa-solid fa-bullseye"></i> TARGET BULAN INI</h3>
       <div style="background:var(--bg-main); border:1px solid #cbd5e1; border-radius:12px; padding:16px; margin-bottom:12px;">
         <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:8px;">
           <span>Progress Target</span>
@@ -667,7 +658,7 @@ body.dark-theme #summaryBulanan {
           <div id="targetProgressFill" style="background:var(--success); width:0%; height:100%; transition:width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
         </div>
         <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;">
-        </div>
+          </div>
       </div>
     </div>
 
@@ -677,7 +668,7 @@ body.dark-theme #summaryBulanan {
         <div>Total Omzet: <br><span id="omzet" class="shimmer-text" style="color:var(--primary); font-size:16px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
         <div>Total Belanja: <br><span id="pengeluaran" class="shimmer-text" style="color:var(--danger); font-size:16px; font-weight:800; display:inline-block; margin-top:4px;">Rp 0</span></div>
         <div style="grid-column:span 2; margin-top:6px; padding-top:10px; border-top:1px dashed #b2f5ea; font-size:14px;">
-          Laba Bersih Bulan Ini: <br><span id="laba" class="shimmer-text" style="color:var(--success); font-size:20px; font-weight:900; display:inline-block; margin-top:4px;">Rp 0</span>
+          Laba Bersih Kumulatif: <br><span id="laba" class="shimmer-text" style="color:var(--success); font-size:20px; font-weight:900; display:inline-block; margin-top:4px;">Rp 0</span>
         </div>
       </div>
     </div>
@@ -733,22 +724,9 @@ body.dark-theme #summaryBulanan {
     </div>
 
     <div class="card">
-      <h3><i class="fa-solid fa-chart-column"></i> REKAPITULASI BULANAN</h3>
+      <h3><i class="fa-solid fa-chart-column"></i> REKAPITULASI BULANAN (DETAIL)</h3>
       <select id="bulanSelect" onchange="render()"></select>
       <div id="summaryBulanan" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
-    </div>
-
-    <!-- LAPORAN TAHUNAN -->
-    <div class="card">
-      <h3><i class="fa-solid fa-calendar"></i> LAPORAN TAHUNAN</h3>
-      <div id="summaryTahunan" style="margin-top:10px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; line-height:1.7; font-size:13px;"></div>
-    </div>
-
-    <!-- TUTUP BULAN -->
-    <div class="card" style="border: 1px solid var(--danger); background: rgba(225,29,72,0.05);">
-      <h3 style="color:var(--danger)"><i class="fa-solid fa-folder-closed"></i> TUTUP BULAN</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px; line-height: 1.5;">Pindahkan transaksi bulan berjalan ke Arsip. Stok varian akan tetap dibawa. Dashboard bulan depan akan dimulai dari nol.</p>
-      <button onclick="tutupBulan()" style="background:var(--danger); box-shadow:none;"><i class="fa-solid fa-box-archive"></i> Proses Tutup Bulan</button>
     </div>
   </div>
 
@@ -759,7 +737,6 @@ body.dark-theme #summaryBulanan {
         <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:8px; font-size:12px;">
           <option value="harian">Hari</option>
           <option value="bulanan">Bulan</option>
-          <option value="arsip">Arsip (Semua)</option>
         </select>
         <input id="tanggalRiwayat" type="date" onchange="render()" style="width:140px; margin:0; padding:8px; font-size:12px;">
       </div>
@@ -776,69 +753,12 @@ body.dark-theme #summaryBulanan {
     </div>
   </div>
 
-  <!-- TAB HUTANG -->
-  <div id="tab-hutang" class="tab-content">
-    <div class="card">
-      <h3><i class="fa-solid fa-handshake"></i> TAMBAH HUTANG BARU</h3>
-      <input id="hutangSupplier" placeholder="Nama Supplier">
-      <input id="hutangBarang" placeholder="Nama Barang / Kategori">
-      <input id="hutangNominal" type="number" placeholder="Nominal Hutang (Rp)">
-      <input id="hutangJatuhTempo" type="date" placeholder="Jatuh Tempo">
-      <input id="hutangCatatan" placeholder="Catatan Tambahan">
-      <button onclick="tambahHutang()"><i class="fa-solid fa-plus"></i> Simpan Hutang</button>
-    </div>
-    <div class="card">
-      <h3><i class="fa-solid fa-list"></i> DAFTAR HUTANG</h3>
-      <div id="listHutangContainer"></div>
-    </div>
-  </div>
-
-  <!-- TAB PIUTANG -->
-  <div id="tab-piutang" class="tab-content">
-    <div class="card">
-      <h3><i class="fa-solid fa-users"></i> TAMBAH PIUTANG (CUSTOMER NGUTANG)</h3>
-      <input id="piutangCustomer" placeholder="Nama Customer">
-      <input id="piutangBarang" placeholder="Barang yang dibeli">
-      <input id="piutangQty" type="number" placeholder="Qty">
-      <input id="piutangTotal" type="number" placeholder="Total Belanja (Rp)">
-      <input id="piutangCatatan" placeholder="Catatan Tambahan">
-      <button onclick="tambahPiutang()"><i class="fa-solid fa-plus"></i> Simpan Piutang</button>
-    </div>
-    <div class="card">
-      <h3><i class="fa-solid fa-list"></i> DAFTAR PIUTANG</h3>
-      <div id="listPiutangContainer"></div>
-    </div>
-  </div>
-
-  <!-- TAB EVORA AI -->
-  <div id="tab-ai" class="tab-content">
-    <div class="card">
-      <h3><i class="fa-solid fa-robot"></i> EVORA AI - ANALISA BULANAN</h3>
-      <div id="aiAnalisaBulan" style="background:#f8fafc; padding:12px; border-radius:12px; border:1px solid #e2e8f0; font-size:12px; line-height:1.6;"></div>
-    </div>
-
-    <div class="card">
-      <h3><i class="fa-solid fa-calculator"></i> AI BELANJA ASSISTANT</h3>
-      <p style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">Masukkan modal yang Anda miliki, AI akan menghitung prioritas belanja barang yang menipis.</p>
-      <input id="aiModalInput" type="number" placeholder="Masukkan Modal Belanja (Rp)">
-      <button onclick="hitungAiBelanja()"><i class="fa-solid fa-magic"></i> Hitung Estimasi Belanja</button>
-      <div id="aiBelanjaResult" style="margin-top:12px; font-size:12px; line-height:1.6;"></div>
-    </div>
-  </div>
-
   <div id="tab-setting" class="tab-content">
     <div class="card">
       <h3 style="color:var(--primary)"><i class="fa-solid fa-user"></i> PENGATURAN PROFIL</h3>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Ubah nama yang ditampilkan di sapaan layar utama.</p>
       <input id="inputNamaProfil" type="text" placeholder="Masukkan nama panggilan Anda">
       <button onclick="simpanNamaProfil()" style="margin-top:8px;">Simpan Nama</button>
-    </div>
-
-    <div class="card">
-      <h3 style="color:var(--primary)"><i class="fa-solid fa-money-bill"></i> SALDO AWAL (KAS)</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Atur saldo awal / sisa kas bulan lalu untuk perhitungan Kas Saat Ini.</p>
-      <input id="inputSaldoAwal" type="number" placeholder="Saldo Awal">
-      <button onclick="simpanSaldoAwal()" style="margin-top:8px;">Simpan Saldo</button>
     </div>
 
     <div class="card">
@@ -894,24 +814,13 @@ body.dark-theme #summaryBulanan {
     <div class="nav-icon"><i class="fa-solid fa-chart-column"></i></div>
     <div>Laporan</div>
   </button>
-  <button id="nav-hutang" class="nav-item" onclick="switchTab('hutang')">
-    <div class="nav-icon"><i class="fa-solid fa-handshake"></i></div>
-    <div>Hutang</div>
-  </button>
-  <button id="nav-piutang" class="nav-item" onclick="switchTab('piutang')">
-    <div class="nav-icon"><i class="fa-solid fa-users"></i></div>
-    <div>Piutang</div>
-  </button>
-  <button id="nav-ai" class="nav-item" onclick="switchTab('ai')">
-    <div class="nav-icon"><i class="fa-solid fa-robot"></i></div>
-    <div>AI Evora</div>
-  </button>
   <button id="nav-riwayat" class="nav-item" onclick="switchTab('riwayat')">
     <div class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
     <div>Riwayat</div>
   </button>
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
     <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
+  
     <div>Setting</div>
   </button>
 </div>
@@ -982,16 +891,10 @@ let barang = [];
 let penjualan = [];
 let pengeluaran = [];
 let pesanan = []; 
-
-// DATA BARU ENTERPRISE
-let hutang = [];
-let piutang = [];
-let arsipBulanan = [];
-let saldoAwal = 0;
-
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
+// Variabel Ekstensi Enterprise
 let namaUser = localStorage.getItem("evora_nama") || "Farhan";
 let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let printCharacteristic = null;
@@ -1008,6 +911,7 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
+// INITIALIZE SETTINGS
 function initEnterpriseSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
   let btnDark = document.getElementById("btnDarkMode");
@@ -1019,57 +923,81 @@ function initEnterpriseSettings() {
 }
 initEnterpriseSettings();
 
+// SHORTCUT FUNCTIONS
 function shortcutRestock() {
   switchTab("kasir");
   setTimeout(() => {
-    document.getElementById("panelRestock").scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("panelRestock").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   }, 250);
 }
 
 function shortcutKasir() {
   switchTab("kasir");
   setTimeout(() => {
-    document.getElementById("panelKasir").scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("panelKasir").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   }, 250);
 }
 
+// NOTIFIKASI STOK
 function checkLowStockAlert() {
   let lowItems = [];
+  // Aturan baru: Botol dan Box akan memunculkan notif jika sisa di bawah 15
   if (stokBotol < 15) lowItems.push(`<i class="fa-solid fa-wine-bottle"></i> Botol Kosong: <b>${stokBotol} pcs</b>`);
   if (stokBox < 15) lowItems.push(`<i class="fa-solid fa-box"></i> Box Packing: <b>${stokBox} pcs</b>`);
+  // Aturan untuk parfum tetap di bawah 5 (Jika ingin diubah ke 15, ganti angka 5 di bawah)
   barang.forEach(b => {
     if (b.stok < 5) lowItems.push(`<i class="fa-solid fa-flask"></i> ${b.nama}: <b>${b.stok} pcs</b>`);
   });
   if (lowItems.length > 0) {
+    // Membuat daftar pesan berformat bullet point
     let msg = "Item logistik / varian berikut perlu segera di-restock:<br>";
     msg += "<ul style='margin: 8px 0 0 20px; padding: 0; font-weight: 500; font-size: 13px; line-height: 1.7;'>";
-    lowItems.forEach(item => { msg += `<li>${item}</li>`; });
+    lowItems.forEach(item => {
+      msg += `<li>${item}</li>`;
+    });
     msg += "</ul>";
+    // Gunakan innerHTML agar tag HTML (seperti <b> dan <li>) tereksekusi
     document.getElementById("notificationMessage").innerHTML = msg;
     let notif = document.getElementById("topNotification");
     notif.classList.add("show");
+    
+    // Auto-close notifikasi diubah menjadi 10 detik agar lebih lama untuk dibaca
     setTimeout(() => { closeNotification(); }, 10000);
   }
 }
 
-function closeNotification() { document.getElementById("topNotification").classList.remove("show"); }
+function closeNotification() {
+  document.getElementById("topNotification").classList.remove("show");
+}
 
+// RIPPLE EFFECT
 document.addEventListener('click', function (e) {
   const button = e.target.closest('button');
   if (!button) return;
+  
   const ripple = document.createElement('span');
   const diameter = Math.max(button.clientWidth, button.clientHeight);
   const radius = diameter / 2;
+  
   ripple.style.width = ripple.style.height = `${diameter}px`;
   const rect = button.getBoundingClientRect();
   ripple.style.left = `${e.clientX - rect.left - radius}px`;
   ripple.style.top = `${e.clientY - rect.top - radius}px`;
   ripple.classList.add('ripple-span');
+  
   const oldRipple = button.querySelector('.ripple-span');
   if (oldRipple) oldRipple.remove();
+  
   button.appendChild(ripple);
 });
 
+// ALERT CUSTOM
 function customAlert(title, message, type = 'primary') {
   return new Promise((resolve) => {
     const modal = document.getElementById("globalDialogModal");
@@ -1083,11 +1011,18 @@ function customAlert(title, message, type = 'primary') {
     if(type === 'danger') { icon = '<i class="fa-solid fa-circle-xmark"></i>'; color = "var(--danger)"; }
     if(type === 'warning') { icon = '<i class="fa-solid fa-triangle-exclamation"></i>'; color = "var(--warning)"; }
 
-    iconEl.innerHTML = icon; titleEl.innerText = title; titleEl.style.color = color; msgEl.innerHTML = message;
+    iconEl.innerHTML = icon;
+    titleEl.innerText = title;
+    titleEl.style.color = color;
+    msgEl.innerHTML = message;
+
     btnContainer.style.gridTemplateColumns = "1fr";
     btnContainer.innerHTML = `<button id="dialogBtnOk" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">OK</button>`;
     modal.style.display = "flex";
-    document.getElementById("dialogBtnOk").onclick = () => { modal.style.display = "none"; resolve(); };
+    document.getElementById("dialogBtnOk").onclick = () => {
+      modal.style.display = "none";
+      resolve();
+    };
   });
 }
 
@@ -1104,33 +1039,41 @@ function customConfirm(title, message, type = 'primary') {
     if(type === 'danger') { icon = '<i class="fa-solid fa-trash"></i>'; color = "var(--danger)"; }
     if(type === 'warning') { icon = '<i class="fa-solid fa-triangle-exclamation"></i>'; color = "var(--warning)"; }
 
-    iconEl.innerHTML = icon; titleEl.innerText = title; titleEl.style.color = color; msgEl.innerHTML = message;
+    iconEl.innerHTML = icon;
+    titleEl.innerText = title;
+    titleEl.style.color = color;
+    msgEl.innerHTML = message;
+
     btnContainer.style.gridTemplateColumns = "1fr 1fr";
     btnContainer.innerHTML = `
       <button id="dialogBtnCancel" style="background:#94a3b8; box-shadow:none; padding:12px; border-radius:10px;">Batal</button>
       <button id="dialogBtnConfirm" style="background:${color}; box-shadow:none; padding:12px; border-radius:10px;">Konfirmasi</button>
     `;
     modal.style.display = "flex";
-    document.getElementById("dialogBtnCancel").onclick = () => { modal.style.display = "none"; resolve(false); };
-    document.getElementById("dialogBtnConfirm").onclick = () => { modal.style.display = "none"; resolve(true); };
+
+    document.getElementById("dialogBtnCancel").onclick = () => {
+      modal.style.display = "none";
+      resolve(false);
+    };
+    document.getElementById("dialogBtnConfirm").onclick = () => {
+      modal.style.display = "none";
+      resolve(true);
+    };
   });
 }
 
+// PROFILE SETUP & SAPAAN
 function simpanNamaProfil() {
   let namaBaru = document.getElementById("inputNamaProfil").value.trim();
-  if(!namaBaru) { customAlert("Peringatan", "Nama tidak boleh kosong!", "warning"); return; }
+  if(!namaBaru) {
+    customAlert("Peringatan", "Nama tidak boleh kosong!", "warning");
+    return;
+  }
   namaUser = namaBaru;
+ 
   localStorage.setItem("evora_nama", namaUser);
   parsePremiumGreeting();
   customAlert("Tersimpan", `Nama profil berhasil diubah menjadi <b>${namaUser}</b>.`, "success");
-}
-
-function simpanSaldoAwal() {
-  let nom = Number(document.getElementById("inputSaldoAwal").value);
-  if(isNaN(nom)) return;
-  saldoAwal = nom;
-  saveData();
-  customAlert("Tersimpan", `Saldo awal / Kas bulan lalu diatur menjadi Rp ${nom.toLocaleString('id-ID')}`, "success");
 }
 
 function parsePremiumGreeting() {
@@ -1143,19 +1086,23 @@ function parsePremiumGreeting() {
 }
 parsePremiumGreeting();
 
+// TEMA DARK MODE
 function toggleDarkMode() {
   isDarkMode = !isDarkMode;
   localStorage.setItem("evora_darkmode", isDarkMode);
   let btnDark = document.getElementById("btnDarkMode");
   if(isDarkMode) {
     document.body.classList.add("dark-theme");
-    btnDark.innerText = "Nonaktifkan"; btnDark.style.background = "var(--danger)";
+    btnDark.innerText = "Nonaktifkan";
+    btnDark.style.background = "var(--danger)";
   } else {
     document.body.classList.remove("dark-theme");
-    btnDark.innerText = "Aktifkan"; btnDark.style.background = "#94a3b8";
+    btnDark.innerText = "Aktifkan";
+    btnDark.style.background = "#94a3b8";
   }
 }
 
+// BLUETOOTH THERMAL PRINTER CORE ENGINE
 async function hubungkanPrinter() {
   if (!navigator.bluetooth) {
     customAlert("Tidak Didukung", "Browser tidak mendukung Web Bluetooth API. Gunakan Google Chrome terbaru.", "danger");
@@ -1166,7 +1113,11 @@ async function hubungkanPrinter() {
     document.getElementById("statusPrinter").style.color = "var(--warning)";
     bluetoothDevice = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
-      optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2', '49535343-fe7d-4ae5-8fa9-9fafd205e455']
+      optionalServices: [
+        '000018f0-0000-1000-8000-00805f9b34fb',
+        'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
+        '49535343-fe7d-4ae5-8fa9-9fafd205e455'
+      ]
     });
     const server = await bluetoothDevice.gatt.connect();
     const services = await server.getPrimaryServices();
@@ -1175,14 +1126,19 @@ async function hubungkanPrinter() {
     const characteristics = await service.getCharacteristics();
     printCharacteristic = characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
     if (!printCharacteristic) throw new Error("Karakteristik Write printer tidak ditemukan.");
+
     document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-circle-check"></i> ' + bluetoothDevice.name;
     document.getElementById("statusPrinter").style.color = "var(--success)";
     let btnTest = document.getElementById("btnTestPrint");
-    btnTest.disabled = false; btnTest.style.background = "var(--success)"; btnTest.style.color = "#fff";
+    btnTest.disabled = false;
+    btnTest.style.background = "var(--success)";
+    btnTest.style.color = "#fff";
     bluetoothDevice.addEventListener('gattserverdisconnected', () => {
       document.getElementById("statusPrinter").innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Terputus';
       document.getElementById("statusPrinter").style.color = "var(--danger)";
-      printCharacteristic = null; btnTest.disabled = true; btnTest.style.background = "#cbd5e1";
+      printCharacteristic = null;
+      btnTest.disabled = true;
+      btnTest.style.background = "#cbd5e1";
     });
   } catch (error) {
     console.error(error);
@@ -1195,57 +1151,115 @@ async function hubungkanPrinter() {
 async function kirimTeksKePrinter(teks) {
   if (!printCharacteristic) return;
   try {
-    let encoder = new TextEncoder(); let data = encoder.encode(teks);
+    let encoder = new TextEncoder();
+    let data = encoder.encode(teks);
     for (let i = 0; i < data.length; i += 20) {
-      let chunk = data.slice(i, i + 20); await printCharacteristic.writeValue(chunk);
+      let chunk = data.slice(i, i + 20);
+      await printCharacteristic.writeValue(chunk);
     }
-  } catch (err) { console.error("Gagal mengirim data print:", err); }
+  } catch (err) {
+    console.error("Gagal mengirim data print:", err);
+  }
 }
 
 async function cetakStrukOtomatis(namaBarang, qty, total) {
   if (!printCharacteristic) return;
+  // Silent skip jika printer tidak terhubung
   const ESC = '\x1B';
-  let teksStruk = ESC + '@' + ESC + 'a' + '\x01' + "=== EVORA TRACKER PRO ===\n" + "Premium Perfume Suite\n" + "--------------------------------\n" + ESC + 'a' + '\x00' +
-    "Tanggal : " + new Date().toLocaleString('id-ID') + "\n" + "Kasir   : " + namaUser + "\n" + "--------------------------------\n" +
-    namaBarang + "\n" + qty + " Pcs x Rp " + HARGA.toLocaleString('id-ID') + "\n" +
-    ESC + 'a' + '\x02' + "TOTAL: Rp " + total.toLocaleString('id-ID') + "\n" +
-    ESC + 'a' + '\x01' + "--------------------------------\n" + "Terima Kasih Atas Kunjungan Anda\n\n\n\n";
+  let teksStruk = 
+    ESC + '@' + 
+    ESC + 'a' + '\x01' + 
+    "=== EVORA TRACKER PRO ===\n" +
+    "Premium Perfume Suite\n" +
+    "--------------------------------\n" +
+    ESC + 'a' + '\x00' +
+    "Tanggal : " + new Date().toLocaleString('id-ID') + "\n" +
+    "Kasir   : " + namaUser + "\n" +
+    "--------------------------------\n" +
+    namaBarang + "\n" +
+    qty + " Pcs x Rp " + 
+    HARGA.toLocaleString('id-ID') + "\n" +
+    ESC + 'a' + '\x02' + 
+    "TOTAL: Rp " + total.toLocaleString('id-ID') + "\n" +
+    ESC + 'a' + '\x01' + 
+    "--------------------------------\n" +
+    "Terima Kasih Atas Kunjungan Anda\n\n\n\n";
   await kirimTeksKePrinter(teksStruk);
 }
 
 async function testPrint() {
   if (!printCharacteristic) return;
   const ESC = '\x1B';
-  let text = ESC + '@' + ESC + 'a' + '\x01' + "=== EVORA TRACKER PRO ===\n\n" + ESC + 'a' + '\x00' + "Tgl   : " + new Date().toLocaleString('id-ID') + "\n" + "Kasir : " + namaUser + "\n" + "--------------------------------\n" + ESC + 'a' + '\x01' + "KONEKSI PRINTER BERHASIL!\n" + ESC + 'a' + '\x00' + "--------------------------------\n\n\n\n";
+  let text = 
+    ESC + '@' + 
+    ESC + 'a' + '\x01' + 
+    "=== EVORA TRACKER PRO ===\n\n" +
+    ESC + 'a' + '\x00' + 
+    "Tgl   : " + new Date().toLocaleString('id-ID') + "\n" +
+    "Kasir : " + namaUser + "\n" +
+    "--------------------------------\n" +
+    ESC + 'a' + '\x01' + 
+    "KONEKSI PRINTER BERHASIL!\n" +
+    ESC + 'a' + '\x00' + 
+    "--------------------------------\n\n\n\n";
   await kirimTeksKePrinter(text);
   customAlert("Sukses", "Struk test berhasil dicetak ke printer!", "success");
 }
 
+// SIMPLE CONFETTI SYSTEM
 let isConfettiFired = false;
 function fireConfetti() {
   if (isConfettiFired || document.getElementById('evora-confetti')) return;
   isConfettiFired = true;
-  let c = document.createElement('div'); c.id = 'evora-confetti'; c.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;overflow:hidden;';
+  let c = document.createElement('div');
+  c.id = 'evora-confetti';
+  c.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;overflow:hidden;';
   document.body.appendChild(c);
   for(let i=0; i<40; i++){
-    let d = document.createElement('div'); d.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="color: #fcd34d;"></i>'; d.style.cssText = `position:absolute;left:${Math.random()*100}%;top:-10%;font-size:${Math.random()*15+15}px;animation:confetti-drop ${Math.random()*2+2}s linear infinite;`; c.appendChild(d);
+    let d = document.createElement('div');
+    d.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="color: #fcd34d;"></i>';
+    d.style.cssText = `position:absolute;left:${Math.random()*100}%;top:-10%;font-size:${Math.random()*15+15}px;animation:confetti-drop ${Math.random()*2+2}s linear infinite;`;
+    c.appendChild(d);
   }
-  let style = document.createElement('style'); style.innerHTML = `@keyframes confetti-drop { to { transform: translateY(120vh) rotate(360deg); } }`; document.head.appendChild(style);
+  let style = document.createElement('style');
+  style.innerHTML = `@keyframes confetti-drop { to { transform: translateY(120vh) rotate(360deg); } }`;
+  document.head.appendChild(style);
   setTimeout(()=> { c.remove(); style.remove(); }, 6000);
 }
 
+
+// COUNT UP ANIMATION LOGIC FOR METRICS
 function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
   const el = document.getElementById(elementId);
   if (!el) return;
+  
   let startValue = currentValuesRegistry[elementId] || 0;
-  if (startValue === targetValue) { el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix; return; }
+  if (startValue === targetValue) {
+    el.innerText = isCurrency ?
+    "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
+    return;
+  }
+  
   currentValuesRegistry[elementId] = targetValue;
-  const duration = 750; const startTime = performance.now();
+  const duration = 750;
+  const startTime = performance.now();
+  
   function step(now) {
-    const elapsed = now - startTime; const progress = Math.min(elapsed / duration, 1);
-    const easeQuadOut = progress * (2 - progress); const currentFrameVal = Math.floor(startValue + (targetValue - startValue) * easeQuadOut);
-    if (isCurrency) { el.innerText = "Rp " + currentFrameVal.toLocaleString("id-ID"); } else { el.innerText = currentFrameVal.toLocaleString("id-ID") + suffix; }
-    if (progress < 1) { requestAnimationFrame(step); } else { el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix; }
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easeQuadOut = progress * (2 - progress);
+    const currentFrameVal = Math.floor(startValue + (targetValue - startValue) * easeQuadOut);
+    if (isCurrency) {
+      el.innerText = "Rp " + currentFrameVal.toLocaleString("id-ID");
+    } else {
+      el.innerText = currentFrameVal.toLocaleString("id-ID") + suffix;
+    }
+    
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
+    }
   }
   requestAnimationFrame(step);
 }
@@ -1253,10 +1267,9 @@ function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
 function switchTab(tabName) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
   document.getElementById(`tab-${tabName}`).classList.add('active');
-  let navItem = document.getElementById(`nav-${tabName}`);
-  if(navItem) navItem.classList.add('active');
-  render();
+  document.getElementById(`nav-${tabName}`).classList.add('active');
 }
 
 async function loadDataFromCloud() {
@@ -1265,6 +1278,7 @@ async function loadDataFromCloud() {
   try {
     const { data, error } = await supabaseApp.from('pos_data').select('konten').eq('id', 1).single();
     if (error && error.code !== 'PGRST116') throw error; 
+
     if (data && data.konten) {
       let dataUtama = data.konten;
       stokBotol = Number(dataUtama.stokBotol || 0);
@@ -1273,17 +1287,14 @@ async function loadDataFromCloud() {
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
       pesanan = dataUtama.pesanan || []; 
-      hutang = dataUtama.hutang || [];
-      piutang = dataUtama.piutang || [];
-      arsipBulanan = dataUtama.arsipBulanan || [];
-      saldoAwal = Number(dataUtama.saldoAwal || 0);
       HARGA = Number(dataUtama.hargaGlobal || 27000);
+      
       document.getElementById("inputHargaGlobal").value = HARGA;
-      document.getElementById("inputSaldoAwal").value = saldoAwal;
       setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else {
       setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB");
     }
+    
     document.body.classList.remove("skeleton-loading");
     render();
     checkLowStockAlert();
@@ -1296,13 +1307,20 @@ async function loadDataFromCloud() {
 
 async function saveData() {
   setSyncStatus("<i class='fa-solid fa-bolt'></i> Saving...");
+  
   let paketData = {
-    stokBotol: stokBotol, stokBox: stokBox, barang: barang, penjualan: penjualan, pengeluaran: pengeluaran, pesanan: pesanan,
-    hutang: hutang, piutang: piutang, arsipBulanan: arsipBulanan, saldoAwal: saldoAwal, hargaGlobal: HARGA 
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran,
+    pesanan: pesanan, 
+    hargaGlobal: HARGA 
   };
   try {
     const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
     if (error) throw error;
+    
     setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved");
     render();
   } catch (error) {
@@ -1316,319 +1334,415 @@ async function simpanHargaBaru() {
   let hargaBaru = Number(elHarga.value);
   if(hargaBaru <= 0 || isNaN(hargaBaru)) return;
   let konfirmasi = await customConfirm("Ubah Harga Global", `Apakah Anda yakin ingin mengubah harga produk menjadi <b>Rp ${hargaBaru.toLocaleString("id-ID")}</b>?`, "warning");
-  if(!konfirmasi) { elHarga.value = HARGA; return; }
-  HARGA = hargaBaru; saveData();
+  if(!konfirmasi) {
+    elHarga.value = HARGA;
+    return;
+  }
+  HARGA = hargaBaru;
+  saveData();
 }
 
-function setSyncStatus(teks) { document.getElementById("syncStatus").innerHTML = teks; }
+function setSyncStatus(teks) {
+  document.getElementById("syncStatus").innerHTML = teks;
+}
 
-function getMonthKey(date){ let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
-function getDayKey(date){ let d = new Date(date); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-function getMonthLabel(key){ let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]; let [y,m]=key.split("-"); return bulan[Number(m)-1]+" "+y; }
+function getMonthKey(date){
+  let d = new Date(date);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+function getDayKey(date){
+  let d = new Date(date);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function getMonthLabel(key){
+  let bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  let [y,m]=key.split("-");
+  return bulan[Number(m)-1]+" "+y;
+}
 
 function updateMonthSelect() {
   const select = document.getElementById("bulanSelect");
   const selected = select.value;
+
   let set = new Set();
   penjualan.forEach(x => set.add(getMonthKey(x.tanggal)));
   pengeluaran.forEach(x => set.add(getMonthKey(x.tanggal)));
-  arsipBulanan.forEach(x => set.add(getMonthKey(x.tanggal))); // From archives too
   set.add(getMonthKey(new Date()));
+
   const bulanList = [...set].sort().reverse();
-  select.innerHTML = bulanList.map(m => `<option value="${m}">${getMonthLabel(m)}</option>`).join("");
-  if (bulanList.includes(selected)) { select.value = selected; }
+
+  select.innerHTML = bulanList
+    .map(m => `<option value="${m}">${getMonthLabel(m)}</option>`)
+    .join("");
+
+  if (bulanList.includes(selected)) {
+    select.value = selected;
+  }
 }
 
 function handleSearchInput() {
   let q = document.getElementById("cariBarangInput").value;
-  document.getElementById("btnClearSearch").style.display = q ? "block" : "none"; render();
+  document.getElementById("btnClearSearch").style.display = q ? "block" : "none";
+  render();
 }
-function clearSearchField() { document.getElementById("cariBarangInput").value = ""; document.getElementById("btnClearSearch").style.display = "none"; render(); }
+
+function clearSearchField() {
+  document.getElementById("cariBarangInput").value = "";
+  document.getElementById("btnClearSearch").style.display = "none";
+  render();
+}
 
 function renderWeeklyChart() {
-  let labels = []; let dataOmzet = [];
+  let labels = [];
+  let dataOmzet = [];
+  
   for(let i = 6; i >= 0; i--) {
-    let d = new Date(); d.setDate(d.getDate() - i); let key = getDayKey(d);
+    let d = new Date();
+    d.setDate(d.getDate() - i);
+    let key = getDayKey(d);
+    
     let labelStr = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
     labels.push(labelStr);
     let transaksiHariIni = penjualan.filter(x => getDayKey(x.tanggal) === key);
-    let omzetHariIni = transaksiHariIni.reduce((a, b) => a + b.nominal, 0); dataOmzet.push(omzetHariIni);
+    let omzetHariIni = transaksiHariIni.reduce((a, b) => a + b.nominal, 0);
+    dataOmzet.push(omzetHariIni);
   }
+
   let ctx = document.getElementById('grafikMingguan').getContext('2d');
-  let lineColor = isDarkMode ? '#2dd4bf' : '#0f616d'; let bgColor = isDarkMode ? 'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
+  let lineColor = isDarkMode ? '#2dd4bf' : '#0f616d';
+  let bgColor = isDarkMode ?
+  'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
+  
   if(chartInstance) {
-    chartInstance.data.labels = labels; chartInstance.data.datasets[0].data = dataOmzet;
-    chartInstance.data.datasets[0].borderColor = lineColor; chartInstance.data.datasets[0].backgroundColor = bgColor; chartInstance.update();
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = dataOmzet;
+    chartInstance.data.datasets[0].borderColor = lineColor;
+    chartInstance.data.datasets[0].backgroundColor = bgColor;
+    chartInstance.update();
   } else {
-    chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Omzet', data: dataOmzet, borderColor: lineColor, backgroundColor: bgColor, borderWidth: 2, tension: 0.3, fill: true }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); }, font: { size: 9 } } }, x: { ticks: { font: { size: 10 } } } } } });
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Omzet',
+          data: dataOmzet,
+          borderColor: lineColor,
+          backgroundColor: bgColor,
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: 
+          {
+            beginAtZero: true,
+            ticks: {
+              callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); },
+              font: { size: 9 }
+            }
+          },
+          x: { 
+          ticks: { font: { size: 10 } } }
+        }
+      }
+    });
   }
 }
 
 function editLogistik(jenis) {
-  currentLogistikJenis = jenis; document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
-  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ? stokBotol : stokBox;
-  document.getElementById("logistikJumlahManual").value = ""; document.getElementById("logistikModal").style.display = "flex";
+  currentLogistikJenis = jenis;
+  document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
+  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ?
+  stokBotol : stokBox;
+  document.getElementById("logistikJumlahManual").value = "";
+  document.getElementById("logistikModal").style.display = "flex";
 }
+
 function eksekusiLogistik(aksi) {
-  let inputVal = Number(document.getElementById("logistikJumlahManual").value); if (inputVal <= 0 || isNaN(inputVal)) return;
+  let inputVal = Number(document.getElementById("logistikJumlahManual").value);
+  if (inputVal <= 0 || isNaN(inputVal)) return;
+  
   let nilai = currentLogistikJenis === 'botol' ? stokBotol : stokBox;
   nilai = aksi === 'tambah' ? nilai + inputVal : Math.max(0, nilai - inputVal);
-  if (currentLogistikJenis === 'botol') { stokBotol = nilai; } else { stokBox = nilai; }
-  document.getElementById("logistikStokSekarang").innerText = nilai; document.getElementById("logistikJumlahManual").value = ""; saveData(); 
+  if (currentLogistikJenis === 'botol') {
+    stokBotol = nilai;
+  } else {
+    stokBox = nilai;
+  }
+  
+  document.getElementById("logistikStokSekarang").innerText = nilai;
+  document.getElementById("logistikJumlahManual").value = ""; 
+  saveData(); 
 }
-function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none"; }
+
+function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none";
+}
 
 async function tambahBarang(){
-  let nama = document.getElementById("namaBarang").value.trim().toUpperCase(); let qty = Number(document.getElementById("qtyBarang").value);
+  let nama = namaBarang.value.trim().toUpperCase();
+  let qty = Number(qtyBarang.value);
   if(!nama || qty<=0) return;
   let konfirmasi = await customConfirm("Tambah Varian", `Daftarkan varian parfum baru <b>"${nama}"</b> dengan stok awal <b>${qty} pcs</b>?`, "primary");
   if(!konfirmasi) return;
-  barang.push({nama:nama, stok:qty}); document.getElementById("namaBarang").value=""; document.getElementById("qtyBarang").value=""; saveData();
+  barang.push({nama:nama, stok:qty});
+  namaBarang.value=""; qtyBarang.value="";
+  saveData();
 }
 
 function editBarang(originalIndex){
-  currentEditIndex = originalIndex; document.getElementById("modalNamaBarang").value = barang[originalIndex].nama;
-  tempStok = Number(barang[originalIndex].stok || 0); document.getElementById("modalStokSekarang").innerText = tempStok;
-  document.getElementById("modalJumlahManual").value = ""; document.getElementById("editModal").style.display = "flex";
+  currentEditIndex = originalIndex;
+  document.getElementById("modalNamaBarang").value = barang[originalIndex].nama;
+  tempStok = Number(barang[originalIndex].stok || 0);
+  document.getElementById("modalStokSekarang").innerText = tempStok;
+  document.getElementById("modalJumlahManual").value = "";
+  document.getElementById("editModal").style.display = "flex";
 }
 function eksekusiManualModal(aksi) {
-  let inputVal = Number(document.getElementById("modalJumlahManual").value); if (inputVal <= 0) return;
-  tempStok = aksi === 'tambah' ? tempStok + inputVal : Math.max(0, tempStok - inputVal); document.getElementById("modalStokSekarang").innerText = tempStok;
+  let inputVal = Number(document.getElementById("modalJumlahManual").value);
+  if (inputVal <= 0) return;
+  tempStok = aksi === 'tambah' ? tempStok + inputVal : Math.max(0, tempStok - inputVal);
+  document.getElementById("modalStokSekarang").innerText = tempStok;
 }
 function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
+
 function simpanModalEdit() {
-  let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase(); if(!namaBaru) return;
-  barang[currentEditIndex].nama = namaBaru; barang[currentEditIndex].stok = tempStok; tutupModalEdit(); saveData();
+  let namaBaru = document.getElementById("modalNamaBarang").value.trim().toUpperCase();
+  if(!namaBaru) return;
+  barang[currentEditIndex].nama = namaBaru;
+  barang[currentEditIndex].stok = tempStok;
+  
+  tutupModalEdit();
+  saveData();
 }
 
 async function quickJual(originalIndex) {
-  let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`); let qty = Number(qtySelect.value || 1);
-  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) { await customAlert("Stok Tidak Cukup", "Sisa stok logistik di gudang Anda tidak mencukupi untuk kuantitas transaksi ini!", "danger"); return; }
+  let qtySelect = document.getElementById(`qtyQuick-${originalIndex}`);
+  let qty = Number(qtySelect.value || 1);
+  if(barang[originalIndex].stok < qty || stokBotol < qty || stokBox < qty) {
+    await customAlert("Stok Tidak Cukup", "Sisa stok logistik di gudang Anda tidak mencukupi untuk kuantitas transaksi ini!", "danger");
+    return;
+  }
+  
   let totalNilai = qty * HARGA;
   let konfirmasi = await customConfirm("Konfirmasi Kasir", `Jual <b>${qty} pcs</b> ${barang[originalIndex].nama}?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
   if(!konfirmasi) return;
-  barang[originalIndex].stok -= qty; stokBotol -= qty; stokBox -= qty;
-  penjualan.push({ id: Date.now(), tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai });
-  await cetakStrukOtomatis(barang[originalIndex].nama, qty, totalNilai); saveData();
+  
+  barang[originalIndex].stok -= qty;
+  stokBotol -= qty; stokBox -= qty;
+  penjualan.push({ tanggal: new Date().toISOString(), barang: barang[originalIndex].nama, qty: qty, nominal: totalNilai });
+  await cetakStrukOtomatis(barang[originalIndex].nama, qty, totalNilai);
+  saveData();
 }
 
 async function jualBarang(){
-  let idx = Number(document.getElementById("barangJual").value); let qty = Number(document.getElementById("qtyJual").value);
-  if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) { await customAlert("Stok Tidak Valid", "Stok produk atau logistik tidak mencukupi untuk memproses grosir!", "danger"); return; }
+  let idx = Number(barangJual.value);
+  let qty = Number(qtyJual.value);
+  if(qty<=0 || barang[idx].stok<qty || stokBotol<qty || stokBox<qty) {
+    await customAlert("Stok Tidak Valid", "Stok produk atau logistik tidak mencukupi untuk memproses grosir!", "danger");
+    return;
+  }
+  
   let totalNilai = qty * HARGA;
   let konfirmasi = await customConfirm("Konfirmasi Grosir", `Jual <b>${qty} pcs</b> ${barang[idx].nama} via order grosir?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
   if(!konfirmasi) return;
-  barang[idx].stok -= qty; stokBotol -= qty; stokBox -= qty;
-  penjualan.push({ id: Date.now(), tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai });
-  await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai); document.getElementById("qtyJual").value=""; saveData();
+  barang[idx].stok -= qty;
+  stokBotol -= qty; stokBox -= qty;
+  penjualan.push({ tanggal:new Date().toISOString(), barang:barang[idx].nama, qty:qty, nominal:totalNilai });
+  
+  await cetakStrukOtomatis(barang[idx].nama, qty, totalNilai);
+  qtyJual.value=""; saveData();
 }
 
 async function tambahOmzetManual() {
-  let nom = Number(document.getElementById("manualOmzet").value); let ket = document.getElementById("manualKet").value.trim() || "Manual";
+  let nom = Number(manualOmzet.value);
+  let ket = manualKet.value.trim() || "Manual";
   if(nom <= 0) return;
+  
   let konfirmasi = await customConfirm("Pendapatan Manual", `Simpan pendapatan manual sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> (${ket})?`, "success");
   if(!konfirmasi) return;
-  penjualan.push({ id: Date.now(), tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket });
-  document.getElementById("manualOmzet").value = ""; document.getElementById("manualKet").value = ""; saveData();
+  penjualan.push({ tanggal: new Date().toISOString(), barang: "OMZET MANUAL", qty: 0, nominal: nom, keterangan: ket });
+  manualOmzet.value = ""; manualKet.value = "";
+  saveData();
 }
 
 async function tambahPengeluaran(){
-  let nom = Number(document.getElementById("nominalKeluar").value); let ket = document.getElementById("ketKeluar").value.trim();
+  let nom = Number(nominalKeluar.value);
+  let ket = ketKeluar.value.trim();
   if(nom<=0 || !ket) return;
   let konfirmasi = await customConfirm("Catat Pengeluaran", `Simpan log pengeluaran sebesar <b>Rp ${nom.toLocaleString("id-ID")}</b> untuk keperluan: <i>"${ket}"</i>?`, "danger");
   if(!konfirmasi) return;
-  pengeluaran.push({ id: Date.now(), tanggal:new Date().toISOString(), nominal:nom, keterangan:ket });
-  document.getElementById("nominalKeluar").value=""; document.getElementById("ketKeluar").value=""; saveData();
+  pengeluaran.push({ tanggal:new Date().toISOString(), nominal:nom, keterangan:ket });
+  nominalKeluar.value=""; ketKeluar.value=""; saveData();
+}
+
+async function batalkanPenjualan(originalIndex) {
+  let konfirmasi = await customConfirm("Batalkan Penjualan", "Apakah Anda yakin ingin membatalkan transaksi penjualan ini? Semua sisa stok item & logistik terkait akan dikembalikan.", "danger");
+  if(!konfirmasi) return;
+  
+  let target = penjualan[originalIndex];
+  if(target.barang !== "OMZET MANUAL") {
+    let bIndex = barang.findIndex(x => x.nama === target.barang);
+    if(bIndex !== -1) barang[bIndex].stok += target.qty;
+    stokBotol += target.qty; stokBox += target.qty;
+  }
+  penjualan.splice(originalIndex, 1);
+  saveData();
 }
 
 function editPengeluaran(originalIndex) {
-  currentEditPengeluaranIndex = originalIndex; document.getElementById("modalNominalKeluar").value = pengeluaran[originalIndex].nominal;
-  document.getElementById("modalKetKeluar").value = pengeluaran[originalIndex].keterangan || ""; document.getElementById("editPengeluaranModal").style.display = "flex";
+  currentEditPengeluaranIndex = originalIndex;
+  document.getElementById("modalNominalKeluar").value = pengeluaran[originalIndex].nominal;
+  document.getElementById("modalKetKeluar").value = pengeluaran[originalIndex].keterangan || "";
+  document.getElementById("editPengeluaranModal").style.display = "flex";
 }
 function tutupModalPengeluaran() { document.getElementById("editPengeluaranModal").style.display = "none"; }
 async function simpanModalPengeluaran() {
-  let nom = Number(document.getElementById("modalNominalKeluar").value); let ket = document.getElementById("modalKetKeluar").value.trim();
+  let nom = Number(document.getElementById("modalNominalKeluar").value);
+  let ket = document.getElementById("modalKetKeluar").value.trim();
   if(nom <= 0 || !ket) return;
+  
   let konfirmasi = await customConfirm("Ubah Log Keluar", "Simpan perubahan data log nominal dan keterangan pengeluaran ini?", "warning");
   if(!konfirmasi) return;
-  pengeluaran[currentEditPengeluaranIndex].nominal = nom; pengeluaran[currentEditPengeluaranIndex].keterangan = ket; tutupModalPengeluaran(); saveData();
+  
+  pengeluaran[currentEditPengeluaranIndex].nominal = nom;
+  pengeluaran[currentEditPengeluaranIndex].keterangan = ket;
+  tutupModalPengeluaran();
+  saveData();
+}
+async function hapusPengeluaran(originalIndex) {
+  let konfirmasi = await customConfirm("Hapus Log Keluar", "Hapus catatan log pengeluaran ini secara permanen dari database cloud?", "danger");
+  if(konfirmasi) { 
+    pengeluaran.splice(originalIndex, 1); 
+    saveData(); 
+  }
 }
 
 function updateDropdownPemesanan() {
-  let elTarget = document.getElementById("targetPesan"); if (!elTarget) return;
-  let opsi = `<optgroup label="Logistik Utama"><option value="LOGISTIK_BOTOL">Botol Kosong</option><option value="LOGISTIK_BOX">Box Packing</option></optgroup><optgroup label="Semua Varian Parfum EVORA">`;
-  opsi += barang.map(x => `<option value="${x.nama}">Parfum: ${x.nama}</option>`).join(""); opsi += `</optgroup>`; elTarget.innerHTML = opsi;
+  let elTarget = document.getElementById("targetPesan");
+  if (!elTarget) return;
+  let opsi = `
+    <optgroup label="Logistik Utama">
+      <option value="LOGISTIK_BOTOL">Botol Kosong</option>
+      <option value="LOGISTIK_BOX">Box Packing</option>
+    </optgroup>
+    <optgroup label="Semua Varian Parfum EVORA">
+  `;
+  opsi += barang.map(x => `<option value="${x.nama}">Parfum: ${x.nama}</option>`).join("");
+  opsi += `</optgroup>`;
+  
+  elTarget.innerHTML = opsi;
 }
 
 async function buatPesanan() {
-  let target = document.getElementById("targetPesan").value; let qty = Number(document.getElementById("qtyPesan").value);
+  let target = document.getElementById("targetPesan").value;
+  let qty = Number(document.getElementById("qtyPesan").value);
+  
   if (qty <= 0 || !target) return;
-  let namaTampilan = target; if (target === "LOGISTIK_BOTOL") namaTampilan = "Botol Kosong"; if (target === "LOGISTIK_BOX") namaTampilan = "Box Packing";
+  let namaTampilan = target;
+  if (target === "LOGISTIK_BOTOL") namaTampilan = "Botol Kosong";
+  if (target === "LOGISTIK_BOX") namaTampilan = "Box Packing";
   let konfirmasi = await customConfirm("Konfirmasi Pesanan", `Buat daftar pesanan <b>${qty} pcs</b> untuk <b>${namaTampilan}</b>?`, "warning");
   if (!konfirmasi) return;
-  pesanan.push({ id: Date.now(), target: target, qty: qty, tanggal: new Date().toISOString() });
-  document.getElementById("qtyPesan").value = ""; saveData();
+  pesanan.push({
+    id: Date.now(),
+    target: target,
+    qty: qty,
+    tanggal: new Date().toISOString()
+  });
+  document.getElementById("qtyPesan").value = "";
+  saveData();
 }
 
 async function terimaPesanan(idPesanan) {
-  let idx = pesanan.findIndex(x => x.id === idPesanan); if (idx === -1) return;
-  let p = pesanan[idx]; let namaTampilan = p.target;
-  if (p.target === "LOGISTIK_BOTOL") namaTampilan = "Stok Botol"; if (p.target === "LOGISTIK_BOX") namaTampilan = "Stok Box";
+  let idx = pesanan.findIndex(x => x.id === idPesanan);
+  if (idx === -1) return;
+  
+  let p = pesanan[idx];
+  let namaTampilan = p.target;
+  if (p.target === "LOGISTIK_BOTOL") namaTampilan = "Stok Botol";
+  if (p.target === "LOGISTIK_BOX") namaTampilan = "Stok Box";
   let konfirmasi = await customConfirm("Barang Diterima", `Stok barang fisik sudah datang?<br>Konfirmasi untuk memasukkan <b>+ ${p.qty} pcs</b> secara otomatis ke database <b>${namaTampilan}</b>.`, "success");
   if (!konfirmasi) return;
-  if (p.target === "LOGISTIK_BOTOL") { stokBotol += p.qty; } else if (p.target === "LOGISTIK_BOX") { stokBox += p.qty; } else {
-    let bIdx = barang.findIndex(x => x.nama === p.target); if (bIdx !== -1) { barang[bIdx].stok += p.qty; } else { barang.push({ nama: p.target, stok: p.qty }); }
+
+  if (p.target === "LOGISTIK_BOTOL") {
+    stokBotol += p.qty;
+  } else if (p.target === "LOGISTIK_BOX") {
+    stokBox += p.qty;
+  } else {
+    let bIdx = barang.findIndex(x => x.nama === p.target);
+    if (bIdx !== -1) {
+      barang[bIdx].stok += p.qty;
+    } else {
+      barang.push({ nama: p.target, stok: p.qty });
+    }
   }
-  pesanan.splice(idx, 1); saveData();
+
+  pesanan.splice(idx, 1);
+  saveData();
 }
-function hapusPesanan(idPesanan) { pesanan = pesanan.filter(x => x.id !== idPesanan); saveData(); }
+
+function hapusPesanan(idPesanan) {
+  pesanan = pesanan.filter(x => x.id !== idPesanan);
+  saveData();
+}
 
 async function salinDataKeClipboard() {
-  let paketData = { stokBotol: stokBotol, stokBox: stokBox, barang: barang, penjualan: penjualan, pengeluaran: pengeluaran, pesanan: pesanan, hutang: hutang, piutang: piutang, arsipBulanan: arsipBulanan, saldoAwal: saldoAwal, hargaGlobal: HARGA };
+  let paketData = {
+    stokBotol: stokBotol,
+    stokBox: stokBox,
+    barang: barang,
+    penjualan: penjualan,
+    pengeluaran: pengeluaran,
+    pesanan: pesanan,
+    hargaGlobal: HARGA 
+  };
   let stringData = JSON.stringify(paketData);
-  try { await navigator.clipboard.writeText(stringData); customAlert("Berhasil Disalin", "Seluruh data sukses disalin ke clipboard! Simpan teks ini sebagai backup.", "success"); } catch (err) { customAlert("Gagal Menyalin", "Browser Anda tidak mendukung fitur copy otomatis.", "danger"); }
+  try {
+    await navigator.clipboard.writeText(stringData);
+    customAlert("Berhasil Disalin", "Seluruh data sukses disalin ke clipboard! Simpan teks ini sebagai backup.", "success");
+  } catch (err) {
+    customAlert("Gagal Menyalin", "Browser Anda tidak mendukung fitur copy otomatis.", "danger");
+  }
 }
 
 async function pasteDataTransfer() {
   let stringData = document.getElementById("inputTransferData").value.trim();
-  if(!stringData) { customAlert("Kolom Kosong", "Teks data masih kosong. Silakan paste kode data terlebih dahulu.", "warning"); return; }
+  if(!stringData) {
+    customAlert("Kolom Kosong", "Teks data masih kosong. Silakan paste kode data terlebih dahulu.", "warning");
+    return;
+  }
   let konfirmasi = await customConfirm("Peringatan Kritis", "Yakin ingin menimpa SELURUH DATA saat ini? Data lama akan terhapus permanen dari cloud!", "danger");
   if(!konfirmasi) return;
+
   try {
     let dataBaru = JSON.parse(stringData);
-    if(dataBaru.barang === undefined || dataBaru.stokBotol === undefined) { throw new Error("Format tidak valid"); }
-    stokBotol = Number(dataBaru.stokBotol || 0); stokBox = Number(dataBaru.stokBox || 0); barang = dataBaru.barang || [];
-    penjualan = dataBaru.penjualan || []; pengeluaran = dataBaru.pengeluaran || []; pesanan = dataBaru.pesanan || [];
-    hutang = dataBaru.hutang || []; piutang = dataBaru.piutang || []; arsipBulanan = dataBaru.arsipBulanan || []; saldoAwal = Number(dataBaru.saldoAwal || 0);
-    HARGA = Number(dataBaru.hargaGlobal || 27000); document.getElementById("inputHargaGlobal").value = HARGA; document.getElementById("inputSaldoAwal").value = saldoAwal;
-    document.getElementById("inputTransferData").value = ""; saveData(); render(); customAlert("Transfer Berhasil", "Seluruh data sukses ditimpa dan diperbarui dengan data baru!", "success");
-  } catch (err) { customAlert("Transfer Gagal", "Kode data yang dimasukkan salah atau korup.", "danger"); }
-}
-
-/* ===============================================================
-   MODUL HUTANG & PIUTANG 
-   =============================================================== */
-async function tambahHutang() {
-  let sup = document.getElementById("hutangSupplier").value.trim();
-  let brg = document.getElementById("hutangBarang").value.trim();
-  let nom = Number(document.getElementById("hutangNominal").value);
-  let tempo = document.getElementById("hutangJatuhTempo").value;
-  let cat = document.getElementById("hutangCatatan").value.trim();
-
-  if(!sup || nom<=0) { await customAlert("Gagal", "Nama Supplier dan Nominal harus diisi!", "warning"); return; }
-  
-  hutang.push({ id: Date.now(), supplier: sup, barang: brg, nominal: nom, tgl: new Date().toISOString(), tempo: tempo, catatan: cat, lunas: false });
-  document.getElementById("hutangSupplier").value = ""; document.getElementById("hutangBarang").value = "";
-  document.getElementById("hutangNominal").value = ""; document.getElementById("hutangJatuhTempo").value = ""; document.getElementById("hutangCatatan").value = "";
-  saveData();
-}
-
-async function bayarHutang(id) {
-  let idx = hutang.findIndex(x => x.id === id); if(idx === -1) return;
-  let conf = await customConfirm("Bayar Hutang", `Tandai lunas hutang dari <b>${hutang[idx].supplier}</b> sebesar Rp ${hutang[idx].nominal.toLocaleString('id-ID')}?<br><i>Ini akan otomatis masuk ke data pengeluaran.</i>`, "warning");
-  if(conf) {
-    hutang[idx].lunas = true;
-    pengeluaran.push({ id: Date.now(), tanggal: new Date().toISOString(), nominal: hutang[idx].nominal, keterangan: `Pembayaran Hutang: ${hutang[idx].supplier}` });
-    saveData();
-  }
-}
-async function hapusHutang(id) {
-  let conf = await customConfirm("Hapus", "Hapus data hutang ini?", "danger");
-  if(conf) { hutang = hutang.filter(x => x.id !== id); saveData(); }
-}
-
-async function tambahPiutang() {
-  let cus = document.getElementById("piutangCustomer").value.trim();
-  let brg = document.getElementById("piutangBarang").value.trim();
-  let qty = Number(document.getElementById("piutangQty").value);
-  let tot = Number(document.getElementById("piutangTotal").value);
-  let cat = document.getElementById("piutangCatatan").value.trim();
-
-  if(!cus || tot<=0) { await customAlert("Gagal", "Nama Customer dan Total Belanja harus diisi!", "warning"); return; }
-  
-  piutang.push({ id: Date.now(), customer: cus, barang: brg, qty: qty, total: tot, tgl: new Date().toISOString(), catatan: cat, lunas: false });
-  document.getElementById("piutangCustomer").value = ""; document.getElementById("piutangBarang").value = "";
-  document.getElementById("piutangQty").value = ""; document.getElementById("piutangTotal").value = ""; document.getElementById("piutangCatatan").value = "";
-  saveData();
-}
-
-async function bayarPiutang(id) {
-  let idx = piutang.findIndex(x => x.id === id); if(idx === -1) return;
-  let conf = await customConfirm("Customer Bayar", `Tandai lunas piutang dari <b>${piutang[idx].customer}</b> sebesar Rp ${piutang[idx].total.toLocaleString('id-ID')}?<br><i>Ini akan otomatis menambah omzet.</i>`, "success");
-  if(conf) {
-    piutang[idx].lunas = true;
-    penjualan.push({ id: Date.now(), tanggal: new Date().toISOString(), barang: "PEMBAYARAN PIUTANG", qty: 0, nominal: piutang[idx].total, keterangan: `Pelunasan oleh: ${piutang[idx].customer}` });
-    saveData();
-  }
-}
-async function hapusPiutang(id) {
-  let conf = await customConfirm("Hapus", "Hapus data piutang ini?", "danger");
-  if(conf) { piutang = piutang.filter(x => x.id !== id); saveData(); }
-}
-
-/* ===============================================================
-   TUTUP BULAN
-   =============================================================== */
-async function tutupBulan() {
-  let conf = await customConfirm("TUTUP BULAN", "PERINGATAN!<br>Semua transaksi penjualan dan pengeluaran bulan ini akan dipindah ke Arsip. Kas saat ini akan menjadi Saldo Awal bulan berikutnya. Lanjutkan?", "danger");
-  if(conf) {
-    let oldJual = JSON.parse(JSON.stringify(penjualan));
-    let oldKeluar = JSON.parse(JSON.stringify(pengeluaran));
-    arsipBulanan.push({ bulan: new Date().toISOString(), penjualan: oldJual, pengeluaran: oldKeluar });
-    
-    // Set saldo awal = kas saat ini
-    let oB = penjualan.reduce((a,b)=>a+b.nominal,0);
-    let pB = pengeluaran.reduce((a,b)=>a+b.nominal,0);
-    saldoAwal = saldoAwal + oB - pB;
-    
-    penjualan = []; pengeluaran = [];
-    document.getElementById("inputSaldoAwal").value = saldoAwal;
-    saveData();
-    customAlert("Sukses", "Tutup bulan berhasil! Dashboard telah direset.", "success");
-  }
-}
-
-/* ===============================================================
-   AI BELANJA ASSISTANT
-   =============================================================== */
-function hitungAiBelanja() {
-  let modal = Number(document.getElementById("aiModalInput").value);
-  if(modal <= 0) return;
-  
-  let resHtml = `<b>Alokasi Rekomendasi (Modal Rp ${modal.toLocaleString('id-ID')}):</b><br><ul style="margin:8px 0 0 20px; padding:0;">`;
-  
-  // Prioritize box and bottles
-  let hargaBotolBox = 5000; // estimasi 5rb / pasang
-  let targetMinimal = 50;
-  let botolKurang = Math.max(0, targetMinimal - stokBotol);
-  let boxKurang = Math.max(0, targetMinimal - stokBox);
-  let budgetLogistik = (botolKurang + boxKurang) * (hargaBotolBox/2);
-  
-  if (budgetLogistik > 0 && modal >= budgetLogistik) {
-    resHtml += `<li><b>Prioritas 1:</b> Beli ${botolKurang} Botol & ${boxKurang} Box (Rp ${budgetLogistik.toLocaleString()})</li>`;
-    modal -= budgetLogistik;
-  }
-  
-  // Varian menipis
-  let stokUrut = [...barang].sort((a,b) => a.stok - b.stok).filter(x => x.stok <= 10);
-  let hargaBibit = 30000; // Estimasi per varian
-  let dibeli = 0;
-  for(let b of stokUrut) {
-    if(modal >= hargaBibit) {
-      resHtml += `<li><b>Restock:</b> Bibit ${b.nama} (Estimasi Rp ${hargaBibit.toLocaleString()})</li>`;
-      modal -= hargaBibit;
-      dibeli++;
+    if(dataBaru.barang === undefined || dataBaru.stokBotol === undefined) {
+      throw new Error("Format tidak valid");
     }
+    stokBotol = Number(dataBaru.stokBotol || 0);
+    stokBox = Number(dataBaru.stokBox || 0);
+    barang = dataBaru.barang || [];
+    penjualan = dataBaru.penjualan || [];
+    pengeluaran = dataBaru.pengeluaran || [];
+    pesanan = dataBaru.pesanan || [];
+    HARGA = Number(dataBaru.hargaGlobal || 27000);
+    document.getElementById("inputHargaGlobal").value = HARGA;
+    document.getElementById("inputTransferData").value = "";
+    
+    saveData(); 
+    render();   
+    customAlert("Transfer Berhasil", "Seluruh data sukses ditimpa dan diperbarui dengan data baru!", "success");
+  } catch (err) {
+    customAlert("Transfer Gagal", "Kode data yang dimasukkan salah atau korup.", "danger");
   }
-  
-  resHtml += `</ul><div style="margin-top:8px; border-top:1px dashed #cbd5e1; padding-top:8px;">Sisa Uang: <b>Rp ${modal.toLocaleString('id-ID')}</b></div>`;
-  document.getElementById("aiBelanjaResult").innerHTML = resHtml;
 }
 
-
-/* ===============================================================
-   RENDER ENGINE UTAMA
-   =============================================================== */
 function render(){
   updateDropdownPemesanan();
   
@@ -1638,7 +1752,10 @@ function render(){
       let cleanLabel = p.target;
       if (p.target === "LOGISTIK_BOTOL") cleanLabel = "<i class='fa-solid fa-wine-bottle'></i> BOTOL KOSONG";
       if (p.target === "LOGISTIK_BOX") cleanLabel = "<i class='fa-solid fa-box'></i> BOX PACKING";
-      let tgl = new Date(p.tanggal); let tglStr = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0');
+      
+      let tgl = new Date(p.tanggal);
+      let tglStr = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0');
+      
       return `
       <div style="background:var(--bg-card); border:1px solid #fcd34d; padding:16px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow-sm); margin-bottom:12px;">
         <div style="text-align:left; flex:1;">
@@ -1665,34 +1782,47 @@ function render(){
   let totalOmzetHariIni = jualHariIni.reduce((a,b)=>a+b.nominal,0);
   let totalTerjualHariIni = jualHariIni.reduce((a,b)=>a+b.qty,0);
   
-  // Dashboard & KAS Calculations
-  let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-  let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
-  let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
-  let keluarVal = keluarAktif.reduce((a,b)=>a+b.nominal,0);
-  
-  let kasSaatIni = saldoAwal + omzetVal - keluarVal;
-  
-  let totHutang = hutang.filter(x => !x.lunas).reduce((a,b) => a+b.nominal, 0);
-  let totPiutang = piutang.filter(x => !x.lunas).reduce((a,b) => a+b.total, 0);
-  let inventoryValue = barang.reduce((a,b) => a + (b.stok * (HARGA * 0.4)), 0); // Estimated Modal Value 40%
-
+  runCountUp("omzetHariIni", totalOmzetHariIni, true);
   runCountUp("hariIniOmzetText", totalOmzetHariIni, true);
   runCountUp("hariIniQtyText", totalTerjualHariIni, false, " Pcs");
-  runCountUp("kasSaatIni", kasSaatIni, true);
-  runCountUp("saldoAwalText", saldoAwal, true);
-  runCountUp("totalHutangDash", totHutang, true);
-  runCountUp("totalPiutangDash", totPiutang, true);
-  runCountUp("nilaiPersediaan", inventoryValue, true);
 
-  // AI Insight Header
-  let botolP = stokBotol < 10 ? "Botol menipis!" : "Botol aman.";
-  document.getElementById("aiInsightText").innerHTML = `<i><i class="fa-solid fa-robot"></i> Ringkasan: Omzet hari ini Rp ${totalOmzetHariIni.toLocaleString()}. ${botolP}</i>`;
+  let dKemarin = new Date();
+  dKemarin.setDate(dKemarin.getDate() - 1);
+  let kemarinKey = getDayKey(dKemarin);
+  let jualKemarin = penjualan.filter(x => getDayKey(x.tanggal) === kemarinKey);
+  let totalOmzetKemarin = jualKemarin.reduce((a, b) => a + b.nominal, 0);
+
+  let elTrendBadge = document.getElementById("trendBadge");
+  if (totalOmzetKemarin > 0) {
+    let selisihPersen = ((totalOmzetHariIni - totalOmzetKemarin) / totalOmzetKemarin) * 100;
+    if (selisihPersen > 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-up"></i> ${selisihPersen.toFixed(0)}%`;
+      elTrendBadge.className = "trend-badge up";
+    } else if (selisihPersen < 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-down"></i> ${Math.abs(selisihPersen).toFixed(0)}%`;
+      elTrendBadge.className = "trend-badge down";
+    } else {
+      elTrendBadge.innerText = `0%`;
+      elTrendBadge.className = "trend-badge neutral";
+    }
+  } else {
+    if (totalOmzetHariIni > 0) {
+      elTrendBadge.innerHTML = `<i class="fa-solid fa-arrow-up"></i> 100%`;
+      elTrendBadge.className = "trend-badge up";
+    } else {
+      elTrendBadge.innerText = `0%`;
+      elTrendBadge.className = "trend-badge neutral";
+    }
+  }
 
   let salesMapHari = {};
   jualHariIni.forEach(x => { if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; });
   let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
   document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
+  let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
+  let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
+  let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
+  let keluarVal = keluarAktif.reduce((a,b)=>a+b.nominal,0);
 
   document.getElementById("stokBotol").innerText = stokBotol;
   document.getElementById("stokBox").innerText = stokBox;
@@ -1705,98 +1835,119 @@ function render(){
   jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
   let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
   
-  let topVarianAvatars = document.getElementById("topVarianAvatars");
-  if(topVarianAvatars) {
-    topVarianAvatars.innerHTML = rankingBln.length ?
-    rankingBln.map((x, i) => `
-      <div class="product-badge-card">
-        <div class="product-badge-rank">Rank #<span>${i+1}</span></div>
-        <div class="product-badge-name">${x[0]}</div>
-        <div class="product-badge-qty">${x[1]} Pcs</div>
-      </div>
-    `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
-  }
-
+  topVarianAvatars.innerHTML = rankingBln.length ?
+  rankingBln.map((x, i) => `
+    <div class="product-badge-card">
+      <div class="product-badge-rank">Rank #<span>${i+1}</span></div>
+      <div class="product-badge-name">${x[0]}</div>
+      <div class="product-badge-qty">${x[1]} Pcs</div>
+    </div>
+  `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
   barangUrut.sort((a, b) => a.stok - b.stok);
-  
-  let listBarang = document.getElementById("listBarang");
-  if(listBarang) {
-    listBarang.innerHTML = barangUrut.map(x => {  
-      let badgeTag = "";  
-      if (x.stok === 0) { badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`; } 
-      else if (x.stok <= 10) { badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`; } 
-      else { badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`; }  
-      
-      let msPerDay = 24 * 60 * 60 * 1000;
-      let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
-      let qty7Hari = 0; let qty7HariSebelumnya = 0;
-      
-      penjualan.forEach(p => {
-        if (p.barang === x.nama && p.qty > 0) {
-          let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
-          let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
-          if (selisihHari >= 0 && selisihHari < 7) qty7Hari += p.qty;
-          else if (selisihHari >= 7 && selisihHari < 14) qty7HariSebelumnya += p.qty;
-        }
-      });
-      let avg7Hari = qty7Hari / 7;
-      let prediksiHabisHari = avg7Hari > 0 ? Math.floor(x.stok / avg7Hari) : Infinity;
-      let colorPredict = "var(--success)"; let textPredict = "<i class='fa-solid fa-circle-check'></i> Aman (>30 hari)";
-      if (x.stok === 0) { colorPredict = "var(--danger)"; textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis"; } 
-      else if (prediksiHabisHari < 7) { colorPredict = "var(--danger)"; textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ± Habis dalam ${prediksiHabisHari} hari`; } 
-      else if (prediksiHabisHari < 14) { colorPredict = "var(--warning)"; textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ± Habis dalam ${prediksiHabisHari} hari`; } 
-      else if (prediksiHabisHari <= 30) { colorPredict = "#eab308"; textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ± Habis dalam ${prediksiHabisHari} hari`; }
-      
-      let trenMeroket = false;
-      if (qty7HariSebelumnya > 0) {
-        let persentaseNaik = ((qty7Hari - qty7HariSebelumnya) / qty7HariSebelumnya) * 100;
-        if (persentaseNaik > 30) trenMeroket = true;
-      } else if (qty7Hari > 3 && qty7HariSebelumnya === 0) { trenMeroket = true; }
+  // --- KODE PENGGANTI AI RESTOCK (DIMULAI DARI listBarang.innerHTML) ---
+  listBarang.innerHTML = barangUrut.map(x => {  
+    let badgeTag = "";  
+    if (x.stok === 0) {  
+      badgeTag = `<span class="badge-status status-critical blinking-alert">HABIS (0)</span>`;  
+    } else if (x.stok <= 10) {  
+      badgeTag = `<span class="badge-status status-warning">MENIPIS (${x.stok})</span>`;  
+    } else {  
+      badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;  
+    }  
+    
+    // --- INJEKSI ANALISIS AI RESTOCK ---
+    let msPerDay = 24 * 60 * 60 * 1000;
+    let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
+    
+    let qty7Hari = 0;
+    let qty7HariSebelumnya = 0;
+    
+    // Loop sejarah penjualan untuk mencari pola
+    penjualan.forEach(p => {
+      if (p.barang === x.nama && p.qty > 0) {
+        let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
+        let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
+        
+        if (selisihHari >= 0 && selisihHari < 7) qty7Hari += p.qty;
+        else if (selisihHari >= 7 && selisihHari < 14) qty7HariSebelumnya += p.qty;
+      }
+    });
+    let avg7Hari = qty7Hari / 7;
+    let prediksiHabisHari = avg7Hari > 0 ? Math.floor(x.stok / avg7Hari) : Infinity;
+    let colorPredict = "var(--success)";
+    let textPredict = "<i class='fa-solid fa-circle-check'></i> Aman (>30 hari)";
+    if (x.stok === 0) {
+      colorPredict = "var(--danger)";
+      textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
+    } else if (prediksiHabisHari < 7) { 
+      colorPredict = "var(--danger)";
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ÃÂ± Habis dalam ${prediksiHabisHari} hari`;
+    } else if (prediksiHabisHari < 14) { 
+      colorPredict = "var(--warning)";
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ÃÂ± Habis dalam ${prediksiHabisHari} hari`;
+    } else if (prediksiHabisHari <= 30) { 
+      colorPredict = "#eab308";
+      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ÃÂ± Habis dalam ${prediksiHabisHari} hari`;
+      // Kuning gelap
+    }
+    
+    let trenMeroket = false;
+    if (qty7HariSebelumnya > 0) {
+      let persentaseNaik = ((qty7Hari - qty7HariSebelumnya) / qty7HariSebelumnya) * 100;
+      if (persentaseNaik > 30) trenMeroket = true;
+    } else if (qty7Hari > 3 && qty7HariSebelumnya === 0) {
+      trenMeroket = true;
+    }
 
-      let aiCardHtml = `
-        <div style="margin-top:10px; padding:8px; background:var(--bg-main); border-radius:8px; border:1px solid #e2e8f0; font-size:11px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-            <span style="color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-robot"></i> AI Prediksi:</span>
-            <span><b>${avg7Hari.toFixed(1)}</b> avg/hari</span>
-          </div>
-          <div style="color:${colorPredict}; font-weight:800;">${textPredict}</div>
-          ${trenMeroket ? `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
+    let aiCardHtml = `
+      <div style="margin-top:10px; padding:8px; background:var(--bg-main); border-radius:8px; border:1px solid #e2e8f0; font-size:11px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-robot"></i> AI Prediksi:</span>
+          <span><b>${avg7Hari.toFixed(1)}</b> avg/hari</span>
         </div>
-      `;
+        <div style="color:${colorPredict}; font-weight:800;">${textPredict}</div>
+        ${trenMeroket ?
+        `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
+      </div>
+    `;
+    // --- END INJEKSI AI ---
 
-      let dropdownOptions = ""; for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
-      return `
-        <div class="item-barang">  
-          <div class="item-info" style="text-align:left;">  
-            <b>${x.nama}</b>  
-            <div class="stok-text">Sisa: ${x.stok} pcs</div>  
-            ${badgeTag}  
-            ${aiCardHtml}
-          </div>  
-          <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
-            <div style="display:flex; gap:6px; align-items:center;">
-              <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
-              <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">${dropdownOptions}</select>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;"><i class="fa-solid fa-bolt"></i> Jual</button>
-              <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
-            </div>
+    let dropdownOptions = "";
+    for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
+    return `
+      <div class="item-barang">  
+        <div class="item-info" style="text-align:left;">  
+          <b>${x.nama}</b>  
+          <div class="stok-text">Sisa: ${x.stok} pcs</div>  
+          ${badgeTag}  
+          ${aiCardHtml}
+        </div>  
+     
+      
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
+            <select id="qtyQuick-${x.originalIndex}" style="padding:4px; font-size:12px; margin:0; border-radius:6px; height:28px; width:100%; font-weight:bold;">
+              ${dropdownOptions}
+            </select>
+          </div>
+         
+ 
+          <div style="display:flex; gap:6px;">
+            <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;"><i class="fa-solid fa-bolt"></i> Jual</button>
+            <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
           </div>
         </div>
-      `;
-    }).join("");
-  }
-  
-  let barangJual = document.getElementById("barangJual");
-  if(barangJual) barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
+      </div>
+    `;
+  }).join("");
+  barangJual.innerHTML = barang.map((x,i)=>`<option value="${i}">${x.nama} (${x.stok})</option>`).join("");
 
   let tglDipilih = document.getElementById("hariSelect").value;
-  let summaryHarian = document.getElementById("summaryHarian");
-  if(tglDipilih && summaryHarian){
+  if(tglDipilih){
     let kH = getDayKey(tglDipilih);
     let jH = penjualan.filter(x=>getDayKey(x.tanggal)===kH);
     let eH = pengeluaran.filter(x=>getDayKey(x.tanggal)===kH);
@@ -1813,8 +1964,12 @@ function render(){
     });
     
     let rankHarian = Object.entries(mapHarian).sort((a,b) => b[1].qty - a[1].qty);
-    let htmlPenjualan = rankHarian.length > 0 ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('') : '<li>Belum ada penjualan</li>';
-    let htmlPengeluaran = eH.length > 0 ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('') : '<li>Tidak ada pengeluaran</li>';
+    let htmlPenjualan = rankHarian.length > 0 
+      ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('')
+      : '<li>Belum ada penjualan</li>';
+    let htmlPengeluaran = eH.length > 0
+      ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('')
+      : '<li>Tidak ada pengeluaran</li>';
     summaryHarian.innerHTML = `
       <div style="background: var(--primary-light); padding:12px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; flex-direction:column; gap:8px;">
         <div style="display:flex; justify-content:space-between;">
@@ -1823,6 +1978,7 @@ function render(){
         </div>
         <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;">
           <span><i class="fa-solid fa-money-bill-wave"></i> Total Pendapatan:</span>
+    
           <span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span>
         </div>
       </div>
@@ -1840,105 +1996,160 @@ function render(){
   let blnDipilih = document.getElementById("bulanSelect").value || bulanAktif;
   let jB = penjualan.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
   let kB = pengeluaran.filter(x=>getMonthKey(x.tanggal)===blnDipilih);
-  
-  // Jika mencari di arsip
-  if(jB.length === 0 && kB.length === 0) {
-    arsipBulanan.forEach(arsip => {
-      if(getMonthKey(arsip.bulan) === blnDipilih) {
-        jB = arsip.penjualan; kB = arsip.pengeluaran;
-      }
-    });
-  }
-
   let oB = jB.reduce((a,b)=>a+b.nominal,0);
   let pB = kB.reduce((a,b)=>a+b.nominal,0);
   let labaB = oB - pB;
-  let totalPcsBulanan = jB.filter(item => item.qty > 0).reduce((a,b) => a + b.qty, 0);
+  let totalPcsBulanan = jB
+  .filter(item => item.barang !== "OMZET MANUAL")
+  .reduce((sum, item) => sum + Number(item.qty || 0), 0);
 
-  let summaryBulanan = document.getElementById("summaryBulanan");
-  if(summaryBulanan) {
-    summaryBulanan.innerHTML = `
-      <b>Total Omzet:</b> Rp ${oB.toLocaleString()}<br>
-      <b>Total Pengeluaran:</b> Rp ${pB.toLocaleString()}<br>
-      <b>Laba Bersih:</b> Rp ${labaB.toLocaleString()}<br>
-      <b>Total Barang Terjual:</b> ${totalPcsBulanan} Pcs
-    `;
-  }
-  
-  // AI Analisa & Tahunan
-  let totalOmzetTahunan = penjualan.reduce((a,b)=>a+b.nominal,0);
-  let totalPengeluaranTahunan = pengeluaran.reduce((a,b)=>a+b.nominal,0);
-  arsipBulanan.forEach(a => {
-    totalOmzetTahunan += a.penjualan.reduce((x,y)=>x+y.nominal,0);
-    totalPengeluaranTahunan += a.pengeluaran.reduce((x,y)=>x+y.nominal,0);
+  let mapBulanan = {};
+  jB.forEach(x => {
+    if(!mapBulanan[x.barang]) mapBulanan[x.barang] = {qty: 0, nominal: 0};
+    mapBulanan[x.barang].qty += x.qty;
+    mapBulanan[x.barang].nominal += x.nominal;
   });
-  let sumTahunan = document.getElementById("summaryTahunan");
-  if(sumTahunan) {
-    sumTahunan.innerHTML = `Omzet Kumulatif: <b>Rp ${totalOmzetTahunan.toLocaleString()}</b><br>
-    Pengeluaran Kumulatif: <b>Rp ${totalPengeluaranTahunan.toLocaleString()}</b><br>
-    Laba Kumulatif: <b style="color:var(--success)">Rp ${(totalOmzetTahunan - totalPengeluaranTahunan).toLocaleString()}</b>`;
-  }
   
-  let targetPcs = 400;
-  let sisaTarget = Math.max(0, targetPcs - totalPcsBulanan);
-  let targetFill = Math.min(100, (totalPcsBulanan/targetPcs)*100);
-  document.getElementById("targetTextInfo").innerText = `${totalPcsBulanan} / ${targetPcs} Botol (${targetFill.toFixed(0)}%)`;
-  document.getElementById("targetProgressFill").style.width = `${targetFill}%`;
-  
-  let now = new Date(); let totalDays = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-  let hariBerjalan = now.getDate(); let sisaHari = totalDays - hariBerjalan;
-  let butuhHarian = sisaHari > 0 ? (sisaTarget / sisaHari).toFixed(1) : sisaTarget;
-  document.getElementById("targetAvgInfo").innerHTML = `AI Rekomendasi: Anda perlu menjual rata-rata <b>${butuhHarian} botol/hari</b> untuk mencapai target bulan ini.`;
+  let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => 
+  b[1].qty - a[1].qty).map(x => `
+    <tr>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x[0]}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:700;">${x[1].qty > 0 ? x[1].qty : '-'}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700;">Rp ${x[1].nominal.toLocaleString('id-ID')}</td>
+    </tr>
+  `).join("");
 
-  let aiAnalisaBulan = document.getElementById("aiAnalisaBulan");
-  if(aiAnalisaBulan) {
-    let best = rankingBln.length > 0 ? rankingBln[0][0] : "-";
-    let worst = rankingBln.length > 0 ? rankingBln[rankingBln.length-1][0] : "-";
-    aiAnalisaBulan.innerHTML = `
-      Produk Terlaris Bulan Ini: <b>${best}</b><br>
-      Produk Paling Lambat: <b>${worst}</b><br>
-      Kesehatan Bisnis: ${labaB > 0 ? '<span style="color:var(--success)">Positif (Untung)</span>' : '<span style="color:var(--danger)">Negatif (Rugi)</span>'}<br>
+  let htmlTabelKeluar = kB.map(x => {
+    let tgl = new Date(x.tanggal);
+    let tglStr = String(tgl.getDate()).padStart(2,"0") + "/" + String(tgl.getMonth()+1).padStart(2,"0");
+    return `
+    <tr>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:600;">${tglStr}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x.keterangan || 'Operasional'}</td>
+      <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:700; color:var(--danger);">Rp ${x.nominal.toLocaleString('id-ID')}</td>
+    </tr>
+  `}).join("");
+
+  summaryBulanan.innerHTML = `
+    
+    <strong style="color:var(--primary); font-size:13px; display:block; margin-bottom:6px; text-align:left;">1. Rincian Penjualan Bulanan</strong>
+    <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:var(--bg-main); color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Nama Produk</th>
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Qty</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Total Rp</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelJual || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
+            <td style="padding:12px 8px; text-align:left;">TOTAL PENJUALAN</td>
+            <td style="padding:12px 8px; text-align:center; color:var(--primary); font-weight:800;">${totalPcsBulanan} Pcs</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--primary); font-weight:800;">Rp ${oB.toLocaleString('id-ID')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <strong style="color:var(--danger); font-size:13px; display:block; margin-bottom:6px; text-align:left;">2. Rincian Pengeluaran Bulanan</strong>
+    <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
+      <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <thead>
+          <tr style="background:var(--bg-main); color:var(--text-main);">
+            <th style="padding:10px 8px; text-align:center; font-weight:700;">Tgl</th>
+            <th style="padding:10px 8px; text-align:left; font-weight:700;">Keperluan</th>
+            <th style="padding:10px 8px; text-align:right; font-weight:700;">Nominal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${htmlTabelKeluar || '<tr><td colspan="3" style="text-align:center; padding:12px;">Belum ada data</td></tr>'}
+          <tr style="font-weight:bold; background:var(--bg-main); border-top:2px solid #cbd5e1; font-size:13px;">
+            <td colspan="2" style="padding:12px 8px; text-align:left;">TOTAL PENGELUARAN</td>
+            <td style="padding:12px 8px; text-align:right; color:var(--danger); font-weight:800;">Rp ${pB.toLocaleString('id-ID')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:10px; padding:16px; background:var(--bg-card); border:2px dashed #cbd5e1; border-radius:14px; font-weight:800; font-size:16px; text-align:center; box-shadow: var(--shadow-sm); color:${labaB >= 0 ? 'var(--success)' : 'var(--danger)'};">
+      <i class="fa-solid fa-chart-column"></i> LABA BERSIH: Rp ${labaB.toLocaleString("id-ID")}
+    </div>
+  `;
+
+  let modeRiwayat = document.getElementById("modeRiwayat").value;
+  let tglRiwayat = document.getElementById("tanggalRiwayat").value;
+  let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
+  let riwayatKeluarFiltered = pengeluaran.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
+
+  riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
+    <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="text-align:left;"><b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}<br><span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Batal</button>
+    </div>
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
+
+  riwayatKeluar.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => `
+    <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="text-align:left;"><b>${x.keterangan || "Pengeluaran"}</b><br><span style="color:var(--danger); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
+      <div style="display:flex; gap:6px;">
+        <button onclick="editPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--accent); box-shadow:none; border-radius:8px;">Edit</button>
+        <button onclick="hapusPengeluaran(${x.idx})" style="width:auto; padding:6px 10px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Hapus</button>
+      </div>
+    </div>
+  `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
+    // --- INJEKSI TARGET BULANAN ---
+  let targetBulanIni = 400; 
+  const bulanSekarang = getMonthKey(new Date());
+
+let currentPcs =
+  (blnDipilih === bulanSekarang)
+    ? totalPcsBulanan
+    : 0;
+  let progressPct = Math.min((currentPcs / targetBulanIni) * 100, 100).toFixed(1);
+  let sisaTarget = Math.max(0, targetBulanIni - currentPcs);
+  
+  let dHariIni = new Date();
+  let hariBerjalan = dHariIni.getDate();
+  let totalHariBulanIni = new Date(dHariIni.getFullYear(), dHariIni.getMonth() + 1, 0).getDate();
+  let sisaHariDalamBulan = Math.max(1, totalHariBulanIni - hariBerjalan);
+  
+  let avgPcsPerDay = currentPcs / hariBerjalan;
+  let reqPcsPerDay = sisaTarget > 0 ? Math.ceil(sisaTarget / sisaHariDalamBulan) : 0;
+  
+  let estTercapaiTeks = "-";
+  if (sisaTarget === 0 && currentPcs >= targetBulanIni) {
+    estTercapaiTeks = "Tercapai! <i class='fa-solid fa-trophy' style='color:#fbbf24'></i>";
+    if(bulanAktif === getMonthKey(new Date())) fireConfetti(); // Hanya fire jika di bulan berjalan
+  } else if (avgPcsPerDay > 0 && sisaTarget > 0) {
+    let estHariLagi = Math.ceil(sisaTarget / avgPcsPerDay);
+    if (hariBerjalan + estHariLagi <= totalHariBulanIni) {
+       let estDate = new Date(dHariIni);
+       estDate.setDate(estDate.getDate() + estHariLagi);
+       estTercapaiTeks = estDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    } else {
+       estTercapaiTeks = "Bulan Depan (Target terancam meleset)";
+    }
+  }
+
+  let elTargetProgress = document.getElementById("targetProgressFill");
+  let elTargetText = document.getElementById("targetTextInfo");
+  let elTargetAvg = document.getElementById("targetAvgInfo");
+  
+  if (elTargetProgress && elTargetText && elTargetAvg) {
+    elTargetProgress.style.width = progressPct + '%';
+    elTargetText.innerHTML = `${currentPcs} / ${targetBulanIni} Pcs (${progressPct}%)<br><span style="font-size:10px; color:var(--text-muted); font-weight:500;">Sisa: ${sisaTarget} Pcs</span>`;
+    
+    elTargetAvg.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Rata-rata Penjualan:</span> <b>${avgPcsPerDay.toFixed(1)} Pcs/hari</b></div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Harus Dijual (Sisa Hari):</span> <b style="color:var(--warning);">${reqPcsPerDay} Pcs/hari</b></div>
+      <div style="display:flex; justify-content:space-between;"><span>Estimasi Target Tercapai:</span> <b style="color:var(--primary);">${estTercapaiTeks}</b></div>
     `;
   }
-
-  // Hutang & Piutang List
-  let lh = document.getElementById("listHutangContainer");
-  if(lh) {
-    lh.innerHTML = hutang.length === 0 ? '<div style="font-size:12px; text-align:center;">Tidak ada hutang</div>' : hutang.map(h => `
-      <div style="border-bottom:1px solid #e2e8f0; padding:10px 0; display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <b>${h.supplier}</b> (${h.barang})<br>
-          <span style="font-size:12px; color:var(--text-muted);">Rp ${h.nominal.toLocaleString()} | Tempo: ${h.tempo}</span><br>
-          ${h.lunas ? '<span style="color:var(--success); font-weight:bold; font-size:10px;">LUNAS</span>' : '<span style="color:var(--danger); font-weight:bold; font-size:10px;">BELUM LUNAS</span>'}
-        </div>
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          ${!h.lunas ? `<button onclick="bayarHutang(${h.id})" style="padding:4px 8px; font-size:10px; box-shadow:none; background:var(--success);">Bayar</button>` : ''}
-          <button onclick="hapusHutang(${h.id})" style="padding:4px 8px; font-size:10px; box-shadow:none; background:var(--danger);">Hapus</button>
-        </div>
-      </div>
-    `).join("");
-  }
-  
-  let lp = document.getElementById("listPiutangContainer");
-  if(lp) {
-    lp.innerHTML = piutang.length === 0 ? '<div style="font-size:12px; text-align:center;">Tidak ada piutang</div>' : piutang.map(p => `
-      <div style="border-bottom:1px solid #e2e8f0; padding:10px 0; display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <b>${p.customer}</b> (${p.barang} x ${p.qty})<br>
-          <span style="font-size:12px; color:var(--text-muted);">Total: Rp ${p.total.toLocaleString()}</span><br>
-          ${p.lunas ? '<span style="color:var(--success); font-weight:bold; font-size:10px;">LUNAS</span>' : '<span style="color:var(--danger); font-weight:bold; font-size:10px;">BELUM DIBAYAR</span>'}
-        </div>
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          ${!p.lunas ? `<button onclick="bayarPiutang(${p.id})" style="padding:4px 8px; font-size:10px; box-shadow:none; background:var(--success);">Lunas</button>` : ''}
-          <button onclick="hapusPiutang(${p.id})" style="padding:4px 8px; font-size:10px; box-shadow:none; background:var(--danger);">Hapus</button>
-        </div>
-      </div>
-    `).join("");
-  }
-
 }
 
-loadDataFromCloud(); // INITIALIZE
+loadDataFromCloud();
 </script>
 </body>
 </html>
