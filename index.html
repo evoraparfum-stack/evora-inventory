@@ -68,7 +68,6 @@ html, body {
 /* TOAST NOTIFICATION */
 .top-toast-alert {
   position: fixed;
-  /* Jauhkan secara fisik dari atas agar iOS tidak menjiplak warnanya */
   top: -200px; 
   left: 50%;
   transform: translateX(-50%);
@@ -85,16 +84,13 @@ html, body {
   align-items: flex-start;
   font-size: 13px;
   font-weight: 600;
-  /* Tambahkan efek pudar dan sembunyi total */
   opacity: 0;
   visibility: hidden;
-  /* Transisi sekarang mengatur semua properti (top, opacity, visibility) */
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid rgba(255,255,255,0.2);
 }
 
 .top-toast-alert.show {
-  /* Munculkan tepat di bawah poni / dynamic island iPhone */
   top: calc(20px + env(safe-area-inset-top));
   opacity: 1;
   visibility: visible;
@@ -105,7 +101,6 @@ html, body {
   color: white;
   border-radius: 50%;
   width: 32px;
-  /* Tombol silang diperbesar */
   height: 32px;
   display: flex;
   align-items: center;
@@ -717,6 +712,36 @@ body.dark-theme #summaryBulanan {
   </div>
 
   <div id="tab-laporan" class="tab-content">
+    
+    <!-- PANEL HUTANG PAYLATER -->
+    <div class="card" style="border: 1px solid #8b5cf6; background: rgba(139, 92, 246, 0.05);">
+      <h3 style="color:#7c3aed"><i class="fa-solid fa-credit-card"></i> MANAJEMEN HUTANG PAYLATER</h3>
+      <div style="font-size: 13px; margin-bottom: 12px; font-weight: 600;">
+        Total Tunggakan Paylater: <br>
+        <span id="totalHutangPaylater" style="font-size: 22px; color: var(--danger); font-weight: 900;">Rp 0</span>
+      </div>
+      
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <!-- Form Pakai Paylater -->
+        <div style="background: var(--bg-card); padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
+          <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--warning);">Pakai Paylater</h4>
+          <input id="nominalPakaiPaylater" type="number" placeholder="Nominal Rp" style="padding: 8px; font-size: 12px;">
+          <input id="ketPakaiPaylater" type="text" placeholder="Beli apa?" style="padding: 8px; font-size: 12px;">
+          <button onclick="catatPaylater('pakai')" style="background:var(--warning); padding:8px; font-size:11px; margin-top: 4px; box-shadow:none;">Catat Hutang</button>
+        </div>
+        
+        <!-- Form Bayar Tagihan -->
+        <div style="background: var(--bg-card); padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
+          <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--success);">Bayar Tagihan</h4>
+          <input id="nominalBayarPaylater" type="number" placeholder="Nominal Rp" style="padding: 8px; font-size: 12px;">
+          <input id="ketBayarPaylater" type="text" placeholder="Bulan apa?" style="padding: 8px; font-size: 12px;">
+          <button onclick="catatPaylater('bayar')" style="background:var(--success); padding:8px; font-size:11px; margin-top: 4px; box-shadow:none;">Catat Pelunasan</button>
+        </div>
+      </div>
+      
+      <div id="listPaylater" style="margin-top: 12px; max-height: 180px; overflow-y: auto; font-size: 12px;"></div>
+    </div>
+
     <div class="card">
       <h3><i class="fa-solid fa-calendar-days"></i> LAPORAN HARIAN (INFO)</h3>
       <input id="hariSelect" type="date" onchange="render()">
@@ -733,7 +758,7 @@ body.dark-theme #summaryBulanan {
   <div id="tab-riwayat" class="tab-content">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-        <h3><i class="fa-solid fa-filter"></i> FILTER LOG</h3>
+        <h3><i class="fa-solid fa-filter"></i> FILTER LOG (MAX 50)</h3>
         <select id="modeRiwayat" onchange="render()" style="width:90px; margin:0; padding:8px; font-size:12px;">
           <option value="harian">Hari</option>
           <option value="bulanan">Bulan</option>
@@ -743,12 +768,12 @@ body.dark-theme #summaryBulanan {
     </div>
 
     <div class="card">
-      <h3><i class="fa-solid fa-file-pen"></i> LOG PENJUALAN OPERASIONAL</h3>
+      <h3><i class="fa-solid fa-file-pen"></i> LOG PENJUALAN TERBARU</h3>
       <div id="riwayatJual" class="scroll-box"></div>
     </div>
 
     <div class="card">
-      <h3><i class="fa-solid fa-arrow-trend-down"></i> LOG OPERASIONAL PENGELUARAN</h3>
+      <h3><i class="fa-solid fa-arrow-trend-down"></i> LOG PENGELUARAN TERBARU</h3>
       <div id="riwayatKeluar" class="scroll-box"></div>
     </div>
   </div>
@@ -759,6 +784,14 @@ body.dark-theme #summaryBulanan {
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Ubah nama yang ditampilkan di sapaan layar utama.</p>
       <input id="inputNamaProfil" type="text" placeholder="Masukkan nama panggilan Anda">
       <button onclick="simpanNamaProfil()" style="margin-top:8px;">Simpan Nama</button>
+    </div>
+    
+    <div class="card">
+      <h3 style="color:var(--primary)"><i class="fa-solid fa-receipt"></i> KUSTOMISASI STRUK KASIR</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Ubah teks header dan footer pada struk yang dicetak.</p>
+      <input id="inputNamaToko" type="text" placeholder="Nama Toko (Contoh: EVORA PERFUME)">
+      <input id="inputFooterStruk" type="text" placeholder="Pesan Bawah (Footer)">
+      <button onclick="simpanSettingStruk()" style="margin-top:8px;">Simpan Pengaturan Struk</button>
     </div>
 
     <div class="card">
@@ -891,11 +924,14 @@ let barang = [];
 let penjualan = [];
 let pengeluaran = [];
 let pesanan = []; 
+let logPaylater = []; // Fitur Baru Paylater
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
 // Variabel Ekstensi Enterprise
 let namaUser = localStorage.getItem("evora_nama") || "Farhan";
+let namaToko = localStorage.getItem("evora_toko") || "EVORA PERFUME";
+let footerStruk = localStorage.getItem("evora_footer") || "Terima Kasih Atas Kunjungan Anda";
 let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let printCharacteristic = null;
 let bluetoothDevice = null;
@@ -914,6 +950,9 @@ let currentEditPengeluaranIndex = null;
 // INITIALIZE SETTINGS
 function initEnterpriseSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
+  document.getElementById("inputNamaToko").value = namaToko;
+  document.getElementById("inputFooterStruk").value = footerStruk;
+  
   let btnDark = document.getElementById("btnDarkMode");
   if (isDarkMode) {
     document.body.classList.add("dark-theme");
@@ -947,27 +986,21 @@ function shortcutKasir() {
 // NOTIFIKASI STOK
 function checkLowStockAlert() {
   let lowItems = [];
-  // Aturan baru: Botol dan Box akan memunculkan notif jika sisa di bawah 15
   if (stokBotol < 15) lowItems.push(`<i class="fa-solid fa-wine-bottle"></i> Botol Kosong: <b>${stokBotol} pcs</b>`);
   if (stokBox < 15) lowItems.push(`<i class="fa-solid fa-box"></i> Box Packing: <b>${stokBox} pcs</b>`);
-  // Aturan untuk parfum tetap di bawah 5 (Jika ingin diubah ke 15, ganti angka 5 di bawah)
   barang.forEach(b => {
     if (b.stok < 5) lowItems.push(`<i class="fa-solid fa-flask"></i> ${b.nama}: <b>${b.stok} pcs</b>`);
   });
   if (lowItems.length > 0) {
-    // Membuat daftar pesan berformat bullet point
     let msg = "Item logistik / varian berikut perlu segera di-restock:<br>";
     msg += "<ul style='margin: 8px 0 0 20px; padding: 0; font-weight: 500; font-size: 13px; line-height: 1.7;'>";
     lowItems.forEach(item => {
       msg += `<li>${item}</li>`;
     });
     msg += "</ul>";
-    // Gunakan innerHTML agar tag HTML (seperti <b> dan <li>) tereksekusi
     document.getElementById("notificationMessage").innerHTML = msg;
     let notif = document.getElementById("topNotification");
     notif.classList.add("show");
-    
-    // Auto-close notifikasi diubah menjadi 10 detik agar lebih lama untuk dibaca
     setTimeout(() => { closeNotification(); }, 10000);
   }
 }
@@ -1062,7 +1095,7 @@ function customConfirm(title, message, type = 'primary') {
   });
 }
 
-// PROFILE SETUP & SAPAAN
+// PROFILE & SETTING SETUP
 function simpanNamaProfil() {
   let namaBaru = document.getElementById("inputNamaProfil").value.trim();
   if(!namaBaru) {
@@ -1070,10 +1103,23 @@ function simpanNamaProfil() {
     return;
   }
   namaUser = namaBaru;
- 
   localStorage.setItem("evora_nama", namaUser);
   parsePremiumGreeting();
   customAlert("Tersimpan", `Nama profil berhasil diubah menjadi <b>${namaUser}</b>.`, "success");
+}
+
+function simpanSettingStruk() {
+  let tNama = document.getElementById("inputNamaToko").value.trim();
+  let tFoot = document.getElementById("inputFooterStruk").value.trim();
+  if(!tNama || !tFoot) {
+     customAlert("Peringatan", "Nama toko dan footer tidak boleh kosong!", "warning");
+     return;
+  }
+  namaToko = tNama;
+  footerStruk = tFoot;
+  localStorage.setItem("evora_toko", namaToko);
+  localStorage.setItem("evora_footer", footerStruk);
+  customAlert("Tersimpan", "Pengaturan teks struk kasir berhasil diperbarui.", "success");
 }
 
 function parsePremiumGreeting() {
@@ -1164,12 +1210,11 @@ async function kirimTeksKePrinter(teks) {
 
 async function cetakStrukOtomatis(namaBarang, qty, total) {
   if (!printCharacteristic) return;
-  // Silent skip jika printer tidak terhubung
   const ESC = '\x1B';
   let teksStruk = 
     ESC + '@' + 
     ESC + 'a' + '\x01' + 
-    "=== EVORA TRACKER PRO ===\n" +
+    "=== " + namaToko.toUpperCase() + " ===\n" +
     "Premium Perfume Suite\n" +
     "--------------------------------\n" +
     ESC + 'a' + '\x00' +
@@ -1183,7 +1228,7 @@ async function cetakStrukOtomatis(namaBarang, qty, total) {
     "TOTAL: Rp " + total.toLocaleString('id-ID') + "\n" +
     ESC + 'a' + '\x01' + 
     "--------------------------------\n" +
-    "Terima Kasih Atas Kunjungan Anda\n\n\n\n";
+    footerStruk + "\n\n\n\n";
   await kirimTeksKePrinter(teksStruk);
 }
 
@@ -1193,7 +1238,7 @@ async function testPrint() {
   let text = 
     ESC + '@' + 
     ESC + 'a' + '\x01' + 
-    "=== EVORA TRACKER PRO ===\n\n" +
+    "=== " + namaToko.toUpperCase() + " ===\n\n" +
     ESC + 'a' + '\x00' + 
     "Tgl   : " + new Date().toLocaleString('id-ID') + "\n" +
     "Kasir : " + namaUser + "\n" +
@@ -1287,6 +1332,7 @@ async function loadDataFromCloud() {
       penjualan = dataUtama.penjualan || [];
       pengeluaran = dataUtama.pengeluaran || [];
       pesanan = dataUtama.pesanan || []; 
+      logPaylater = dataUtama.logPaylater || [];
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       
       document.getElementById("inputHargaGlobal").value = HARGA;
@@ -1315,6 +1361,7 @@ async function saveData() {
     penjualan: penjualan,
     pengeluaran: pengeluaran,
     pesanan: pesanan, 
+    logPaylater: logPaylater,
     hargaGlobal: HARGA 
   };
   try {
@@ -1623,6 +1670,37 @@ async function hapusPengeluaran(originalIndex) {
   }
 }
 
+// LOGIKA PAYLATER
+async function catatPaylater(jenis) {
+  let elNominal = jenis === 'pakai' ? document.getElementById("nominalPakaiPaylater") : document.getElementById("nominalBayarPaylater");
+  let elKet = jenis === 'pakai' ? document.getElementById("ketPakaiPaylater") : document.getElementById("ketBayarPaylater");
+  
+  let nom = Number(elNominal.value);
+  let ket = elKet.value.trim();
+  
+  if(nom <= 0 || !ket) return;
+  
+  let actionText = jenis === 'pakai' ? 'mencatat pemakaian Paylater' : 'mencatat pelunasan Paylater';
+  let color = jenis === 'pakai' ? 'warning' : 'success';
+  
+  let konfirmasi = await customConfirm("Konfirmasi Paylater", `Yakin ingin ${actionText} sebesar <b>Rp ${nom.toLocaleString('id-ID')}</b> untuk <i>"${ket}"</i>?`, color);
+  if(!konfirmasi) return;
+  
+  logPaylater.push({ tanggal: new Date().toISOString(), jenis: jenis, nominal: nom, keterangan: ket });
+  
+  elNominal.value = "";
+  elKet.value = "";
+  saveData();
+}
+
+async function hapusPaylater(index) {
+  let konfirmasi = await customConfirm("Hapus Log Paylater", "Hapus catatan Paylater ini secara permanen?", "danger");
+  if(konfirmasi) {
+     logPaylater.splice(index, 1);
+     saveData();
+  }
+}
+
 function updateDropdownPemesanan() {
   let elTarget = document.getElementById("targetPesan");
   if (!elTarget) return;
@@ -1700,6 +1778,7 @@ async function salinDataKeClipboard() {
     penjualan: penjualan,
     pengeluaran: pengeluaran,
     pesanan: pesanan,
+    logPaylater: logPaylater,
     hargaGlobal: HARGA 
   };
   let stringData = JSON.stringify(paketData);
@@ -1731,6 +1810,7 @@ async function pasteDataTransfer() {
     penjualan = dataBaru.penjualan || [];
     pengeluaran = dataBaru.pengeluaran || [];
     pesanan = dataBaru.pesanan || [];
+    logPaylater = dataBaru.logPaylater || [];
     HARGA = Number(dataBaru.hargaGlobal || 27000);
     document.getElementById("inputHargaGlobal").value = HARGA;
     document.getElementById("inputTransferData").value = "";
@@ -1847,7 +1927,8 @@ function render(){
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
   barangUrut.sort((a, b) => a.stok - b.stok);
-  // --- KODE PENGGANTI AI RESTOCK (DIMULAI DARI listBarang.innerHTML) ---
+  
+  // --- INJEKSI ANALISIS AI RESTOCK ---
   listBarang.innerHTML = barangUrut.map(x => {  
     let badgeTag = "";  
     if (x.stok === 0) {  
@@ -1858,14 +1939,12 @@ function render(){
       badgeTag = `<span class="badge-status status-ready">AMAN (${x.stok})</span>`;  
     }  
     
-    // --- INJEKSI ANALISIS AI RESTOCK ---
     let msPerDay = 24 * 60 * 60 * 1000;
     let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
     
     let qty7Hari = 0;
     let qty7HariSebelumnya = 0;
     
-    // Loop sejarah penjualan untuk mencari pola
     penjualan.forEach(p => {
       if (p.barang === x.nama && p.qty > 0) {
         let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
@@ -1884,14 +1963,13 @@ function render(){
       textPredict = "<i class='fa-solid fa-circle' style='color:var(--danger);'></i> Stok Habis";
     } else if (prediksiHabisHari < 7) { 
       colorPredict = "var(--danger)";
-      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ÃÂ± Habis dalam ${prediksiHabisHari} hari`;
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--danger);'></i> ± Habis dalam ${prediksiHabisHari} hari`;
     } else if (prediksiHabisHari < 14) { 
       colorPredict = "var(--warning)";
-      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ÃÂ± Habis dalam ${prediksiHabisHari} hari`;
+      textPredict = `<i class='fa-solid fa-circle' style='color:var(--warning);'></i> ± Habis dalam ${prediksiHabisHari} hari`;
     } else if (prediksiHabisHari <= 30) { 
       colorPredict = "#eab308";
-      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ÃÂ± Habis dalam ${prediksiHabisHari} hari`;
-      // Kuning gelap
+      textPredict = `<i class='fa-solid fa-circle' style='color:#eab308;'></i> ± Habis dalam ${prediksiHabisHari} hari`;
     }
     
     let trenMeroket = false;
@@ -1913,7 +1991,6 @@ function render(){
         `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
       </div>
     `;
-    // --- END INJEKSI AI ---
 
     let dropdownOptions = "";
     for(let i=1; i<=10; i++) dropdownOptions += `<option value="${i}">${i}</option>`;
@@ -1925,8 +2002,6 @@ function render(){
           ${badgeTag}  
           ${aiCardHtml}
         </div>  
-     
-      
         <div style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; gap:6px; align-items:center;">
             <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Qty:</span>
@@ -1934,8 +2009,6 @@ function render(){
               ${dropdownOptions}
             </select>
           </div>
-         
- 
           <div style="display:flex; gap:6px;">
             <button onclick="quickJual(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--success); border-radius:6px; flex:1; box-shadow:none;"><i class="fa-solid fa-bolt"></i> Jual</button>
             <button onclick="editBarang(${x.originalIndex})" style="padding:6px; font-size:11px; background:var(--accent); border-radius:6px; width:45px; box-shadow:none;">Edit</button>
@@ -2078,19 +2151,24 @@ function render(){
     </div>
   `;
 
+  // OPTIMALISASI RENDERING LOG (MAX 50 TERBARU UNTUK MENCEGAH LAG)
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
+  
   let riwayatJualFiltered = penjualan.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
   let riwayatKeluarFiltered = pengeluaran.map((x,i)=>({...x, idx:i})).filter(x => modeRiwayat==="harian" ? getDayKey(x.tanggal)===getDayKey(tglRiwayat) : getMonthKey(x.tanggal)===getMonthKey(tglRiwayat));
 
-  riwayatJual.innerHTML = riwayatJualFiltered.length ? riwayatJualFiltered.map(x => `
+  let riwayatJualTerbaru = riwayatJualFiltered.slice(-50).reverse();
+  let riwayatKeluarTerbaru = riwayatKeluarFiltered.slice(-50).reverse();
+
+  riwayatJual.innerHTML = riwayatJualTerbaru.length ? riwayatJualTerbaru.map(x => `
     <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
       <div style="text-align:left;"><b>${x.barang}</b> ${x.qty > 0 ? '('+x.qty+' pcs)' : ''}<br><span style="color:var(--primary); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
       <button onclick="batalkanPenjualan(${x.idx})" style="width:auto; padding:6px 12px; font-size:12px; background:var(--danger); box-shadow:none; border-radius:8px;">Batal</button>
     </div>
   `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
 
-  riwayatKeluar.innerHTML = riwayatKeluarFiltered.length ? riwayatKeluarFiltered.map(x => `
+  riwayatKeluar.innerHTML = riwayatKeluarTerbaru.length ? riwayatKeluarTerbaru.map(x => `
     <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
       <div style="text-align:left;"><b>${x.keterangan || "Pengeluaran"}</b><br><span style="color:var(--danger); font-weight:700; display:inline-block; margin-top:4px;">Rp ${x.nominal.toLocaleString("id-ID")}</span></div>
       <div style="display:flex; gap:6px;">
@@ -2099,14 +2177,38 @@ function render(){
       </div>
     </div>
   `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
-    // --- INJEKSI TARGET BULANAN ---
+  
+  // LOG PAYLATER RENDER
+  let totalPakaiPaylater = logPaylater.filter(x => x.jenis === 'pakai').reduce((a,b) => a + b.nominal, 0);
+  let totalBayarPaylater = logPaylater.filter(x => x.jenis === 'bayar').reduce((a,b) => a + b.nominal, 0);
+  let sisaHutangPaylater = totalPakaiPaylater - totalBayarPaylater;
+  
+  let elTotalPaylater = document.getElementById("totalHutangPaylater");
+  if(elTotalPaylater) elTotalPaylater.innerText = "Rp " + sisaHutangPaylater.toLocaleString("id-ID");
+  
+  let elListPaylater = document.getElementById("listPaylater");
+  if(elListPaylater) {
+      let reversedPaylater = [...logPaylater].map((x,i) => ({...x, ori: i})).reverse();
+      elListPaylater.innerHTML = reversedPaylater.length ? reversedPaylater.map(p => {
+          let tgl = new Date(p.tanggal);
+          let tglStr = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0');
+          let color = p.jenis === 'pakai' ? 'var(--warning)' : 'var(--success)';
+          let sign = p.jenis === 'pakai' ? '-' : '+';
+          return `<div style="display:flex; justify-content:space-between; padding: 8px; border-bottom: 1px solid rgba(139, 92, 246, 0.2); align-items:center;">
+              <div style="text-align: left;"><b style="color:var(--text-main);">${p.keterangan}</b><br><span style="color:var(--text-muted); font-size:10px;">${tglStr}</span></div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:${color}; font-weight:bold;">${sign} Rp ${p.nominal.toLocaleString('id-ID')}</span>
+                <button onclick="hapusPaylater(${p.ori})" style="padding:4px 8px; font-size:10px; background:var(--danger); border-radius:6px; box-shadow:none; width:auto; margin:0;"><i class="fa-solid fa-trash"></i></button>
+              </div>
+          </div>`;
+      }).join("") : '<div style="text-align:center; padding: 10px; color:var(--text-muted);">Belum ada catatan tagihan.</div>';
+  }
+
+  // --- INJEKSI TARGET BULANAN ---
   let targetBulanIni = 400; 
   const bulanSekarang = getMonthKey(new Date());
 
-let currentPcs =
-  (blnDipilih === bulanSekarang)
-    ? totalPcsBulanan
-    : 0;
+  let currentPcs = (blnDipilih === bulanSekarang) ? totalPcsBulanan : 0;
   let progressPct = Math.min((currentPcs / targetBulanIni) * 100, 100).toFixed(1);
   let sisaTarget = Math.max(0, targetBulanIni - currentPcs);
   
@@ -2121,7 +2223,7 @@ let currentPcs =
   let estTercapaiTeks = "-";
   if (sisaTarget === 0 && currentPcs >= targetBulanIni) {
     estTercapaiTeks = "Tercapai! <i class='fa-solid fa-trophy' style='color:#fbbf24'></i>";
-    if(bulanAktif === getMonthKey(new Date())) fireConfetti(); // Hanya fire jika di bulan berjalan
+    if(bulanAktif === getMonthKey(new Date())) fireConfetti();
   } else if (avgPcsPerDay > 0 && sisaTarget > 0) {
     let estHariLagi = Math.ceil(sisaTarget / avgPcsPerDay);
     if (hariBerjalan + estHariLagi <= totalHariBulanIni) {
