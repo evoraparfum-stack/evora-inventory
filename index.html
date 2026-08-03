@@ -12,7 +12,6 @@
   <meta name="apple-mobile-web-app-title" content="EVORA">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -35,7 +34,6 @@
   --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 4px 12px -5px rgba(15, 23, 42, 0.03);
 }
 
-/* --- DARK MODE CSS OVERRIDES --- */
 body.dark-theme {
   --bg-main: #0f172a;
   --bg-card: #1e293b;
@@ -65,7 +63,6 @@ html, body {
   transition: background 0.3s, color 0.3s;
 }
 
-/* TOAST NOTIFICATION */
 .top-toast-alert {
   position: fixed;
   top: -200px; 
@@ -113,7 +110,6 @@ html, body {
   flex-shrink: 0;
 }
 
-/* PREMIUM BANK-STYLE HEADER */
 .premium-header {
   background: var(--premium-gradient);
   padding: 40px 24px 65px 24px;
@@ -179,7 +175,6 @@ html, body {
   letter-spacing: -1px;
 }
 
-/* DYNAMIC BANK GROWTH BADGES */
 .trend-badge {
   display: inline-flex;
   align-items: center;
@@ -222,7 +217,6 @@ html, body {
   transition: all 0.2s;
 }
 
-/* PILLS CONTAINER - GRID 3 KOLOM SIMETRIS */
 .pills-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -249,7 +243,6 @@ html, body {
   width: 100%;
 }
 
-/* MAIN BODY SHEET */
 .main-sheet {
   background: var(--bg-main);
   margin-top: -30px;
@@ -290,7 +283,6 @@ h3 {
   gap: 6px;
 }
 
-/* PREMIUM ACTION BUTTON & RIPPLE EFFECT */
 button {
   position: relative;
   overflow: hidden;
@@ -321,7 +313,6 @@ button:active {
   to { transform: scale(4); opacity: 0; }
 }
 
-/* PREMIUM BADGES & INTERACTIVE COLORS */
 .badge-status {
   padding: 4px 10px;
   border-radius: 8px;
@@ -340,7 +331,6 @@ body.dark-theme .status-critical { background: rgba(225,29,72,0.2); color: #fda4
 body.dark-theme .status-warning { background: rgba(234,88,12,0.2); color: #fed7aa; }
 body.dark-theme .status-ready { background: rgba(13,148,136,0.2); color: #99f6e4; }
 
-/* Blinking continuous animation for critical stock */
 .blinking-alert {
   animation: premium-blink 1.4s infinite ease-in-out;
 }
@@ -348,14 +338,7 @@ body.dark-theme .status-ready { background: rgba(13,148,136,0.2); color: #99f6e4
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.6; transform: scale(0.96); background: #fff1f2; }
 }
-body.dark-theme .blinking-alert {
-  @keyframes premium-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; background: rgba(225,29,72,0.3); }
-  }
-}
 
-/* SKELETON SHIMMER LOADING EFFECT */
 .skeleton-loading .shimmer-text {
   background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
   background-size: 200% 100%;
@@ -372,7 +355,6 @@ body.dark-theme .skeleton-loading .shimmer-text {
   100% { background-position: -200% 0; }
 }
 
-/* SMART FADE & SCALE ENTRANCE ANIMATION FOR TABS */
 .tab-content { 
   display: none;
 }
@@ -385,7 +367,6 @@ body.dark-theme .skeleton-loading .shimmer-text {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* OTHER SYSTEM LAYOUTS */
 .search-container { position: relative; width: 100%; }
 .search-container input { padding-right: 40px; }
 .btn-clear-search {
@@ -477,7 +458,6 @@ body.dark-theme #summaryBulanan {
   color: var(--text-main) !important;
 }
 
-/* MODALS WITH PREMIUM POP ANIMATIONS */
 .modal-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(15, 23, 42, 0.6);
@@ -492,7 +472,6 @@ body.dark-theme #summaryBulanan {
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-/* --- QUICK ACCESS CSS --- */
 .quick-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -528,7 +507,6 @@ body.dark-theme #summaryBulanan {
   color: var(--text-main);
 }
 
-/* CUSTOM SCROLLBAR FOR PENDING ORDERS */
 #listPesanPending::-webkit-scrollbar {
   width: 4px;
 }
@@ -615,6 +593,19 @@ body.dark-theme #summaryBulanan {
       </div>
     </div>
 
+    <!-- HIGHLIGHT PREDIKSI AI BESOK -->
+    <div class="card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; padding: 16px; border: none; margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; opacity: 0.95;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Prediksi Besok</div>
+          <div style="font-size: 13px; font-weight: 500; opacity: 0.95;">Estimasi Terjual: <b id="prediksiBesokText" style="font-size: 24px; color: #fff; font-weight: 900; letter-spacing: -0.5px;">0 Pcs</b></div>
+        </div>
+        <div style="font-size: 38px; opacity: 0.4;">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <h3><i class="fa-solid fa-chart-line"></i> GRAFIK PENJUALAN 7 HARI TERAKHIR</h3>
       <div style="position: relative; height:200px; width:100%;">
@@ -652,8 +643,7 @@ body.dark-theme #summaryBulanan {
         <div style="background:#e2e8f0; height:12px; border-radius:10px; overflow:hidden; margin-bottom:12px;">
           <div id="targetProgressFill" style="background:var(--success); width:0%; height:100%; transition:width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);"></div>
         </div>
-        <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;">
-          </div>
+        <div id="targetAvgInfo" style="font-size:11px; color:var(--text-muted); line-height:1.6; border-top:1px dashed #cbd5e1; padding-top:10px;"></div>
       </div>
     </div>
 
@@ -686,7 +676,6 @@ body.dark-theme #summaryBulanan {
 
     <div class="card">
       <h3><i class="fa-solid fa-box"></i> TRANSAKSI GROSIR / MANUAL</h3>
-     
       <select id="barangJual"></select>
       <input id="qtyJual" type="number" placeholder="Kuantitas Item">
       <button onclick="jualBarang()">Eksekusi Penjualan Grosir</button>
@@ -725,17 +714,24 @@ body.dark-theme #summaryBulanan {
         <!-- Form Pakai Paylater -->
         <div style="background: var(--bg-card); padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
           <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--warning);">Pakai Paylater</h4>
-          <input id="nominalPakaiPaylater" type="number" placeholder="Nominal Rp" style="padding: 8px; font-size: 12px;">
-          <input id="ketPakaiPaylater" type="text" placeholder="Beli apa?" style="padding: 8px; font-size: 12px;">
-          <button onclick="catatPaylater('pakai')" style="background:var(--warning); padding:8px; font-size:11px; margin-top: 4px; box-shadow:none;">Catat Hutang</button>
+          <input id="nominalPakaiPaylater" type="number" placeholder="Nominal Rp" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
+          <input id="ketPakaiPaylater" type="text" placeholder="Beli apa?" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
+          <div style="font-size:10px; color:var(--text-muted); margin-bottom:2px; text-align:left; font-weight:bold;">Jatuh Tempo:</div>
+          <input id="tglJatuhTempoPaylater" type="date" style="padding: 8px; font-size: 12px; margin-top:0;">
+          <button onclick="catatPaylater('pakai')" style="background:var(--warning); padding:8px; font-size:11px; margin-top: 6px; box-shadow:none;">Catat Hutang</button>
         </div>
         
         <!-- Form Bayar Tagihan -->
         <div style="background: var(--bg-card); padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
           <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--success);">Bayar Tagihan</h4>
-          <input id="nominalBayarPaylater" type="number" placeholder="Nominal Rp" style="padding: 8px; font-size: 12px;">
-          <input id="ketBayarPaylater" type="text" placeholder="Bulan apa?" style="padding: 8px; font-size: 12px;">
-          <button onclick="catatPaylater('bayar')" style="background:var(--success); padding:8px; font-size:11px; margin-top: 4px; box-shadow:none;">Catat Pelunasan</button>
+          <input id="nominalBayarPaylater" type="number" placeholder="Nominal Rp" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
+          <input id="ketBayarPaylater" type="text" placeholder="Bulan apa?" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
+          <div style="font-size:10px; color:var(--text-muted); margin-bottom:2px; text-align:left; font-weight:bold;">Sumber Dana:</div>
+          <select id="sumberDanaPaylater" style="padding: 8px; font-size: 11px; margin-top:0; font-weight:bold;">
+            <option value="kas">Kas Toko (Potong Omzet)</option>
+            <option value="pribadi">Uang Pribadi</option>
+          </select>
+          <button onclick="catatPaylater('bayar')" style="background:var(--success); padding:8px; font-size:11px; margin-top: 6px; box-shadow:none;">Catat Pelunasan</button>
         </div>
       </div>
       
@@ -786,6 +782,13 @@ body.dark-theme #summaryBulanan {
       <button onclick="simpanNamaProfil()" style="margin-top:8px;">Simpan Nama</button>
     </div>
     
+    <div class="card">
+      <h3 style="color:var(--accent)"><i class="fa-solid fa-bullseye"></i> KONFIGURASI TARGET BULANAN</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Tentukan target penjualan (dalam pcs) untuk bulan ini.</p>
+      <input id="inputTargetBulanan" type="number" placeholder="Contoh: 400" style="font-weight:800; color:var(--accent); font-size:18px; text-align:center; background:var(--bg-card); border-color: var(--accent);">
+      <button onclick="simpanTargetBaru()" style="margin-top:8px; background:var(--accent); box-shadow:none;">Simpan Target Baru</button>
+    </div>
+
     <div class="card">
       <h3 style="color:var(--primary)"><i class="fa-solid fa-receipt"></i> KUSTOMISASI STRUK KASIR</h3>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Ubah teks header dan footer pada struk yang dicetak.</p>
@@ -853,7 +856,6 @@ body.dark-theme #summaryBulanan {
   </button>
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
     <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
-  
     <div>Setting</div>
   </button>
 </div>
@@ -918,17 +920,17 @@ const supabaseKey = 'sb_publishable_vsHaMLZRSjn1OwpH2_nCtw_ct1ZIH0T';
 const supabaseApp = createClient(supabaseUrl, supabaseKey);
 
 let HARGA = 27000; 
+let targetBulanan = 400;
 let stokBotol = 0;
 let stokBox = 0;
 let barang = [];
 let penjualan = [];
 let pengeluaran = [];
 let pesanan = []; 
-let logPaylater = []; // Fitur Baru Paylater
+let logPaylater = [];
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
-// Variabel Ekstensi Enterprise
 let namaUser = localStorage.getItem("evora_nama") || "Farhan";
 let namaToko = localStorage.getItem("evora_toko") || "EVORA PERFUME";
 let footerStruk = localStorage.getItem("evora_footer") || "Terima Kasih Atas Kunjungan Anda";
@@ -947,11 +949,11 @@ let tempStok = 0;
 let currentLogistikJenis = null; 
 let currentEditPengeluaranIndex = null;
 
-// INITIALIZE SETTINGS
 function initEnterpriseSettings() {
   document.getElementById("inputNamaProfil").value = namaUser;
   document.getElementById("inputNamaToko").value = namaToko;
   document.getElementById("inputFooterStruk").value = footerStruk;
+  document.getElementById("inputTargetBulanan").value = targetBulanan;
   
   let btnDark = document.getElementById("btnDarkMode");
   if (isDarkMode) {
@@ -962,28 +964,20 @@ function initEnterpriseSettings() {
 }
 initEnterpriseSettings();
 
-// SHORTCUT FUNCTIONS
 function shortcutRestock() {
   switchTab("kasir");
   setTimeout(() => {
-    document.getElementById("panelRestock").scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+    document.getElementById("panelRestock").scrollIntoView({ behavior: "smooth", block: "start" });
   }, 250);
 }
 
 function shortcutKasir() {
   switchTab("kasir");
   setTimeout(() => {
-    document.getElementById("panelKasir").scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+    document.getElementById("panelKasir").scrollIntoView({ behavior: "smooth", block: "start" });
   }, 250);
 }
 
-// NOTIFIKASI STOK
 function checkLowStockAlert() {
   let lowItems = [];
   if (stokBotol < 15) lowItems.push(`<i class="fa-solid fa-wine-bottle"></i> Botol Kosong: <b>${stokBotol} pcs</b>`);
@@ -1009,7 +1003,6 @@ function closeNotification() {
   document.getElementById("topNotification").classList.remove("show");
 }
 
-// RIPPLE EFFECT
 document.addEventListener('click', function (e) {
   const button = e.target.closest('button');
   if (!button) return;
@@ -1030,7 +1023,6 @@ document.addEventListener('click', function (e) {
   button.appendChild(ripple);
 });
 
-// ALERT CUSTOM
 function customAlert(title, message, type = 'primary') {
   return new Promise((resolve) => {
     const modal = document.getElementById("globalDialogModal");
@@ -1095,7 +1087,6 @@ function customConfirm(title, message, type = 'primary') {
   });
 }
 
-// PROFILE & SETTING SETUP
 function simpanNamaProfil() {
   let namaBaru = document.getElementById("inputNamaProfil").value.trim();
   if(!namaBaru) {
@@ -1122,6 +1113,22 @@ function simpanSettingStruk() {
   customAlert("Tersimpan", "Pengaturan teks struk kasir berhasil diperbarui.", "success");
 }
 
+async function simpanTargetBaru() {
+  let tBaru = Number(document.getElementById("inputTargetBulanan").value);
+  if (tBaru <= 0 || isNaN(tBaru)) {
+     customAlert("Peringatan", "Target harus berupa angka lebih dari 0!", "warning");
+     return;
+  }
+  let konfirmasi = await customConfirm("Ubah Target", `Apakah Anda yakin ingin mengubah target penjualan bulanan menjadi <b>${tBaru} Pcs</b>?`, "primary");
+  if (!konfirmasi) {
+     document.getElementById("inputTargetBulanan").value = targetBulanan;
+     return;
+  }
+  targetBulanan = tBaru;
+  saveData();
+  customAlert("Tersimpan", "Target bulanan berhasil diperbarui!", "success");
+}
+
 function parsePremiumGreeting() {
   const jam = new Date().getHours();
   let statusSapaan = "Selamat Malam";
@@ -1132,7 +1139,6 @@ function parsePremiumGreeting() {
 }
 parsePremiumGreeting();
 
-// TEMA DARK MODE
 function toggleDarkMode() {
   isDarkMode = !isDarkMode;
   localStorage.setItem("evora_darkmode", isDarkMode);
@@ -1148,7 +1154,6 @@ function toggleDarkMode() {
   }
 }
 
-// BLUETOOTH THERMAL PRINTER CORE ENGINE
 async function hubungkanPrinter() {
   if (!navigator.bluetooth) {
     customAlert("Tidak Didukung", "Browser tidak mendukung Web Bluetooth API. Gunakan Google Chrome terbaru.", "danger");
@@ -1251,7 +1256,6 @@ async function testPrint() {
   customAlert("Sukses", "Struk test berhasil dicetak ke printer!", "success");
 }
 
-// SIMPLE CONFETTI SYSTEM
 let isConfettiFired = false;
 function fireConfetti() {
   if (isConfettiFired || document.getElementById('evora-confetti')) return;
@@ -1272,16 +1276,13 @@ function fireConfetti() {
   setTimeout(()=> { c.remove(); style.remove(); }, 6000);
 }
 
-
-// COUNT UP ANIMATION LOGIC FOR METRICS
 function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
   const el = document.getElementById(elementId);
   if (!el) return;
   
   let startValue = currentValuesRegistry[elementId] || 0;
   if (startValue === targetValue) {
-    el.innerText = isCurrency ?
-    "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
+    el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
     return;
   }
   
@@ -1334,8 +1335,10 @@ async function loadDataFromCloud() {
       pesanan = dataUtama.pesanan || []; 
       logPaylater = dataUtama.logPaylater || [];
       HARGA = Number(dataUtama.hargaGlobal || 27000);
+      targetBulanan = Number(dataUtama.targetBulanan || 400);
       
       document.getElementById("inputHargaGlobal").value = HARGA;
+      document.getElementById("inputTargetBulanan").value = targetBulanan;
       setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else {
       setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB");
@@ -1362,7 +1365,8 @@ async function saveData() {
     pengeluaran: pengeluaran,
     pesanan: pesanan, 
     logPaylater: logPaylater,
-    hargaGlobal: HARGA 
+    hargaGlobal: HARGA,
+    targetBulanan: targetBulanan
   };
   try {
     const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
@@ -1457,8 +1461,7 @@ function renderWeeklyChart() {
 
   let ctx = document.getElementById('grafikMingguan').getContext('2d');
   let lineColor = isDarkMode ? '#2dd4bf' : '#0f616d';
-  let bgColor = isDarkMode ?
-  'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
+  let bgColor = isDarkMode ? 'rgba(45, 212, 191, 0.1)' : 'rgba(15, 97, 109, 0.1)';
   
   if(chartInstance) {
     chartInstance.data.labels = labels;
@@ -1486,16 +1489,14 @@ function renderWeeklyChart() {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: 
-          {
+          y: {
             beginAtZero: true,
             ticks: {
               callback: function(val) { return 'Rp ' + val.toLocaleString('id-ID'); },
               font: { size: 9 }
             }
           },
-          x: { 
-          ticks: { font: { size: 10 } } }
+          x: { ticks: { font: { size: 10 } } }
         }
       }
     });
@@ -1505,8 +1506,7 @@ function renderWeeklyChart() {
 function editLogistik(jenis) {
   currentLogistikJenis = jenis;
   document.getElementById("logistikModalJudul").innerText = `Edit Stok ${jenis.toUpperCase()}`;
-  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ?
-  stokBotol : stokBox;
+  document.getElementById("logistikStokSekarang").innerText = jenis === 'botol' ? stokBotol : stokBox;
   document.getElementById("logistikJumlahManual").value = "";
   document.getElementById("logistikModal").style.display = "flex";
 }
@@ -1528,8 +1528,7 @@ function eksekusiLogistik(aksi) {
   saveData(); 
 }
 
-function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none";
-}
+function tutupLogistikModal() { document.getElementById("logistikModal").style.display = "none"; }
 
 async function tambahBarang(){
   let nama = namaBarang.value.trim().toUpperCase();
@@ -1550,12 +1549,14 @@ function editBarang(originalIndex){
   document.getElementById("modalJumlahManual").value = "";
   document.getElementById("editModal").style.display = "flex";
 }
+
 function eksekusiManualModal(aksi) {
   let inputVal = Number(document.getElementById("modalJumlahManual").value);
   if (inputVal <= 0) return;
   tempStok = aksi === 'tambah' ? tempStok + inputVal : Math.max(0, tempStok - inputVal);
   document.getElementById("modalStokSekarang").innerText = tempStok;
 }
+
 function tutupModalEdit() { document.getElementById("editModal").style.display = "none"; }
 
 function simpanModalEdit() {
@@ -1649,6 +1650,7 @@ function editPengeluaran(originalIndex) {
   document.getElementById("editPengeluaranModal").style.display = "flex";
 }
 function tutupModalPengeluaran() { document.getElementById("editPengeluaranModal").style.display = "none"; }
+
 async function simpanModalPengeluaran() {
   let nom = Number(document.getElementById("modalNominalKeluar").value);
   let ket = document.getElementById("modalKetKeluar").value.trim();
@@ -1662,6 +1664,7 @@ async function simpanModalPengeluaran() {
   tutupModalPengeluaran();
   saveData();
 }
+
 async function hapusPengeluaran(originalIndex) {
   let konfirmasi = await customConfirm("Hapus Log Keluar", "Hapus catatan log pengeluaran ini secara permanen dari database cloud?", "danger");
   if(konfirmasi) { 
@@ -1670,31 +1673,65 @@ async function hapusPengeluaran(originalIndex) {
   }
 }
 
-// LOGIKA PAYLATER
 async function catatPaylater(jenis) {
-  let elNominal = jenis === 'pakai' ? document.getElementById("nominalPakaiPaylater") : document.getElementById("nominalBayarPaylater");
-  let elKet = jenis === 'pakai' ? document.getElementById("ketPakaiPaylater") : document.getElementById("ketBayarPaylater");
+  let nom = 0; let ket = ""; let extra = {};
   
-  let nom = Number(elNominal.value);
-  let ket = elKet.value.trim();
+  if(jenis === 'pakai') {
+    nom = Number(document.getElementById("nominalPakaiPaylater").value);
+    ket = document.getElementById("ketPakaiPaylater").value.trim();
+    extra.jatuhTempo = document.getElementById("tglJatuhTempoPaylater").value;
+    if(!extra.jatuhTempo) {
+       customAlert("Peringatan", "Tanggal jatuh tempo wajib diisi agar tidak lupa bayar!", "warning");
+       return;
+    }
+  } else {
+    nom = Number(document.getElementById("nominalBayarPaylater").value);
+    ket = document.getElementById("ketBayarPaylater").value.trim();
+    extra.sumberDana = document.getElementById("sumberDanaPaylater").value;
+  }
   
   if(nom <= 0 || !ket) return;
   
   let actionText = jenis === 'pakai' ? 'mencatat pemakaian Paylater' : 'mencatat pelunasan Paylater';
   let color = jenis === 'pakai' ? 'warning' : 'success';
+  let msg = `Yakin ingin ${actionText} sebesar <b>Rp ${nom.toLocaleString('id-ID')}</b> untuk <i>"${ket}"</i>?`;
   
-  let konfirmasi = await customConfirm("Konfirmasi Paylater", `Yakin ingin ${actionText} sebesar <b>Rp ${nom.toLocaleString('id-ID')}</b> untuk <i>"${ket}"</i>?`, color);
+  if(jenis === 'bayar' && extra.sumberDana === 'kas') {
+     msg += `<br><br><span style="color:var(--danger); font-size:12px;"><b>Info:</b> Dana diambil dari Kas Toko (Otomatis tercatat di Pengeluaran Laporan).</span>`;
+  }
+  
+  let konfirmasi = await customConfirm("Konfirmasi Paylater", msg, color);
   if(!konfirmasi) return;
   
-  logPaylater.push({ tanggal: new Date().toISOString(), jenis: jenis, nominal: nom, keterangan: ket });
+  let dataLog = { tanggal: new Date().toISOString(), jenis: jenis, nominal: nom, keterangan: ket };
+  if(jenis === 'pakai') dataLog.jatuhTempo = extra.jatuhTempo;
+  if(jenis === 'bayar') dataLog.sumberDana = extra.sumberDana;
   
-  elNominal.value = "";
-  elKet.value = "";
+  logPaylater.push(dataLog);
+  
+  if(jenis === 'bayar' && extra.sumberDana === 'kas') {
+     pengeluaran.push({ tanggal: new Date().toISOString(), nominal: nom, keterangan: "Pelunasan Paylater: " + ket });
+  }
+  
+  if(jenis === 'pakai') {
+     document.getElementById("nominalPakaiPaylater").value = "";
+     document.getElementById("ketPakaiPaylater").value = "";
+     document.getElementById("tglJatuhTempoPaylater").value = "";
+  } else {
+     document.getElementById("nominalBayarPaylater").value = "";
+     document.getElementById("ketBayarPaylater").value = "";
+  }
+  
   saveData();
 }
 
 async function hapusPaylater(index) {
-  let konfirmasi = await customConfirm("Hapus Log Paylater", "Hapus catatan Paylater ini secara permanen?", "danger");
+  let target = logPaylater[index];
+  let msg = "Hapus catatan Paylater ini secara permanen?";
+  if (target.jenis === 'bayar' && target.sumberDana === 'kas') {
+      msg += "<br><br><i>Catatan: Anda juga harus menghapus secara manual data di 'Tab Riwayat Pengeluaran' jika ingin uang kas kembali.</i>";
+  }
+  let konfirmasi = await customConfirm("Hapus Log Paylater", msg, "danger");
   if(konfirmasi) {
      logPaylater.splice(index, 1);
      saveData();
@@ -1779,7 +1816,8 @@ async function salinDataKeClipboard() {
     pengeluaran: pengeluaran,
     pesanan: pesanan,
     logPaylater: logPaylater,
-    hargaGlobal: HARGA 
+    hargaGlobal: HARGA,
+    targetBulanan: targetBulanan
   };
   let stringData = JSON.stringify(paketData);
   try {
@@ -1812,7 +1850,10 @@ async function pasteDataTransfer() {
     pesanan = dataBaru.pesanan || [];
     logPaylater = dataBaru.logPaylater || [];
     HARGA = Number(dataBaru.hargaGlobal || 27000);
+    targetBulanan = Number(dataBaru.targetBulanan || 400);
+    
     document.getElementById("inputHargaGlobal").value = HARGA;
+    document.getElementById("inputTargetBulanan").value = targetBulanan;
     document.getElementById("inputTransferData").value = "";
     
     saveData(); 
@@ -1899,6 +1940,7 @@ function render(){
   jualHariIni.forEach(x => { if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; });
   let rankingHari = Object.entries(salesMapHari).sort((a,b) => b[1] - a[1]);
   document.getElementById("topVarianHariIniText").innerText = rankingHari.length ? `${rankingHari[0][0]} (${rankingHari[0][1]} Pcs)` : "Belum ada penjualan";
+  
   let jualAktif = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let keluarAktif = pengeluaran.filter(x=>getMonthKey(x.tanggal)===bulanAktif);
   let omzetVal = jualAktif.reduce((a,b)=>a+b.nominal,0);
@@ -1911,24 +1953,24 @@ function render(){
   runCountUp("omzet", omzetVal, true);
   runCountUp("pengeluaran", keluarVal, true);
   runCountUp("laba", (omzetVal - keluarVal), true);
+  
   let salesMapBln = {};
   jualAktif.forEach(x => { if(x.qty > 0) salesMapBln[x.barang] = (salesMapBln[x.barang] || 0) + x.qty; });
   let rankingBln = Object.entries(salesMapBln).sort((a,b) => b[1] - a[1]).slice(0, 5);
   
-  topVarianAvatars.innerHTML = rankingBln.length ?
-  rankingBln.map((x, i) => `
+  topVarianAvatars.innerHTML = rankingBln.length ? rankingBln.map((x, i) => `
     <div class="product-badge-card">
       <div class="product-badge-rank">Rank #<span>${i+1}</span></div>
       <div class="product-badge-name">${x[0]}</div>
       <div class="product-badge-qty">${x[1]} Pcs</div>
     </div>
   `).join("") : `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Belum ada penjualan bulan ini.</div>`;
+  
   let queryCari = document.getElementById("cariBarangInput").value.trim().toUpperCase();
   let barangUrut = barang.map((x, i) => ({ ...x, originalIndex: i }));
   if(queryCari) barangUrut = barangUrut.filter(x => x.nama.includes(queryCari));
   barangUrut.sort((a, b) => a.stok - b.stok);
   
-  // --- INJEKSI ANALISIS AI RESTOCK ---
   listBarang.innerHTML = barangUrut.map(x => {  
     let badgeTag = "";  
     if (x.stok === 0) {  
@@ -1987,8 +2029,7 @@ function render(){
           <span><b>${avg7Hari.toFixed(1)}</b> avg/hari</span>
         </div>
         <div style="color:${colorPredict}; font-weight:800;">${textPredict}</div>
-        ${trenMeroket ?
-        `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
+        ${trenMeroket ? `<div style="color:var(--accent); font-weight:700; margin-top:4px; line-height:1.4; border-top:1px dashed #cbd5e1; padding-top:4px;"><i class="fa-solid fa-fire"></i> Penjualan naik drastis, disarankan restock lebih awal.</div>` : ''}
       </div>
     `;
 
@@ -2037,12 +2078,9 @@ function render(){
     });
     
     let rankHarian = Object.entries(mapHarian).sort((a,b) => b[1].qty - a[1].qty);
-    let htmlPenjualan = rankHarian.length > 0 
-      ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('')
-      : '<li>Belum ada penjualan</li>';
-    let htmlPengeluaran = eH.length > 0
-      ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('')
-      : '<li>Tidak ada pengeluaran</li>';
+    let htmlPenjualan = rankHarian.length > 0 ? rankHarian.map(x => `<li><b>${x[0]}</b>: ${x[1].qty > 0 ? x[1].qty + ' pcs' : 'Rp ' + x[1].nominal.toLocaleString('id-ID')}</li>`).join('') : '<li>Belum ada penjualan</li>';
+    let htmlPengeluaran = eH.length > 0 ? eH.map(x => `<li>${x.keterangan || 'Pengeluaran'} (Rp ${x.nominal.toLocaleString('id-ID')})</li>`).join('') : '<li>Tidak ada pengeluaran</li>';
+    
     summaryHarian.innerHTML = `
       <div style="background: var(--primary-light); padding:12px 14px; border-radius:10px; margin-bottom:12px; font-weight:800; color:var(--primary); font-size:14px; display:flex; flex-direction:column; gap:8px;">
         <div style="display:flex; justify-content:space-between;">
@@ -2051,7 +2089,6 @@ function render(){
         </div>
         <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(15, 97, 109, 0.3); padding-top:8px;">
           <span><i class="fa-solid fa-money-bill-wave"></i> Total Pendapatan:</span>
-    
           <span>Rp ${totalOmzetHarian.toLocaleString('id-ID')}</span>
         </div>
       </div>
@@ -2072,9 +2109,7 @@ function render(){
   let oB = jB.reduce((a,b)=>a+b.nominal,0);
   let pB = kB.reduce((a,b)=>a+b.nominal,0);
   let labaB = oB - pB;
-  let totalPcsBulanan = jB
-  .filter(item => item.barang !== "OMZET MANUAL")
-  .reduce((sum, item) => sum + Number(item.qty || 0), 0);
+  let totalPcsBulanan = jB.filter(item => item.barang !== "OMZET MANUAL").reduce((sum, item) => sum + Number(item.qty || 0), 0);
 
   let mapBulanan = {};
   jB.forEach(x => {
@@ -2083,8 +2118,7 @@ function render(){
     mapBulanan[x.barang].nominal += x.nominal;
   });
   
-  let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => 
-  b[1].qty - a[1].qty).map(x => `
+  let htmlTabelJual = Object.entries(mapBulanan).sort((a,b) => b[1].qty - a[1].qty).map(x => `
     <tr>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; font-weight:600; text-align:left;">${x[0]}</td>
       <td style="padding:10px 8px; border-bottom:1px solid #e2e8f0; text-align:center; color:var(--text-muted); font-weight:700;">${x[1].qty > 0 ? x[1].qty : '-'}</td>
@@ -2104,7 +2138,6 @@ function render(){
   `}).join("");
 
   summaryBulanan.innerHTML = `
-    
     <strong style="color:var(--primary); font-size:13px; display:block; margin-bottom:6px; text-align:left;">1. Rincian Penjualan Bulanan</strong>
     <div style="overflow-x:auto; margin-bottom:20px; background:var(--bg-card); border-radius:10px; border:1px solid #e2e8f0;">
       <table style="width:100%; border-collapse:collapse; font-size:12px;">
@@ -2151,7 +2184,6 @@ function render(){
     </div>
   `;
 
-  // OPTIMALISASI RENDERING LOG (MAX 50 TERBARU UNTUK MENCEGAH LAG)
   let modeRiwayat = document.getElementById("modeRiwayat").value;
   let tglRiwayat = document.getElementById("tanggalRiwayat").value;
   
@@ -2178,7 +2210,6 @@ function render(){
     </div>
   `).join("") : `<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Kosong</p>`;
   
-  // LOG PAYLATER RENDER
   let totalPakaiPaylater = logPaylater.filter(x => x.jenis === 'pakai').reduce((a,b) => a + b.nominal, 0);
   let totalBayarPaylater = logPaylater.filter(x => x.jenis === 'bayar').reduce((a,b) => a + b.nominal, 0);
   let sisaHutangPaylater = totalPakaiPaylater - totalBayarPaylater;
@@ -2194,18 +2225,31 @@ function render(){
           let tglStr = String(tgl.getDate()).padStart(2, '0') + '/' + String(tgl.getMonth() + 1).padStart(2, '0');
           let color = p.jenis === 'pakai' ? 'var(--warning)' : 'var(--success)';
           let sign = p.jenis === 'pakai' ? '-' : '+';
-          return `<div style="display:flex; justify-content:space-between; padding: 8px; border-bottom: 1px solid rgba(139, 92, 246, 0.2); align-items:center;">
-              <div style="text-align: left;"><b style="color:var(--text-main);">${p.keterangan}</b><br><span style="color:var(--text-muted); font-size:10px;">${tglStr}</span></div>
+          
+          let badgeHTML = "";
+          if (p.jenis === 'pakai' && p.jatuhTempo) {
+              let jt = new Date(p.jatuhTempo);
+              let jtStr = String(jt.getDate()).padStart(2, '0') + '/' + String(jt.getMonth() + 1).padStart(2, '0') + '/' + jt.getFullYear();
+              badgeHTML = `<span style="color:var(--danger); font-size:10px; font-weight:800;"><i class="fa-solid fa-calendar-xmark"></i> Tempo: ${jtStr}</span>`;
+          } else if (p.jenis === 'bayar') {
+              let sumber = p.sumberDana === 'kas' ? 'Kas Toko' : 'Uang Pribadi';
+              badgeHTML = `<span style="color:var(--primary); font-size:10px; font-weight:800;"><i class="fa-solid fa-wallet"></i> Via ${sumber}</span>`;
+          }
+
+          return `<div style="display:flex; justify-content:space-between; padding: 10px 8px; border-bottom: 1px solid rgba(139, 92, 246, 0.2); align-items:center;">
+              <div style="text-align: left; line-height:1.4;">
+                <b style="color:var(--text-main); font-size:12px;">${p.keterangan}</b><br>
+                <span style="color:var(--text-muted); font-size:10px;">${tglStr}</span> &bull; ${badgeHTML}
+              </div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <span style="color:${color}; font-weight:bold;">${sign} Rp ${p.nominal.toLocaleString('id-ID')}</span>
-                <button onclick="hapusPaylater(${p.ori})" style="padding:4px 8px; font-size:10px; background:var(--danger); border-radius:6px; box-shadow:none; width:auto; margin:0;"><i class="fa-solid fa-trash"></i></button>
+                <span style="color:${color}; font-weight:900;">${sign} Rp ${p.nominal.toLocaleString('id-ID')}</span>
+                <button onclick="hapusPaylater(${p.ori})" style="padding:6px 10px; font-size:10px; background:var(--danger); border-radius:6px; box-shadow:none; width:auto; margin:0;"><i class="fa-solid fa-trash"></i></button>
               </div>
           </div>`;
       }).join("") : '<div style="text-align:center; padding: 10px; color:var(--text-muted);">Belum ada catatan tagihan.</div>';
   }
 
-  // --- INJEKSI TARGET BULANAN ---
-  let targetBulanIni = 400; 
+  let targetBulanIni = targetBulanan; 
   const bulanSekarang = getMonthKey(new Date());
 
   let currentPcs = (blnDipilih === bulanSekarang) ? totalPcsBulanan : 0;
@@ -2248,6 +2292,26 @@ function render(){
       <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Harus Dijual (Sisa Hari):</span> <b style="color:var(--warning);">${reqPcsPerDay} Pcs/hari</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Estimasi Target Tercapai:</span> <b style="color:var(--primary);">${estTercapaiTeks}</b></div>
     `;
+  }
+
+  let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
+  let msPerDay = 24 * 60 * 60 * 1000;
+  let totalPcs7Hari = 0;
+  
+  penjualan.forEach(p => {
+    if (p.barang !== "OMZET MANUAL" && p.qty > 0) {
+      let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
+      let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
+      if (selisihHari >= 0 && selisihHari < 7) {
+        totalPcs7Hari += p.qty;
+      }
+    }
+  });
+  
+  let prediksiBesok = Math.ceil(totalPcs7Hari / 7);
+  let elPrediksi = document.getElementById("prediksiBesokText");
+  if (elPrediksi) {
+     elPrediksi.innerText = prediksiBesok + " Pcs";
   }
 }
 
