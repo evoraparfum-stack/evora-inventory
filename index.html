@@ -237,6 +237,38 @@ body.dark-theme .report-summary-box{border-color:#334155;}
 .report-summary-label{font-size:10px;color:var(--text-muted);font-weight:700;}
 .report-summary-value{font-size:15px;font-weight:900;margin-top:3px;}
 
+
+/* EVORA BUSINESS INSIGHTS v1 */
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.insight-card{background:var(--bg-card);border:1px solid #e2e8f0;border-radius:14px;padding:12px;min-width:0}
+body.dark-theme .insight-card{border-color:#334155}
+.insight-label{font-size:10px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.insight-value{font-size:18px;font-weight:900;color:var(--text-main);margin-top:4px}
+.insight-sub{font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.45}
+.insight-list{display:flex;flex-direction:column;gap:7px}
+.insight-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:10px;background:var(--bg-main);border:1px solid #e2e8f0}
+body.dark-theme .insight-row{border-color:#334155}
+.insight-rank{width:25px;height:25px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:900;flex:0 0 25px}
+.insight-main{min-width:0;flex:1}
+.insight-name{font-size:11px;font-weight:800;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.insight-meta{font-size:9px;color:var(--text-muted);margin-top:2px}
+.insight-number{font-size:12px;font-weight:900;white-space:nowrap}
+.insight-empty{text-align:center;padding:12px 8px;color:var(--text-muted);font-size:11px;border:1px dashed #cbd5e1;border-radius:10px}
+body.dark-theme .insight-empty{border-color:#475569}
+.business-status{border-radius:14px;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;border:1px solid #e2e8f0;background:var(--bg-main)}
+body.dark-theme .business-status{border-color:#334155}
+.business-status-title{font-size:13px;font-weight:900;color:var(--text-main)}
+.business-status-sub{font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.4}
+.business-status-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 38px}
+.status-good .business-status-icon{background:#dcfce7;color:#16a34a}
+.status-watch .business-status-icon{background:#fef3c7;color:#d97706}
+.status-bad .business-status-icon{background:#fee2e2;color:#dc2626}
+.lame-product{border-left:3px solid var(--warning)}
+.restock-product{border-left:3px solid var(--danger)}
+.margin-positive{color:var(--success)!important}
+.margin-negative{color:var(--danger)!important}
+@media (max-width:520px){.insight-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -317,37 +349,138 @@ body.dark-theme .report-summary-box{border-color:#334155;}
       </div>
     </div>
 
-    <!-- ENTERPRISE AI & MARKETING HUB -->
-    <div class="card ai-marketing-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+
+    <!-- EVORA BUSINESS INSIGHTS v1 -->
+    <div class="card">
+      <h3><i class="fa-solid fa-gauge-high"></i> KONDISI BISNIS HARI INI</h3>
+      <div id="businessStatus" class="business-status status-good">
         <div>
-          <div class="ai-badge"><i class="fa-solid fa-microchip"></i> AI Command Center</div>
+          <div id="businessStatusTitle" class="business-status-title">Menganalisis...</div>
+          <div id="businessStatusSub" class="business-status-sub">Membaca performa penjualan, stok, dan tren.</div>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase;">Status Iklan</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="adsToggleSwitch" onchange="toggleAdsStatus()">
-            <span class="slider"></span>
-          </label>
+        <div id="businessStatusIcon" class="business-status-icon"><i class="fa-solid fa-chart-line"></i></div>
+      </div>
+      <div class="insight-grid">
+        <div class="insight-card">
+          <div class="insight-label">Laba Hari Ini</div>
+          <div id="insightLabaHari" class="insight-value">Rp 0</div>
+          <div id="insightMarginHari" class="insight-sub">Margin setelah pengeluaran: 0%</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-label">Nilai Stok</div>
+          <div id="insightNilaiStok" class="insight-value">Rp 0</div>
+          <div id="insightNilaiStokSub" class="insight-sub">Estimasi berdasarkan harga jual global</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><i class="fa-solid fa-trophy"></i> TOP 5 PRODUK TERLARIS</h3>
+      <div id="top5ProdukInsight" class="insight-list"></div>
+    </div>
+
+    <div class="insight-grid">
+      <div class="card" style="margin:0;">
+        <h3><i class="fa-solid fa-triangle-exclamation"></i> PERLU RESTOCK</h3>
+        <div id="restockInsight" class="insight-list"></div>
+      </div>
+      <div class="card" style="margin:0;">
+        <h3><i class="fa-solid fa-arrow-trend-down"></i> PRODUK LOYO</h3>
+        <div id="loyoInsight" class="insight-list"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><i class="fa-solid fa-chart-pie"></i> ANALISIS BULAN INI</h3>
+      <div class="insight-grid">
+        <div class="insight-card">
+          <div class="insight-label">Omzet</div>
+          <div id="analysisOmzet" class="insight-value">Rp 0</div>
+          <div id="analysisOmzetTrend" class="insight-sub">vs bulan lalu: 0%</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-label">Terjual</div>
+          <div id="analysisQty" class="insight-value">0 Pcs</div>
+          <div id="analysisQtyTrend" class="insight-sub">vs bulan lalu: 0%</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-label">Pengeluaran</div>
+          <div id="analysisExpense" class="insight-value">Rp 0</div>
+          <div id="analysisExpenseTrend" class="insight-sub">vs bulan lalu: 0%</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-label">Margin Bersih</div>
+          <div id="analysisMargin" class="insight-value">0%</div>
+          <div id="analysisBestProduct" class="insight-sub">Produk terbaik: -</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVORA PREDICTION CENTER -->
+    <div class="card ai-marketing-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <div>
+          <div class="ai-badge"><i class="fa-solid fa-crystal-ball"></i> PREDIKSI PENJUALAN HARI INI</div>
+          <div style="font-size:11px; color:#94a3b8; margin-top:7px;">Mesin prediksi membaca 30 hari terakhir secara otomatis.</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:9px; color:#94a3b8; text-transform:uppercase;">Data Referensi</div>
+          <div id="predictionDataRange" style="font-size:11px; font-weight:800; color:#fff;">30 hari terakhir</div>
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom:20px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:10px 12px; margin-bottom:16px;">
+        <div>
+          <div style="font-size:11px; font-weight:800; color:#f8fafc;">Status Iklan Saat Ini</div>
+          <div id="adsModeText" style="font-size:9px; color:#94a3b8; margin-top:3px;">Penjualan baru akan ditandai sesuai mode ini.</div>
+        </div>
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+          <span id="adsModeLabel" style="font-size:10px; font-weight:800; color:#94a3b8;">TANPA IKLAN</span>
+          <input id="adsToggleSwitch" type="checkbox" onchange="toggleAdsStatus()" style="width:18px; height:18px; margin:0; accent-color:#38bdf8;">
+        </label>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px; border-bottom:1px dashed rgba(255,255,255,0.12); padding-bottom:18px;">
         <div>
           <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">Prediksi Terjual Hari Ini</div>
-          <div style="font-size:26px; font-weight:900; color:#fff;" id="aiPrediksiHariIni">0 Pcs</div>
+          <div style="font-size:30px; font-weight:900; color:#fff;" id="aiPrediksiHariIni">0 <span style="font-size:14px; font-weight:500;">Pcs</span></div>
+          <div id="aiPredictionConfidence" style="font-size:10px; color:#94a3b8; margin-top:4px;">Kepercayaan: -</div>
         </div>
         <div>
-          <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">Analisis Target Bulanan</div>
-          <div id="aiTargetAdvice" style="font-size:12px; font-weight:600; color:#38bdf8; line-height:1.4;">
-            <i class="fa-solid fa-circle-notch fa-spin"></i> Menganalisis data...
+          <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">Rata-rata Harian</div>
+          <div style="font-size:20px; font-weight:900; color:#38bdf8;" id="aiAverage30">0 Pcs</div>
+          <div id="aiTrend30" style="font-size:10px; color:#94a3b8; margin-top:4px;">Tren 7 hari: -</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px; font-weight:800; color:#f8fafc; margin-bottom:8px;">Analisis Target Bulanan</div>
+        <div id="aiTargetAdvice" style="font-size:12px; font-weight:600; color:#38bdf8; line-height:1.5;">Menganalisis data...</div>
+      </div>
+
+      <div style="margin-bottom:16px; padding:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.10); border-radius:12px;">
+        <div style="font-size:12px; font-weight:800; color:#f8fafc; margin-bottom:9px;">
+          <i class="fa-solid fa-bullhorn" style="color:#38bdf8;"></i> ANALISIS IKLAN VS TANPA IKLAN
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="background:rgba(255,255,255,0.04); border-radius:9px; padding:9px;">
+            <div style="font-size:9px; color:#94a3b8;">DENGAN IKLAN</div>
+            <div id="aiAdsAvg" style="font-size:15px; font-weight:900; color:#38bdf8; margin-top:3px;">0 Pcs/hari</div>
+            <div id="aiAdsDays" style="font-size:9px; color:#94a3b8; margin-top:2px;">0 hari data</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04); border-radius:9px; padding:9px;">
+            <div style="font-size:9px; color:#94a3b8;">TANPA IKLAN</div>
+            <div id="aiOrganicAvg" style="font-size:15px; font-weight:900; color:#f8fafc; margin-top:3px;">0 Pcs/hari</div>
+            <div id="aiOrganicDays" style="font-size:9px; color:#94a3b8; margin-top:2px;">0 hari data</div>
           </div>
         </div>
+        <div id="aiAdsImpact" style="font-size:10px; color:#94a3b8; margin-top:9px; line-height:1.5;">Menganalisis dampak iklan...</div>
+        <div id="aiAdsRecommendation" style="font-size:11px; font-weight:800; margin-top:7px; line-height:1.5;">Menganalisis rekomendasi...</div>
       </div>
 
       <div>
-        <div style="font-size:12px; font-weight:800; color:#f8fafc; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-          <i class="fa-solid fa-truck-fast" style="color:#fcd34d;"></i> Rekomendasi Restock Cerdas
+        <div style="font-size:12px; font-weight:800; color:#f8fafc; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-truck-fast" style="color:#fcd34d;"></i> Rekomendasi Restock Berdasarkan Prediksi
         </div>
         <div id="aiRestockList"></div>
       </div>
@@ -721,7 +854,9 @@ function initEnterpriseSettings() {
 initEnterpriseSettings();
 
 function toggleAdsStatus() {
-  isAdsActive = document.getElementById("adsToggleSwitch").checked;
+  const adsToggle = document.getElementById("adsToggleSwitch");
+  if (!adsToggle) return;
+  isAdsActive = adsToggle.checked;
   render();
   saveData();
 }
@@ -1209,7 +1344,7 @@ async function loadDataFromCloud() {
       
       document.getElementById("inputHargaGlobal").value = HARGA;
       document.getElementById("inputTargetBulanan").value = targetBulanan;
-      document.getElementById("adsToggleSwitch").checked = isAdsActive;
+      if (document.getElementById("adsToggleSwitch")) document.getElementById("adsToggleSwitch").checked = isAdsActive;
       setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else {
       setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB");
@@ -1439,6 +1574,27 @@ function simpanModalEdit() {
   
   tutupModalEdit();
   saveData();
+}
+
+async function hapusBarang(originalIndex) {
+  if (originalIndex == null || !barang[originalIndex]) return;
+  const item = barang[originalIndex];
+  const stok = Number(item.stok || 0);
+
+  const msg = stok > 0
+    ? `Hapus varian <b>"${item.nama}"</b> dari daftar kasir?<br><br>Stok saat ini <b>${stok} pcs</b> akan ikut dikeluarkan dari stok varian.<br><br><span style="color:var(--warning);">Riwayat penjualan lama tetap tersimpan.</span>`
+    : `Hapus varian <b>"${item.nama}"</b> dari daftar kasir?<br><br><span style="color:var(--warning);">Riwayat penjualan lama tetap tersimpan.</span>`;
+
+  const ok = await customConfirm("Hapus Varian", msg, "danger");
+  if (!ok) return;
+
+  barang.splice(originalIndex, 1);
+  if (currentEditIndex === originalIndex) {
+    currentEditIndex = null;
+    tutupModalEdit();
+  }
+  await saveData();
+  await customAlert("Varian Dihapus", `Varian <b>"${item.nama}"</b> berhasil dihapus dari kasir. Riwayat transaksi tetap aman.`, "success");
 }
 
 async function quickJual(originalIndex) {
@@ -1729,7 +1885,7 @@ async function pasteDataTransfer() {
     
     document.getElementById("inputHargaGlobal").value = HARGA;
     document.getElementById("inputTargetBulanan").value = targetBulanan;
-    document.getElementById("adsToggleSwitch").checked = isAdsActive;
+    if (document.getElementById("adsToggleSwitch")) document.getElementById("adsToggleSwitch").checked = isAdsActive;
     document.getElementById("inputTransferData").value = "";
     
     saveData(); 
@@ -1740,86 +1896,361 @@ async function pasteDataTransfer() {
   }
 }
 
-function processAIAssistant() {
-  let dSkrgZero = new Date(); dSkrgZero.setHours(0,0,0,0);
-  let msPerDay = 24 * 60 * 60 * 1000;
-  let totalPcs7Hari = 0;
-  let salesItem7Days = {}; 
-  
+function getPredictionEngine() {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const historyStart = new Date(todayStart);
+  historyStart.setDate(historyStart.getDate() - 30);
+
+  const dailyMap = {};
+  const itemDailyMap = {};
+  const dayCount = 30;
+  const msDay = 86400000;
+
+  for (let i = 0; i < dayCount; i++) {
+    const d = new Date(historyStart);
+    d.setDate(historyStart.getDate() + i);
+    dailyMap[getDayKey(d)] = 0;
+  }
+
   penjualan.forEach(p => {
-    if (p.barang !== "OMZET MANUAL" && p.qty > 0) {
-      let pDate = new Date(p.tanggal); pDate.setHours(0,0,0,0);
-      let selisihHari = Math.floor((dSkrgZero - pDate) / msPerDay);
-      if (selisihHari >= 0 && selisihHari < 7) {
-        totalPcs7Hari += p.qty;
-        salesItem7Days[p.barang] = (salesItem7Days[p.barang] || 0) + p.qty;
-      }
+    if (p.barang === "OMZET MANUAL" || Number(p.qty || 0) <= 0) return;
+    const d = new Date(p.tanggal);
+    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    if (dayStart >= historyStart && dayStart < todayStart) {
+      const key = getDayKey(dayStart);
+      const qty = Number(p.qty || 0);
+      dailyMap[key] = (dailyMap[key] || 0) + qty;
+      if (!itemDailyMap[p.barang]) itemDailyMap[p.barang] = {};
+      itemDailyMap[p.barang][key] = (itemDailyMap[p.barang][key] || 0) + qty;
     }
   });
 
-  let baseDailyPrediction = totalPcs7Hari / 7;
-  let finalPrediction = isAdsActive ? baseDailyPrediction * 1.3 : baseDailyPrediction;
-  document.getElementById("aiPrediksiHariIni").innerHTML = Math.ceil(finalPrediction) + " <span style='font-size:14px; font-weight:500;'>Pcs</span>";
+  const dailyValues = Object.values(dailyMap);
+  const total30 = dailyValues.reduce((a,b) => a + b, 0);
+  const avg30 = total30 / dayCount;
 
-  const bulanSekarang = getMonthKey(new Date());
-  let jBulanIni = penjualan.filter(x=>getMonthKey(x.tanggal)===bulanSekarang && x.barang !== "OMZET MANUAL");
-  let currentPcsMonth = jBulanIni.reduce((sum, item) => sum + Number(item.qty || 0), 0);
-  
-  let hariBerjalan = new Date().getDate();
-  let totalHariBulanIni = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-  let sisaHariDalamBulan = Math.max(1, totalHariBulanIni - hariBerjalan);
-  let sisaTarget = Math.max(0, targetBulanan - currentPcsMonth);
-  let requiredRunRate = sisaTarget / sisaHariDalamBulan;
+  const recent7Start = new Date(todayStart);
+  recent7Start.setDate(recent7Start.getDate() - 7);
+  let recent7Total = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(recent7Start);
+    d.setDate(recent7Start.getDate() + i);
+    recent7Total += Number(dailyMap[getDayKey(d)] || 0);
+  }
+  const avg7 = recent7Total / 7;
 
-  let targetAdviceHtml = "";
-  if (sisaTarget === 0) {
-    targetAdviceHtml = "<span style='color:var(--success);'><i class='fa-solid fa-check-circle'></i> Target sudah tercapai! Pertahankan momentum.</span>";
-  } else if (baseDailyPrediction >= requiredRunRate) {
-    targetAdviceHtml = "<span style='color:#34d399;'><i class='fa-solid fa-arrow-trend-up'></i> Kecepatan on-track. Target diprediksi aman.</span>";
-  } else {
-    if (!isAdsActive) {
-      targetAdviceHtml = "<span style='color:#f87171;'><i class='fa-solid fa-triangle-exclamation'></i> Penjualan lambat. <b>Aktifkan Iklan</b> untuk mengejar target!</span>";
+  // Prediksi utama: rata-rata 30 hari sebagai baseline, dengan penyesuaian tren 7 hari.
+  // Batas penyesuaian ±25% agar satu minggu ekstrem tidak membuat prediksi melonjak/anjlok.
+  let trendFactor = avg30 > 0 ? avg7 / avg30 : (avg7 > 0 ? 1 : 0);
+  if (!Number.isFinite(trendFactor)) trendFactor = 1;
+  const boundedTrendFactor = Math.max(0.75, Math.min(1.25, trendFactor));
+  let prediction = avg30 * (0.70 + 0.30 * boundedTrendFactor);
+  if (avg30 === 0 && avg7 > 0) prediction = avg7;
+
+  // Penyesuaian hari dalam minggu, hanya jika tersedia minimal 3 data pada weekday yang sama.
+  const weekday = todayStart.getDay();
+  let weekdayValues = [];
+  for (const [key, qty] of Object.entries(dailyMap)) {
+    const d = new Date(key + "T00:00:00");
+    if (d.getDay() === weekday) weekdayValues.push(Number(qty || 0));
+  }
+  const avgWeekday = weekdayValues.length >= 3
+    ? weekdayValues.reduce((a,b) => a+b,0) / weekdayValues.length
+    : null;
+
+  if (avgWeekday !== null && avg30 > 0) {
+    const weekdayFactor = Math.max(0.75, Math.min(1.25, avgWeekday / avg30));
+    prediction = prediction * 0.75 + (avg30 * weekdayFactor) * 0.25;
+  }
+
+  prediction = Math.max(0, prediction);
+  const trendPct = avg30 > 0 ? ((avg7 - avg30) / avg30) * 100 : (avg7 > 0 ? 100 : 0);
+
+  // Jika hari ini sudah berjalan, prediksi akhir hari = penjualan aktual hari ini
+  // + estimasi sisa hari dari baseline 30 hari. Ini mencegah prediksi terlihat
+  // lebih rendah dari penjualan yang sudah benar-benar terjadi.
+  let todayActual = 0;
+  penjualan.forEach(p => {
+    if (p.barang !== "OMZET MANUAL" && Number(p.qty || 0) > 0 && getDayKey(p.tanggal) === getDayKey(todayStart)) {
+      todayActual += Number(p.qty || 0);
+    }
+  });
+  const currentHour = now.getHours() + (now.getMinutes() / 60);
+  const remainingFraction = Math.max(0, Math.min(1, (24 - currentHour) / 24));
+  const finalTodayPrediction = Math.max(todayActual, todayActual + prediction * remainingFraction);
+  const roundedPrediction = Math.max(0, Math.round(finalTodayPrediction));
+
+  // Confidence berdasarkan kelengkapan data dan jumlah hari yang benar-benar punya penjualan.
+  const activeDays = dailyValues.filter(v => v > 0).length;
+  let confidence = activeDays >= 21 ? "Tinggi" : activeDays >= 12 ? "Sedang" : activeDays >= 5 ? "Terbatas" : "Sangat terbatas";
+
+  // Per-varian: rate harian 30 hari dipakai untuk seluruh fitur restock/prediksi varian.
+  const itemPrediction = {};
+  barang.forEach(b => {
+    const map = itemDailyMap[b.nama] || {};
+    const total = Object.values(map).reduce((a,v) => a + Number(v || 0), 0);
+    const avg = total / dayCount;
+    const recent = Object.entries(dailyMap).slice(-7).reduce((sum, [key]) => sum + Number(map[key] || 0), 0) / 7;
+    const factor = avg > 0 ? Math.max(0.75, Math.min(1.25, recent / avg)) : (recent > 0 ? 1 : 0);
+    const rate = avg > 0 ? avg * (0.70 + 0.30 * factor) : recent;
+    itemPrediction[b.nama] = {
+      total30: total,
+      avg30: avg,
+      avg7: recent,
+      dailyRate: Math.max(0, rate)
+    };
+  });
+
+  // Analisis iklan memakai HANYA 30 hari selesai terakhir.
+  // Hari campuran (ada transaksi iklan dan non-iklan) tidak dipakai untuk
+  // perbandingan langsung agar hasil tidak bias.
+  const adDayMap = {};
+  const organicDayMap = {};
+
+  for (let i = 0; i < dayCount; i++) {
+    const d = new Date(historyStart);
+    d.setDate(historyStart.getDate() + i);
+    const key = getDayKey(d);
+    adDayMap[key] = 0;
+    organicDayMap[key] = 0;
+  }
+
+  penjualan.forEach(p => {
+    if (p.barang === "OMZET MANUAL" || Number(p.qty || 0) <= 0) return;
+    const d = new Date(p.tanggal);
+    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    if (dayStart >= historyStart && dayStart < todayStart) {
+      const key = getDayKey(dayStart);
+      const qty = Number(p.qty || 0);
+      if (p.iklan === true) adDayMap[key] += qty;
+      else organicDayMap[key] += qty;
+    }
+  });
+
+  const pureAdDays = Object.keys(adDayMap).filter(k => adDayMap[k] > 0 && organicDayMap[k] === 0);
+  const pureOrganicDays = Object.keys(organicDayMap).filter(k => organicDayMap[k] > 0 && adDayMap[k] === 0);
+  const mixedDays = Object.keys(adDayMap).filter(k => adDayMap[k] > 0 && organicDayMap[k] > 0);
+
+  const adQty30 = pureAdDays.reduce((s,k) => s + Number(adDayMap[k] || 0), 0);
+  const organicQty30 = pureOrganicDays.reduce((s,k) => s + Number(organicDayMap[k] || 0), 0);
+  const adAvgDay = pureAdDays.length ? adQty30 / pureAdDays.length : 0;
+  const organicAvgDay = pureOrganicDays.length ? organicQty30 / pureOrganicDays.length : 0;
+
+  let adLiftPct = null;
+  if (adAvgDay > 0 && organicAvgDay > 0) {
+    adLiftPct = ((adAvgDay - organicAvgDay) / organicAvgDay) * 100;
+  }
+
+  let adConfidence = "Belum cukup data";
+  if (pureAdDays.length >= 10 && pureOrganicDays.length >= 10) adConfidence = "Tinggi";
+  else if (pureAdDays.length >= 7 && pureOrganicDays.length >= 7) adConfidence = "Sedang";
+  else if (pureAdDays.length >= 4 && pureOrganicDays.length >= 4) adConfidence = "Terbatas";
+
+  let predictedNoAds = prediction;
+  let predictedWithAds = null;
+  if (adLiftPct !== null && pureAdDays.length >= 4 && pureOrganicDays.length >= 4) {
+    const safeLiftFactor = Math.max(0.70, Math.min(1.50, 1 + adLiftPct / 100));
+    predictedWithAds = prediction * safeLiftFactor;
+  }
+
+  let adsRecommendation = {
+    type: "neutral",
+    title: "Belum cukup bukti untuk memutuskan iklan.",
+    detail: `Butuh minimal 4 hari murni dengan iklan dan 4 hari murni tanpa iklan. ${mixedDays.length} hari campuran dikeluarkan dari perbandingan.`
+  };
+
+  if (adLiftPct !== null && pureAdDays.length >= 4 && pureOrganicDays.length >= 4) {
+    if (trendPct <= -10 && adLiftPct >= 10 && !isAdsActive) {
+      adsRecommendation = {
+        type: "recommend",
+        title: "Pertimbangkan AKTIFKAN IKLAN.",
+        detail: `Tren 7 hari turun ${Math.abs(trendPct).toFixed(1)}%, sementara hari dengan iklan rata-rata ${adLiftPct.toFixed(1)}% lebih tinggi daripada hari tanpa iklan.`
+      };
+    } else if (trendPct <= -10 && adLiftPct >= 10 && isAdsActive) {
+      adsRecommendation = {
+        type: "optimize",
+        title: "Iklan tetap aktif, tetapi perlu dioptimalkan.",
+        detail: `Tren 7 hari turun ${Math.abs(trendPct).toFixed(1)}% walau histori iklan memberi uplift ${adLiftPct.toFixed(1)}%. Cek budget, materi iklan, dan produk yang dipromosikan.`
+      };
+    } else if (adLiftPct <= -10 && isAdsActive) {
+      adsRecommendation = {
+        type: "reduce",
+        title: "Jangan menaikkan iklan dulu.",
+        detail: `Data 30 hari menunjukkan performa hari dengan iklan ${Math.abs(adLiftPct).toFixed(1)}% lebih rendah daripada hari tanpa iklan.`
+      };
+    } else if (adLiftPct >= 10) {
+      adsRecommendation = {
+        type: "maintain",
+        title: isAdsActive ? "Iklan memberi dampak positif." : "Iklan berpotensi membantu penjualan.",
+        detail: `Rata-rata hari dengan iklan ${adLiftPct.toFixed(1)}% lebih tinggi. Gunakan sebagai sinyal, bukan jaminan hasil.`
+      };
     } else {
-      targetAdviceHtml = "<span style='color:#fbbf24;'><i class='fa-solid fa-bolt'></i> Iklan sedang berjalan. Sistem merekam performa trafik.</span>";
+      adsRecommendation = {
+        type: "neutral",
+        title: "Dampak iklan relatif netral.",
+        detail: `Perbedaan rata-rata hari dengan dan tanpa iklan hanya ${Math.abs(adLiftPct).toFixed(1)}%.`
+      };
     }
   }
-  document.getElementById("aiTargetAdvice").innerHTML = targetAdviceHtml;
 
-  let restockRecommendations = [];
-  
-  if (stokBotol < (baseDailyPrediction * 14)) { 
-    let buyBotol = Math.ceil((baseDailyPrediction * 30) - stokBotol);
-    if(buyBotol > 0) restockRecommendations.push({ nama: "Botol Kosong", qty: buyBotol, icon: "fa-wine-bottle" });
+  return {
+    historyStart,
+    todayStart,
+    total30,
+    avg30,
+    avg7,
+    trendPct,
+    activeDays,
+    confidence,
+    prediction,
+    finalTodayPrediction,
+    todayActual,
+    roundedPrediction,
+    itemPrediction,
+    adAnalysis: {
+      adQty30,
+      organicQty30,
+      adDays: pureAdDays.length,
+      organicDays: pureOrganicDays.length,
+      mixedDays: mixedDays.length,
+      adAvgDay,
+      organicAvgDay,
+      adLiftPct,
+      adConfidence,
+      predictedNoAds,
+      predictedWithAds,
+      recommendation: adsRecommendation
+    }
+  };
+}
+
+function processAIAssistant() {
+  const engine = getPredictionEngine();
+  const predictionEl = document.getElementById("aiPrediksiHariIni");
+  const avgEl = document.getElementById("aiAverage30");
+  const trendEl = document.getElementById("aiTrend30");
+  const confEl = document.getElementById("aiPredictionConfidence");
+  const rangeEl = document.getElementById("predictionDataRange");
+  const adviceEl = document.getElementById("aiTargetAdvice");
+  const restockEl = document.getElementById("aiRestockList");
+
+  if (predictionEl) predictionEl.innerHTML = `${engine.roundedPrediction} <span style="font-size:14px; font-weight:500;">Pcs</span>`;
+  if (avgEl) avgEl.innerText = `${engine.avg30.toFixed(1)} Pcs/hari`;
+  if (trendEl) {
+    const sign = engine.trendPct > 0 ? "+" : "";
+    trendEl.innerText = `Tren 7 hari vs 30 hari: ${sign}${engine.trendPct.toFixed(1)}%`;
   }
-  if (stokBox < (baseDailyPrediction * 14)) {
-    let buyBox = Math.ceil((baseDailyPrediction * 30) - stokBox);
-    if(buyBox > 0) restockRecommendations.push({ nama: "Box Packing", qty: buyBox, icon: "fa-box" });
+  if (confEl) {
+    const scenario = engine.adAnalysis.predictedWithAds !== null
+      ? ` • Tanpa iklan ~${Math.round(engine.adAnalysis.predictedNoAds)} pcs/hari • Dengan iklan ~${Math.round(engine.adAnalysis.predictedWithAds)} pcs/hari`
+      : "";
+    confEl.innerText = `Kepercayaan: ${engine.confidence} • ${engine.activeDays}/30 hari aktif • Aktual hari ini: ${engine.todayActual} pcs${scenario}`;
+  }
+  if (rangeEl) rangeEl.innerText = "30 hari terakhir";
+
+  const adsToggle = document.getElementById("adsToggleSwitch");
+  const adsModeLabel = document.getElementById("adsModeLabel");
+  const adsModeText = document.getElementById("adsModeText");
+  if (adsToggle) adsToggle.checked = !!isAdsActive;
+  if (adsModeLabel) {
+    adsModeLabel.innerText = isAdsActive ? "IKLAN AKTIF" : "TANPA IKLAN";
+    adsModeLabel.style.color = isAdsActive ? "#38bdf8" : "#94a3b8";
+  }
+  if (adsModeText) {
+    adsModeText.innerText = isAdsActive
+      ? "Transaksi baru akan ditandai sebagai penjualan dengan iklan."
+      : "Transaksi baru akan ditandai sebagai penjualan tanpa iklan.";
+  }
+
+  const ad = engine.adAnalysis;
+  const adsAvgEl = document.getElementById("aiAdsAvg");
+  const adsDaysEl = document.getElementById("aiAdsDays");
+  const organicAvgEl = document.getElementById("aiOrganicAvg");
+  const organicDaysEl = document.getElementById("aiOrganicDays");
+  const impactEl = document.getElementById("aiAdsImpact");
+  const recEl = document.getElementById("aiAdsRecommendation");
+
+  if (adsAvgEl) adsAvgEl.innerText = `${ad.adAvgDay.toFixed(1)} Pcs/hari`;
+  if (adsDaysEl) adsDaysEl.innerText = `${ad.adDays} hari murni iklan`;
+  if (organicAvgEl) organicAvgEl.innerText = `${ad.organicAvgDay.toFixed(1)} Pcs/hari`;
+  if (organicDaysEl) organicDaysEl.innerText = `${ad.organicDays} hari murni tanpa iklan`;
+
+  if (impactEl) {
+    if (ad.adLiftPct === null) {
+      impactEl.innerText = `Belum bisa menghitung uplift dengan aman. Kepercayaan analisis: ${ad.adConfidence}. ${ad.mixedDays} hari campuran dikecualikan.`;
+    } else {
+      const sign = ad.adLiftPct > 0 ? "+" : "";
+      impactEl.innerText = `Dampak terukur: ${sign}${ad.adLiftPct.toFixed(1)}% • Kepercayaan: ${ad.adConfidence} • ${ad.mixedDays} hari campuran dikecualikan.`;
+    }
+  }
+
+  if (recEl) {
+    const colors = {recommend:"#34d399", optimize:"#fbbf24", reduce:"#fb7185", maintain:"#38bdf8", neutral:"#94a3b8"};
+    const icons = {recommend:"fa-bullhorn", optimize:"fa-sliders", reduce:"fa-arrow-trend-down", maintain:"fa-circle-check", neutral:"fa-circle-info"};
+    recEl.style.color = colors[ad.recommendation.type] || "#94a3b8";
+    recEl.innerHTML = `<i class="fa-solid ${icons[ad.recommendation.type] || "fa-circle-info"}"></i> ${ad.recommendation.title}<div style="font-size:10px; font-weight:500; color:#cbd5e1; margin-top:3px;">${ad.recommendation.detail}</div>`;
+  }
+
+  // Target bulanan menggunakan mesin prediksi yang sama.
+  const now = new Date();
+  const monthKey = getMonthKey(now);
+  const soldMonth = penjualan.filter(x => getMonthKey(x.tanggal) === monthKey && x.barang !== "OMZET MANUAL")
+    .reduce((sum,x) => sum + Number(x.qty || 0), 0);
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const todayNumber = now.getDate();
+  const remainingDays = Math.max(0, daysInMonth - todayNumber);
+  const remainingTarget = Math.max(0, targetBulanan - soldMonth);
+  const requiredDaily = remainingDays > 0 ? remainingTarget / remainingDays : remainingTarget;
+  const projectedMonth = soldMonth + engine.prediction * remainingDays;
+
+  if (adviceEl) {
+    if (remainingTarget <= 0) {
+      adviceEl.innerHTML = `<span style="color:var(--success);"><i class="fa-solid fa-circle-check"></i> Target ${targetBulanan} pcs sudah tercapai.</span>`;
+    } else if (engine.prediction >= requiredDaily) {
+      adviceEl.innerHTML = `<span style="color:#34d399;"><i class="fa-solid fa-arrow-trend-up"></i> On-track. Prediksi ${engine.roundedPrediction} pcs/hari, kebutuhan ${requiredDaily.toFixed(1)} pcs/hari. Proyeksi akhir ~${Math.round(projectedMonth)} pcs.</span>`;
+    } else {
+      adviceEl.innerHTML = `<span style="color:#fbbf24;"><i class="fa-solid fa-triangle-exclamation"></i> Belum on-track. Prediksi ${engine.roundedPrediction} pcs/hari, kebutuhan ${requiredDaily.toFixed(1)} pcs/hari. Kekurangan laju ~${Math.max(0, requiredDaily-engine.prediction).toFixed(1)} pcs/hari.</span>`;
+    }
+  }
+
+  // Restock semua memakai rate dari mesin prediksi yang sama.
+  const restockRecommendations = [];
+  const horizonDays = 30;
+  const targetStockDays = 30;
+
+  if (engine.prediction > 0) {
+    if (stokBotol < engine.prediction * 14) {
+      restockRecommendations.push({ nama:"Botol Kosong", qty:Math.max(1, Math.ceil(engine.prediction*targetStockDays-stokBotol)), icon:"fa-wine-bottle", days: stokBotol/engine.prediction });
+    }
+    if (stokBox < engine.prediction * 14) {
+      restockRecommendations.push({ nama:"Box Packing", qty:Math.max(1, Math.ceil(engine.prediction*targetStockDays-stokBox)), icon:"fa-box", days: stokBox/engine.prediction });
+    }
   }
 
   barang.forEach(b => {
-    let item7Days = salesItem7Days[b.nama] || 0;
-    let dailyRateItem = item7Days / 7;
-    if (dailyRateItem > 0.5 && b.stok < (dailyRateItem * 14)) {
-      let buyItem = Math.ceil((dailyRateItem * 30) - b.stok);
-      if(buyItem > 0) restockRecommendations.push({ nama: b.nama, qty: buyItem, icon: "fa-flask" });
-    } else if (b.stok <= 3 && dailyRateItem <= 0.5) {
-      restockRecommendations.push({ nama: b.nama, qty: 10, icon: "fa-flask" });
+    const rate = engine.itemPrediction[b.nama]?.dailyRate || 0;
+    const stok = Number(b.stok || 0);
+    if (rate <= 0) {
+      if (stok <= 3) restockRecommendations.push({nama:b.nama, qty:10, icon:"fa-flask", days:Infinity});
+      return;
+    }
+    const daysLeft = stok / rate;
+    if (daysLeft <= 14) {
+      const buyQty = Math.max(1, Math.ceil(rate * horizonDays - stok));
+      restockRecommendations.push({nama:b.nama, qty:buyQty, icon:"fa-flask", days:daysLeft});
     }
   });
 
-  let elRestockList = document.getElementById("aiRestockList");
-  if (restockRecommendations.length > 0) {
-    elRestockList.innerHTML = restockRecommendations.map(r => `
-      <div class="restock-item">
-        <div>
-          <i class="fa-solid ${r.icon}" style="color:#94a3b8; width:20px;"></i>
-          <span style="font-size:12px; font-weight:600;">${r.nama}</span>
-        </div>
-        <div style="font-size:12px; font-weight:800; color:#fcd34d;">+ ${r.qty} Pcs</div>
-      </div>
-    `).join("");
-  } else {
-    elRestockList.innerHTML = `<div style="font-size:12px; color:#94a3b8; padding:10px; text-align:center; border:1px dashed rgba(255,255,255,0.2); border-radius:10px;">Stok logistik terpantau aman (14+ hari).</div>`;
+  restockRecommendations.sort((a,b) => a.days - b.days || b.qty - a.qty);
+  if (restockEl) {
+    restockEl.innerHTML = restockRecommendations.length
+      ? restockRecommendations.slice(0,8).map(r => `
+        <div class="restock-item">
+          <div><i class="fa-solid ${r.icon}" style="color:#94a3b8; width:20px;"></i><span style="font-size:12px; font-weight:600;">${r.nama}</span></div>
+          <div style="font-size:12px; font-weight:800; color:#fcd34d;">+ ${r.qty} Pcs</div>
+        </div>`).join("")
+      : `<div style="font-size:12px; color:#94a3b8; padding:10px; text-align:center; border:1px dashed rgba(255,255,255,0.2); border-radius:10px;">Stok aman berdasarkan prediksi 30 hari.</div>`;
   }
 }
 
@@ -1845,16 +2276,8 @@ function renderKasirPanel() {
       b.nama.toLowerCase().includes(filterCari)
     );
 
-    let now = new Date();
-    let elapsedDays = Math.max(1, now.getDate());
-
-    // Hitung kecepatan penjualan tiap item bulan ini.
-    let salesMapMonth = {};
-    penjualan.forEach(x => {
-      if (getMonthKey(x.tanggal) === getMonthKey(now) && x.barang !== "OMZET MANUAL") {
-        salesMapMonth[x.barang] = (salesMapMonth[x.barang] || 0) + Number(x.qty || 0);
-      }
-    });
+    // Gunakan mesin prediksi 30 hari yang sama dengan Prediction Center.
+    const predictionEngine = getPredictionEngine();
 
     if (filteredBarang.length === 0) {
       listBarangEl.innerHTML = `<div style="grid-column: span 2; text-align:center; font-size:12px; color:var(--text-muted); padding:20px;">Varian parfum tidak ditemukan.</div>`;
@@ -1864,8 +2287,7 @@ function renderKasirPanel() {
         let statusClass = stok < 5 ? "status-critical" : (stok < 10 ? "status-warning" : "status-ready");
         let statusLabel = stok < 5 ? "STOK KRITIS" : (stok < 10 ? "STOK TIPIS" : "TERSEDIA");
 
-        let soldQtyMonth = salesMapMonth[b.nama] || 0;
-        let dailyRate = soldQtyMonth / elapsedDays;
+        let dailyRate = predictionEngine.itemPrediction[b.nama]?.dailyRate || 0;
         let daysLeft = dailyRate > 0 ? Math.ceil(stok / dailyRate) : Infinity;
 
         let infoDepletionText = "";
@@ -1875,7 +2297,7 @@ function renderKasirPanel() {
           infoDepletionText = "<span style='color:var(--text-muted);'><i class='fa-solid fa-clock'></i> Est. Habis: Aman (>30 hari)</span>";
         } else {
           let colorEst = daysLeft <= 3 ? "var(--danger)" : (daysLeft <= 7 ? "var(--warning)" : "var(--success)");
-          infoDepletionText = `<span style='color:${colorEst}; font-weight:700;'><i class='fa-solid fa-hourglass-half'></i> Est. Habis: ~<b>${daysLeft} hari lagi</b> (${dailyRate.toFixed(1)} pcs/hr)</span>`;
+          infoDepletionText = `<span style='color:${colorEst}; font-weight:700;'><i class='fa-solid fa-hourglass-half'></i> Est. Habis: ~<b>${daysLeft} hari lagi</b> (${dailyRate.toFixed(1)} pcs/hari)</span>`;
         }
 
         return `
@@ -1897,6 +2319,7 @@ function renderKasirPanel() {
               </select>
               <button onclick="quickJual(${b.originalIndex})" style="padding:8px; font-size:12px; background:var(--primary); box-shadow:none;"><i class="fa-solid fa-cart-plus"></i> Jual</button>
               <button onclick="editBarang(${b.originalIndex})" style="padding:8px; width:40px; background:#94a3b8; box-shadow:none;"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="hapusBarang(${b.originalIndex})" style="padding:8px; width:40px; background:var(--danger); box-shadow:none;"><i class="fa-solid fa-trash"></i></button>
             </div>
           </div>
         `;
@@ -1904,6 +2327,189 @@ function renderKasirPanel() {
     }
   }
 }
+
+
+/* EVORA BUSINESS INSIGHTS v1 */
+function formatRpInsight(value){
+  return "Rp " + Number(value || 0).toLocaleString("id-ID");
+}
+function pctChangeInsight(current, previous){
+  current = Number(current || 0);
+  previous = Number(previous || 0);
+  if(previous === 0) return current > 0 ? 100 : 0;
+  return ((current - previous) / previous) * 100;
+}
+function trendTextInsight(pct){
+  let p = Math.round(Number(pct || 0) * 10) / 10;
+  return `${p > 0 ? "+" : ""}${p}%`;
+}
+function renderBusinessInsights(){
+  let now = new Date();
+  let todayKey = getDayKey(now);
+  let monthKey = getMonthKey(now);
+
+  let salesToday = penjualan.filter(x => getDayKey(x.tanggal) === todayKey);
+  let omzetToday = salesToday.reduce((s,x) => s + Number(x.nominal || 0), 0);
+  let qtyToday = salesToday.reduce((s,x) => s + Number(x.qty || 0), 0);
+  let expToday = pengeluaran.filter(x => getDayKey(x.tanggal) === todayKey)
+    .reduce((s,x) => s + Number(x.nominal || 0), 0);
+  let labaToday = omzetToday - expToday;
+  let marginToday = omzetToday > 0 ? labaToday / omzetToday * 100 : 0;
+
+  let labaEl = document.getElementById("insightLabaHari");
+  let marginEl = document.getElementById("insightMarginHari");
+  if(labaEl){
+    labaEl.innerText = formatRpInsight(labaToday);
+    labaEl.className = `insight-value ${labaToday >= 0 ? "margin-positive" : "margin-negative"}`;
+  }
+  if(marginEl) marginEl.innerText = `Margin setelah pengeluaran: ${marginToday.toFixed(1)}%`;
+
+  let totalStok = barang.reduce((s,b) => s + Number(b.stok || 0), 0);
+  let nilaiStok = totalStok * Number(HARGA || 0);
+  let stokEl = document.getElementById("insightNilaiStok");
+  let stokSub = document.getElementById("insightNilaiStokSub");
+  if(stokEl) stokEl.innerText = formatRpInsight(nilaiStok);
+  if(stokSub) stokSub.innerText = `${totalStok} pcs stok × ${formatRpInsight(HARGA)}`;
+
+  // Status bisnis.
+  let yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  let omzetYesterday = penjualan.filter(x => getDayKey(x.tanggal) === getDayKey(yesterday))
+    .reduce((s,x) => s + Number(x.nominal || 0), 0);
+  let trend = pctChangeInsight(omzetToday, omzetYesterday);
+  let critical = barang.filter(b => Number(b.stok || 0) < 5).length;
+
+  let statusClass = "status-good", title = "PERFORMA BAGUS",
+      sub = `${qtyToday} pcs terjual hari ini • omzet ${formatRpInsight(omzetToday)}`,
+      icon = "fa-chart-line";
+  if(critical >= 3 || trend < -25){
+    statusClass = "status-bad";
+    title = "PERLU PERHATIAN";
+    sub = `${critical} varian stok kritis${trend < -25 ? ` • omzet turun ${Math.abs(trend).toFixed(1)}%` : ""}`;
+    icon = "fa-triangle-exclamation";
+  }else if(critical > 0 || trend < 0){
+    statusClass = "status-watch";
+    title = "PERLU DIPANTAU";
+    sub = `${critical} varian perlu restock${trend < 0 ? ` • omzet turun ${Math.abs(trend).toFixed(1)}%` : ""}`;
+    icon = "fa-eye";
+  }
+  let status = document.getElementById("businessStatus");
+  let statusTitle = document.getElementById("businessStatusTitle");
+  let statusSub = document.getElementById("businessStatusSub");
+  let statusIcon = document.getElementById("businessStatusIcon");
+  if(status) status.className = `business-status ${statusClass}`;
+  if(statusTitle) statusTitle.innerText = title;
+  if(statusSub) statusSub.innerText = sub;
+  if(statusIcon) statusIcon.innerHTML = `<i class="fa-solid ${icon}"></i>`;
+
+  // Penjualan bulan ini per varian.
+  let salesMonth = penjualan.filter(x => getMonthKey(x.tanggal) === monthKey);
+  let productMonth = {};
+  salesMonth.forEach(x => {
+    if(x.barang !== "OMZET MANUAL" && Number(x.qty || 0) > 0)
+      productMonth[x.barang] = (productMonth[x.barang] || 0) + Number(x.qty || 0);
+  });
+  let top5 = Object.entries(productMonth)
+    .sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0,5);
+
+  let topEl = document.getElementById("top5ProdukInsight");
+  if(topEl){
+    topEl.innerHTML = top5.length ? top5.map(([nama,qty],i) => `
+      <div class="insight-row">
+        <div class="insight-rank">${i+1}</div>
+        <div class="insight-main">
+          <div class="insight-name">${nama}</div>
+          <div class="insight-meta">Penjualan bulan ini</div>
+        </div>
+        <div class="insight-number" style="color:var(--success);">${qty} Pcs</div>
+      </div>
+    `).join("") : `<div class="insight-empty">Belum ada penjualan bulan ini.</div>`;
+  }
+
+  // Restock memakai mesin prediksi 30 hari yang sama agar semua indikator konsisten.
+  const predictionEngine = getPredictionEngine();
+  let restock = barang.map(b => {
+    let rate = predictionEngine.itemPrediction[b.nama]?.dailyRate || 0;
+    let days = rate > 0 ? Number(b.stok || 0) / rate : Infinity;
+    return {b, days};
+  }).filter(x => Number(x.b.stok || 0) < 5 || x.days <= 7)
+    .sort((a,b) => Number(a.b.stok || 0) - Number(b.b.stok || 0) || a.days - b.days);
+
+  let restockEl = document.getElementById("restockInsight");
+  if(restockEl){
+    restockEl.innerHTML = restock.length ? restock.slice(0,6).map(x => {
+      let est = x.days === Infinity ? "Belum ada laju penjualan" : `Estimasi habis ~${Math.max(0,Math.ceil(x.days))} hari`;
+      return `<div class="insight-row restock-product">
+        <div class="insight-main">
+          <div class="insight-name">${x.b.nama}</div>
+          <div class="insight-meta">${est}</div>
+        </div>
+        <div class="insight-number" style="color:var(--danger);">${Number(x.b.stok || 0)} pcs</div>
+      </div>`;
+    }).join("") : `<div class="insight-empty">Stok aman. Belum ada produk yang perlu direstock.</div>`;
+  }
+
+  // Produk loyo: <=2 pcs dalam 7 hari terakhir.
+  let start7 = new Date(now);
+  start7.setHours(0,0,0,0);
+  start7.setDate(start7.getDate() - 6);
+  let end7 = new Date(now);
+  end7.setHours(23,59,59,999);
+  let sales7 = penjualan.filter(x => {
+    let d = new Date(x.tanggal);
+    return d >= start7 && d <= end7;
+  });
+  let map7 = {};
+  sales7.forEach(x => {
+    if(x.barang !== "OMZET MANUAL" && Number(x.qty || 0) > 0)
+      map7[x.barang] = (map7[x.barang] || 0) + Number(x.qty || 0);
+  });
+  let loyo = barang.map(b => ({b, sold:map7[b.nama] || 0}))
+    .filter(x => Number(x.b.stok || 0) > 0 && x.sold <= 2)
+    .sort((a,b) => a.sold - b.sold || Number(b.b.stok || 0) - Number(a.b.stok || 0));
+
+  let loyoEl = document.getElementById("loyoInsight");
+  if(loyoEl){
+    loyoEl.innerHTML = loyo.length ? loyo.slice(0,6).map(x => `
+      <div class="insight-row lame-product">
+        <div class="insight-main">
+          <div class="insight-name">${x.b.nama}</div>
+          <div class="insight-meta">Terjual 7 hari terakhir</div>
+        </div>
+        <div class="insight-number" style="color:var(--warning);">${x.sold} Pcs</div>
+      </div>
+    `).join("") : `<div class="insight-empty">Tidak ada produk loyo. Penjualan 7 hari cukup aktif.</div>`;
+  }
+
+  // Analisis bulan berjalan vs bulan sebelumnya.
+  let currentExp = pengeluaran.filter(x => getMonthKey(x.tanggal) === monthKey);
+  let omzet = salesMonth.reduce((s,x) => s + Number(x.nominal || 0), 0);
+  let qty = salesMonth.reduce((s,x) => s + Number(x.qty || 0), 0);
+  let expense = currentExp.reduce((s,x) => s + Number(x.nominal || 0), 0);
+  let margin = omzet > 0 ? ((omzet-expense)/omzet)*100 : 0;
+
+  let prev = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  let prevKey = getMonthKey(prev);
+  let prevSales = penjualan.filter(x => getMonthKey(x.tanggal) === prevKey);
+  let prevExp = pengeluaran.filter(x => getMonthKey(x.tanggal) === prevKey);
+  let prevOmzet = prevSales.reduce((s,x) => s + Number(x.nominal || 0), 0);
+  let prevQty = prevSales.reduce((s,x) => s + Number(x.qty || 0), 0);
+  let prevExpense = prevExp.reduce((s,x) => s + Number(x.nominal || 0), 0);
+
+  let setText = (id,text) => { let e=document.getElementById(id); if(e)e.innerText=text; };
+  setText("analysisOmzet", formatRpInsight(omzet));
+  setText("analysisQty", `${qty} Pcs`);
+  setText("analysisExpense", formatRpInsight(expense));
+  setText("analysisMargin", `${margin.toFixed(1)}%`);
+  setText("analysisOmzetTrend", `vs bulan lalu: ${trendTextInsight(pctChangeInsight(omzet,prevOmzet))}`);
+  setText("analysisQtyTrend", `vs bulan lalu: ${trendTextInsight(pctChangeInsight(qty,prevQty))}`);
+  setText("analysisExpenseTrend", `vs bulan lalu: ${trendTextInsight(pctChangeInsight(expense,prevExpense))}`);
+  setText("analysisBestProduct", top5[0] ? `Produk terbaik: ${top5[0][0]} (${top5[0][1]} pcs)` : "Produk terbaik: -");
+
+  let marginNode = document.getElementById("analysisMargin");
+  if(marginNode) marginNode.className = `insight-value ${margin >= 0 ? "margin-positive" : "margin-negative"}`;
+}
+
 
 function render() {
   let todayKey = getDayKey(new Date());
@@ -2036,6 +2642,7 @@ function render() {
   renderLaporan();
   renderRiwayat();
   updateMonthSelect();
+  renderBusinessInsights();
 }
 
 function renderPesanan() {
