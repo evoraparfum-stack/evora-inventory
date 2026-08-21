@@ -697,6 +697,104 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
 }
 
 </style>
+<style>
+/* EVORA KASIR UI REWORK v9 — cleaner typography + balanced card layout */
+#tab-kasir #panelKasir .card-title{}
+#tab-kasir .grid-barang,
+#listBarang.grid-barang{
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:12px !important;
+}
+#listBarang .item-barang{
+  min-width:0 !important;
+  padding:14px !important;
+  border-radius:14px !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  grid-template-rows:auto auto !important;
+  gap:12px !important;
+  background:var(--bg-card) !important;
+  border:1px solid #e2e8f0 !important;
+  box-shadow:0 2px 8px rgba(15,23,42,.04) !important;
+}
+#listBarang .item-barang .item-info{
+  grid-column:1 !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  grid-template-rows:auto auto !important;
+  gap:5px 8px !important;
+  align-items:center !important;
+  min-width:0 !important;
+}
+#listBarang .item-barang .item-info > b{
+  grid-column:1 !important;grid-row:1 !important;
+  font-size:13px !important;line-height:1.25 !important;font-weight:800 !important;
+  color:var(--text-main) !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#listBarang .item-barang .stok-text{
+  grid-column:2 !important;grid-row:1 !important;
+  font-size:11px !important;font-weight:700 !important;white-space:nowrap;
+}
+#listBarang .item-barang .item-info > div[style*="font-size:11px"]{
+  grid-column:1 !important;grid-row:2 !important;
+  margin:0 !important;font-size:10px !important;line-height:1.3 !important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#listBarang .item-barang .badge-status{
+  grid-column:2 !important;grid-row:2 !important;justify-self:end;
+  font-size:8px !important;padding:4px 7px !important;border-radius:999px !important;white-space:nowrap;
+}
+#listBarang .item-barang > div:last-child{
+  grid-column:1 !important;grid-row:2 !important;
+  display:grid !important;grid-template-columns:58px minmax(0,1fr) 34px 34px !important;
+  gap:6px !important;width:100% !important;margin:0 !important;align-items:center !important;
+}
+#listBarang .item-barang > div:last-child select{
+  width:58px !important;min-width:0 !important;height:34px !important;margin:0 !important;
+  padding:5px 3px !important;font-size:11px !important;border-radius:9px !important;
+}
+#listBarang .item-barang > div:last-child button{
+  min-width:0 !important;width:100% !important;height:34px !important;min-height:34px !important;
+  margin:0 !important;padding:6px 5px !important;border-radius:9px !important;font-size:11px !important;
+}
+#listBarang .item-barang > div:last-child button:first-of-type{font-weight:800 !important}
+#listBarang .item-barang > div:last-child button[style*="width:40px"]{width:34px !important}
+#panelKasir .search-container{margin-bottom:4px !important}
+#panelKasir .search-container input{font-size:13px !important;text-align:left !important;text-align-last:left !important}
+#searchVariantList{gap:8px !important}
+#searchVariantList .search-variant-row{border-radius:12px !important;padding:11px !important}
+#searchVariantList .search-variant-name{font-size:12px !important;font-weight:800 !important}
+#searchVariantList .search-variant-stock{font-size:10px !important}
+#searchVariantList .search-variant-action{gap:5px !important}
+#searchVariantList .search-variant-qty{height:32px !important;font-size:10px !important}
+#searchVariantList .search-variant-buy{height:32px !important;font-size:10px !important}
+@media(max-width:900px){
+  #tab-kasir .grid-barang,#listBarang.grid-barang{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:9px !important}
+}
+@media(max-width:520px){
+  #tab-kasir .grid-barang,#listBarang.grid-barang{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:8px !important}
+  #listBarang .item-barang{padding:10px !important;gap:9px !important;border-radius:12px !important}
+  #listBarang .item-barang .item-info > b{font-size:12px !important}
+  #listBarang .item-barang .stok-text{font-size:10px !important}
+  #listBarang .item-barang .item-info > div[style*="font-size:11px"]{font-size:9px !important}
+  #listBarang .item-barang .badge-status{font-size:7px !important;padding:3px 5px !important}
+  #listBarang .item-barang > div:last-child{grid-template-columns:45px minmax(0,1fr) 30px 30px !important;gap:4px !important}
+  #listBarang .item-barang > div:last-child select{width:45px !important;height:32px !important;font-size:10px !important}
+  #listBarang .item-barang > div:last-child button{height:32px !important;min-height:32px !important;font-size:10px !important;padding:5px 3px !important}
+  #listBarang .item-barang > div:last-child button[style*="width:40px"]{width:30px !important}
+  #searchVariantList{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:7px !important}
+}
+@media(max-width:360px){
+  #listBarang .item-barang{padding:8px !important}
+  #listBarang .item-barang .item-info > b{font-size:11px !important}
+  #listBarang .item-barang .stok-text{font-size:9px !important}
+  #listBarang .item-barang .item-info > div[style*="font-size:11px"]{font-size:8px !important}
+  #listBarang .item-barang > div:last-child{grid-template-columns:40px minmax(0,1fr) 27px 27px !important}
+  #listBarang .item-barang > div:last-child select{width:40px !important}
+  #listBarang .item-barang > div:last-child button{font-size:9px !important}
+  #listBarang .item-barang > div:last-child button[style*="width:40px"]{width:27px !important}
+}
+</style>
 </head>
 <body>
 
