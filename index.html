@@ -203,6 +203,24 @@ body.dark-theme .report-item{border-color:#334155;}
 .report-item-name{font-size:12px;font-weight:700;color:var(--text-main);}
 .report-item-meta{font-size:10px;color:var(--text-muted);margin-top:2px;}
 .report-item-qty{font-size:13px;font-weight:900;color:var(--success);white-space:nowrap;}
+
+.expense-detail-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:9px 10px;
+  margin:6px 0;
+  background:var(--bg-card);
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+}
+body.dark-theme .expense-detail-item{border-color:#334155;}
+.expense-detail-main{min-width:0;}
+.expense-detail-name{font-size:12px;font-weight:700;color:var(--text-main);}
+.expense-detail-date{font-size:10px;color:var(--text-muted);margin-top:3px;}
+.expense-detail-value{font-size:13px;font-weight:900;color:var(--danger);white-space:nowrap;}
+
 .report-summary-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -2100,11 +2118,9 @@ function renderLaporan() {
       }
     });
 
-    // Penjualan tertinggi -> terendah.
     let rankedHari = Object.entries(itemsHari)
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
-    let totalVarianHari = rankedHari.length;
     let detailHari = rankedHari.length
       ? rankedHari.map(([nama, qty], index) => `
           <div class="report-item">
@@ -2123,7 +2139,6 @@ function renderLaporan() {
 
     sumHarian.innerHTML = `
       <div style="font-weight:800;font-size:14px;margin-bottom:10px;">${tanggalLabel}</div>
-
       <div class="report-summary-grid">
         <div class="report-summary-box">
           <div class="report-summary-label">TOTAL OMZET</div>
@@ -2134,8 +2149,7 @@ function renderLaporan() {
           <div class="report-summary-value" style="color:var(--success);">${qtyHari} Pcs</div>
         </div>
       </div>
-
-      <div class="report-section-title">Penjualan Tertinggi → Terendah (${totalVarianHari} Varian)</div>
+      <div class="report-section-title">Penjualan Tertinggi → Terendah (${rankedHari.length} Varian)</div>
       ${detailHari}
     `;
   }
@@ -2145,14 +2159,16 @@ function renderLaporan() {
   // =========================
   if (sumBulanan) {
     let jualBulan = penjualan.filter(x => getMonthKey(x.tanggal) === bulanSelect);
-    let keluarBulan = pengeluaran.filter(x => getMonthKey(x.tanggal) === bulanSelect);
+    let keluarBulan = pengeluaran
+      .map((x, i) => ({ ...x, originalIndex: i }))
+      .filter(x => getMonthKey(x.tanggal) === bulanSelect);
 
     let omzetBulan = jualBulan.reduce((a, b) => a + Number(b.nominal || 0), 0);
     let qtyBulan = jualBulan.reduce((a, b) => a + Number(b.qty || 0), 0);
     let nominalKeluarBulan = keluarBulan.reduce((a, b) => a + Number(b.nominal || 0), 0);
     let labaBulan = omzetBulan - nominalKeluarBulan;
 
-    // Detail per varian: jumlah terjual, omzet, dan persentase kontribusi.
+    // Detail penjualan per varian.
     let itemsBulan = {};
     jualBulan.forEach(x => {
       if (x.barang !== "OMZET MANUAL" && Number(x.qty || 0) > 0) {
@@ -2180,6 +2196,29 @@ function renderLaporan() {
         `).join("")
       : `<div style="font-size:12px;color:var(--text-muted);padding:10px 0;text-align:center;">Belum ada penjualan varian pada bulan ini.</div>`;
 
+    // Detail pengeluaran: tampilkan SEMUA transaksi pengeluaran bulan tersebut,
+    // urut dari terbaru ke terlama, lengkap dengan tanggal dan nominal.
+    let detailPengeluaran = keluarBulan.length
+      ? [...keluarBulan]
+          .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
+          .map(x => {
+            let tanggal = new Date(x.tanggal).toLocaleDateString("id-ID", {
+              day: "2-digit", month: "short", year: "numeric"
+            });
+            return `
+              <div class="expense-detail-item">
+                <div class="expense-detail-main">
+                  <div class="expense-detail-name">${x.keterangan || "Pengeluaran"}</div>
+                  <div class="expense-detail-date">
+                    ${tanggal} • ${new Date(x.tanggal).toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"})}
+                  </div>
+                </div>
+                <div class="expense-detail-value">Rp ${Number(x.nominal || 0).toLocaleString("id-ID")}</div>
+              </div>
+            `;
+          }).join("")
+      : `<div style="font-size:12px;color:var(--text-muted);padding:10px 0;text-align:center;">Belum ada transaksi pengeluaran pada bulan ini.</div>`;
+
     sumBulanan.innerHTML = `
       <div style="font-weight:800;font-size:14px;margin-bottom:10px;">${bulanSelect ? getMonthLabel(bulanSelect) : "-"}</div>
 
@@ -2193,7 +2232,7 @@ function renderLaporan() {
           <div class="report-summary-value" style="color:var(--success);">${qtyBulan} Pcs</div>
         </div>
         <div class="report-summary-box">
-          <div class="report-summary-label">PENGELUARAN</div>
+          <div class="report-summary-label">TOTAL PENGELUARAN</div>
           <div class="report-summary-value" style="color:var(--danger);">Rp ${nominalKeluarBulan.toLocaleString("id-ID")}</div>
         </div>
         <div class="report-summary-box">
@@ -2204,6 +2243,11 @@ function renderLaporan() {
 
       <div class="report-section-title">Detail Penjualan Per Varian — Tertinggi → Terendah</div>
       ${detailBulan}
+
+      <div class="report-section-title" style="margin-top:18px;">
+        Detail Pengeluaran Bulanan (${keluarBulan.length} Transaksi)
+      </div>
+      ${detailPengeluaran}
     `;
   }
 }
