@@ -269,8 +269,6 @@ body.dark-theme .business-status{border-color:#334155}
 .margin-negative{color:var(--danger)!important}
 @media (max-width:520px){.insight-grid{grid-template-columns:1fr}}
 
-
-
 /* =========================================================
    EVORA TRACKER PRO — MOBILE / RESPONSIVE HARDENING
    Prevent clipping, horizontal overflow and cramped controls
@@ -423,6 +421,8 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
   .modal-overlay { align-items: flex-start; }
   .modal-content { max-height: calc(100dvh - 12px); }
 }
+
+
 
 </style>
 </head>
@@ -633,12 +633,6 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
         <div id="aiAdsRecommendation" style="font-size:11px; font-weight:800; margin-top:7px; line-height:1.5;">Menganalisis rekomendasi...</div>
       </div>
 
-      <div>
-        <div style="font-size:12px; font-weight:800; color:#f8fafc; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
-          <i class="fa-solid fa-truck-fast" style="color:#fcd34d;"></i> Rekomendasi Restock Berdasarkan Prediksi
-        </div>
-        <div id="aiRestockList"></div>
-      </div>
     </div>
 
     <div class="card">
@@ -2288,7 +2282,6 @@ function processAIAssistant() {
   const confEl = document.getElementById("aiPredictionConfidence");
   const rangeEl = document.getElementById("predictionDataRange");
   const adviceEl = document.getElementById("aiTargetAdvice");
-  const restockEl = document.getElementById("aiRestockList");
 
   if (predictionEl) predictionEl.innerHTML = `${engine.roundedPrediction} <span style="font-size:14px; font-weight:500;">Pcs</span>`;
   if (avgEl) avgEl.innerText = `${engine.avg30.toFixed(1)} Pcs/hari`;
@@ -2369,44 +2362,6 @@ function processAIAssistant() {
     }
   }
 
-  // Restock semua memakai rate dari mesin prediksi yang sama.
-  const restockRecommendations = [];
-  const horizonDays = 30;
-  const targetStockDays = 30;
-
-  if (engine.prediction > 0) {
-    if (stokBotol < engine.prediction * 14) {
-      restockRecommendations.push({ nama:"Botol Kosong", qty:Math.max(1, Math.ceil(engine.prediction*targetStockDays-stokBotol)), icon:"fa-wine-bottle", days: stokBotol/engine.prediction });
-    }
-    if (stokBox < engine.prediction * 14) {
-      restockRecommendations.push({ nama:"Box Packing", qty:Math.max(1, Math.ceil(engine.prediction*targetStockDays-stokBox)), icon:"fa-box", days: stokBox/engine.prediction });
-    }
-  }
-
-  barang.forEach(b => {
-    const rate = engine.itemPrediction[b.nama]?.dailyRate || 0;
-    const stok = Number(b.stok || 0);
-    if (rate <= 0) {
-      if (stok <= 3) restockRecommendations.push({nama:b.nama, qty:10, icon:"fa-flask", days:Infinity});
-      return;
-    }
-    const daysLeft = stok / rate;
-    if (daysLeft <= 14) {
-      const buyQty = Math.max(1, Math.ceil(rate * horizonDays - stok));
-      restockRecommendations.push({nama:b.nama, qty:buyQty, icon:"fa-flask", days:daysLeft});
-    }
-  });
-
-  restockRecommendations.sort((a,b) => a.days - b.days || b.qty - a.qty);
-  if (restockEl) {
-    restockEl.innerHTML = restockRecommendations.length
-      ? restockRecommendations.slice(0,8).map(r => `
-        <div class="restock-item">
-          <div><i class="fa-solid ${r.icon}" style="color:#94a3b8; width:20px;"></i><span style="font-size:12px; font-weight:600;">${r.nama}</span></div>
-          <div style="font-size:12px; font-weight:800; color:#fcd34d;">+ ${r.qty} Pcs</div>
-        </div>`).join("")
-      : `<div style="font-size:12px; color:#94a3b8; padding:10px; text-align:center; border:1px dashed rgba(255,255,255,0.2); border-radius:10px;">Stok aman berdasarkan prediksi 30 hari.</div>`;
-  }
 }
 
 /* UPDATE BISA BACA DETAIL & KAPAN HABIS DI KASIR */
