@@ -2482,15 +2482,27 @@ function renderBusinessInsights(){
   }
 
   // Analisis bulan berjalan vs bulan sebelumnya.
+  // PENTING: jumlah TERJUAL harus memakai sumber/filter yang SAMA
+  // dengan "Target Bulanan", supaya angka tidak pernah berbeda.
+  // Penjualan "OMZET MANUAL" tidak dihitung sebagai pcs produk.
+  let currentSalesForTarget = penjualan.filter(x =>
+    getMonthKey(x.tanggal) === monthKey &&
+    x.barang !== "OMZET MANUAL" &&
+    Number(x.qty || 0) > 0
+  );
   let currentExp = pengeluaran.filter(x => getMonthKey(x.tanggal) === monthKey);
-  let omzet = salesMonth.reduce((s,x) => s + Number(x.nominal || 0), 0);
-  let qty = salesMonth.reduce((s,x) => s + Number(x.qty || 0), 0);
+  let omzet = currentSalesForTarget.reduce((s,x) => s + Number(x.nominal || 0), 0);
+  let qty = currentSalesForTarget.reduce((s,x) => s + Number(x.qty || 0), 0);
   let expense = currentExp.reduce((s,x) => s + Number(x.nominal || 0), 0);
   let margin = omzet > 0 ? ((omzet-expense)/omzet)*100 : 0;
 
   let prev = new Date(now.getFullYear(), now.getMonth()-1, 1);
   let prevKey = getMonthKey(prev);
-  let prevSales = penjualan.filter(x => getMonthKey(x.tanggal) === prevKey);
+  let prevSales = penjualan.filter(x =>
+    getMonthKey(x.tanggal) === prevKey &&
+    x.barang !== "OMZET MANUAL" &&
+    Number(x.qty || 0) > 0
+  );
   let prevExp = pengeluaran.filter(x => getMonthKey(x.tanggal) === prevKey);
   let prevOmzet = prevSales.reduce((s,x) => s + Number(x.nominal || 0), 0);
   let prevQty = prevSales.reduce((s,x) => s + Number(x.qty || 0), 0);
