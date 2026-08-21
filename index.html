@@ -1066,7 +1066,11 @@ async function cetakLaporanHarian() {
     if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; 
   });
   
-  let itemEntries = Object.entries(salesMapHari);
+  // Urutkan rincian item dari penjualan tertinggi -> terendah.
+  // Jika jumlah sama, urutkan nama varian secara alfabetis agar hasil konsisten.
+  let itemEntries = Object.entries(salesMapHari)
+    .sort((a, b) => Number(b[1]) - Number(a[1]) || a[0].localeCompare(b[0]));
+
   let itemDetailStruk = "Rincian Item Terjual:\n";
   if (itemEntries.length > 0) {
     itemEntries.forEach(([namaItem, totalQty]) => {
