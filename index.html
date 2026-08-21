@@ -509,6 +509,115 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
 
 
 
+
+/* EVORA MOBILE LAYOUT FIX v6 — 2-column compact cards */
+@media (max-width:700px) {
+  /* Kasir: two variants side-by-side on phones */
+  #listBarang.grid-barang {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    align-items: stretch;
+  }
+  #listBarang .item-barang {
+    min-width: 0 !important;
+    padding: 9px !important;
+    border-radius: 12px !important;
+  }
+  #listBarang .item-barang .item-info {
+    grid-template-columns: minmax(0,1fr) auto !important;
+    gap: 5px !important;
+  }
+  #listBarang .item-barang .item-info > b { font-size: 12px !important; }
+  #listBarang .item-barang .stok-text { font-size: 10px !important; }
+  #listBarang .item-barang .item-info > div[style*="font-size:11px"] {
+    font-size: 9px !important;
+  }
+  #listBarang .item-barang .badge-status { font-size: 7px !important; padding: 2px 4px !important; }
+  #listBarang .item-barang > div:last-child {
+    gap: 4px !important;
+  }
+  #listBarang .item-barang > div:last-child select {
+    width: 48px !important; flex-basis: 48px !important; padding: 5px 2px !important;
+  }
+  #listBarang .item-barang > div:last-child button {
+    min-height: 31px !important; padding: 6px 7px !important; font-size: 10px !important;
+  }
+  #listBarang .item-barang > div:last-child button[style*="width:40px"] {
+    width: 30px !important;
+  }
+
+  /* Search results: also two columns so selecting a variant is faster */
+  #searchVariantList {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 7px;
+    padding: 7px;
+    max-height: 430px;
+  }
+  #searchVariantList .search-variant-row {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    padding: 9px;
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+  }
+  #searchVariantList .search-variant-main { width:100%; }
+  #searchVariantList .search-variant-name { font-size: 11px; }
+  #searchVariantList .search-variant-stock { font-size: 9px; }
+  #searchVariantList .search-variant-action { width:100%; }
+  #searchVariantList .search-variant-qty { flex:0 0 48px; width:48px !important; padding:6px 2px !important; }
+  #searchVariantList .search-variant-buy { flex:1; padding:7px 5px !important; font-size:10px !important; }
+
+  /* Beranda: keep information dense instead of stacking every insight card */
+  #tab-beranda .insight-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 8px !important;
+  }
+  #tab-beranda .insight-card { padding: 10px !important; }
+  #tab-beranda .insight-value { font-size: 15px !important; }
+  #tab-beranda .insight-sub { font-size: 9px !important; }
+  #tab-beranda .insight-list { gap: 5px !important; }
+  #tab-beranda .insight-row { padding: 7px 8px !important; }
+  #tab-beranda .insight-name { font-size: 10px !important; }
+  #tab-beranda .insight-meta { font-size: 8px !important; }
+  #tab-beranda .insight-number { font-size: 10px !important; }
+
+  /* Top 5 and analysis remain compact in two columns */
+  #tab-beranda #top5ProdukInsight {
+    display:grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap:6px !important;
+  }
+  #tab-beranda #top5ProdukInsight .insight-row { min-width:0; }
+  #tab-beranda .card { margin-bottom: 10px !important; }
+  #tab-beranda .card h3 { margin-bottom: 10px !important; }
+
+  /* Monthly analysis: three metrics can sit as compact tiles */
+  #tab-beranda .insight-grid .insight-card { min-width:0; }
+}
+
+@media (max-width:430px) {
+  #listBarang.grid-barang { gap: 7px !important; }
+  #listBarang .item-barang { padding: 8px !important; }
+  #listBarang .item-barang .item-info > b { font-size: 11px !important; }
+  #listBarang .item-barang .stok-text { font-size: 9px !important; }
+  #listBarang .item-barang .item-info > div[style*="font-size:11px"] { font-size: 8px !important; }
+  #listBarang .item-barang > div:last-child select { width: 43px !important; flex-basis:43px !important; }
+  #listBarang .item-barang > div:last-child button { padding: 5px 5px !important; font-size: 9px !important; }
+  #listBarang .item-barang > div:last-child button[style*="width:40px"] { width: 27px !important; }
+  #tab-beranda .insight-value { font-size: 14px !important; }
+  #tab-beranda #top5ProdukInsight { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+@media (max-width:360px) {
+  #listBarang.grid-barang, #searchVariantList { gap: 6px !important; }
+  #listBarang .item-barang { padding: 7px !important; }
+  #listBarang .item-barang .badge-status { display:none; }
+  #searchVariantList .search-variant-row { padding:7px; }
+}
 </style>
 </head>
 <body>
