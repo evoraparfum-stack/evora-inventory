@@ -133,6 +133,33 @@ body.dark-theme .skeleton-loading .shimmer-text { background: linear-gradient(90
 
 .search-container { position: relative; width: 100%; }
 .search-container input { padding-right: 40px; }
+.search-variant-list {
+  position: relative;
+  z-index: 30;
+  margin-top: 6px;
+  max-height: 360px;
+  overflow-y: auto;
+  border: 1px solid #dbe4ea;
+  border-radius: 12px;
+  background: var(--bg-card);
+  box-shadow: 0 12px 28px rgba(15,23,42,.12);
+}
+body.dark-theme .search-variant-list { border-color:#334155; }
+.search-variant-row {
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border-bottom:1px solid #eef2f7; cursor:pointer;
+}
+body.dark-theme .search-variant-row { border-color:#334155; }
+.search-variant-row:last-child { border-bottom:none; }
+.search-variant-row:hover { background:var(--primary-light); }
+.search-variant-main { min-width:0; flex:1; }
+.search-variant-name { font-size:13px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.search-variant-stock { font-size:10px; color:var(--text-muted); margin-top:2px; }
+.search-variant-action { flex:0 0 auto; display:flex; align-items:center; gap:6px; }
+.search-variant-qty { width:56px !important; margin:0 !important; padding:7px 4px !important; font-size:11px !important; }
+.search-variant-buy { margin:0 !important; padding:8px 10px !important; font-size:11px !important; white-space:nowrap; }
+.search-variant-empty { padding:16px; text-align:center; color:var(--text-muted); font-size:12px; }
+
 .btn-clear-search { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none !important; border: none !important; color: var(--text-muted); width: auto !important; padding: 0 !important; font-size: 16px; cursor: pointer; display: none; z-index: 5; }
 .top-product-grid { display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px; }
 .top-product-grid::-webkit-scrollbar { display: none; }
@@ -755,9 +782,10 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
     <div class="card" id="panelKasir">
       <h3><i class="fa-solid fa-cart-shopping"></i> PANEL KASIR INSTAN</h3>
       <div class="search-container">
-        <input id="cariBarangInput" placeholder="Cari nama varian parfum..." onfocus="handleSearchFocus()" oninput="handleSearchInput()">
+        <input id="cariBarangInput" placeholder="Cari / pilih varian parfum..." autocomplete="off" onfocus="handleSearchFocus()" oninput="handleSearchInput()">
         <button id="btnClearSearch" class="btn-clear-search" onclick="clearSearchField()"><i class="fa-solid fa-xmark"></i></button>
       </div>
+      <div id="searchVariantList" class="search-variant-list" style="display:none;"></div>
       <div id="listBarang" class="grid-barang" style="margin-top:14px;"></div>
     </div>
 
@@ -1650,15 +1678,82 @@ function handleSearchFocus() {
   const clear = document.getElementById("btnClearSearch");
   if (!input) return;
   if (clear) clear.style.display = input.value ? "block" : "none";
-  // Ketika pencarian diklik, tampilkan seluruh varian terlebih dahulu.
-  // Setelah pengguna mengetik, handleSearchInput() otomatis memfilter.
-  renderKasirPanel();
+  renderSearchVariantList();
 }
 
 function handleSearchInput() {
-  let q = document.getElementById("cariBarangInput").value;
-  document.getElementById("btnClearSearch").style.display = q ? "block" : "none";
+  const input = document.getElementById("cariBarangInput");
+  const clear = document.getElementById("btnClearSearch");
+  if (clear) clear.style.display = input && input.value ? "block" : "none";
+  renderSearchVariantList();
+}
+
+function renderSearchVariantList() {
+  const el = document.getElementById("searchVariantList");
+  const input = document.getElementById("cariBarangInput");
+  if (!el || !input) return;
+
+  const q = input.value.toLowerCase().trim();
+  const items = barang
+    .map((b, idx) => ({...b, originalIndex: idx}))
+    .filter(b => !q || b.nama.toLowerCase().includes(q))
+    .sort((a,b) => a.nama.localeCompare(b.nama));
+
+  el.style.display = "block";
+  if (!items.length) {
+    el.innerHTML = `<div class="search-variant-empty">Varian tidak ditemukan.</div>`;
+    return;
+  }
+
+  el.innerHTML = items.map(b => `
+    <div class="search-variant-row" onclick="pilihVarianPencarian(${b.originalIndex})">
+      <div class="search-variant-main">
+        <div class="search-variant-name">${b.nama}</div>
+        <div class="search-variant-stock">Stok: <b>${Number(b.stok || 0)} pcs</b></div>
+      </div>
+      <div class="search-variant-action" onclick="event.stopPropagation()">
+        <select id="searchQty-${b.originalIndex}" class="search-variant-qty">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="10">10</option>
+        </select>
+        <button class="search-variant-buy" onclick="quickJualFromSearch(${b.originalIndex})"><i class="fa-solid fa-cart-plus"></i> Jual</button>
+      </div>
+    </div>`).join("");
+}
+
+function pilihVarianPencarian(index) {
+  const item = barang[index];
+  if (!item) return;
+  const input = document.getElementById("cariBarangInput");
+  if (input) input.value = item.nama;
+  const select = document.getElementById("barangJual");
+  if (select) {
+    select.value = String(index);
+    document.getElementById("qtyJual")?.focus();
+  }
+  renderSearchVariantList();
+}
+
+async function quickJualFromSearch(index) {
+  const qtyEl = document.getElementById(`searchQty-${index}`);
+  const qty = Number(qtyEl?.value || 1);
+  const item = barang[index];
+  if (!item) return;
+  if (item.stok < qty || stokBotol < qty || stokBox < qty) {
+    await customAlert("Stok Tidak Cukup", "Sisa stok produk atau logistik tidak mencukupi untuk transaksi ini!", "danger");
+    return;
+  }
+  const totalNilai = qty * HARGA;
+  const konfirmasi = await customConfirm("Konfirmasi Kasir", `Jual <b>${qty} pcs</b> ${item.nama}?<br><br><b>Total Nilai: Rp ${totalNilai.toLocaleString("id-ID")}</b>`, "success");
+  if (!konfirmasi) return;
+  item.stok -= qty;
+  stokBotol -= qty;
+  stokBox -= qty;
+  penjualan.push({ tanggal: new Date().toISOString(), barang: item.nama, qty, nominal: totalNilai, iklan: isAdsActive });
+  await cetakStrukOtomatis(item.nama, qty, totalNilai);
+  await saveData();
   render();
+  renderSearchVariantList();
 }
 
 function clearSearchField() {
