@@ -665,6 +665,37 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
   #tab-laporan > .card:first-child select{font-size:9px !important;padding:6px !important;}
   #tab-laporan > .card:first-child button{font-size:9px !important;padding:7px !important;}
 }
+
+/* EVORA MOBILE FIX v8 — Manajemen Hutang Paylater */
+@media (max-width:700px){
+  #tab-laporan .card.paylater-mobile-fix{overflow:hidden;}
+  #tab-laporan .paylater-actions{display:grid !important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;gap:8px !important;align-items:stretch !important;}
+  #tab-laporan .paylater-actions > div{min-width:0 !important;width:100% !important;overflow:hidden;}
+  #tab-laporan .paylater-actions input,
+  #tab-laporan .paylater-actions select,
+  #tab-laporan .paylater-actions button{width:100% !important;max-width:100% !important;min-width:0 !important;box-sizing:border-box !important;}
+  #tab-laporan .paylater-actions input,
+  #tab-laporan .paylater-actions select{font-size:10px !important;padding:7px 5px !important;text-align:center !important;}
+  #tab-laporan .paylater-actions button{font-size:10px !important;padding:8px 4px !important;white-space:normal !important;line-height:1.15 !important;}
+  #tab-laporan #listPaylater{max-height:190px !important;overflow-y:auto !important;overflow-x:hidden !important;}
+  #tab-laporan #listPaylater > div{min-width:0 !important;width:100% !important;box-sizing:border-box !important;gap:5px !important;}
+  #tab-laporan #listPaylater > div > div:first-child{min-width:0 !important;max-width:calc(100% - 34px) !important;overflow:hidden !important;}
+  #tab-laporan #listPaylater > div > div:first-child b,
+  #tab-laporan #listPaylater > div > div:first-child div{overflow-wrap:anywhere !important;word-break:break-word !important;}
+  #tab-laporan #listPaylater button{flex:0 0 30px !important;width:30px !important;padding:4px !important;}
+}
+@media (max-width:390px){
+  #tab-laporan .paylater-actions{gap:5px !important;}
+  #tab-laporan .paylater-actions > div{padding:7px !important;}
+  #tab-laporan .paylater-actions h4{font-size:9px !important;}
+  #tab-laporan .paylater-actions input,
+  #tab-laporan .paylater-actions select{font-size:9px !important;padding:6px 3px !important;}
+  #tab-laporan .paylater-actions button{font-size:9px !important;padding:7px 3px !important;}
+}
+@media (max-width:330px){
+  #tab-laporan .paylater-actions{grid-template-columns:1fr !important;}
+}
+
 </style>
 </head>
 <body>
@@ -974,14 +1005,14 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
   <div id="tab-laporan" class="tab-content">
     
     <!-- PANEL HUTANG PAYLATER -->
-    <div class="card" style="border: 1px solid #8b5cf6; background: rgba(139, 92, 246, 0.05);">
+    <div class="card paylater-mobile-fix" style="border: 1px solid #8b5cf6; background: rgba(139, 92, 246, 0.05);">
       <h3 style="color:#7c3aed"><i class="fa-solid fa-credit-card"></i> MANAJEMEN HUTANG PAYLATER</h3>
       <div style="font-size: 13px; margin-bottom: 12px; font-weight: 600;">
         Total Tunggakan Paylater: <br>
         <span id="totalHutangPaylater" style="font-size: 22px; color: var(--danger); font-weight: 900;">Rp 0</span>
       </div>
       
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <div class="paylater-actions" style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
         <div style="background: var(--bg-card); padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
           <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--warning);">Pakai Paylater</h4>
           <input id="nominalPakaiPaylater" type="number" placeholder="Nominal Rp" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
