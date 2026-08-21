@@ -179,6 +179,46 @@ body.dark-theme .riwayat-item, body.dark-theme #summaryHarian, body.dark-theme #
 .ai-marketing-card::after { content: '\f544'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: -15px; bottom: -20px; font-size: 120px; opacity: 0.05; pointer-events: none; }
 .ai-badge { background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid rgba(56, 189, 248, 0.3); }
 .restock-item { background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.1); }
+
+.report-section-title{
+  font-size:11px;
+  font-weight:800;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  margin:14px 0 8px;
+}
+.report-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:9px 10px;
+  margin:6px 0;
+  background:var(--bg-card);
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+}
+body.dark-theme .report-item{border-color:#334155;}
+.report-item-name{font-size:12px;font-weight:700;color:var(--text-main);}
+.report-item-meta{font-size:10px;color:var(--text-muted);margin-top:2px;}
+.report-item-qty{font-size:13px;font-weight:900;color:var(--success);white-space:nowrap;}
+.report-summary-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+.report-summary-box{
+  padding:10px;
+  border-radius:10px;
+  background:var(--bg-card);
+  border:1px solid #e2e8f0;
+}
+body.dark-theme .report-summary-box{border-color:#334155;}
+.report-summary-label{font-size:10px;color:var(--text-muted);font-weight:700;}
+.report-summary-value{font-size:15px;font-weight:900;margin-top:3px;}
+
 </style>
 </head>
 <body>
@@ -1767,22 +1807,30 @@ function renderKasirPanel() {
   let barangJualEl = document.getElementById("barangJual");
   let filterCari = (document.getElementById("cariBarangInput")?.value || "").toLowerCase().trim();
 
+  // Dropdown grosir juga mengikuti urutan stok terendah -> tertinggi.
+  let sortedBarangForSale = barang
+    .map((b, idx) => ({ ...b, originalIndex: idx }))
+    .sort((a, b) => Number(a.stok || 0) - Number(b.stok || 0) || a.nama.localeCompare(b.nama));
+
   if (barangJualEl) {
-    barangJualEl.innerHTML = barang.map((b, idx) => `<option value="${idx}">${b.nama} (Stok: ${b.stok})</option>`).join("");
+    barangJualEl.innerHTML = sortedBarangForSale
+      .map(b => `<option value="${b.originalIndex}">${b.nama} (Stok: ${b.stok})</option>`)
+      .join("");
   }
 
   if (listBarangEl) {
-    let filteredBarang = barang.map((b, idx) => ({ ...b, originalIndex: idx }))
-      .filter(b => b.nama.toLowerCase().includes(filterCari));
+    let filteredBarang = sortedBarangForSale.filter(b =>
+      b.nama.toLowerCase().includes(filterCari)
+    );
 
     let now = new Date();
     let elapsedDays = Math.max(1, now.getDate());
 
-    // Hitung kecepatan penjualan tiap item bulan ini
+    // Hitung kecepatan penjualan tiap item bulan ini.
     let salesMapMonth = {};
     penjualan.forEach(x => {
       if (getMonthKey(x.tanggal) === getMonthKey(now) && x.barang !== "OMZET MANUAL") {
-        salesMapMonth[x.barang] = (salesMapMonth[x.barang] || 0) + (x.qty || 0);
+        salesMapMonth[x.barang] = (salesMapMonth[x.barang] || 0) + Number(x.qty || 0);
       }
     });
 
@@ -1790,15 +1838,16 @@ function renderKasirPanel() {
       listBarangEl.innerHTML = `<div style="grid-column: span 2; text-align:center; font-size:12px; color:var(--text-muted); padding:20px;">Varian parfum tidak ditemukan.</div>`;
     } else {
       listBarangEl.innerHTML = filteredBarang.map(b => {
-        let statusClass = b.stok < 5 ? "status-critical" : (b.stok < 10 ? "status-warning" : "status-ready");
-        let statusLabel = b.stok < 5 ? "STOK KRITIS" : (b.stok < 10 ? "STOK TIPIS" : "TERSEDIA");
+        let stok = Number(b.stok || 0);
+        let statusClass = stok < 5 ? "status-critical" : (stok < 10 ? "status-warning" : "status-ready");
+        let statusLabel = stok < 5 ? "STOK KRITIS" : (stok < 10 ? "STOK TIPIS" : "TERSEDIA");
 
         let soldQtyMonth = salesMapMonth[b.nama] || 0;
         let dailyRate = soldQtyMonth / elapsedDays;
-        let daysLeft = dailyRate > 0 ? Math.ceil(b.stok / dailyRate) : Infinity;
+        let daysLeft = dailyRate > 0 ? Math.ceil(stok / dailyRate) : Infinity;
 
         let infoDepletionText = "";
-        if (b.stok === 0) {
+        if (stok === 0) {
           infoDepletionText = "<span style='color:var(--danger); font-weight:800;'><i class='fa-solid fa-triangle-exclamation'></i> STOK HABIS!</span>";
         } else if (daysLeft === Infinity) {
           infoDepletionText = "<span style='color:var(--text-muted);'><i class='fa-solid fa-clock'></i> Est. Habis: Aman (>30 hari)</span>";
@@ -1811,7 +1860,7 @@ function renderKasirPanel() {
           <div class="item-barang">
             <div class="item-info">
               <b>${b.nama}</b>
-              <div class="stok-text">Stok: <b>${b.stok}</b> pcs</div>
+              <div class="stok-text">Stok: <b>${stok}</b> pcs</div>
               <div style="font-size:11px; margin-top:4px;">${infoDepletionText}</div>
               <span class="badge-status ${statusClass}">${statusLabel}</span>
             </div>
@@ -1851,6 +1900,31 @@ function render() {
   });
   let topVarianHari = Object.entries(varianHariIniMap).sort((a,b) => b[1] - a[1])[0];
   let topVarianText = topVarianHari ? `${topVarianHari[0]} (${topVarianHari[1]} Pcs)` : "Belum ada";
+
+  // Persentase aktif: bandingkan omzet hari ini dengan omzet kemarin.
+  // Jika kemarin 0 dan hari ini > 0, tampilkan pertumbuhan 100%.
+  let kemarin = new Date();
+  kemarin.setDate(kemarin.getDate() - 1);
+  let kemarinKey = getDayKey(kemarin);
+  let jualKemarin = penjualan.filter(x => getDayKey(x.tanggal) === kemarinKey);
+  let omzetKemarin = jualKemarin.reduce((a, b) => a + Number(b.nominal || 0), 0);
+  let trendBadge = document.getElementById("trendBadge");
+
+  if (trendBadge) {
+    if (omzetKemarin > 0) {
+      let trendPct = ((omzetToday - omzetKemarin) / omzetKemarin) * 100;
+      let trendRounded = Math.round(trendPct * 10) / 10;
+      trendBadge.className = `trend-badge ${trendRounded > 0 ? "up" : trendRounded < 0 ? "down" : "neutral"}`;
+      trendBadge.innerHTML =
+        `${trendRounded > 0 ? '<i class="fa-solid fa-arrow-trend-up"></i>' : trendRounded < 0 ? '<i class="fa-solid fa-arrow-trend-down"></i>' : '<i class="fa-solid fa-minus"></i>'} ${trendRounded > 0 ? "+" : ""}${trendRounded}% <span style="font-weight:600; opacity:.8;">vs kemarin</span>`;
+    } else if (omzetToday > 0) {
+      trendBadge.className = "trend-badge up";
+      trendBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> +100% <span style="font-weight:600; opacity:.8;">vs kemarin</span>`;
+    } else {
+      trendBadge.className = "trend-badge neutral";
+      trendBadge.innerHTML = `<i class="fa-solid fa-minus"></i> 0% <span style="font-weight:600; opacity:.8;">vs kemarin</span>`;
+    }
+  }
 
   runCountUp("omzetHariIni", omzetToday, true);
   document.getElementById("hariIniOmzetText").innerText = "Rp " + omzetToday.toLocaleString("id-ID");
@@ -2011,38 +2085,125 @@ function renderLaporan() {
   let sumHarian = document.getElementById("summaryHarian");
   let sumBulanan = document.getElementById("summaryBulanan");
 
+  // =========================
+  // LAPORAN HARIAN
+  // =========================
   if (sumHarian) {
     let jualHari = penjualan.filter(x => getDayKey(x.tanggal) === hariSelect);
-    let omzetHari = jualHari.reduce((a, b) => a + b.nominal, 0);
-    let qtyHari = jualHari.reduce((a, b) => a + (b.qty || 0), 0);
+    let omzetHari = jualHari.reduce((a, b) => a + Number(b.nominal || 0), 0);
+    let qtyHari = jualHari.reduce((a, b) => a + Number(b.qty || 0), 0);
 
     let itemsHari = {};
     jualHari.forEach(x => {
-      if (x.qty > 0) itemsHari[x.barang] = (itemsHari[x.barang] || 0) + x.qty;
+      if (x.barang !== "OMZET MANUAL" && Number(x.qty || 0) > 0) {
+        itemsHari[x.barang] = (itemsHari[x.barang] || 0) + Number(x.qty || 0);
+      }
     });
-    let listRincian = Object.entries(itemsHari).map(([n, q]) => `• ${n}: <b>${q} pcs</b>`).join("<br>");
+
+    // Penjualan tertinggi -> terendah.
+    let rankedHari = Object.entries(itemsHari)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+    let totalVarianHari = rankedHari.length;
+    let detailHari = rankedHari.length
+      ? rankedHari.map(([nama, qty], index) => `
+          <div class="report-item">
+            <div>
+              <div class="report-item-name"><span style="color:var(--primary); margin-right:6px;">#${index + 1}</span>${nama}</div>
+              <div class="report-item-meta">Kontribusi ${qtyHari > 0 ? ((qty / qtyHari) * 100).toFixed(1) : "0.0"}% dari total pcs</div>
+            </div>
+            <div class="report-item-qty">${qty} Pcs</div>
+          </div>
+        `).join("")
+      : `<div style="font-size:12px;color:var(--text-muted);padding:10px 0;text-align:center;">Belum ada transaksi item pada tanggal ini.</div>`;
+
+    let tanggalLabel = hariSelect
+      ? new Date(hariSelect + "T00:00:00").toLocaleDateString("id-ID", { day:"numeric", month:"long", year:"numeric" })
+      : "-";
 
     sumHarian.innerHTML = `
-      <b>Total Omzet:</b> Rp ${omzetHari.toLocaleString("id-ID")}<br>
-      <b>Total Terjual:</b> ${qtyHari} Pcs<br>
-      <hr style="border:none; border-top:1px dashed #cbd5e1; margin:8px 0;">
-      <b>Rincian Item Terjual:</b><br>${listRincian || "Belum ada transaksi item."}
+      <div style="font-weight:800;font-size:14px;margin-bottom:10px;">${tanggalLabel}</div>
+
+      <div class="report-summary-grid">
+        <div class="report-summary-box">
+          <div class="report-summary-label">TOTAL OMZET</div>
+          <div class="report-summary-value" style="color:var(--primary);">Rp ${omzetHari.toLocaleString("id-ID")}</div>
+        </div>
+        <div class="report-summary-box">
+          <div class="report-summary-label">TOTAL TERJUAL</div>
+          <div class="report-summary-value" style="color:var(--success);">${qtyHari} Pcs</div>
+        </div>
+      </div>
+
+      <div class="report-section-title">Penjualan Tertinggi → Terendah (${totalVarianHari} Varian)</div>
+      ${detailHari}
     `;
   }
 
+  // =========================
+  // REKAPITULASI BULANAN
+  // =========================
   if (sumBulanan) {
     let jualBulan = penjualan.filter(x => getMonthKey(x.tanggal) === bulanSelect);
     let keluarBulan = pengeluaran.filter(x => getMonthKey(x.tanggal) === bulanSelect);
-    let omzetBulan = jualBulan.reduce((a, b) => a + b.nominal, 0);
-    let qtyBulan = jualBulan.reduce((a, b) => a + (b.qty || 0), 0);
-    let nominalKeluarBulan = keluarBulan.reduce((a, b) => a + b.nominal, 0);
+
+    let omzetBulan = jualBulan.reduce((a, b) => a + Number(b.nominal || 0), 0);
+    let qtyBulan = jualBulan.reduce((a, b) => a + Number(b.qty || 0), 0);
+    let nominalKeluarBulan = keluarBulan.reduce((a, b) => a + Number(b.nominal || 0), 0);
+    let labaBulan = omzetBulan - nominalKeluarBulan;
+
+    // Detail per varian: jumlah terjual, omzet, dan persentase kontribusi.
+    let itemsBulan = {};
+    jualBulan.forEach(x => {
+      if (x.barang !== "OMZET MANUAL" && Number(x.qty || 0) > 0) {
+        if (!itemsBulan[x.barang]) itemsBulan[x.barang] = { qty: 0, omzet: 0 };
+        itemsBulan[x.barang].qty += Number(x.qty || 0);
+        itemsBulan[x.barang].omzet += Number(x.nominal || 0);
+      }
+    });
+
+    let rankedBulan = Object.entries(itemsBulan)
+      .sort((a, b) => b[1].qty - a[1].qty || b[1].omzet - a[1].omzet || a[0].localeCompare(b[0]));
+
+    let detailBulan = rankedBulan.length
+      ? rankedBulan.map(([nama, data], index) => `
+          <div class="report-item">
+            <div style="min-width:0;">
+              <div class="report-item-name"><span style="color:var(--primary); margin-right:6px;">#${index + 1}</span>${nama}</div>
+              <div class="report-item-meta">
+                Omzet Rp ${data.omzet.toLocaleString("id-ID")}
+                • ${qtyBulan > 0 ? ((data.qty / qtyBulan) * 100).toFixed(1) : "0.0"}% dari total pcs
+              </div>
+            </div>
+            <div class="report-item-qty">${data.qty} Pcs</div>
+          </div>
+        `).join("")
+      : `<div style="font-size:12px;color:var(--text-muted);padding:10px 0;text-align:center;">Belum ada penjualan varian pada bulan ini.</div>`;
 
     sumBulanan.innerHTML = `
-      <b>Total Omzet Bulanan:</b> Rp ${omzetBulan.toLocaleString("id-ID")}<br>
-      <b>Total Varian Terjual:</b> ${qtyBulan} Pcs<br>
-      <b>Total Pengeluaran:</b> Rp ${nominalKeluarBulan.toLocaleString("id-ID")}<br>
-      <hr style="border:none; border-top:1px dashed #cbd5e1; margin:8px 0;">
-      <b>Laba Bersih Bulan Ini:</b> <b style="color:var(--success); font-size:15px;">Rp ${(omzetBulan - nominalKeluarBulan).toLocaleString("id-ID")}</b>
+      <div style="font-weight:800;font-size:14px;margin-bottom:10px;">${bulanSelect ? getMonthLabel(bulanSelect) : "-"}</div>
+
+      <div class="report-summary-grid">
+        <div class="report-summary-box">
+          <div class="report-summary-label">TOTAL OMZET</div>
+          <div class="report-summary-value" style="color:var(--primary);">Rp ${omzetBulan.toLocaleString("id-ID")}</div>
+        </div>
+        <div class="report-summary-box">
+          <div class="report-summary-label">TOTAL TERJUAL</div>
+          <div class="report-summary-value" style="color:var(--success);">${qtyBulan} Pcs</div>
+        </div>
+        <div class="report-summary-box">
+          <div class="report-summary-label">PENGELUARAN</div>
+          <div class="report-summary-value" style="color:var(--danger);">Rp ${nominalKeluarBulan.toLocaleString("id-ID")}</div>
+        </div>
+        <div class="report-summary-box">
+          <div class="report-summary-label">LABA BERSIH</div>
+          <div class="report-summary-value" style="color:var(--success);">Rp ${labaBulan.toLocaleString("id-ID")}</div>
+        </div>
+      </div>
+
+      <div class="report-section-title">Detail Penjualan Per Varian — Tertinggi → Terendah</div>
+      ${detailBulan}
     `;
   }
 }
