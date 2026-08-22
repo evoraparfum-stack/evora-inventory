@@ -913,6 +913,24 @@ body.dark-theme .scan-resi-product-row{border-color:#334155}
 }
 </style>
 
+
+<style id="evora-history-resi-style">
+.riwayat-resi-card{border:1px solid #dbe4ee;border-radius:14px;margin:0 0 10px;overflow:hidden;background:var(--bg-card)}
+.riwayat-resi-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:12px;background:var(--primary-light);border-bottom:1px solid #e2e8f0}
+.riwayat-resi-title{font-size:12px;font-weight:900;color:var(--text-main)}
+.riwayat-resi-meta{font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.5}
+.riwayat-resi-body{padding:4px 10px}
+.riwayat-resi-line{display:flex;justify-content:space-between;gap:10px;padding:9px 2px;border-bottom:1px solid #eef2f7;font-size:11px}
+.riwayat-resi-line:last-child{border-bottom:none}
+.riwayat-resi-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-top:1px solid #e2e8f0;font-size:10px;font-weight:800}
+.riwayat-cancel-all{width:auto!important;padding:6px 9px!important;background:var(--danger)!important;box-shadow:none!important;font-size:10px!important}
+.riwayat-badge{display:inline-block;padding:3px 6px;border-radius:999px;background:#e8f7ee;color:#15803d;font-size:9px;font-weight:800}
+@media(max-width:600px){
+ .riwayat-resi-head{flex-direction:column}
+ .riwayat-resi-line{align-items:flex-start}
+}
+</style>
+
 </head>
 <body>
 
@@ -1082,7 +1100,13 @@ body.dark-theme .scan-resi-product-row{border-color:#334155}
           <input id="adsToggleSwitch" type="checkbox" onchange="toggleAdsStatus()" style="width:18px; height:18px; margin:0; accent-color:#38bdf8;">
         </label>
       </div>
-
+      <div id="adsCampaignPanel" style="display:none;margin-bottom:16px;padding:12px;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.22);border-radius:12px;">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+          <div><div style="font-size:11px;font-weight:900;">KAMPANYE IKLAN AKTIF</div><div id="adsCampaignNameView" style="font-size:10px;margin-top:3px;"></div><div id="adsCampaignCountdown" style="font-size:18px;font-weight:900;margin-top:5px;">00:00:00</div><div id="adsCampaignMeta" style="font-size:9px;color:#94a3b8;margin-top:3px;"></div></div>
+          <button type="button" onclick="stopAdsCampaign()" style="width:auto;padding:8px 10px;background:#ef4444;font-size:10px;box-shadow:none;">⏹ Stop Iklan</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;"><div><small>Budget</small><b id="adsCampaignBudgetView">Rp 0</b></div><div><small>Omzet</small><b id="adsCampaignRevenueView">Rp 0</b></div><div><small>ROAS</small><b id="adsCampaignRoasView">-</b></div></div>
+      </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px; border-bottom:1px dashed rgba(255,255,255,0.12); padding-bottom:18px;">
         <div>
           <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">Prediksi Terjual Hari Ini</div>
@@ -1315,6 +1339,16 @@ body.dark-theme .scan-resi-product-row{border-color:#334155}
         </select>
         <input id="tanggalRiwayat" type="date" onchange="render()" style="width:140px; margin:0; padding:8px; font-size:12px;">
       </div>
+      <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+        <div style="position:relative; flex:1;">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:11px;color:var(--text-muted);font-size:12px;"></i>
+          <input id="cariRiwayatResi" type="text" oninput="renderRiwayat()" 
+            placeholder="Cari nomor resi / nomor pesanan..." 
+            style="margin:0; padding:9px 10px 9px 32px; font-size:12px;">
+        </div>
+        <button type="button" onclick="document.getElementById('cariRiwayatResi').value='';renderRiwayat();" 
+          style="width:auto;padding:9px 12px;font-size:11px;background:#94a3b8;box-shadow:none;">Reset</button>
+      </div>
     </div>
 
     <div class="card">
@@ -1522,11 +1556,46 @@ function initEnterpriseSettings() {
 initEnterpriseSettings();
 
 function toggleAdsStatus() {
-  const adsToggle = document.getElementById("adsToggleSwitch");
-  if (!adsToggle) return;
-  isAdsActive = adsToggle.checked;
-  render();
-  saveData();
+  const adsToggle=document.getElementById("adsToggleSwitch");
+  if(!adsToggle)return;
+  if(adsToggle.checked && !isAdsActive){ adsToggle.checked=false; openAdsCampaignModal(); return; }
+  if(!adsToggle.checked && isAdsActive){ stopAdsCampaign(); return; }
+  renderAdsCampaignUI();
+}
+
+
+function openAdsCampaignModal(){const m=document.getElementById("adsCampaignModal");if(m){document.getElementById("adsCampaignBudget").value="";document.getElementById("adsCampaignName").value="";m.style.display="flex";}}
+function closeAdsCampaignModal(){const m=document.getElementById("adsCampaignModal");if(m)m.style.display="none";}
+function closeAdsResultModal(){const m=document.getElementById("adsCampaignResultModal");if(m)m.style.display="none";}
+function getAdsCampaignRevenue(id){return penjualan.filter(x=>x.campaignId===id&&x.iklan===true).reduce((s,x)=>s+Number(x.nominal||0),0);}
+function openAdsResultModal(c){const m=document.getElementById("adsCampaignResultModal"),b=document.getElementById("adsCampaignResultBody");if(!m||!b)return;const rev=Number(c.revenue||0),sp=Number(c.spend||0),roas=sp?rev/sp:0;b.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;"><div><small>Nama</small><b>${escScan(c.name||"Kampanye")}</b></div><div><small>Status</small><b>${escScan(c.status||"Selesai")}</b></div><div><small>Biaya Iklan</small><b>Rp ${sp.toLocaleString("id-ID")}</b></div><div><small>Omzet</small><b>Rp ${rev.toLocaleString("id-ID")}</b></div></div><div style="margin-top:12px;padding:14px;background:#e0f2fe;border-radius:12px;text-align:center;"><div>ROAS</div><div style="font-size:32px;font-weight:900;">${sp?roas.toFixed(2)+"x":"-"}</div><small>Omzet ÷ biaya iklan</small></div>`;m.style.display="flex";}
+function renderAdsCampaignUI(){
+  const panel=document.getElementById("adsCampaignPanel"),toggle=document.getElementById("adsToggleSwitch");
+  if(toggle)toggle.checked=!!isAdsActive;
+  if(!panel)return;
+  if(!isAdsActive||!currentAdsCampaign){panel.style.display="none";const l=document.getElementById("adsModeLabel");if(l){l.textContent="TANPA IKLAN";l.style.color="#94a3b8";}return;}
+  panel.style.display="block";const c=currentAdsCampaign,remain=Math.max(0,new Date(c.endAt).getTime()-Date.now());
+  const h=Math.floor(remain/3600000),mi=Math.floor(remain%3600000/60000),s=Math.floor(remain%60000/1000);
+  const cd=document.getElementById("adsCampaignCountdown");if(cd)cd.textContent=`${String(h).padStart(2,"0")}:${String(mi).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  const rev=getAdsCampaignRevenue(c.id),roas=Number(c.spend)?rev/Number(c.spend):0;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set("adsCampaignNameView",c.name||"Kampanye Iklan");set("adsCampaignBudgetView","Rp "+Number(c.spend).toLocaleString("id-ID"));set("adsCampaignRevenueView","Rp "+rev.toLocaleString("id-ID"));set("adsCampaignRoasView",Number(c.spend)?roas.toFixed(2)+"x":"-");
+  set("adsCampaignMeta",`Mulai ${new Date(c.startedAt).toLocaleString("id-ID")} • Berakhir ${new Date(c.endAt).toLocaleString("id-ID")}`);
+  const l=document.getElementById("adsModeLabel");if(l){l.textContent="IKLAN AKTIF";l.style.color="#38bdf8";}
+  const mt=document.getElementById("adsModeText");if(mt)mt.textContent="Penjualan baru otomatis masuk ke kampanye ini.";
+  if(remain<=0)finishAdsCampaign("Durasi habis");
+}
+function startAdsCampaign(){
+  const budget=Number(document.getElementById("adsCampaignBudget").value||0),hours=Number(document.getElementById("adsCampaignDuration").value||24),name=document.getElementById("adsCampaignName").value.trim()||`Iklan ${new Date().toLocaleDateString("id-ID")}`;
+  if(budget<=0){alert("Masukkan budget iklan.");return;}
+  const now=new Date();currentAdsCampaign={id:"ADS-"+Date.now(),name,budget,spend:budget,startedAt:now.toISOString(),endAt:new Date(now.getTime()+hours*3600000).toISOString(),status:"AKTIF"};
+  adsCampaignHistory=Array.isArray(adsCampaignHistory)?adsCampaignHistory:[];isAdsActive=true;const t=document.getElementById("adsToggleSwitch");if(t)t.checked=true;closeAdsCampaignModal();renderAdsCampaignUI();saveData();
+}
+function stopAdsCampaign(){if(!currentAdsCampaign){isAdsActive=false;renderAdsCampaignUI();saveData();return;}finishAdsCampaign("Dihentikan manual");}
+function finishAdsCampaign(reason){
+  if(!currentAdsCampaign)return;const c={...currentAdsCampaign};c.status=reason;c.endedAt=new Date().toISOString();c.revenue=getAdsCampaignRevenue(c.id);c.roas=Number(c.spend)?c.revenue/Number(c.spend):0;
+  adsCampaignHistory=Array.isArray(adsCampaignHistory)?adsCampaignHistory:[];adsCampaignHistory.unshift(c);currentAdsCampaign=null;isAdsActive=false;
+  const t=document.getElementById("adsToggleSwitch");if(t)t.checked=false;renderAdsCampaignUI();saveData();setTimeout(()=>openAdsResultModal(c),80);
 }
 
 function shortcutRestock() {
@@ -2009,6 +2078,8 @@ async function loadDataFromCloud() {
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       targetBulanan = Number(dataUtama.targetBulanan || 400);
       isAdsActive = dataUtama.isAdsActive || false;
+      currentAdsCampaign = dataUtama.currentAdsCampaign || null;
+      adsCampaignHistory = Array.isArray(dataUtama.adsCampaignHistory) ? dataUtama.adsCampaignHistory : [];
       
       document.getElementById("inputHargaGlobal").value = HARGA;
       document.getElementById("inputTargetBulanan").value = targetBulanan;
@@ -2020,6 +2091,7 @@ async function loadDataFromCloud() {
     
     document.body.classList.remove("skeleton-loading");
     render();
+    renderAdsCampaignUI();
     checkLowStockAlert();
   } catch (error) {
     console.error("Gagal load Supabase:", error);
@@ -2041,7 +2113,9 @@ async function saveData() {
     logPaylater: logPaylater,
     hargaGlobal: HARGA,
     targetBulanan: targetBulanan,
-    isAdsActive: isAdsActive
+    isAdsActive: isAdsActive,
+    currentAdsCampaign: currentAdsCampaign,
+    adsCampaignHistory: adsCampaignHistory
   };
   try {
     const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
@@ -3272,7 +3346,7 @@ async function confirmBatchScanSale(){
   stokBotol-=totalQty; stokBox-=totalQty;
   rows.forEach(r=>{
     const item=barang[r.matchIndex];
-    penjualan.push({tanggal:now,barang:item.nama,qty:Number(r.qty||1),nominal:Number(r.qty||1)*HARGA,iklan:isAdsActive,sumber:"SCAN_RESI",halaman:r.page,orderId:r.orderId||"",resi:r.waybill||"",fileScan:scanResiDraft.fileName});
+    penjualan.push({tanggal:now,barang:item.nama,qty:Number(r.qty||1),nominal:Number(r.qty||1)*HARGA,iklan:isAdsActive,campaignId:(currentAdsCampaign ? currentAdsCampaign.id : null),sumber:"SCAN_RESI",halaman:r.page,orderId:r.orderId||"",resi:r.waybill||"",noPesanan:r.orderId||"",batchId:(scanResiDraft.fileName||"")+"|"+(r.page||""),fileScan:scanResiDraft.fileName});
   });
   const processedPages = scanResiDraft.pages.length;
   await saveData();
@@ -3906,27 +3980,106 @@ function renderRiwayat() {
   let mode = document.getElementById("modeRiwayat")?.value || "harian";
   let tgl = document.getElementById("tanggalRiwayat")?.value || hariIniFull;
   let bln = getMonthKey(tgl);
+  let q = String(document.getElementById("cariRiwayatResi")?.value || "").trim().toLowerCase();
 
   let riwayatJualEl = document.getElementById("riwayatJual");
   let riwayatKeluarEl = document.getElementById("riwayatKeluar");
 
   let filteredJual = penjualan.map((x, i) => ({ ...x, originalIndex: i }))
-    .filter(x => mode === "harian" ? getDayKey(x.tanggal) === tgl : getMonthKey(x.tanggal) === bln);
+    .filter(x => mode === "harian" ? getDayKey(x.tanggal) === tgl : getMonthKey(x.tanggal) === bln)
+    .filter(x => {
+      if (!q) return true;
+      const hay = [
+        x.resi, x.waybill, x.noResi, x.orderId, x.nomorPesanan, x.noPesanan,
+        x.barang, x.sumber
+      ].filter(Boolean).join(" ").toLowerCase();
+      return hay.includes(q);
+    });
 
   let filteredKeluar = pengeluaran.map((x, i) => ({ ...x, originalIndex: i }))
     .filter(x => mode === "harian" ? getDayKey(x.tanggal) === tgl : getMonthKey(x.tanggal) === bln);
 
   if (riwayatJualEl) {
-    riwayatJualEl.innerHTML = filteredJual.length === 0 ? `<div style="font-size:12px; color:var(--text-muted); padding:10px;">Tidak ada log penjualan.</div>` :
-      [...filteredJual].reverse().slice(0, 50).map(x => `
-        <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <b>${x.barang}</b> (${x.qty} Pcs) - <span style="color:var(--success)">Rp ${x.nominal.toLocaleString("id-ID")}</span>
-            <div style="font-size:10px; color:var(--text-muted);">${new Date(x.tanggal).toLocaleTimeString("id-ID")} ${x.iklan ? '• <span style="color:#38bdf8">[Iklan]</span>' : ''}</div>
-          </div>
-          <button onclick="batalkanPenjualan(${x.originalIndex})" style="width:auto; padding:4px 8px; background:var(--danger); font-size:10px; box-shadow:none;">Batal</button>
-        </div>
-      `).join("");
+    if (filteredJual.length === 0) {
+      riwayatJualEl.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:10px;">
+        ${q ? "Tidak ditemukan resi / nomor pesanan yang cocok." : "Tidak ada log penjualan."}
+      </div>`;
+    } else {
+      // Scan-resi lines are grouped into ONE history card per receipt/order.
+      // Manual/quick sales remain individual entries.
+      const groups = [];
+      const map = new Map();
+
+      [...filteredJual].reverse().forEach(x => {
+        const isScan = String(x.sumber || "").toUpperCase() === "SCAN_RESI";
+        const keyValue = String(x.resi || x.waybill || x.orderId || "").trim();
+        const key = isScan && keyValue ? "SCAN|" + keyValue : "ITEM|" + x.originalIndex;
+
+        if (!map.has(key)) {
+          const g = {
+            key, isScan, resi: x.resi || x.waybill || "",
+            orderId: x.orderId || x.nomorPesanan || x.noPesanan || "",
+            tanggal: x.tanggal, items: []
+          };
+          map.set(key, g); groups.push(g);
+        }
+        map.get(key).items.push(x);
+      });
+
+      riwayatJualEl.innerHTML = groups.slice(0, 50).map(g => {
+        const totalQty = g.items.reduce((s,x)=>s+Number(x.qty||0),0);
+        const totalNominal = g.items.reduce((s,x)=>s+Number(x.nominal||0),0);
+        const indices = g.items.map(x=>x.originalIndex);
+        const first = g.items[0];
+
+        if (!g.isScan) {
+          return `
+            <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <b>${escScan(first.barang)}</b> (${Number(first.qty||0)} Pcs) -
+                <span style="color:var(--success)">Rp ${Number(first.nominal||0).toLocaleString("id-ID")}</span>
+                <div style="font-size:10px;color:var(--text-muted);">
+                  ${new Date(first.tanggal).toLocaleDateString("id-ID")} • ${new Date(first.tanggal).toLocaleTimeString("id-ID")}
+                  ${first.iklan ? ' • <span style="color:#38bdf8">[Iklan]</span>' : ''}
+                </div>
+              </div>
+              <button onclick="batalkanPenjualan(${first.originalIndex})" style="width:auto;padding:4px 8px;background:var(--danger);font-size:10px;box-shadow:none;">Batal</button>
+            </div>`;
+        }
+
+        const ident = g.resi
+          ? `<b>Resi:</b> ${escScan(g.resi)}`
+          : `<b>Nomor Pesanan:</b> ${escScan(g.orderId || "-")}`;
+
+        return `
+          <div class="riwayat-resi-card">
+            <div class="riwayat-resi-head">
+              <div>
+                <div class="riwayat-resi-title"><i class="fa-solid fa-box"></i> ${ident}</div>
+                <div class="riwayat-resi-meta">
+                  ${g.orderId ? `No. Pesanan: ${escScan(g.orderId)}<br>` : ""}
+                  Tanggal: ${new Date(g.tanggal).toLocaleDateString("id-ID")} • ${new Date(g.tanggal).toLocaleTimeString("id-ID")}
+                  ${first.fileScan ? `<br>File: ${escScan(first.fileScan)}` : ""}
+                </div>
+              </div>
+              <span class="riwayat-badge">SCAN RESI</span>
+            </div>
+            <div class="riwayat-resi-body">
+              ${g.items.map(x=>`
+                <div class="riwayat-resi-line">
+                  <div><b>${escScan(x.barang)}</b><br><span style="color:var(--text-muted);font-size:9px;">Qty ${Number(x.qty||0)} pcs</span></div>
+                  <div style="text-align:right;color:var(--success);font-weight:800;">Rp ${Number(x.nominal||0).toLocaleString("id-ID")}</div>
+                </div>`).join("")}
+            </div>
+            <div class="riwayat-resi-foot">
+              <div>Total: ${totalQty} pcs • <span style="color:var(--success)">Rp ${totalNominal.toLocaleString("id-ID")}</span></div>
+              <button class="riwayat-cancel-all" onclick='batalkanResiPenjualan(${JSON.stringify(indices)})'>
+                <i class="fa-solid fa-ban"></i> Batalkan Resi
+              </button>
+            </div>
+          </div>`;
+      }).join("");
+    }
   }
 
   if (riwayatKeluarEl) {
@@ -3934,8 +4087,8 @@ function renderRiwayat() {
       [...filteredKeluar].reverse().slice(0, 50).map(x => `
         <div class="riwayat-item" style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <b style="color:var(--danger)">Rp ${x.nominal.toLocaleString("id-ID")}</b> - ${x.keterangan}
-            <div style="font-size:10px; color:var(--text-muted);">${new Date(x.tanggal).toLocaleTimeString("id-ID")}</div>
+            <b style="color:var(--danger)">Rp ${Number(x.nominal||0).toLocaleString("id-ID")}</b> - ${escScan(x.keterangan)}
+            <div style="font-size:10px; color:var(--text-muted);">${new Date(x.tanggal).toLocaleDateString("id-ID")} • ${new Date(x.tanggal).toLocaleTimeString("id-ID")}</div>
           </div>
           <div style="display:flex; gap:4px;">
             <button onclick="editPengeluaran(${x.originalIndex})" style="width:auto; padding:4px 8px; background:var(--primary); font-size:10px; box-shadow:none;">Edit</button>
@@ -3944,6 +4097,40 @@ function renderRiwayat() {
         </div>
       `).join("");
   }
+}
+
+async function batalkanResiPenjualan(indices) {
+  const list=[...new Set((indices||[]).map(Number))].filter(i=>Number.isInteger(i) && penjualan[i]);
+  if(!list.length)return;
+
+  const targets=list.map(i=>penjualan[i]);
+  const scanOnly=targets.every(x=>String(x.sumber||"").toUpperCase()==="SCAN_RESI");
+  if(!scanOnly)return;
+
+  const resi=targets[0].resi||targets[0].waybill||"";
+  const order=targets[0].orderId||"";
+  const qty=targets.reduce((s,x)=>s+Number(x.qty||0),0);
+
+  const ok=await customConfirm(
+    "Batalkan 1 Resi",
+    `Batalkan penjualan untuk <b>${escScan(resi||order||"resi ini")}</b>?<br><br>
+     ${targets.map(x=>`• ${escScan(x.barang)} × ${Number(x.qty||0)}`).join("<br>")}
+     <br><br>Total <b>${qty} pcs</b> akan dikembalikan ke stok produk, botol, dan box.`,
+    "danger"
+  );
+  if(!ok)return;
+
+  targets.forEach(x=>{
+    const bIndex=barang.findIndex(b=>b.nama===x.barang);
+    if(bIndex!==-1)barang[bIndex].stok+=Number(x.qty||0);
+    stokBotol+=Number(x.qty||0);
+    stokBox+=Number(x.qty||0);
+  });
+
+  list.sort((a,b)=>b-a).forEach(i=>penjualan.splice(i,1));
+  await saveData();
+  render();
+  await customAlert("Resi Dibatalkan",`Penjualan resi berhasil dibatalkan dan ${qty} pcs dikembalikan ke stok.`,"success");
 }
 
 // Inisialisasi awal aplikasi
@@ -4142,5 +4329,20 @@ loadDataFromCloud();
 
 
 
+
+<div id="adsCampaignModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100000;align-items:center;justify-content:center;padding:18px;">
+<div style="width:min(520px,96vw);background:#fff;border-radius:18px;padding:20px;color:#172033;">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><h3 style="margin:0 0 4px;">🚀 Mulai Iklan</h3><div style="font-size:12px;color:#64748b;">Penjualan selama sesi otomatis ditandai ke kampanye.</div></div><button type="button" onclick="closeAdsCampaignModal()" style="width:auto;background:#e2e8f0;color:#334155;box-shadow:none;">✕</button></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;">
+<div><label>Budget Iklan (Rp)</label><input id="adsCampaignBudget" type="number" min="0" placeholder="100000"></div>
+<div><label>Durasi</label><select id="adsCampaignDuration"><option value="1">1 jam</option><option value="3">3 jam</option><option value="6">6 jam</option><option value="12">12 jam</option><option value="24" selected>24 jam</option><option value="48">48 jam</option><option value="72">72 jam</option><option value="168">7 hari</option></select></div>
+</div>
+<div style="margin-top:10px;"><label>Nama Kampanye (opsional)</label><input id="adsCampaignName" placeholder="Contoh: TikTok Ads - Hawas Ice"></div>
+<div style="margin-top:12px;padding:10px;background:#f8fafc;border-radius:10px;font-size:11px;color:#475569;">ROAS = omzet dari penjualan kampanye ÷ biaya iklan. Saat Stop atau durasi habis, hasil dihitung otomatis.</div>
+<button type="button" onclick="startAdsCampaign()" style="width:100%;margin-top:14px;background:#0ea5e9;">▶ Mulai Iklan</button>
+</div></div>
+<div id="adsCampaignResultModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100001;align-items:center;justify-content:center;padding:18px;">
+<div style="width:min(560px,96vw);background:#fff;border-radius:18px;padding:20px;color:#172033;"><h3>📊 Hasil Kampanye Iklan</h3><div id="adsCampaignResultBody"></div><button type="button" onclick="closeAdsResultModal()" style="width:100%;margin-top:14px;background:#0ea5e9;">Tutup</button></div></div>
+<script>setInterval(renderAdsCampaignUI,1000);</script>
 </body>
 </html>
