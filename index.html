@@ -825,6 +825,42 @@ body.dark-theme .scan-resi-progress,body.dark-theme .scan-resi-table,body.dark-t
 @media(max-width:520px){.scan-resi-summary{grid-template-columns:1fr 1fr 1fr}.scan-resi-actions{grid-template-columns:1fr}.scan-resi-row-name{font-size:10px}}
 
 </style>
+
+<style id="evora-resi-group-style">
+.resi-group-card{
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:16px;
+  padding:14px;
+  margin:12px 0;
+  background:rgba(10,18,45,.42);
+}
+.resi-group-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.resi-group-title{font-weight:800;font-size:15px}
+.resi-group-meta{font-size:12px;opacity:.78;margin-top:3px}
+.resi-product-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 72px 120px;
+  gap:10px;
+  align-items:center;
+  padding:9px 10px;
+  border-radius:10px;
+  margin-top:7px;
+  background:rgba(255,255,255,.07);
+}
+.resi-product-name{font-weight:700}
+.resi-product-sub{font-size:11px;opacity:.7;margin-top:2px}
+.resi-total-row{
+  display:flex;justify-content:space-between;
+  margin-top:10px;padding-top:10px;
+  border-top:1px solid rgba(255,255,255,.14);
+  font-weight:800;
+}
+@media(max-width:650px){
+  .resi-product-row{grid-template-columns:1fr 55px}
+  .resi-product-row .resi-stock{grid-column:1/-1}
+}
+</style>
+
 </head>
 <body>
 
@@ -2892,12 +2928,52 @@ function scanScore(chunk,name){
 }
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
+  // 1) Exact/alias mapping gets priority over fuzzy scoring.
+  const mapped = typeof matchResiProduct === "function" ? matchResiProduct(chunk, barang) : null;
+  if(mapped && mapped.status === "matched"){
+    const idx = barang.findIndex(b=>normScan(b.nama)===normScan(mapped.name));
+    if(idx >= 0) return {index:idx,score:9,method:mapped.method||"alias"};
+  }
   let best={index:-1,score:0};
   barang.forEach((b,i)=>{
     const score=scanScore(chunk,b.nama);
-    if(score>best.score) best={index:i,score};
+    if(score>best.score) best={index:i,score,method:"score"};
   });
   return best;
+}
+
+function scanAliasIndexMatches(chunk){
+  const found=[];
+  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
+  const q = normScan(chunk);
+  Object.keys(aliases).forEach(alias=>{
+    const target=aliases[alias];
+    if(alias && q.includes(alias)){
+      const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
+      if(idx>=0 && !found.some(x=>x.index===idx)) found.push({index:idx,score:10,source:"alias"});
+    }
+  });
+  barang.forEach((b,i)=>{
+    const n=normScan(b.nama);
+    if(n && q.includes(n) && !found.some(x=>x.index===i)) found.push({index:i,score:8,source:"name"});
+  });
+  return found;
+}
+
+function scanExplicitProductMatches(chunk){
+  const found = scanAliasIndexMatches(chunk);
+  // Also inspect individual tokens/phrases in SKU area. This is intentionally
+  // conservative: only accept a product if its normalized name or a saved alias
+  // is explicitly present in the chunk.
+  barang.forEach((b,i)=>{
+    const nameTokens=scanTokens(b.nama);
+    const ct=new Set(scanTokens(chunk));
+    const hits=nameTokens.filter(t=>ct.has(t));
+    if(nameTokens.length && hits.length===nameTokens.length && !found.some(x=>x.index===i)){
+      found.push({index:i,score:7,source:"tokens"});
+    }
+  });
+  return found;
 }
 function reconstructPdfLines(items){
   const rows=[];
@@ -2940,11 +3016,20 @@ function extractResiInfo(lines,pageNo){
     // Resi "Bundling 2 Botol / Mix Variant" menyimpan dua varian di kolom SKU/Seller SKU.
     // Satu bundle harus masuk sebagai 2 item varian, bukan 1 item bundle.
     if(/bundling\s*2\s*botol|mix\s*variant/i.test(chunk)) {
-      const candidates=barang.map((b,i)=>({index:i,score:scanScore(chunk,b.nama)}))
-        .filter(x=>x.score>=0.45)
+      // Bundling 2 Botol / Mix Variant: read BOTH variants from the
+      // product/SKU text. Do not let the first matching product hide the second.
+      const explicit = scanExplicitProductMatches(chunk);
+      const scored = barang.map((b,i)=>({index:i,score:scanScore(chunk,b.nama)}))
+        .filter(x=>x.score>=0.45);
+      const candidates = [...explicit, ...scored]
         .sort((a,b)=>b.score-a.score);
       const picked=[];
-      for(const c of candidates){ if(!picked.some(x=>x.index===c.index)){ picked.push(c); if(picked.length===2) break; } }
+      for(const c of candidates){
+        if(!picked.some(x=>x.index===c.index)){
+          picked.push(c);
+          if(picked.length===2) break;
+        }
+      }
       if(picked.length===2){
         picked.forEach(c=>rows.push({page:pageNo,raw:chunk,qty,matchIndex:c.index,score:c.score,orderId,waybill,bundle:true}));
         continue;
@@ -3866,5 +3951,115 @@ loadDataFromCloud();
 
 <div style="position:fixed;right:18px;bottom:18px;z-index:9998"><button type="button" onclick="openResiAlias()" title="Atur nama produk di resi">
 ⚙️ Mapping Nama Resi
-</button></div></body>
+</button></div>
+<script id="evora-resi-group-runtime">
+(function(){
+  function esc(s){
+    return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Public helper for future scanner result rendering.
+  window.renderGroupedResiResults = function(results, target){
+    target = typeof target === 'string' ? document.querySelector(target) : target;
+    if(!target || !Array.isArray(results)) return;
+
+    const groups = new Map();
+    results.forEach((r,i)=>{
+      const receipt = r.receiptId || r.resi || r.orderId || r.order || ('RESI-'+(i+1));
+      if(!groups.has(receipt)) groups.set(receipt, []);
+      groups.get(receipt).push(r);
+    });
+
+    target.innerHTML = '';
+    for(const [receipt, items] of groups){
+      const total = items.reduce((s,r)=>s + Number(r.qty||1),0);
+      const card = document.createElement('div');
+      card.className='resi-group-card';
+      card.innerHTML = `
+        <div class="resi-group-head">
+          <div>
+            <div class="resi-group-title">${esc(receipt)}</div>
+            <div class="resi-group-meta">${items[0].orderId ? 'Order: '+esc(items[0].orderId) : ''}</div>
+          </div>
+          <div class="resi-group-meta">${items.length} produk • ${total} pcs</div>
+        </div>
+        <div class="resi-group-products"></div>
+        <div class="resi-total-row"><span>Total dalam resi</span><span>${total} pcs</span></div>
+      `;
+      const rows = card.querySelector('.resi-group-products');
+      items.forEach(r=>{
+        const row=document.createElement('div');
+        row.className='resi-product-row';
+        row.innerHTML=`
+          <div>
+            <div class="resi-product-name">${esc(r.matchedName || r.name || r.product || 'Produk tidak dikenal')}</div>
+            <div class="resi-product-sub">${esc(r.sku || r.sellerSku || '')}</div>
+          </div>
+          <div><b>× ${Number(r.qty||1)}</b></div>
+          <div class="resi-stock">${r.stock==null?'':('Stok: '+esc(r.stock))}</div>
+        `;
+        rows.appendChild(row);
+      });
+      target.appendChild(card);
+    }
+  };
+
+  // Generic DOM regrouping for the existing renderer: find receipt labels such as
+  // "Resi #4" and combine adjacent cards with the same label into one parent card.
+  window.groupExistingResiCards = function(root){
+    root = root || document;
+    const nodes = Array.from(root.querySelectorAll('*')).filter(el=>{
+      const t=(el.textContent||'').trim();
+      return /^Resi\s*#?\s*\d+\s*[—-]\s*Qty/i.test(t) &&
+             el.children.length < 8;
+    });
+    const cards = [];
+    for(const n of nodes){
+      let p=n;
+      for(let i=0;i<4 && p.parentElement;i++){
+        p=p.parentElement;
+        const txt=(p.textContent||'').trim();
+        if(txt.length>40 && txt.length<1200){cards.push(p);break;}
+      }
+    }
+    const unique=[...new Set(cards)];
+    const byKey=new Map();
+    unique.forEach(card=>{
+      const m=(card.textContent||'').match(/Resi\s*#?\s*(\d+)/i);
+      if(!m)return;
+      const key=m[1];
+      if(!byKey.has(key))byKey.set(key,[]);
+      byKey.get(key).push(card);
+    });
+    byKey.forEach((list)=>{
+      if(list.length<2)return;
+      const first=list[0];
+      const parent=first.parentElement;
+      if(!parent)return;
+      const wrapper=document.createElement('div');
+      wrapper.className='resi-group-card';
+      wrapper.dataset.resiGrouped='1';
+      const title=(first.textContent||'').match(/(Resi\s*#?\s*\d+)/i);
+      wrapper.innerHTML='<div class="resi-group-head"><div class="resi-group-title">'+esc(title?title[1]:'Resi')+'</div></div><div class="resi-group-products"></div>';
+      const rows=wrapper.querySelector('.resi-group-products');
+      list.forEach(card=>{
+        if(card===wrapper || card.dataset.resiGrouped==='1')return;
+        const row=document.createElement('div');
+        row.className='resi-product-row';
+        row.innerHTML='<div class="resi-product-name"></div><div></div><div class="resi-stock"></div>';
+        row.children[0].innerHTML=esc((card.textContent||'').split('\\n').filter(Boolean).pop()||'Produk');
+        row.children[1].textContent='';
+        row.children[2].textContent='';
+        rows.appendChild(row);
+        card.remove();
+      });
+      parent.insertBefore(wrapper, first.nextSibling);
+      first.remove();
+    });
+  };
+})();
+</script>
+
+</body>
 </html>
