@@ -13,6 +13,8 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 :root {
@@ -794,6 +796,34 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
   #listBarang .item-barang > div:last-child button{font-size:9px !important}
   #listBarang .item-barang > div:last-child button[style*="width:40px"]{width:27px !important}
 }
+
+
+/* EVORA BATCH RESI SCANNER */
+.scan-resi-card{margin-top:14px;padding:14px;border:1px solid rgba(15,97,109,.18);background:linear-gradient(135deg,var(--primary-light),var(--bg-card));border-radius:14px;}
+.scan-resi-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+.scan-resi-title{font-size:12px;font-weight:900;color:var(--text-main);letter-spacing:.5px;}
+.scan-resi-sub{font-size:10px;line-height:1.5;color:var(--text-muted);margin-top:4px;}
+.scan-resi-badge{font-size:8px;font-weight:900;color:var(--primary);background:var(--bg-card);border:1px solid rgba(15,97,109,.18);padding:5px 7px;border-radius:999px;white-space:nowrap;}
+.scan-resi-upload{margin-top:11px!important;background:var(--primary)!important;box-shadow:none!important;font-size:12px!important;padding:11px!important;}
+.scan-resi-progress{margin-top:10px;padding:9px 10px;border-radius:10px;background:var(--bg-card);border:1px solid #e2e8f0;font-size:10px;color:var(--text-muted);line-height:1.5;}
+.scan-resi-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px;}
+.scan-resi-stat{padding:9px;background:var(--bg-card);border:1px solid #e2e8f0;border-radius:10px;text-align:center;}
+.scan-resi-stat b{display:block;font-size:16px;color:var(--text-main);}
+.scan-resi-stat span{display:block;font-size:8px;color:var(--text-muted);margin-top:2px;text-transform:uppercase;font-weight:800;}
+.scan-resi-table{margin-top:10px;max-height:360px;overflow:auto;border:1px solid #e2e8f0;border-radius:10px;background:var(--bg-card);}
+.scan-resi-row{padding:9px 10px;border-bottom:1px solid #eef2f7;}
+.scan-resi-row:last-child{border-bottom:none;}
+.scan-resi-row-top{display:flex;justify-content:space-between;gap:8px;align-items:center;}
+.scan-resi-row-name{font-size:11px;font-weight:800;line-height:1.35;min-width:0;}
+.scan-resi-row-meta{font-size:9px;color:var(--text-muted);margin-top:3px;}
+.scan-resi-row select{margin:7px 0 0!important;text-align:left!important;text-align-last:left!important;font-size:10px!important;padding:8px!important;}
+.scan-resi-ok{color:var(--success);font-size:9px;font-weight:800;}
+.scan-resi-warn{color:var(--warning);font-size:9px;font-weight:800;}
+.scan-resi-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px;}
+.scan-resi-actions button{padding:10px!important;font-size:11px!important;box-shadow:none!important;}
+body.dark-theme .scan-resi-progress,body.dark-theme .scan-resi-table,body.dark-theme .scan-resi-stat{border-color:#334155;}
+@media(max-width:520px){.scan-resi-summary{grid-template-columns:1fr 1fr 1fr}.scan-resi-actions{grid-template-columns:1fr}.scan-resi-row-name{font-size:10px}}
+
 </style>
 </head>
 <body>
@@ -1069,6 +1099,22 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
       <div class="search-container">
         <input id="cariBarangInput" placeholder="Cari / pilih varian parfum..." autocomplete="off" onfocus="handleSearchFocus()" oninput="handleSearchInput()">
         <button id="btnClearSearch" class="btn-clear-search" onclick="clearSearchField()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="scan-resi-card">
+        <div class="scan-resi-head">
+          <div>
+            <div class="scan-resi-title"><i class="fa-solid fa-file-pdf"></i> SCAN / UPLOAD RESI</div>
+            <div class="scan-resi-sub">Upload 1 PDF berisi banyak resi. Sistem membaca produk + Qty lalu membuat rekap sebelum masuk penjualan.</div>
+          </div>
+          <span class="scan-resi-badge">BATCH</span>
+        </div>
+        <input id="inputPdfResi" type="file" accept="application/pdf,.pdf" onchange="handlePdfResiUpload(event)" style="display:none;">
+        <button type="button" class="scan-resi-upload" onclick="document.getElementById('inputPdfResi').click()">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Upload PDF Resi
+        </button>
+        <div id="scanResiProgress" class="scan-resi-progress" style="display:none;"></div>
+        <div id="scanResiResult" style="display:none;"></div>
       </div>
       <div id="searchVariantList" class="search-variant-list" style="display:none;"></div>
       <div id="listBarang" class="grid-barang" style="margin-top:14px;"></div>
@@ -1346,6 +1392,8 @@ let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let isAdsActive = false;
 let printCharacteristic = null;
 let bluetoothDevice = null;
+let scanResiDraft = null;
+let scanResiBusy = false;
 
 let dSkrg = new Date();
 let hariIniFull = dSkrg.getFullYear() + "-" + String(dSkrg.getMonth() + 1).padStart(2, "0") + "-" + String(dSkrg.getDate()).padStart(2, "0");
@@ -2812,6 +2860,223 @@ function processAIAssistant() {
 
 }
 
+/* EVORA BATCH RESI SCANNER v1 — PDF text extraction first, OCR fallback */
+function escScan(v){
+  return String(v ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+}
+function normScan(v){
+  return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
+}
+const SCAN_GENERIC_WORDS = new Set(["evora","extrait","de","parfum","30ml","30","ml","aroma","fresh","citrus","woody","premium","fragrance","tahan","lama","pria","wanita","dan","the","by","mix","varian","bundling","botol","pcs","default","sweet","floral","powdery","ice","original"]);
+function scanTokens(v){ return normScan(v).split(" ").filter(x=>x && !SCAN_GENERIC_WORDS.has(x) && x.length>=2); }
+function scanTokenHit(nameToken, chunkTokens){
+  if(chunkTokens.has(nameToken)) return true;
+  const consonants = v => String(v).replace(/[aeiou]/g, "");
+  for(const ct of chunkTokens){
+    if(nameToken.length>=4 && ct.length>=4 && (nameToken.startsWith(ct) || ct.startsWith(nameToken))) return true;
+    if(nameToken.length>=4 && ct.length>=3 && consonants(nameToken)===consonants(ct)) return true;
+  }
+  return false;
+}
+function scanScore(chunk,name){
+  const ct = new Set(scanTokens(chunk));
+  const nt = scanTokens(name);
+  if(!ct.size || !nt.length) return 0;
+  let hit = nt.filter(t=>scanTokenHit(t,ct)).length;
+  let score = hit / nt.length;
+  // Strong bonus when the compact product name appears in the extracted text.
+  const compactName = normScan(name);
+  const compactChunk = normScan(chunk);
+  if(compactName && compactChunk.includes(compactName)) score += 1.5;
+  return score;
+}
+function bestScanMatch(chunk){
+  if(!barang.length) return {index:-1,score:0};
+  let best={index:-1,score:0};
+  barang.forEach((b,i)=>{
+    const score=scanScore(chunk,b.nama);
+    if(score>best.score) best={index:i,score};
+  });
+  return best;
+}
+function reconstructPdfLines(items){
+  const rows=[];
+  const sorted=[...items].sort((a,b)=>{
+    const ay=a.transform?.[5]||0, by=b.transform?.[5]||0;
+    if(Math.abs(by-ay)>2) return by-ay;
+    return (a.transform?.[4]||0)-(b.transform?.[4]||0);
+  });
+  for(const it of sorted){
+    const text=String(it.str||"").trim(); if(!text) continue;
+    const y=it.transform?.[5]||0;
+    let row=rows.find(r=>Math.abs(r.y-y)<=2.5);
+    if(!row){row={y,items:[]};rows.push(row);}
+    row.items.push({x:it.transform?.[4]||0,text});
+  }
+  return rows.sort((a,b)=>b.y-a.y).map(r=>r.items.sort((a,b)=>a.x-b.x).map(x=>x.text).join(" ").replace(/\s+/g," ").trim()).filter(Boolean);
+}
+function extractResiInfo(lines,pageNo){
+  const text=lines.join("\\n");
+  const start=lines.findIndex(x=>/product\s*name\s+sku\s+seller\s*sku\s+qty/i.test(x) || /product\s*name/i.test(x));
+  const endCandidates=[];
+  lines.forEach((x,i)=>{if(i>Math.max(0,start) && /qty\s*total|order\s*id|nickname/i.test(x)) endCandidates.push(i);});
+  const end=endCandidates.length?Math.min(...endCandidates):lines.length;
+  const region=lines.slice(start>=0?start+1:0,end);
+  const rowStarts=[];
+  region.forEach((x,i)=>{if(/^evora\b/i.test(x.trim())) rowStarts.push(i);});
+  const rows=[];
+  const chunks=rowStarts.length ? rowStarts.map((st,k)=>region.slice(st,rowStarts[k+1]??region.length)) : [];
+  for(const chunkLines of chunks){
+    const chunk=chunkLines.join(" ").replace(/\s+/g," ").trim();
+    if(!chunk) continue;
+    let qty=1;
+    for(let i=chunkLines.length-1;i>=0;i--){
+      const m=chunkLines[i].match(/^([0-9]{1,3})$/);
+      if(m){qty=Math.max(1,Number(m[1]));break;}
+    }
+    const orderId=(text.match(/Order\s*Id\s*:?\s*([0-9]{10,25})/i)||[])[1] || (text.match(/\b(58\d{10,20})\b/)||[])[1] || "";
+    const waybill=(text.match(/\b(JY\d{8,20})\b/i)||[])[1] || "";
+    const match=bestScanMatch(chunk);
+    // Resi "Bundling 2 Botol / Mix Variant" menyimpan dua varian di kolom SKU/Seller SKU.
+    // Satu bundle harus masuk sebagai 2 item varian, bukan 1 item bundle.
+    if(/bundling\s*2\s*botol|mix\s*variant/i.test(chunk)) {
+      const candidates=barang.map((b,i)=>({index:i,score:scanScore(chunk,b.nama)}))
+        .filter(x=>x.score>=0.45)
+        .sort((a,b)=>b.score-a.score);
+      const picked=[];
+      for(const c of candidates){ if(!picked.some(x=>x.index===c.index)){ picked.push(c); if(picked.length===2) break; } }
+      if(picked.length===2){
+        picked.forEach(c=>rows.push({page:pageNo,raw:chunk,qty,matchIndex:c.index,score:c.score,orderId,waybill,bundle:true}));
+        continue;
+      }
+    }
+    rows.push({page:pageNo,raw:chunk,qty,matchIndex:match.index,score:match.score,orderId,waybill,bundle:false});
+  }
+  return {page:pageNo,lines,text,orderId:(text.match(/Order\s*Id\s*:?\s*([0-9]{10,25})/i)||[])[1]||"",waybill:(text.match(/\b(JY\d{8,20})\b/i)||[])[1]||"",rows};
+}
+async function extractPdfTextPages(file){
+  if(!window.pdfjsLib) throw new Error("PDF.js belum termuat. Pastikan internet aktif.");
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const buffer=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buffer}).promise;
+  const pages=[];
+  for(let p=1;p<=pdf.numPages;p++){
+    updateScanProgress(`Membaca halaman ${p} dari ${pdf.numPages}...`);
+    const page=await pdf.getPage(p);
+    const content=await page.getTextContent();
+    const lines=reconstructPdfLines(content.items||[]);
+    pages.push(extractResiInfo(lines,p));
+  }
+  return pages;
+}
+function updateScanProgress(msg){
+  const el=document.getElementById("scanResiProgress");
+  if(el){el.style.display="block";el.innerHTML=`<i class="fa-solid fa-spinner fa-spin"></i> ${escScan(msg)}`;}
+}
+function flattenScanRows(pages){ return pages.flatMap(p=>p.rows.map(r=>({...r,sourcePage:p.page}))); }
+function renderScanDraft(){
+  const el=document.getElementById("scanResiResult");
+  if(!el || !scanResiDraft) return;
+  const rows=scanResiDraft.rows;
+  const mapped=rows.filter(r=>r.matchIndex>=0).length;
+  const totalQty=rows.reduce((s,r)=>s+Number(r.qty||0),0);
+  const unresolved=rows.length-mapped;
+  const duplicatePages=new Set();
+  const seenOrders=new Set();
+  rows.forEach(r=>{if(r.orderId){if(seenOrders.has(r.orderId)) duplicatePages.add(r.page); seenOrders.add(r.orderId);}});
+  el.style.display="block";
+  el.innerHTML=`
+    <div class="scan-resi-summary">
+      <div class="scan-resi-stat"><b>${scanResiDraft.pages.length}</b><span>Resi dibaca</span></div>
+      <div class="scan-resi-stat"><b>${rows.length}</b><span>Baris produk</span></div>
+      <div class="scan-resi-stat"><b>${totalQty}</b><span>Total pcs</span></div>
+    </div>
+    <div class="scan-resi-progress" style="display:block;margin-top:8px;">
+      <b>${mapped}/${rows.length}</b> produk berhasil dicocokkan.
+      ${unresolved?` <span class="scan-resi-warn">${unresolved} perlu dipilih manual.</span>`:` <span class="scan-resi-ok">Semua produk siap dikonfirmasi.</span>`}
+    </div>
+    <div class="scan-resi-table">
+      ${rows.map((r,i)=>{
+        const name=r.matchIndex>=0?barang[r.matchIndex]?.nama:"";
+        const confident=r.score>=0.45;
+        const label=r.matchIndex>=0?`<span class="scan-resi-ok">Cocok: ${escScan(name)}</span>`:`<span class="scan-resi-warn">Belum cocok</span>`;
+        const opts=barang.map((b,idx)=>`<option value="${idx}" ${idx===r.matchIndex?'selected':''}>${escScan(b.nama)} — stok ${Number(b.stok||0)}</option>`).join("");
+        return `<div class="scan-resi-row">
+          <div class="scan-resi-row-top"><div class="scan-resi-row-name">Resi #${r.page} · Qty ${r.qty}</div><div>${confident&&r.matchIndex>=0?label:'<span class="scan-resi-warn">Periksa</span>'}</div></div>
+          <div class="scan-resi-row-meta">${r.waybill?`Resi: ${escScan(r.waybill)} · `:""}${r.orderId?`Order: ${escScan(r.orderId)}`:""}</div>
+          <div class="scan-resi-row-meta">${escScan(r.raw).slice(0,260)}</div>
+          <select onchange="updateScanRowMatch(${i},this.value)"><option value="-1">— Pilih varian EVORA —</option>${opts}</select>
+        </div>`;
+      }).join("")}
+    </div>
+    <div class="scan-resi-actions">
+      <button type="button" onclick="cancelScanDraft()" style="background:#94a3b8;"><i class="fa-solid fa-xmark"></i> Batal</button>
+      <button type="button" onclick="confirmBatchScanSale()" style="background:var(--success);"><i class="fa-solid fa-check"></i> Konfirmasi & Input Penjualan</button>
+    </div>`;
+}
+function updateScanRowMatch(rowIndex,value){
+  if(!scanResiDraft?.rows[rowIndex]) return;
+  scanResiDraft.rows[rowIndex].matchIndex=Number(value);
+  scanResiDraft.rows[rowIndex].score=Number(value)>=0?1:0;
+  renderScanDraft();
+}
+function cancelScanDraft(){
+  scanResiDraft=null;
+  const r=document.getElementById("scanResiResult"),p=document.getElementById("scanResiProgress"),f=document.getElementById("inputPdfResi");
+  if(r){r.style.display="none";r.innerHTML="";} if(p){p.style.display="none";p.innerHTML="";} if(f)f.value="";
+}
+async function handlePdfResiUpload(event){
+  if(scanResiBusy) return;
+  const file=event.target.files?.[0];
+  if(!file) return;
+  if(file.type!=="application/pdf" && !/\.pdf$/i.test(file.name)){await customAlert("File Tidak Valid","Silakan upload file PDF resi.","danger");return;}
+  if(!barang.length){await customAlert("Data Varian Belum Siap","Tunggu sampai data kasir selesai dimuat dari database, lalu upload PDF lagi.","warning");return;}
+  scanResiBusy=true; scanResiDraft=null;
+  const result=document.getElementById("scanResiResult"); if(result){result.style.display="none";result.innerHTML="";}
+  try{
+    const pages=await extractPdfTextPages(file);
+    const rows=flattenScanRows(pages);
+    if(!rows.length) throw new Error("Tidak menemukan tabel Product Name pada PDF.");
+    scanResiDraft={fileName:file.name,pages,rows,createdAt:new Date().toISOString()};
+    updateScanProgress(`Selesai membaca ${pages.length} halaman. ${rows.length} baris produk ditemukan. Silakan periksa hasil sebelum input penjualan.`);
+    renderScanDraft();
+  }catch(err){
+    console.error("Scanner resi:",err);
+    await customAlert("Scan PDF Gagal",err?.message||"PDF tidak dapat dibaca.","danger");
+  }finally{scanResiBusy=false;}
+}
+async function confirmBatchScanSale(){
+  if(!scanResiDraft?.rows?.length) return;
+  const rows=scanResiDraft.rows;
+  if(rows.some(r=>r.matchIndex<0 || !barang[r.matchIndex])){
+    await customAlert("Masih Ada Produk Belum Cocok","Pilih varian EVORA pada semua baris terlebih dahulu.","warning"); return;
+  }
+  const totals={};
+  rows.forEach(r=>{totals[r.matchIndex]=(totals[r.matchIndex]||0)+Number(r.qty||0);});
+  const totalQty=Object.values(totals).reduce((a,b)=>a+b,0);
+  if(stokBotol<totalQty || stokBox<totalQty){
+    await customAlert("Stok Logistik Tidak Cukup",`Batch membutuhkan <b>${totalQty} botol</b> dan <b>${totalQty} box</b>. Stok saat ini Botol ${stokBotol}, Box ${stokBox}.`,"danger"); return;
+  }
+  const kurang=[];
+  Object.entries(totals).forEach(([idx,qty])=>{if(Number(barang[idx].stok||0)<qty) kurang.push(`${barang[idx].nama}: butuh ${qty}, stok ${barang[idx].stok}`);});
+  if(kurang.length){await customAlert("Stok Produk Tidak Cukup",kurang.map(escScan).join("<br>"),"danger");return;}
+  const summary=Object.entries(totals).map(([idx,qty])=>`• <b>${escScan(barang[idx].nama)}</b> × ${qty}`).join("<br>");
+  const ok=await customConfirm("Konfirmasi Batch Penjualan",`Akan input <b>${rows.length} baris produk</b> dari <b>${scanResiDraft.pages.length} resi</b> dengan total <b>${totalQty} pcs</b>.<br><br>${summary}<br><br><span style="color:var(--warning);">Tidak ada pencetakan resi.</span>`,"success");
+  if(!ok) return;
+  const now=new Date().toISOString();
+  Object.entries(totals).forEach(([idx,qty])=>{barang[idx].stok-=Number(qty);});
+  stokBotol-=totalQty; stokBox-=totalQty;
+  rows.forEach(r=>{
+    const item=barang[r.matchIndex];
+    penjualan.push({tanggal:now,barang:item.nama,qty:Number(r.qty||1),nominal:Number(r.qty||1)*HARGA,iklan:isAdsActive,sumber:"SCAN_RESI",halaman:r.page,orderId:r.orderId||"",resi:r.waybill||"",fileScan:scanResiDraft.fileName});
+  });
+  const processedPages = scanResiDraft.pages.length;
+  await saveData();
+  cancelScanDraft();
+  render();
+  await customAlert("Batch Berhasil Diinput",`${processedPages} resi berhasil diproses. Total <b>${totalQty} pcs</b> masuk ke penjualan dan stok telah diperbarui.`,"success");
+}
+
 /* UPDATE BISA BACA DETAIL & KAPAN HABIS DI KASIR */
 function renderKasirPanel() {
   let listBarangEl = document.getElementById("listBarang");
@@ -3481,5 +3746,125 @@ function renderRiwayat() {
 loadDataFromCloud();
 </script>
 
-</body>
+
+<style>
+/* === EVORA RESI ALIAS MAPPING === */
+#resiAliasModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;align-items:center;justify-content:center;padding:18px}
+#resiAliasModal .ram-card{width:min(760px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+#resiAliasModal input,#resiAliasModal select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dce5;border-radius:10px}
+.ram-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ram-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin:8px 0}
+.ram-pill{display:inline-flex;gap:6px;align-items:center;background:#f1f4f8;border-radius:999px;padding:5px 9px;margin:3px;font-size:12px}
+@media(max-width:600px){.ram-grid{grid-template-columns:1fr}.ram-row{grid-template-columns:1fr 1fr auto}}
+</style>
+
+<div id="resiAliasModal">
+  <div class="ram-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div>
+        <h3 style="margin:0">Mapping Nama Resi</h3>
+        <div style="font-size:13px;color:#687386;margin-top:4px">
+          Hubungkan nama/SKU di resi dengan varian kasir. Mapping tersimpan di browser.
+        </div>
+      </div>
+      <button type="button" onclick="closeResiAlias()">✕</button>
+    </div>
+    <div class="ram-grid" style="margin-top:16px">
+      <div>
+        <label>Varian Kasir</label>
+        <select id="ramKasir"></select>
+      </div>
+      <div>
+        <label>Nama/Alias di Resi</label>
+        <input id="ramAlias" placeholder="Contoh: MONROE, PENTHOSE, CL">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button type="button" onclick="addResiAlias()">+ Tambah Mapping</button>
+      <button type="button" onclick="resetResiAliases()">Reset Mapping</button>
+    </div>
+    <div id="ramList" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KEY='evora_resi_aliases_v1';
+  window.getResiAliases=function(){
+    try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}
+  };
+  window.saveResiAliases=function(x){localStorage.setItem(KEY,JSON.stringify(x||{}));};
+
+  window.normalizeResiText=function(s){
+    return String(s||'').toUpperCase()
+      .normalize('NFD').replace(/[\\u0300-\\u036f]/g,'')
+      .replace(/[^A-Z0-9]+/g,' ').trim().replace(/\\s+/g,' ');
+  };
+
+  window.openResiAlias=function(){
+    const m=document.getElementById('resiAliasModal');
+    if(!m)return;
+    const sel=document.getElementById('ramKasir');
+    const list=(window.barang||window.products||[]).map(x=>x.nama||x.name).filter(Boolean);
+    sel.innerHTML='<option value="">Pilih varian kasir...</option>'+
+      [...new Set(list)].map(n=>'<option>'+String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').join('');
+    renderResiAliases(); m.style.display='flex';
+  };
+  window.closeResiAlias=function(){document.getElementById('resiAliasModal').style.display='none'};
+  window.addResiAlias=function(){
+    const target=document.getElementById('ramKasir').value;
+    const raw=document.getElementById('ramAlias').value;
+    const alias=normalizeResiText(raw);
+    if(!target||!alias){alert('Pilih varian kasir dan isi nama alias resi.');return}
+    const m=getResiAliases(); m[alias]=target; saveResiAliases(m);
+    document.getElementById('ramAlias').value=''; renderResiAliases();
+  };
+  window.removeResiAlias=function(alias){
+    const m=getResiAliases(); delete m[alias]; saveResiAliases(m); renderResiAliases();
+  };
+  window.resetResiAliases=function(){
+    if(confirm('Hapus semua mapping nama resi?')){saveResiAliases({});renderResiAliases();}
+  };
+  window.renderResiAliases=function(){
+    const el=document.getElementById('ramList'); if(!el)return;
+    const m=getResiAliases(); const keys=Object.keys(m).sort();
+    if(!keys.length){el.innerHTML='<div style="color:#687386">Belum ada mapping.</div>';return}
+    el.innerHTML=keys.map(a=>`<div class="ram-row">
+      <span class="ram-pill"><b>${a}</b></span>
+      <span>→ <b>${String(m[a]).replace(/</g,'&lt;')}</b></span>
+      <button type="button" onclick="removeResiAlias(${JSON.stringify(a)})">Hapus</button>
+    </div>`).join('');
+  };
+
+  // Alias-aware matching. Exact alias wins; fuzzy matching is deliberately conservative.
+  window.matchResiProduct=function(raw, products){
+    const q=normalizeResiText(raw);
+    if(!q)return {status:'unknown',query:q};
+    const aliases=getResiAliases();
+    if(aliases[q])return {status:'matched',name:aliases[q],method:'alias'};
+
+    const list=(products||[]).filter(x=>x && (x.nama||x.name));
+    const exact=list.find(x=>normalizeResiText(x.nama||x.name)===q);
+    if(exact)return {status:'matched',name:exact.nama||exact.name,method:'exact'};
+
+    // Conservative fuzzy: only very small typo differences and only if unique.
+    const dist=(a,b)=>{
+      const m=a.length,n=b.length,dp=Array.from({length:m+1},()=>Array(n+1).fill(0));
+      for(let i=0;i<=m;i++)dp[i][0]=i;
+      for(let j=0;j<=n;j++)dp[0][j]=j;
+      for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+        dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+      return dp[m][n];
+    };
+    const candidates=list.map(x=>({x,d:dist(q,normalizeResiText(x.nama||x.name))}))
+      .filter(z=>z.d<=2).sort((a,b)=>a.d-b.d);
+    if(candidates.length===1)return {status:'suggested',name:candidates[0].x.nama||candidates[0].x.name,method:'fuzzy'};
+    return {status:'unknown',query:q};
+  };
+})();
+</script>
+
+<div style="position:fixed;right:18px;bottom:18px;z-index:9998"><button type="button" onclick="openResiAlias()" title="Atur nama produk di resi">
+⚙️ Mapping Nama Resi
+</button></div></body>
 </html>
