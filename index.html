@@ -861,6 +861,58 @@ body.dark-theme .scan-resi-progress,body.dark-theme .scan-resi-table,body.dark-t
 }
 </style>
 
+
+<style id="evora-single-receipt-layout">
+.scan-resi-group-table{
+  max-height:520px;
+  overflow:auto;
+  padding:8px;
+  background:var(--bg-card);
+}
+.scan-resi-receipt-card{
+  border:1px solid #dbe4ee;
+  border-radius:14px;
+  margin:0 0 10px;
+  overflow:hidden;
+  background:var(--bg-card);
+}
+.scan-resi-receipt-card:last-child{margin-bottom:0}
+.scan-resi-receipt-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  padding:12px;
+  background:var(--primary-light);
+  border-bottom:1px solid #e2e8f0;
+}
+.scan-resi-receipt-title{font-size:12px;font-weight:900;color:var(--text-main)}
+.scan-resi-receipt-total{font-size:9px;font-weight:900;color:var(--primary);white-space:nowrap}
+.scan-resi-receipt-products{padding:4px 8px}
+.scan-resi-product-row{
+  padding:9px 4px;
+  border-bottom:1px solid #eef2f7;
+}
+.scan-resi-product-row:last-child{border-bottom:none}
+.scan-resi-product-row select{margin-top:7px!important}
+.scan-resi-receipt-footer{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 12px;
+  border-top:1px solid #e2e8f0;
+  font-size:10px;
+  font-weight:800;
+}
+body.dark-theme .scan-resi-receipt-card,
+body.dark-theme .scan-resi-receipt-head,
+body.dark-theme .scan-resi-receipt-footer,
+body.dark-theme .scan-resi-product-row{border-color:#334155}
+@media(max-width:520px){
+  .scan-resi-receipt-head{padding:10px}
+  .scan-resi-receipt-total{font-size:8px}
+}
+</style>
+
 </head>
 <body>
 
@@ -1151,7 +1203,19 @@ body.dark-theme .scan-resi-progress,body.dark-theme .scan-resi-table,body.dark-t
         </button>
         <div id="scanResiProgress" class="scan-resi-progress" style="display:none;"></div>
         <div id="scanResiResult" style="display:none;"></div>
+
       </div>
+
+      <div class="card" id="panelMappingResi" style="margin-top:12px;">
+        <h3><i class="fa-solid fa-link"></i> MAPPING NAMA RESI</h3>
+        <div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">
+          Atur nama/SKU yang muncul di resi agar diarahkan ke varian kasir yang benar.
+        </div>
+        <button type="button" onclick="openResiAlias()" style="font-size:11px;padding:9px;">
+          <i class="fa-solid fa-sliders"></i> Atur Mapping Nama Resi
+        </button>
+      </div>
+
       <div id="searchVariantList" class="search-variant-list" style="display:none;"></div>
       <div id="listBarang" class="grid-barang" style="margin-top:14px;"></div>
     </div>
@@ -3062,41 +3126,96 @@ function flattenScanRows(pages){ return pages.flatMap(p=>p.rows.map(r=>({...r,so
 function renderScanDraft(){
   const el=document.getElementById("scanResiResult");
   if(!el || !scanResiDraft) return;
-  const rows=scanResiDraft.rows;
+
+  const rows=scanResiDraft.rows || [];
   const mapped=rows.filter(r=>r.matchIndex>=0).length;
   const totalQty=rows.reduce((s,r)=>s+Number(r.qty||0),0);
   const unresolved=rows.length-mapped;
-  const duplicatePages=new Set();
-  const seenOrders=new Set();
-  rows.forEach(r=>{if(r.orderId){if(seenOrders.has(r.orderId)) duplicatePages.add(r.page); seenOrders.add(r.orderId);}});
+
+  // Group rows by the actual receipt/page. A bundle such as
+  // "MONACO, ICARUS" therefore stays inside ONE Resi #4 card.
+  const groups=[];
+  const groupMap=new Map();
+  rows.forEach((r,i)=>{
+    const key=String(r.page || r.sourcePage || r.waybill || r.orderId || i);
+    if(!groupMap.has(key)){
+      const g={key,page:r.page,waybill:r.waybill||"",orderId:r.orderId||"",rows:[]};
+      groupMap.set(key,g); groups.push(g);
+    }
+    groupMap.get(key).rows.push({r,index:i});
+    if(!groupMap.get(key).waybill && r.waybill) groupMap.get(key).waybill=r.waybill;
+    if(!groupMap.get(key).orderId && r.orderId) groupMap.get(key).orderId=r.orderId;
+  });
+
   el.style.display="block";
   el.innerHTML=`
     <div class="scan-resi-summary">
-      <div class="scan-resi-stat"><b>${scanResiDraft.pages.length}</b><span>Resi dibaca</span></div>
+      <div class="scan-resi-stat"><b>${groups.length}</b><span>Resi dibaca</span></div>
       <div class="scan-resi-stat"><b>${rows.length}</b><span>Baris produk</span></div>
       <div class="scan-resi-stat"><b>${totalQty}</b><span>Total pcs</span></div>
     </div>
     <div class="scan-resi-progress" style="display:block;margin-top:8px;">
       <b>${mapped}/${rows.length}</b> produk berhasil dicocokkan.
-      ${unresolved?` <span class="scan-resi-warn">${unresolved} perlu dipilih manual.</span>`:` <span class="scan-resi-ok">Semua produk siap dikonfirmasi.</span>`}
+      ${unresolved
+        ? ` <span class="scan-resi-warn">${unresolved} perlu dipilih manual.</span>`
+        : ` <span class="scan-resi-ok">Semua produk siap dikonfirmasi.</span>`}
     </div>
-    <div class="scan-resi-table">
-      ${rows.map((r,i)=>{
-        const name=r.matchIndex>=0?barang[r.matchIndex]?.nama:"";
-        const confident=r.score>=0.45;
-        const label=r.matchIndex>=0?`<span class="scan-resi-ok">Cocok: ${escScan(name)}</span>`:`<span class="scan-resi-warn">Belum cocok</span>`;
-        const opts=barang.map((b,idx)=>`<option value="${idx}" ${idx===r.matchIndex?'selected':''}>${escScan(b.nama)} — stok ${Number(b.stok||0)}</option>`).join("");
-        return `<div class="scan-resi-row">
-          <div class="scan-resi-row-top"><div class="scan-resi-row-name">Resi #${r.page} · Qty ${r.qty}</div><div>${confident&&r.matchIndex>=0?label:'<span class="scan-resi-warn">Periksa</span>'}</div></div>
-          <div class="scan-resi-row-meta">${r.waybill?`Resi: ${escScan(r.waybill)} · `:""}${r.orderId?`Order: ${escScan(r.orderId)}`:""}</div>
-          <div class="scan-resi-row-meta">${escScan(r.raw).slice(0,260)}</div>
-          <select onchange="updateScanRowMatch(${i},this.value)"><option value="-1">— Pilih varian EVORA —</option>${opts}</select>
+
+    <div class="scan-resi-table scan-resi-group-table">
+      ${groups.map(g=>{
+        const groupQty=g.rows.reduce((s,x)=>s+Number(x.r.qty||0),0);
+        return `
+        <div class="scan-resi-receipt-card">
+          <div class="scan-resi-receipt-head">
+            <div>
+              <div class="scan-resi-receipt-title">Resi #${escScan(g.page ?? "")}</div>
+              <div class="scan-resi-row-meta">
+                ${g.waybill?`Resi: ${escScan(g.waybill)} · `:""}
+                ${g.orderId?`Order: ${escScan(g.orderId)}`:""}
+              </div>
+            </div>
+            <div class="scan-resi-receipt-total">${g.rows.length} produk · ${groupQty} pcs</div>
+          </div>
+
+          <div class="scan-resi-receipt-products">
+            ${g.rows.map(({r,index})=>{
+              const name=r.matchIndex>=0?barang[r.matchIndex]?.nama:"";
+              const confident=r.score>=0.45;
+              const opts=barang.map((b,idx)=>
+                `<option value="${idx}" ${idx===r.matchIndex?'selected':''}>${escScan(b.nama)} — stok ${Number(b.stok||0)}</option>`
+              ).join("");
+              return `
+                <div class="scan-resi-product-row">
+                  <div class="scan-resi-product-main">
+                    <div class="scan-resi-row-top">
+                      <div class="scan-resi-row-name">${escScan(name || "Produk belum cocok")} × ${Number(r.qty||1)}</div>
+                      <div>${confident&&r.matchIndex>=0
+                        ? `<span class="scan-resi-ok">Cocok</span>`
+                        : `<span class="scan-resi-warn">Periksa</span>`}</div>
+                    </div>
+                    <div class="scan-resi-row-meta">${escScan(r.raw).slice(0,320)}</div>
+                  </div>
+                  <select onchange="updateScanRowMatch(${index},this.value)">
+                    <option value="-1">— Pilih varian EVORA —</option>${opts}
+                  </select>
+                </div>`;
+            }).join("")}
+          </div>
+
+          <div class="scan-resi-receipt-footer">
+            <span>Total dalam resi</span><b>${groupQty} pcs</b>
+          </div>
         </div>`;
       }).join("")}
     </div>
+
     <div class="scan-resi-actions">
-      <button type="button" onclick="cancelScanDraft()" style="background:#94a3b8;"><i class="fa-solid fa-xmark"></i> Batal</button>
-      <button type="button" onclick="confirmBatchScanSale()" style="background:var(--success);"><i class="fa-solid fa-check"></i> Konfirmasi & Input Penjualan</button>
+      <button type="button" onclick="cancelScanDraft()" style="background:#94a3b8;">
+        <i class="fa-solid fa-xmark"></i> Batal
+      </button>
+      <button type="button" onclick="confirmBatchScanSale()" style="background:var(--success);">
+        <i class="fa-solid fa-check"></i> Konfirmasi & Input Penjualan
+      </button>
     </div>`;
 }
 function updateScanRowMatch(rowIndex,value){
@@ -3861,7 +3980,7 @@ loadDataFromCloud();
       </div>
       <div>
         <label>Nama/Alias di Resi</label>
-        <input id="ramAlias" placeholder="Contoh: MONROE, PENTHOSE, CL">
+        <input id="ramAlias" placeholder="Contoh: MONROE, PENTHOSE, CL (boleh beberapa sekaligus)">
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:12px">
@@ -3890,19 +4009,74 @@ loadDataFromCloud();
     const m=document.getElementById('resiAliasModal');
     if(!m)return;
     const sel=document.getElementById('ramKasir');
-    const list=(window.barang||window.products||[]).map(x=>x.nama||x.name).filter(Boolean);
+    const products=typeof window.getEvoraBarang==='function'
+      ? window.getEvoraBarang()
+      : [];
+    const list=Array.isArray(products)
+      ? products.map(x=>x && (x.nama||x.name)).filter(Boolean)
+      : [];
+
     sel.innerHTML='<option value="">Pilih varian kasir...</option>'+
-      [...new Set(list)].map(n=>'<option>'+String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').join('');
-    renderResiAliases(); m.style.display='flex';
+      [...new Set(list)].map(n=>{
+        const safe=String(n).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return '<option value="'+safe+'">'+safe+'</option>';
+      }).join('');
+
+    renderResiAliases();
+    m.style.display='flex';
   };
-  window.closeResiAlias=function(){document.getElementById('resiAliasModal').style.display='none'};
+  window.closeResiAlias=function(){
+    const m=document.getElementById('resiAliasModal');
+    if(m)m.style.display='none';
+  };
   window.addResiAlias=function(){
     const target=document.getElementById('ramKasir').value;
     const raw=document.getElementById('ramAlias').value;
-    const alias=normalizeResiText(raw);
-    if(!target||!alias){alert('Pilih varian kasir dan isi nama alias resi.');return}
-    const m=getResiAliases(); m[alias]=target; saveResiAliases(m);
-    document.getElementById('ramAlias').value=''; renderResiAliases();
+    if(!target||!raw.trim()){
+      alert('Pilih varian kasir dan isi nama alias resi.');
+      return;
+    }
+
+    // Allow multiple aliases in one entry:
+    // MONACO, MONROE, MONACO ROYAL
+    const aliases=[...new Set(
+      raw.split(/[,;\n]+/)
+        .map(normalizeResiText)
+        .filter(Boolean)
+    )];
+
+    if(!aliases.length){
+      alert('Nama alias resi belum valid.');
+      return;
+    }
+
+    const products=typeof window.getEvoraBarang==='function'
+      ? window.getEvoraBarang()
+      : [];
+    const exists=Array.isArray(products) &&
+      products.some(x=>normalizeResiText(x?.nama||x?.name)===normalizeResiText(target));
+
+    if(!exists){
+      alert('Varian kasir tidak ditemukan. Muat data produk terlebih dahulu.');
+      return;
+    }
+
+    const m=getResiAliases();
+    const conflicts=aliases.filter(a=>m[a] && normalizeResiText(m[a])!==normalizeResiText(target));
+
+    if(conflicts.length){
+      const ok=confirm(
+        'Alias berikut sudah terhubung ke varian lain:\\n\\n'+
+        conflicts.join(', ')+'\\n\\nGanti mapping ke '+target+'?'
+      );
+      if(!ok)return;
+    }
+
+    aliases.forEach(a=>m[a]=target);
+    saveResiAliases(m);
+    document.getElementById('ramAlias').value='';
+    renderResiAliases();
   };
   window.removeResiAlias=function(alias){
     const m=getResiAliases(); delete m[alias]; saveResiAliases(m); renderResiAliases();
@@ -3913,12 +4087,28 @@ loadDataFromCloud();
   window.renderResiAliases=function(){
     const el=document.getElementById('ramList'); if(!el)return;
     const m=getResiAliases(); const keys=Object.keys(m).sort();
-    if(!keys.length){el.innerHTML='<div style="color:#687386">Belum ada mapping.</div>';return}
-    el.innerHTML=keys.map(a=>`<div class="ram-row">
-      <span class="ram-pill"><b>${a}</b></span>
-      <span>→ <b>${String(m[a]).replace(/</g,'&lt;')}</b></span>
-      <button type="button" onclick="removeResiAlias(${JSON.stringify(a)})">Hapus</button>
-    </div>`).join('');
+    if(!keys.length){
+      el.innerHTML='<div style="color:#687386">Belum ada mapping.</div>';
+      return;
+    }
+
+    const groups={};
+    keys.forEach(a=>{
+      const target=m[a];
+      if(!groups[target])groups[target]=[];
+      groups[target].push(a);
+    });
+
+    el.innerHTML=Object.keys(groups).sort().map(target=>{
+      const aliases=groups[target];
+      return `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:9px;margin-bottom:8px">
+        <div style="font-weight:800;margin-bottom:5px">${String(target).replace(/</g,'&lt;')}</div>
+        <div>${aliases.map(a=>`<span class="ram-pill"><b>${String(a).replace(/</g,'&lt;')}</b>
+          <button type="button" style="border:0;background:none;cursor:pointer;padding:0 0 0 5px"
+            onclick="removeResiAlias(${JSON.stringify(a)})" title="Hapus alias">×</button>
+        </span>`).join('')}</div>
+      </div>`;
+    }).join('');
   };
 
   // Alias-aware matching. Exact alias wins; fuzzy matching is deliberately conservative.
@@ -3949,117 +4139,8 @@ loadDataFromCloud();
 })();
 </script>
 
-<div style="position:fixed;right:18px;bottom:18px;z-index:9998"><button type="button" onclick="openResiAlias()" title="Atur nama produk di resi">
-⚙️ Mapping Nama Resi
-</button></div>
-<script id="evora-resi-group-runtime">
-(function(){
-  function esc(s){
-    return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
 
-  // Public helper for future scanner result rendering.
-  window.renderGroupedResiResults = function(results, target){
-    target = typeof target === 'string' ? document.querySelector(target) : target;
-    if(!target || !Array.isArray(results)) return;
 
-    const groups = new Map();
-    results.forEach((r,i)=>{
-      const receipt = r.receiptId || r.resi || r.orderId || r.order || ('RESI-'+(i+1));
-      if(!groups.has(receipt)) groups.set(receipt, []);
-      groups.get(receipt).push(r);
-    });
-
-    target.innerHTML = '';
-    for(const [receipt, items] of groups){
-      const total = items.reduce((s,r)=>s + Number(r.qty||1),0);
-      const card = document.createElement('div');
-      card.className='resi-group-card';
-      card.innerHTML = `
-        <div class="resi-group-head">
-          <div>
-            <div class="resi-group-title">${esc(receipt)}</div>
-            <div class="resi-group-meta">${items[0].orderId ? 'Order: '+esc(items[0].orderId) : ''}</div>
-          </div>
-          <div class="resi-group-meta">${items.length} produk • ${total} pcs</div>
-        </div>
-        <div class="resi-group-products"></div>
-        <div class="resi-total-row"><span>Total dalam resi</span><span>${total} pcs</span></div>
-      `;
-      const rows = card.querySelector('.resi-group-products');
-      items.forEach(r=>{
-        const row=document.createElement('div');
-        row.className='resi-product-row';
-        row.innerHTML=`
-          <div>
-            <div class="resi-product-name">${esc(r.matchedName || r.name || r.product || 'Produk tidak dikenal')}</div>
-            <div class="resi-product-sub">${esc(r.sku || r.sellerSku || '')}</div>
-          </div>
-          <div><b>× ${Number(r.qty||1)}</b></div>
-          <div class="resi-stock">${r.stock==null?'':('Stok: '+esc(r.stock))}</div>
-        `;
-        rows.appendChild(row);
-      });
-      target.appendChild(card);
-    }
-  };
-
-  // Generic DOM regrouping for the existing renderer: find receipt labels such as
-  // "Resi #4" and combine adjacent cards with the same label into one parent card.
-  window.groupExistingResiCards = function(root){
-    root = root || document;
-    const nodes = Array.from(root.querySelectorAll('*')).filter(el=>{
-      const t=(el.textContent||'').trim();
-      return /^Resi\s*#?\s*\d+\s*[—-]\s*Qty/i.test(t) &&
-             el.children.length < 8;
-    });
-    const cards = [];
-    for(const n of nodes){
-      let p=n;
-      for(let i=0;i<4 && p.parentElement;i++){
-        p=p.parentElement;
-        const txt=(p.textContent||'').trim();
-        if(txt.length>40 && txt.length<1200){cards.push(p);break;}
-      }
-    }
-    const unique=[...new Set(cards)];
-    const byKey=new Map();
-    unique.forEach(card=>{
-      const m=(card.textContent||'').match(/Resi\s*#?\s*(\d+)/i);
-      if(!m)return;
-      const key=m[1];
-      if(!byKey.has(key))byKey.set(key,[]);
-      byKey.get(key).push(card);
-    });
-    byKey.forEach((list)=>{
-      if(list.length<2)return;
-      const first=list[0];
-      const parent=first.parentElement;
-      if(!parent)return;
-      const wrapper=document.createElement('div');
-      wrapper.className='resi-group-card';
-      wrapper.dataset.resiGrouped='1';
-      const title=(first.textContent||'').match(/(Resi\s*#?\s*\d+)/i);
-      wrapper.innerHTML='<div class="resi-group-head"><div class="resi-group-title">'+esc(title?title[1]:'Resi')+'</div></div><div class="resi-group-products"></div>';
-      const rows=wrapper.querySelector('.resi-group-products');
-      list.forEach(card=>{
-        if(card===wrapper || card.dataset.resiGrouped==='1')return;
-        const row=document.createElement('div');
-        row.className='resi-product-row';
-        row.innerHTML='<div class="resi-product-name"></div><div></div><div class="resi-stock"></div>';
-        row.children[0].innerHTML=esc((card.textContent||'').split('\\n').filter(Boolean).pop()||'Produk');
-        row.children[1].textContent='';
-        row.children[2].textContent='';
-        rows.appendChild(row);
-        card.remove();
-      });
-      parent.insertBefore(wrapper, first.nextSibling);
-      first.remove();
-    });
-  };
-})();
-</script>
 
 </body>
 </html>
