@@ -931,6 +931,58 @@ body.dark-theme .scan-resi-product-row{border-color:#334155}
 }
 </style>
 
+
+<style id="evora-ai-center-style">
+#evoraAICenter{display:none;position:fixed;inset:0;z-index:99990;background:var(--bg-main,#f8fafc);overflow:auto}
+.eai-shell{max-width:1180px;margin:0 auto;padding:18px}
+.eai-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:14px}
+.eai-title{font-size:24px;font-weight:900;color:var(--text-main,#172033)}
+.eai-sub{font-size:12px;color:var(--text-muted,#64748b);margin-top:4px}
+.eai-close{width:auto;padding:9px 12px;background:#94a3b8;box-shadow:none}
+.eai-command{display:flex;gap:8px;margin:12px 0 16px}
+.eai-command input{flex:1;margin:0}
+.eai-command button{width:auto;margin:0;background:#111827}
+.eai-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.eai-insight{padding:13px;border:1px solid #e2e8f0;border-radius:14px;background:var(--bg-card,#fff)}
+.eai-insight h4{margin:0 0 5px;font-size:12px}
+.eai-insight p{margin:0;font-size:11px;line-height:1.5;color:var(--text-muted,#64748b)}
+.eai-tabs{display:flex;gap:7px;overflow:auto;padding-bottom:6px;margin-bottom:10px}
+.eai-tab{white-space:nowrap;width:auto;padding:8px 11px;font-size:10px;background:#e2e8f0;color:#334155;box-shadow:none}
+.eai-tab.active{background:#111827;color:#fff}
+.eai-panel{display:none}
+.eai-panel.active{display:block}
+.eai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.eai-card{padding:13px;border:1px solid #e2e8f0;border-radius:14px;background:var(--bg-card,#fff)}
+.eai-card h4{margin:0 0 8px;font-size:12px}
+.eai-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #eef2f7;font-size:11px}
+.eai-row:last-child{border-bottom:none}
+.eai-muted{color:var(--text-muted,#64748b)}
+.eai-chat{margin-top:10px;padding:13px;border:1px solid #e2e8f0;border-radius:14px;background:var(--bg-card,#fff);min-height:70px;font-size:12px;line-height:1.6}
+.eai-pill{display:inline-block;padding:3px 7px;border-radius:999px;background:#eef2ff;font-size:9px;font-weight:800}
+@media(max-width:760px){
+  .eai-shell{padding:12px}
+  .eai-title{font-size:20px}
+  .eai-insights,.eai-grid{grid-template-columns:1fr}
+  .eai-command{position:sticky;top:0;z-index:2;background:var(--bg-main,#f8fafc);padding:6px 0}
+}
+</style>
+
+
+<style id="evora-ai-history-style">
+.eai-history-card{border:1px solid #e2e8f0;border-radius:14px;background:var(--bg-card,#fff);margin-bottom:10px;overflow:hidden}
+.eai-history-head{display:flex;justify-content:space-between;gap:10px;padding:12px;border-bottom:1px solid #eef2f7}
+.eai-history-title{font-weight:900;font-size:12px}
+.eai-history-meta{font-size:10px;color:var(--text-muted,#64748b);margin-top:3px;line-height:1.5}
+.eai-history-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:11px}
+.eai-history-metric{padding:9px;background:#f8fafc;border-radius:10px}
+.eai-history-metric small{display:block;font-size:9px;color:#64748b}
+.eai-history-metric b{display:block;margin-top:3px;font-size:12px}
+.eai-history-actions{display:flex;gap:6px;align-items:center}
+.eai-delete-btn{width:auto!important;padding:6px 9px!important;background:#ef4444!important;box-shadow:none!important;font-size:10px!important}
+.eai-history-empty{padding:16px;border:1px dashed #cbd5e1;border-radius:14px;color:#64748b;font-size:11px}
+@media(max-width:700px){.eai-history-grid{grid-template-columns:1fr 1fr}.eai-history-head{flex-direction:column}.eai-history-actions{justify-content:flex-end}}
+</style>
+
 </head>
 <body>
 
@@ -1233,7 +1285,7 @@ body.dark-theme .scan-resi-product-row{border-color:#334155}
       <div class="card" id="panelMappingResi" style="margin-top:12px;">
         <h3><i class="fa-solid fa-link"></i> MAPPING NAMA RESI</h3>
         <div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">
-          Atur nama/SKU yang muncul di resi agar diarahkan ke varian kasir yang benar. Contoh: <b>California Blue</b> di resi → <b>Callblue</b> di kasir.
+          Atur nama/SKU yang muncul di resi agar diarahkan ke varian kasir yang benar.
         </div>
         <button type="button" onclick="openResiAlias()" style="font-size:11px;padding:9px;">
           <i class="fa-solid fa-sliders"></i> Atur Mapping Nama Resi
@@ -1524,6 +1576,8 @@ let namaToko = localStorage.getItem("evora_toko") || "EVORA PERFUME";
 let footerStruk = localStorage.getItem("evora_footer") || "Terima Kasih Atas Kunjungan Anda";
 let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let isAdsActive = false;
+let currentAdsCampaign = null;
+let adsCampaignHistory = [];
 let printCharacteristic = null;
 let bluetoothDevice = null;
 let scanResiDraft = null;
@@ -1593,7 +1647,9 @@ function startAdsCampaign(){
 }
 function stopAdsCampaign(){if(!currentAdsCampaign){isAdsActive=false;renderAdsCampaignUI();saveData();return;}finishAdsCampaign("Dihentikan manual");}
 function finishAdsCampaign(reason){
-  if(!currentAdsCampaign)return;const c={...currentAdsCampaign};c.status=reason;c.endedAt=new Date().toISOString();c.revenue=getAdsCampaignRevenue(c.id);c.roas=Number(c.spend)?c.revenue/Number(c.spend):0;
+  if(!currentAdsCampaign)return;const c={...currentAdsCampaign};c.status=reason;c.endedAt=new Date().toISOString();c.revenue=getAdsCampaignRevenue(c.id);
+  c.manualQty=(Array.isArray(penjualan)?penjualan:[]).filter(x=>x.campaignId===c.id).reduce((s,x)=>s+Number(x.qty||0),0);
+  c.roas=Number(c.spend)?c.revenue/Number(c.spend):0;
   adsCampaignHistory=Array.isArray(adsCampaignHistory)?adsCampaignHistory:[];adsCampaignHistory.unshift(c);currentAdsCampaign=null;isAdsActive=false;
   const t=document.getElementById("adsToggleSwitch");if(t)t.checked=false;renderAdsCampaignUI();saveData();setTimeout(()=>openAdsResultModal(c),80);
 }
@@ -2092,6 +2148,7 @@ async function loadDataFromCloud() {
     document.body.classList.remove("skeleton-loading");
     render();
     renderAdsCampaignUI();
+    if(document.getElementById("evoraAICenter")?.style.display==="block") renderEvoraAI();
     checkLowStockAlert();
   } catch (error) {
     console.error("Gagal load Supabase:", error);
@@ -2139,7 +2196,7 @@ async function simpanHargaBaru() {
     return;
   }
   HARGA = hargaBaru;
-  saveData();
+  // Persist on the next normal save cycle; do not call saveData() while rendering AI.
 }
 
 function setSyncStatus(teks) {
@@ -3066,58 +3123,12 @@ function scanScore(chunk,name){
 }
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
-
-  const q=normScan(chunk);
-
-  // 1. EXPLICIT RESI ALIAS HAS THE HIGHEST PRIORITY.
-  // Example:
-  // RESI "CALIFORNIA BLUE" -> KASIR "Callblue"
-  // This must happen before generic name matching, otherwise "California"
-  // could incorrectly win because it is contained inside "California Blue".
-  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
-  const aliasHits = Object.keys(aliases)
-    .map(alias=>({alias,norm:normScan(alias),target:aliases[alias]}))
-    .filter(x=>x.norm && q.includes(x.norm))
-    .sort((a,b)=>b.norm.length-a.norm.length);
-
-  if(aliasHits.length){
-    const hit=aliasHits[0];
-    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(hit.target));
-    if(idx>=0){
-      return {
-        index:idx,
-        score:20 + hit.norm.length/1000,
-        method:"explicit-alias"
-      };
-    }
+  // 1) Exact/alias mapping gets priority over fuzzy scoring.
+  const mapped = typeof matchResiProduct === "function" ? matchResiProduct(chunk, barang) : null;
+  if(mapped && mapped.status === "matched"){
+    const idx = barang.findIndex(b=>normScan(b.nama)===normScan(mapped.name));
+    if(idx >= 0) return {index:idx,score:9,method:mapped.method||"alias"};
   }
-
-  // 2. Exact full product name. Longer names win over shorter names.
-  const exactProducts=barang.map((b,i)=>({
-    index:i,
-    norm:normScan(b.nama)
-  }))
-  .filter(x=>x.norm && q.includes(x.norm))
-  .sort((a,b)=>b.norm.length-a.norm.length);
-
-  if(exactProducts.length){
-    return {
-      index:exactProducts[0].index,
-      score:12 + exactProducts[0].norm.length/1000,
-      method:"exact-phrase"
-    };
-  }
-
-  // 3. Existing mapping helper as fallback.
-  const mapped=typeof matchResiProduct==="function"
-    ? matchResiProduct(chunk,barang) : null;
-
-  if(mapped && mapped.status==="matched"){
-    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(mapped.name));
-    if(idx>=0) return {index:idx,score:11,method:mapped.method||"alias"};
-  }
-
-  // 4. Conservative fuzzy matching.
   let best={index:-1,score:0};
   barang.forEach((b,i)=>{
     const score=scanScore(chunk,b.nama);
@@ -3128,29 +3139,19 @@ function bestScanMatch(chunk){
 
 function scanAliasIndexMatches(chunk){
   const found=[];
-  const aliases=typeof getResiAliases==="function" ? getResiAliases() : {};
-  const q=normScan(chunk);
-
-  // Explicit mapping always beats generic product-name matching.
-  Object.keys(aliases)
-    .map(alias=>({alias,norm:normScan(alias),target:aliases[alias]}))
-    .filter(x=>x.norm && q.includes(x.norm))
-    .sort((a,b)=>b.norm.length-a.norm.length)
-    .forEach(x=>{
-      const idx=barang.findIndex(b=>normScan(b.nama)===normScan(x.target));
-      if(idx>=0 && !found.some(y=>y.index===idx))
-        found.push({index:idx,score:20+x.norm.length/1000,source:"explicit-alias"});
-    });
-
-  // Generic exact product names are only fallback.
-  barang.map((b,i)=>({i,n:normScan(b.nama)}))
-    .filter(x=>x.n && q.includes(x.n))
-    .sort((a,b)=>b.n.length-a.n.length)
-    .forEach(x=>{
-      if(!found.some(y=>y.index===x.i))
-        found.push({index:x.i,score:8+x.n.length/1000,source:"name"});
-    });
-
+  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
+  const q = normScan(chunk);
+  Object.keys(aliases).forEach(alias=>{
+    const target=aliases[alias];
+    if(alias && q.includes(alias)){
+      const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
+      if(idx>=0 && !found.some(x=>x.index===idx)) found.push({index:idx,score:10,source:"alias"});
+    }
+  });
+  barang.forEach((b,i)=>{
+    const n=normScan(b.nama);
+    if(n && q.includes(n) && !found.some(x=>x.index===i)) found.push({index:i,score:8,source:"name"});
+  });
   return found;
 }
 
@@ -4400,5 +4401,427 @@ loadDataFromCloud();
 <div id="adsCampaignResultModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100001;align-items:center;justify-content:center;padding:18px;">
 <div style="width:min(560px,96vw);background:#fff;border-radius:18px;padding:20px;color:#172033;"><h3>📊 Hasil Kampanye Iklan</h3><div id="adsCampaignResultBody"></div><button type="button" onclick="closeAdsResultModal()" style="width:100%;margin-top:14px;background:#0ea5e9;">Tutup</button></div></div>
 <script>setInterval(renderAdsCampaignUI,1000);</script>
+
+        <button id="navEvoraAI" type="button" onclick="openEvoraAI()"
+          style="position:fixed;right:18px;bottom:82px;z-index:9997;width:auto;padding:10px 14px;border-radius:999px;background:#111827;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.18);">
+          <i class="fa-solid fa-robot"></i> EVORA AI
+        </button>
+        
+<div id="evoraAICenter">
+  <div class="eai-shell">
+    <div class="eai-top">
+      <div>
+        <div class="eai-title"><i class="fa-solid fa-robot"></i> EVORA AI</div>
+        <div class="eai-sub">Pusat analisis bisnis — ringkas di awal, detail hanya saat dibutuhkan.</div>
+      </div>
+      <button class="eai-close" onclick="closeEvoraAI()">✕ Tutup</button>
+    </div>
+
+    <div class="eai-command">
+      <input id="eaiQuestion" placeholder="Tanya EVORA AI... contoh: produk mana paling menguntungkan?">
+      <button onclick="askEvoraAI()"><i class="fa-solid fa-paper-plane"></i> Tanya</button>
+    </div>
+
+    <div class="eai-insights" id="eaiInsights"></div>
+
+    <div class="eai-tabs">
+      <button class="eai-tab active" onclick="switchEAI('overview',this)">Overview</button>
+      <button class="eai-tab" onclick="switchEAI('prediksi',this)">Prediksi</button>
+      <button class="eai-tab" onclick="switchEAI('iklan',this)">Iklan</button>
+      <button class="eai-tab" onclick="switchEAI('iklan-history',this)">Riwayat Iklan</button>
+      <button class="eai-tab" onclick="switchEAI('produk',this)">Produk</button>
+      <button class="eai-tab" onclick="switchEAI('simulasi',this)">Simulasi</button>
+      <button class="eai-tab" onclick="switchEAI('scanner',this)">Scanner Intelligence</button>
+    </div>
+
+    <div id="eai-iklan-history" class="eai-panel"></div>
+    <div id="eai-overview" class="eai-panel active"></div>
+    <div id="eai-prediksi" class="eai-panel"></div>
+    <div id="eai-iklan" class="eai-panel"></div>
+    <div id="eai-produk" class="eai-panel"></div>
+    <div id="eai-simulasi" class="eai-panel"></div>
+    <div id="eai-scanner" class="eai-panel"></div>
+
+    <div id="eaiChat" class="eai-chat">
+      <b>EVORA AI:</b> Saya siap menganalisis data yang sudah tercatat di Tracker.
+    </div>
+  </div>
+</div>
+
+
+<script id="evora-ai-center-logic">
+function eaiEsc(v){
+  return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function eaiMoney(n){return "Rp "+Number(n||0).toLocaleString("id-ID");}
+function eaiQty(n){return Number(n||0).toLocaleString("id-ID");}
+
+function getEAIData(){
+  const sales=Array.isArray(window.penjualan)?window.penjualan:[];
+  const products=Array.isArray(window.barang)?window.barang:[];
+  const revenue=sales.reduce((s,x)=>s+Number(x.nominal||0),0);
+  const qty=sales.reduce((s,x)=>s+Number(x.qty||0),0);
+  const adSales=sales.filter(x=>x.iklan===true);
+  const adRevenue=adSales.reduce((s,x)=>s+Number(x.nominal||0),0);
+  const campaign=currentAdsCampaign;
+  const adSpend=campaign?Number(campaign.spend||0):0;
+  const avgPerDay=qty/Math.max(1,new Set(sales.map(x=>String(x.tanggal||"").slice(0,10))).size);
+
+  const ranking={};
+  sales.forEach(x=>{
+    const n=x.barang||"Tidak diketahui";
+    ranking[n]=(ranking[n]||0)+Number(x.qty||0);
+  });
+  const top=Object.entries(ranking).sort((a,b)=>b[1]-a[1]);
+  const stock=products.map(x=>({name:x.nama,stock:Number(x.stok||0),sold:ranking[x.nama]||0}))
+    .sort((a,b)=>a.stock-b.stock);
+
+  return {sales,products,revenue,qty,adSales,adRevenue,adSpend,avgPerDay,top,stock,roas:adSpend?adRevenue/adSpend:0};
+}
+
+function renderEvoraAI(){
+  recoverLegacyAdCampaigns();
+  const d=getEAIData();
+  const insights=[];
+  const low=d.stock.filter(x=>x.stock>0 && x.stock<=10).slice(0,2);
+  if(low.length) insights.push(`<div class="eai-insight"><h4>🔴 Stok Perlu Perhatian</h4><p>${low.map(x=>eaiEsc(x.name)+" tersisa "+eaiQty(x.stock)).join("<br>")}</p></div>`);
+  else insights.push(`<div class="eai-insight"><h4>🟢 Stok</h4><p>Tidak ada stok kritis pada batas ≤ 10 pcs.</p></div>`);
+  insights.push(`<div class="eai-insight"><h4>🔥 Produk Terlaris</h4><p>${d.top.slice(0,3).map(x=>eaiEsc(x[0])+" — "+x[1]+" pcs").join("<br>")||"Belum ada data."}</p></div>`);
+  insights.push(`<div class="eai-insight"><h4>📣 Iklan</h4><p>${d.adRevenue?`Omzet dari iklan ${eaiMoney(d.adRevenue)}${d.adSpend?`<br>ROAS ${d.roas.toFixed(2)}x`:""}`:"Belum ada penjualan bertanda iklan."}</p></div>`);
+  document.getElementById("eaiInsights").innerHTML=insights.join("");
+
+  document.getElementById("eai-overview").innerHTML=`
+    <div class="eai-grid">
+      <div class="eai-card"><h4>Ringkasan</h4>
+        <div class="eai-row"><span>Omzet tercatat</span><b>${eaiMoney(d.revenue)}</b></div>
+        <div class="eai-row"><span>Total terjual</span><b>${eaiQty(d.qty)} pcs</b></div>
+        <div class="eai-row"><span>Rata-rata/hari data</span><b>${d.avgPerDay.toFixed(1)} pcs</b></div>
+      </div>
+      <div class="eai-card"><h4>Prioritas AI</h4>
+        <div class="eai-row"><span>Produk terlaris</span><b>${eaiEsc(d.top[0]?.[0]||"-")}</b></div>
+        <div class="eai-row"><span>Stok terendah</span><b>${eaiEsc(d.stock[0]?.name||"-")}</b></div>
+        <div class="eai-row"><span>Status iklan</span><b>${isAdsActive?"Aktif":"Tidak aktif"}</b></div>
+      </div>
+    </div>`;
+
+  document.getElementById("eai-prediksi").innerHTML=`
+    <div class="eai-grid">
+      <div class="eai-card"><h4>📦 Prediksi Stok</h4>${d.stock.slice(0,8).map(x=>{
+        const rate=x.sold/Math.max(1,new Set(d.sales.map(s=>String(s.tanggal||"").slice(0,10))).size);
+        const days=rate>0?x.stock/rate:null;
+        return `<div class="eai-row"><span>${eaiEsc(x.name)}</span><b>${days?days.toFixed(0)+" hari":"belum cukup data"}</b></div>`;
+      }).join("")||"<div class='eai-muted'>Belum ada data produk.</div>"}</div>
+      <div class="eai-card"><h4>🎯 Proyeksi</h4><div class="eai-row"><span>Rata-rata penjualan</span><b>${d.avgPerDay.toFixed(1)} pcs/hari</b></div><div class="eai-row"><span>Data transaksi</span><b>${d.sales.length}</b></div><p class="eai-muted">Prediksi awal ini memakai data transaksi yang tersedia. Semakin banyak histori, semakin berguna.</p></div>
+    </div>`;
+
+  document.getElementById("eai-iklan").innerHTML=`
+    <div class="eai-grid">
+      <div class="eai-card"><h4>📣 Performa Iklan</h4><div class="eai-row"><span>Omzet iklan</span><b>${eaiMoney(d.adRevenue)}</b></div><div class="eai-row"><span>Biaya campaign aktif</span><b>${eaiMoney(d.adSpend)}</b></div><div class="eai-row"><span>ROAS</span><b>${d.adSpend?d.roas.toFixed(2)+"x":"-"}</b></div></div>
+      <div class="eai-card"><h4>💡 Rekomendasi</h4><p class="eai-muted">${d.adSpend? (d.roas>=3?"ROAS bagus. Pertimbangkan menaikkan budget secara bertahap.":d.roas>=2?"ROAS cukup. Pantau sebelum menaikkan budget.":"ROAS rendah. Evaluasi campaign sebelum menambah budget.") : "Mulai campaign untuk mendapatkan data ROAS."}</p></div>
+    </div>`;
+
+  document.getElementById("eai-produk").innerHTML=`
+    <div class="eai-grid">
+      <div class="eai-card"><h4>🏆 Ranking Penjualan</h4>${d.top.slice(0,10).map((x,i)=>`<div class="eai-row"><span>#${i+1} ${eaiEsc(x[0])}</span><b>${x[1]} pcs</b></div>`).join("")||"<div class='eai-muted'>Belum ada data.</div>"}</div>
+      <div class="eai-card"><h4>🐢 Slow Moving</h4>${d.products.filter(x=>!d.top.some(t=>t[0]===x.nama)).slice(0,10).map(x=>`<div class="eai-row"><span>${eaiEsc(x.nama)}</span><b>${x.stok} stok</b></div>`).join("")||"<div class='eai-muted'>Belum ada kandidat.</div>"}</div>
+    </div>`;
+
+  document.getElementById("eai-simulasi").innerHTML=`
+    <div class="eai-card"><h4>🧪 Simulasi Cepat</h4>
+      <div class="eai-row"><span>Omzet saat ini</span><b>${eaiMoney(d.revenue)}</b></div>
+      <p class="eai-muted">Ketik pertanyaan di kolom atas, misalnya: “kalau penjualan naik 20%, omzet jadi berapa?”</p>
+    </div>`;
+
+  const scanned=d.sales.filter(x=>String(x.sumber||"").toUpperCase()==="SCAN_RESI");
+  const uniqueOrders=new Set(scanned.map(x=>x.orderId||x.resi).filter(Boolean));
+  document.getElementById("eai-scanner").innerHTML=`
+    <div class="eai-grid">
+      <div class="eai-card"><h4>📄 Scanner Resi</h4><div class="eai-row"><span>Item hasil scanner</span><b>${scanned.length}</b></div><div class="eai-row"><span>Order/resi unik</span><b>${uniqueOrders.size}</b></div></div>
+      <div class="eai-card"><h4>🛡️ Pemeriksaan</h4><p class="eai-muted">Gunakan pencarian nomor resi/order di Riwayat untuk memeriksa cancel atau transaksi yang perlu dibatalkan. Mapping nama resi tetap digunakan oleh scanner.</p></div>
+    </div>`;
+  eaiRenderAdHistory();
+}
+
+function openEvoraAI(){
+  const el=document.getElementById("evoraAICenter");
+  if(!el)return;
+  el.style.display="block";
+  try{
+    renderEvoraAI();
+  }catch(err){
+    console.error("EVORA AI render error:",err);
+    const chat=document.getElementById("eaiChat");
+    if(chat)chat.innerHTML="<b>EVORA AI:</b> Pusat AI terbuka, tetapi ada data yang perlu diperbaiki. Silakan muat ulang halaman.";
+  }
+}
+function closeEvoraAI(){
+  const el=document.getElementById("evoraAICenter");
+  if(el)el.style.display="none";
+}
+function switchEAI(id,btn){
+  document.querySelectorAll(".eai-panel").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".eai-tab").forEach(x=>x.classList.remove("active"));
+  const p=document.getElementById("eai-"+id); if(p)p.classList.add("active");
+  if(btn)btn.classList.add("active");
+}
+
+
+function recoverLegacyAdCampaigns(){
+  // Recover old ad periods that were already marked IKLAN in sales,
+  // but were created before campaignId/history existed.
+  if(!Array.isArray(adsCampaignHistory)) adsCampaignHistory=[];
+  const sales=Array.isArray(penjualan)?penjualan:[];
+  if(!sales.length)return;
+
+  // Specifically recover 21–22 Aug 2026 when matching ad-tagged sales exist
+  // and no campaign already covers that period.
+  const startKey="2026-08-21", endKey="2026-08-22";
+  const hasExisting=adsCampaignHistory.some(c=>{
+    const s=String(c.startedAt||"").slice(0,10);
+    const e=String(c.endedAt||"").slice(0,10);
+    return s===startKey || e===endKey || (s<=startKey && e>=endKey);
+  });
+  if(hasExisting)return;
+
+  const tagged=sales.filter(x=>{
+    if(x.iklan!==true)return false;
+    const k=String(x.tanggal||"").slice(0,10);
+    return k>=startKey && k<=endKey;
+  });
+  if(!tagged.length)return;
+
+  const qty=tagged.reduce((s,x)=>s+Number(x.qty||0),0);
+  const revenue=tagged.reduce((s,x)=>s+Number(x.nominal||0),0);
+  const spend=100000;
+
+  adsCampaignHistory.unshift({
+    id:"LEGACY-ADS-20260821-22",
+    name:"Iklan 21–22 Agustus 2026",
+    budget:spend,
+    spend:spend,
+    startedAt:"2026-08-21T00:00:00.000Z",
+    endedAt:"2026-08-22T23:59:59.999Z",
+    status:"Riwayat lama",
+    revenue:revenue,
+    manualQty:qty,
+    roas:spend?revenue/spend:0,
+    legacy:true,
+    recovered:true
+  });
+  // Saved with the next explicit data save.
+}
+
+function eaiRenderAdHistory(){
+  const el=document.getElementById("eai-iklan-history");
+  if(!el)return;
+  const history=(typeof adsCampaignHistory!=="undefined" && Array.isArray(adsCampaignHistory)) ? adsCampaignHistory : [];
+  if(!history.length){
+    el.innerHTML=`<div class="eai-card" style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+        <div><h4 style="margin:0 0 4px;">📣 Riwayat Kampanye Iklan</h4>
+        <div class="eai-muted">Belum ada riwayat iklan. Kamu bisa menambahkan campaign lama.</div></div>
+        <button type="button" onclick="openLegacyAdModal()" style="width:auto;padding:8px 10px;background:#0ea5e9;font-size:10px;box-shadow:none;">+ Tambah Iklan Lama</button>
+      </div>
+    </div>
+    <div class="eai-history-empty">Contoh: iklan tanggal 21–22 Agustus dengan budget Rp100.000.</div>`;
+    return;
+  }
+  el.innerHTML=`
+    <div class="eai-card" style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+        <div><h4 style="margin:0 0 4px;">📣 Riwayat Kampanye Iklan</h4>
+        <div class="eai-muted">Campaign baru tersimpan otomatis. Campaign lama bisa ditambahkan manual.</div></div>
+        <button type="button" onclick="openLegacyAdModal()" style="width:auto;padding:8px 10px;background:#0ea5e9;font-size:10px;box-shadow:none;white-space:nowrap;">
+          + Tambah Iklan Lama
+        </button>
+      </div>
+    </div>
+    ${history.map((c,i)=>{
+      const rev=Number(c.revenue||0), spend=Number(c.spend||c.budget||0), roas=spend?rev/spend:0;
+      const sales=(Array.isArray(penjualan)?penjualan:[]).filter(x=>{
+        if(x.campaignId===c.id)return true;
+        if(!c.legacy)return false;
+        const d=String(x.tanggal||"").slice(0,10);
+        return d>=String(c.startedAt||"").slice(0,10) && d<=String(c.endedAt||"").slice(0,10) && x.iklan===true;
+      });
+      const qty=c.legacy ? Number(c.manualQty||0) : sales.reduce((s,x)=>s+Number(x.qty||0),0);
+      const start=c.startedAt?new Date(c.startedAt):null;
+      const end=c.endedAt?new Date(c.endedAt):null;
+      return `<div class="eai-history-card">
+        <div class="eai-history-head">
+          <div><div class="eai-history-title">${eaiEsc(c.name||"Kampanye Iklan")}</div>
+            <div class="eai-history-meta">
+              ${start?start.toLocaleDateString("id-ID")+" • "+start.toLocaleTimeString("id-ID"):"Tanggal tidak tersedia"}
+              ${end?" → "+end.toLocaleTimeString("id-ID"):""}<br>
+              Status: ${eaiEsc(c.status||"Selesai")}
+            </div>
+          </div>
+          <div class="eai-history-actions">
+            <span class="eai-pill">${spend?roas.toFixed(2)+"x ROAS":"ROAS -"}</span>
+            <button class="eai-delete-btn" onclick="deleteAdsCampaignHistory(${i})"><i class="fa-solid fa-trash"></i> Hapus</button>
+          </div>
+        </div>
+        <div class="eai-history-grid">
+          <div class="eai-history-metric"><small>Total Terjual</small><b>${eaiQty(qty)} pcs</b></div>
+          <div class="eai-history-metric"><small>Omzet</small><b>${eaiMoney(rev)}</b></div>
+          <div class="eai-history-metric"><small>Biaya Iklan</small><b>${eaiMoney(spend)}</b></div>
+          <div class="eai-history-metric"><small>ROAS</small><b>${spend?roas.toFixed(2)+"x":"-"}</b></div>
+        </div>
+      </div>`;
+    }).join("")}`;
+}
+
+function openLegacyAdModal(){
+  const m=document.getElementById("eaiLegacyAdModal"); if(!m)return;
+  document.getElementById("legacyAdStart").value="";
+  document.getElementById("legacyAdEnd").value="";
+  document.getElementById("legacyAdSpend").value="";
+  document.getElementById("legacyAdQty").value="";
+  document.getElementById("legacyAdRevenue").value="";
+  document.getElementById("legacyAdName").value="";
+  m.style.display="flex";
+}
+function closeLegacyAdModal(){
+  const m=document.getElementById("eaiLegacyAdModal"); if(m)m.style.display="none";
+}
+function saveLegacyAdHistory(){
+  const start=document.getElementById("legacyAdStart").value;
+  const end=document.getElementById("legacyAdEnd").value || start;
+  const spend=Number(document.getElementById("legacyAdSpend").value||0);
+  const name=document.getElementById("legacyAdName").value.trim() || `Iklan ${start||"Lama"}`;
+  if(!start || spend<=0){
+    alert("Isi tanggal mulai dan budget iklan.");
+    return;
+  }
+
+  const sales=Array.isArray(penjualan)?penjualan:[];
+  const from=new Date(start+"T00:00:00");
+  const to=new Date(end+"T23:59:59");
+  const tagged=sales.filter(x=>{
+    if(x.iklan!==true)return false;
+    const d=new Date(x.tanggal);
+    return d>=from && d<=to;
+  });
+
+  const autoQty=tagged.reduce((s,x)=>s+Number(x.qty||0),0);
+  const autoRevenue=tagged.reduce((s,x)=>s+Number(x.nominal||0),0);
+  const qtyInput=document.getElementById("legacyAdQty").value;
+  const revenueInput=document.getElementById("legacyAdRevenue").value;
+  const qty=qtyInput===""?autoQty:Number(qtyInput||0);
+  const revenue=revenueInput===""?autoRevenue:Number(revenueInput||0);
+
+  const c={
+    id:"LEGACY-ADS-"+Date.now(),
+    name,
+    budget:spend,
+    spend,
+    startedAt:new Date(start+"T00:00:00").toISOString(),
+    endedAt:new Date(end+"T23:59:59").toISOString(),
+    status:"Riwayat lama",
+    revenue,
+    legacy:true,
+    manualQty:qty
+  };
+  c.roas=spend?revenue/spend:0;
+
+  adsCampaignHistory=Array.isArray(adsCampaignHistory)?adsCampaignHistory:[];
+  adsCampaignHistory.unshift(c);
+  saveData();
+  closeLegacyAdModal();
+  eaiRenderAdHistory();
+}
+
+async function deleteAdsCampaignHistory(index){
+  const history=Array.isArray(adsCampaignHistory)?adsCampaignHistory:[];
+  const c=history[index];
+  if(!c)return;
+  const ok=typeof customConfirm==="function"
+    ? await customConfirm("Hapus Riwayat Iklan",`Hapus riwayat <b>${eaiEsc(c.name||"kampanye ini")}</b>?<br><br>Data penjualan tidak akan dihapus. Yang dihapus hanya catatan riwayat campaign.`,`danger`)
+    : confirm(`Hapus riwayat ${c.name||"kampanye ini"}?`);
+  if(!ok)return;
+  history.splice(index,1);
+  adsCampaignHistory=history;
+  saveData();
+  eaiRenderAdHistory();
+}
+
+function askEvoraAI(){
+  const q=String(document.getElementById("eaiQuestion")?.value||"").trim().toLowerCase();
+  const d=getEAIData(), out=document.getElementById("eaiChat");
+  if(!out)return;
+  if(!q){out.innerHTML="<b>EVORA AI:</b> Tulis pertanyaan terlebih dahulu.";return;}
+
+  const history=Array.isArray(adsCampaignHistory)?adsCampaignHistory:[];
+  const sales=d.sales;
+
+  const top=d.top[0];
+  const low=d.stock.find(x=>x.stock<=10);
+  const totalCampaigns=history.length;
+  const finishedAdRevenue=history.reduce((s,c)=>s+Number(c.revenue||0),0);
+  const finishedAdSpend=history.reduce((s,c)=>s+Number(c.spend||c.budget||0),0);
+  const finishedROAS=finishedAdSpend?finishedAdRevenue/finishedAdSpend:0;
+
+  let answer="";
+
+  if(/(terlaris|paling laku|produk.*laku)/.test(q)){
+    answer=top?`Produk paling laku berdasarkan data tercatat adalah <b>${eaiEsc(top[0])}</b> dengan <b>${top[1]} pcs</b>.`:"Belum ada data penjualan.";
+  } else if(/(stok|habis|stok.*tinggal|sisa)/.test(q)){
+    answer=low?`Stok yang paling perlu diperhatikan adalah <b>${eaiEsc(low.name)}</b>, tersisa <b>${low.stock} pcs</b>.`:"Saat ini tidak ada produk dengan stok ≤10 pcs.";
+  } else if(/(roas|return.*ads|iklan.*bagus|iklan.*jelek)/.test(q)){
+    if(d.adSpend) answer=`Campaign aktif memiliki omzet iklan <b>${eaiMoney(d.adRevenue)}</b>, biaya <b>${eaiMoney(d.adSpend)}</b>, dan ROAS <b>${d.roas.toFixed(2)}x</b>.`;
+    else if(totalCampaigns) answer=`Dari ${totalCampaigns} campaign yang selesai, total omzet iklan <b>${eaiMoney(finishedAdRevenue)}</b>, biaya <b>${eaiMoney(finishedAdSpend)}</b>, ROAS gabungan <b>${finishedROAS.toFixed(2)}x</b>.`;
+    else answer="Belum ada data campaign iklan yang selesai.";
+  } else if(/(riwayat.*iklan|iklan.*riwayat|campaign.*terakhir|iklan.*terakhir)/.test(q)){
+    const c=history[0];
+    answer=c?`Campaign terakhir <b>${eaiEsc(c.name||"Kampanye Iklan")}</b>: ${eaiQty(sales.filter(x=>x.campaignId===c.id).reduce((s,x)=>s+Number(x.qty||0),0))} pcs, omzet <b>${eaiMoney(c.revenue)}</b>, ROAS <b>${Number(c.roas||0).toFixed(2)}x</b>.`:"Belum ada riwayat campaign.";
+  } else if(/(omzet|pendapatan|revenue)/.test(q)){
+    answer=`Total omzet yang tersedia di data Tracker adalah <b>${eaiMoney(d.revenue)}</b>.`;
+  } else if(/(berapa.*campaign|jumlah.*iklan|berapa.*iklan)/.test(q)){
+    answer=`Ada <b>${totalCampaigns}</b> riwayat campaign iklan yang selesai${isAdsActive?" dan 1 campaign sedang aktif":""}.`;
+  } else if(/(target|bulan|proyeksi|prediksi)/.test(q)){
+    answer=`Rata-rata penjualan dari data yang tersedia adalah <b>${d.avgPerDay.toFixed(1)} pcs/hari</b>. Untuk prediksi yang lebih akurat, Tracker perlu histori penjualan yang lebih panjang.`;
+  } else if(/(harga|naik|turun|simulasi)/.test(q)){
+    answer="Saya bisa membuat simulasi dari angka yang kamu berikan. Contoh: <b>“Kalau harga naik dari 55 ribu ke 60 ribu dan penjualan turun 10%, omzet jadi berapa?”</b>";
+  } else {
+    answer=`Saya belum mengenali pertanyaan itu secara spesifik. Coba tanyakan:<br>
+      • “Produk mana yang paling laku?”<br>
+      • “Stok apa yang hampir habis?”<br>
+      • “Berapa ROAS iklan saya?”<br>
+      • “Tampilkan campaign terakhir.”<br>
+      • “Berapa omzet saya?”`;
+  }
+  out.innerHTML="<b>EVORA AI:</b> "+answer;
+}
+</script>
+
+
+<script id="evora-ai-state-access">
+Object.defineProperty(window,"penjualan",{get:()=>penjualan});
+Object.defineProperty(window,"barang",{get:()=>barang});
+</script>
+
+<div id="eaiLegacyAdModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100002;align-items:center;justify-content:center;padding:18px;">
+  <div style="width:min(520px,96vw);background:#fff;border-radius:18px;padding:20px;color:#172033;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div><h3 style="margin:0 0 4px;">Tambah Riwayat Iklan</h3>
+      <div style="font-size:11px;color:#64748b;">Untuk campaign lama yang dilakukan sebelum fitur campaign aktif.</div></div>
+      <button type="button" onclick="closeLegacyAdModal()" style="width:auto;background:#e2e8f0;color:#334155;box-shadow:none;">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px;">
+      <div><label>Tanggal Mulai</label><input id="legacyAdStart" type="date"></div>
+      <div><label>Tanggal Selesai</label><input id="legacyAdEnd" type="date"></div>
+      <div><label>Budget Iklan (Rp)</label><input id="legacyAdSpend" type="number" min="0" placeholder="100000"></div>
+      <div><label>Total Terjual (pcs)</label><input id="legacyAdQty" type="number" min="0" placeholder="Otomatis dari data"></div>
+    </div>
+    <div style="margin-top:9px;"><label>Nama Campaign</label><input id="legacyAdName" placeholder="Contoh: Iklan 21-22 Agustus"></div>
+    <div style="margin-top:9px;"><label>Omzet dari Iklan (Rp)</label><input id="legacyAdRevenue" type="number" min="0" placeholder="Otomatis dari penjualan bertanda iklan"></div>
+    <div style="margin-top:9px;font-size:10px;color:#64748b;">
+      Jika omzet/terjual dibiarkan kosong, sistem akan mencoba mengambil dari transaksi bertanda <b>IKLAN</b> pada rentang tanggal tersebut.
+    </div>
+    <button type="button" onclick="saveLegacyAdHistory()" style="width:100%;margin-top:14px;background:#0ea5e9;">Simpan Riwayat Iklan</button>
+  </div>
+</div>
+
 </body>
 </html>
