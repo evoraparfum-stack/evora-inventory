@@ -1413,6 +1413,77 @@ body.dark-mode #evoraAICenter label,
 }
 @media screen{#ecrPrintRoot{display:none}.ecr-preview-label{box-shadow:none!important}}
 </style>
+
+<style id="ecr-80mm-overflow-fix">
+.ecr-print-label,
+.ecr-print-label *{
+  box-sizing:border-box;
+  max-width:100%;
+}
+.ecr-print-label{
+  width:80mm!important;
+  min-width:0!important;
+  max-width:80mm!important;
+  overflow:hidden!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
+.ecr-two,
+.ecr-info,
+.ecr-product-head,
+.ecr-product-row{
+  width:100%!important;
+  min-width:0!important;
+}
+.ecr-two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+.ecr-product-head,
+.ecr-product-row{
+  grid-template-columns:minmax(0,1.25fr) minmax(0,.45fr) minmax(0,.75fr) minmax(0,.18fr)!important;
+}
+.ecr-two>div,
+.ecr-info>div,
+.ecr-product-head>*,
+.ecr-product-row>*{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
+.ecr-barcode{
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.ecr-barcode i{flex-shrink:1!important;min-width:0!important}
+.ecr-qr{max-width:18mm!important}
+@media print{
+  html,body{
+    width:80mm!important;
+    min-width:80mm!important;
+    max-width:80mm!important;
+    margin:0!important;
+    padding:0!important;
+    overflow-x:hidden!important;
+  }
+  #ecrPrintRoot{
+    width:80mm!important;
+    min-width:80mm!important;
+    max-width:80mm!important;
+    overflow:hidden!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #ecrPrintRoot .ecr-print-label{
+    width:80mm!important;
+    min-width:80mm!important;
+    max-width:80mm!important;
+    margin:0!important;
+    padding-left:4.5mm!important;
+    padding-right:4.5mm!important;
+    overflow:hidden!important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -5344,7 +5415,130 @@ function ecrCode128B(value){const p=["212222","222122","222221","121223","121322
 function ecrBuildLabel(d,qr){const products=d.products?.length?d.products:[{product:"",variation:"",qty:"1"}];const productHtml=products.map(p=>`<div class="ecr-product-row"><div class="ecr-product-name">${ecrEsc(p.product)}</div><div class="ecr-product-sku">${ecrEsc(p.sku||"")}</div><div class="ecr-product-variation">${ecrEsc(p.variation)}</div><div class="ecr-product-qty">${ecrEsc(p.qty)}</div></div>`).join("");return `<div class="ecr-print-label"><div class="ecr-top"><b>${ecrEsc(d.box||"")}</b><span>${ecrEsc(d.service||"STD")}</span></div><div class="ecr-route">${ecrEsc(d.route||"")}</div><div class="ecr-rule"></div><div class="ecr-resi-head"><span>NO. RESI</span><b>${ecrEsc(d.resi||"")}</b></div>${ecrCode128B(d.resi||"")}<div class="ecr-two"><div><label>PENERIMA</label><b>${ecrEsc(d.recipient)}</b><span>${ecrEsc(d.phone)}</span></div><div><label>PENGIRIM</label><b>${ecrEsc(d.sender)}</b><span>${ecrEsc(d.senderArea||"")}</span></div></div><div class="ecr-address">${ecrEsc(d.address)}</div><div class="ecr-rule"></div><div class="ecr-info"><div><label>BERAT</label><b>${ecrEsc(d.weight)}</b></div><div><label>BATAS KIRIM</label><b>${ecrEsc(d.deadline)}</b></div><div><label>COD</label><b>${ecrEsc(d.cod||"Tidak")}</b></div></div><div class="ecr-order-title">NO. PESANAN</div><b class="ecr-order">${ecrEsc(d.order)}</b>${ecrCode128B(d.order||"")}<div class="ecr-qr">${qr?`<img src="${qr}" alt="QR">`:""}</div><div class="ecr-product-head"><b>PRODUK</b><b>SKU</b><b>VARIASI</b><b>QTY</b></div>${productHtml}${d.note?`<div class="ecr-note2"><b>PESAN</b><span>${ecrEsc(d.note)}</span></div>`:""}<div class="ecr-footer">Data dibuat ulang dari informasi pada resi asli.</div></div>`}
 async function ecrShowPage(page){const rec=ecrPages.find(p=>p.page===page);if(!rec)return;ecrCurrentPage=page;ecrRenderList();const paper=document.getElementById("ecrPaper");paper.innerHTML='<div class="ecr-empty">Menyusun resi...</div>';const qr=await ecrQrDataUrl(page);paper.innerHTML=ecrBuildLabel(rec.data,qr);const label=paper.querySelector(".ecr-print-label");if(label)label.classList.add("ecr-preview-label");const pl=document.getElementById("ecrPreviewLabel");if(pl)pl.textContent=`Resi ${page} / ${ecrPages.length}`;}
 async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}try{ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const data=await ecrParsePage(i);ecrPages.push({page:i,data})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman • data berhasil dibaca`;ecrRenderList();await ecrShowPage(1)}catch(err){console.error(err);alert("PDF berhasil dibuka tetapi data resi gagal dibaca: "+(err?.message||err))}}
-async function ecrPrintSelected(){if(ecrPrintBusy||!ecrSelected.size){alert("Pilih minimal satu resi.");return}ecrPrintBusy=true;const btn=document.querySelector('.ecr-btn.primary[onclick*="ecrPrintSelected"]');if(btn){btn.disabled=true;btn.textContent="⏳ Menyiapkan resi..."}try{const root=document.getElementById("ecrPrintRoot");root.innerHTML="";for(const page of [...ecrSelected].sort((a,b)=>a-b)){const rec=ecrPages.find(p=>p.page===page);if(!rec)continue;const qr=await ecrQrDataUrl(page);const wrap=document.createElement("div");wrap.innerHTML=ecrBuildLabel(rec.data,qr);root.appendChild(wrap.firstElementChild)}await new Promise(r=>setTimeout(r,250));window.print();}catch(err){console.error(err);alert("Gagal membuat resi cetak ulang: "+(err?.message||err))}finally{ecrPrintBusy=false;if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih"}}}
+async function ecrPrintSelected(){
+  if(ecrPrintBusy||!ecrSelected.size){
+    alert("Pilih minimal satu resi.");
+    return;
+  }
+
+  ecrPrintBusy=true;
+  const btn=document.querySelector('.ecr-btn.primary[onclick*="ecrPrintSelected"]');
+  if(btn){btn.disabled=true;btn.textContent="⏳ Menyiapkan resi...";}
+
+  let win=null;
+  try{
+    const labels=[];
+
+    for(const page of [...ecrSelected].sort((a,b)=>a-b)){
+      const rec=ecrPages.find(p=>p.page===page);
+      if(!rec)continue;
+      const qr=await ecrQrDataUrl(page);
+      labels.push(ecrBuildLabel(rec.data,qr));
+    }
+
+    if(!labels.length)throw new Error("Tidak ada resi yang dapat dicetak.");
+
+    // Print in an isolated window so the main Tracker CSS cannot affect
+    // the 80mm page width.
+    win=window.open("","_blank","width=520,height=760");
+    if(!win){
+      throw new Error("Jendela cetak diblokir browser. Izinkan pop-up untuk EVORA.");
+    }
+
+    const css=`
+      @page{size:80mm auto;margin:0}
+      html,body{
+        margin:0!important;
+        padding:0!important;
+        width:80mm!important;
+        min-width:80mm!important;
+        max-width:80mm!important;
+        background:#fff!important;
+        overflow-x:hidden!important;
+      }
+      *{box-sizing:border-box}
+      .ecr-print-label{
+        position:relative;
+        display:block;
+        width:80mm!important;
+        min-width:80mm!important;
+        max-width:80mm!important;
+        margin:0!important;
+        padding:4.5mm 4.5mm 3.5mm!important;
+        background:#fff!important;
+        color:#111827!important;
+        font-family:Arial,Helvetica,sans-serif;
+        font-size:8px;
+        line-height:1.25;
+        overflow:hidden!important;
+        overflow-wrap:anywhere!important;
+        word-break:break-word!important;
+        box-shadow:none!important;
+        page-break-after:always;
+        break-after:page;
+      }
+      .ecr-print-label:last-child{
+        page-break-after:auto!important;
+        break-after:auto!important;
+      }
+      .ecr-print-label *{
+        box-sizing:border-box;
+        max-width:100%;
+        min-width:0;
+      }
+      .ecr-top{display:flex;justify-content:space-between;align-items:flex-start;font-size:15px;line-height:1}
+      .ecr-top span{font-size:8px;font-weight:800;border:1px solid #111;padding:1px 4px}
+      .ecr-route{font-size:7px;font-weight:800;margin-top:2mm}
+      .ecr-rule{border-top:1px solid #111;margin:2.5mm 0}
+      .ecr-resi-head{display:flex;justify-content:space-between;gap:2mm;font-size:7px}
+      .ecr-resi-head b{font-size:9px;min-width:0;text-align:right}
+      .ecr-barcode{height:13mm;width:100%;display:flex;align-items:stretch;justify-content:center;margin:1.5mm 0 3mm;overflow:hidden;white-space:nowrap}
+      .ecr-barcode i{display:block;height:100%;flex:0 1 auto;min-width:0}
+      .ecr-barcode .b{background:#000}.ecr-barcode .w{background:#fff}
+      .ecr-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4mm;width:100%}
+      .ecr-two>div{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+      .ecr-two label,.ecr-info label{display:block;font-size:5.8px;font-weight:800}
+      .ecr-two b{display:block;font-size:8px;margin-top:1px}
+      .ecr-two span{display:block;font-size:6.5px}
+      .ecr-address{width:100%;font-size:6.7px;line-height:1.35;margin-top:2mm;overflow-wrap:anywhere;word-break:break-word}
+      .ecr-info{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,.8fr);gap:2mm;width:100%}
+      .ecr-info>div{min-width:0}
+      .ecr-info b{font-size:7px}
+      .ecr-order-title{font-size:5.8px;font-weight:800;margin-top:2.5mm}
+      .ecr-order{font-size:8px;display:block;margin-top:1px;overflow-wrap:anywhere;word-break:break-word}
+      .ecr-order+.ecr-barcode{margin-bottom:1.5mm}
+      .ecr-qr{position:absolute;right:4.5mm;top:63mm;width:18mm;height:18mm;background:#fff;overflow:hidden}
+      .ecr-qr img{width:100%;height:100%;object-fit:contain}
+      .ecr-product-head{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.45fr) minmax(0,.75fr) minmax(0,.18fr);gap:1.5mm;background:#111827;color:#fff;padding:1.5mm;font-size:5.8px;margin-top:1.5mm;width:100%}
+      .ecr-product-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.45fr) minmax(0,.75fr) minmax(0,.18fr);gap:1.5mm;padding:1.5mm;border-bottom:1px solid #cbd5e1;align-items:start;width:100%}
+      .ecr-product-name,.ecr-product-sku,.ecr-product-variation{font-size:6.2px;overflow-wrap:anywhere;word-break:break-word}
+      .ecr-product-qty{font-size:7px;font-weight:800;text-align:right}
+      .ecr-note2{margin-top:2mm;border-top:1px solid #111;padding-top:1.5mm;overflow-wrap:anywhere;word-break:break-word}
+      .ecr-note2 b{display:block;font-size:5.8px}.ecr-note2 span{display:block;font-size:6.2px;line-height:1.35}
+      .ecr-footer{margin-top:2mm;padding-top:1.5mm;border-top:1px solid #111;font-size:5.3px;color:#334155}
+    `;
+
+    win.document.open();
+    win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Cetak Resi 80mm</title><style>${css}</style></head><body>${labels.join("")}</body></html>`);
+    win.document.close();
+
+    await new Promise(resolve=>setTimeout(resolve,500));
+    win.focus();
+    win.print();
+
+    setTimeout(()=>{
+      try{win.close()}catch(e){}
+    },1200);
+
+  }catch(err){
+    console.error("Cetak Resi:",err);
+    if(win){try{win.close()}catch(e){}}
+    alert("Gagal membuat resi cetak ulang: "+(err?.message||err));
+  }finally{
+    ecrPrintBusy=false;
+    if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
+  }
+}
 document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))});
 </script>
 
