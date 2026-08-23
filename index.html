@@ -1553,7 +1553,64 @@ body.dark-mode #evoraAICenter label,
   }
 }
 </style>
-</head>
+
+<style id="ecr-message-layout-fix">
+.ecr-print-label{position:relative!important}
+.ecr-qr{
+  position:absolute!important;
+  right:3.5mm!important;
+  top:49mm!important;
+  width:14mm!important;
+  height:14mm!important;
+}
+.ecr-print-label.has-message .ecr-qr{top:49mm!important}
+.ecr-print-label.no-message .ecr-qr{top:49mm!important}
+.ecr-note2{
+  clear:both!important;
+  width:100%!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
+.ecr-note2 span{
+  display:block!important;
+  max-width:100%!important;
+}
+</style>
+
+<style id="ecr-cod-clear-fix">
+.ecr-cod-cell{
+  border:1.2px solid #111827!important;
+  border-radius:1.5mm!important;
+  padding:1.2mm 1.5mm!important;
+  min-height:9mm!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  background:#fff!important;
+}
+.ecr-cod-cell label{
+  font-size:5px!important;
+  font-weight:900!important;
+  letter-spacing:.2px!important;
+}
+.ecr-cod-cell b{
+  display:block!important;
+  font-size:8.5px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  margin-top:1mm!important;
+}
+.ecr-cod-cell.is-cod{border-width:1.8px!important}
+.ecr-cod-cell.is-noncod{border-style:dashed!important}
+.ecr-cod-cell.is-unknown{opacity:.8!important}
+@media print{
+  .ecr-cod-cell{min-height:8mm!important;padding:1mm 1.2mm!important}
+  .ecr-cod-cell b{font-size:7.8px!important}
+}
+</style>
+<style id="ecr-person-field-fix">
+.ecr-two b{max-width:100%!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+</style></head>
 <body>
 
 <div id="topNotification" class="top-toast-alert">
@@ -5490,139 +5547,214 @@ async function ecrParsePage(pageNumber){
 
   const rows=ecrLinesFromItems(items,vp.height);
   const flat=rows.map(r=>r.text).join("\n");
+  const norm=s=>String(s||"").replace(/\s+/g," ").trim();
 
-  const resi=(flat.match(/(?:No\.?\s*Resi\s*:?\s*)(SPX[A-Z0-9]+)/i)||flat.match(/\b(SPX[A-Z0-9]{8,})\b/i)||[])[1]||"";
-  let order=(flat.match(/No\.?\s*Pesanan\s*:\s*([A-Z0-9]+)/i)||[])[1]||"";
+  // IDs
+  const resiMatch=flat.match(/No\.?\s*Resi\s*:?\s*(SPX[A-Z0-9]+)/i)||flat.match(/\b(SPX[A-Z0-9]{8,})\b/i);
+  const resi=resiMatch?resiMatch[1]:"";
+  let order=(flat.match(/No\.?\s*Pesanan\s*:?\s*([A-Z0-9]+)/i)||[])[1]||"";
   if(!order){
     const m=flat.match(/\(([A-Z0-9]{8,})\)\s*\(SPX/i);
     if(m)order=m[1];
   }
 
-  // IMPORTANT: In Shopee labels, "Penerima:" and "Pengirim:" are
-  // printed on the same row as their names, while the phone number and
-  // sender area are on the rows below. The old parser tried to infer names
-  // from the phone row, which is why names disappeared in the rebuilt label.
-  const norm=s=>String(s||"").replace(/\s+/g," ").trim();
-  const isPhone=s=>/^(?:\(?\+?62|08)[\d\s().-]{7,}$/.test(norm(s).replace(/\s/g,""));
-  const isLabel=s=>/^(Penerima:|Pengirim:|Penerima|Pengirim)$/i.test(norm(s));
-
+  // The Shopee PDF has Penerima and Pengirim on the same visual row.
+  // Select only text from the correct column. Never search globally for
+  // a sender name because SPX IDs are repeated around the page.
+  const isPhone=s=>{
+    const raw=norm(s);
+    const digits=raw.replace(/\D/g,"");
+    return digits.length>=9 && (digits.startsWith("62") || digits.startsWith("08") || digits.startsWith("8"));
+  };
   const receiverLabel=items.find(i=>/^Penerima\s*:?\s*$/i.test(i.str));
   const senderLabel=items.find(i=>/^Pengirim\s*:?\s*$/i.test(i.str));
 
-  function nearestSameRowName(label, side){
-    if(!label)return "";
-    const ly=label.y;
-    const candidates=items.filter(i=>{
-      if(i===label || isLabel(i.str) || isPhone(i.str))return false;
-      const dy=Math.abs(i.y-ly);
-      if(dy>7)return false;
-      if(side==="left") return i.x>=label.x && i.x<175;
-      return i.x>=label.x && i.x<310;
-    }).sort((a,b)=>{
-      const da=Math.abs(a.y-ly), db=Math.abs(b.y-ly);
-      return da-db || a.x-b.x;
-    });
-    return candidates.length?norm(candidates.map(i=>i.str).join(" ")):"";
+  function rowItemsNear(y,tol=5){
+    return items.filter(i=>Math.abs(i.y-y)<=tol).sort((a,b)=>a.x-b.x);
+  }
+  function cleanPersonPart(arr){
+    return norm(arr.map(i=>i.str).join(" "))
+      .replace(/\bSPX[A-Z0-9]{8,}\b/gi,"")
+      .replace(/\s{2,}/g," ").trim();
   }
 
-  let recipient=nearestSameRowName(receiverLabel,"left");
-  let sender=nearestSameRowName(senderLabel,"right");
+  let recipient="", sender="";
+  if(receiverLabel && senderLabel){
+    const row=rowItemsNear((receiverLabel.y+senderLabel.y)/2,6);
+    const receiverWords=row.filter(i=>
+      i.x>=receiverLabel.x+30 &&
+      i.x<senderLabel.x-4 &&
+      !isPhone(i.str) &&
+      !/^SPX[A-Z0-9]{8,}$/i.test(i.str)
+    );
+    const senderWords=row.filter(i=>
+      i.x>=senderLabel.x+30 &&
+      i.x<280 &&
+      !isPhone(i.str) &&
+      !/^SPX[A-Z0-9]{8,}$/i.test(i.str)
+    );
+    recipient=cleanPersonPart(receiverWords);
+    sender=cleanPersonPart(senderWords);
+  }
 
-  // Fallback for PDFs where the name is combined into the same text item
-  // as the label, e.g. "Penerima: Rabbani Hadawi".
+  // Fallback for PDFs where the label and name are one text item.
   if(!recipient){
-    const combined=items.find(i=>/^Penerima\s*:/i.test(i.str));
+    const combined=items.find(i=>/^Penerima\s*:\s*\S/i.test(i.str));
     if(combined)recipient=norm(combined.str.replace(/^Penerima\s*:?\s*/i,""));
   }
   if(!sender){
-    const combined=items.find(i=>/^Pengirim\s*:/i.test(i.str));
+    const combined=items.find(i=>/^Pengirim\s*:\s*\S/i.test(i.str));
     if(combined)sender=norm(combined.str.replace(/^Pengirim\s*:?\s*/i,""));
   }
 
-  // Strong fallback based on the actual page text order. On the supplied
-  // Shopee PDF, recipient/sender names appear immediately before/after the
-  // address block, so use known labels if coordinate extraction changes.
-  if(!recipient){
-    const m=flat.match(/Penerima:\s*(?:\n)?([^\n]+?)(?=\n(?:No\.?\s*Resi|SPX|Jalan|Jl\.|Dusun|$))/i);
-    if(m)recipient=norm(m[1]);
-  }
-  if(!sender){
-    const m=flat.match(/(?:KAB\.?\s+[A-Z .-]+)\s*\n([A-Z][A-Za-z .'-]{2,40})\s*\n(?:\(?\+?62|08)/i);
-    if(m)sender=norm(m[1]);
-  }
+  if(/^SPX[A-Z0-9]{8,}$/i.test(recipient))recipient="";
+  if(/^SPX[A-Z0-9]{8,}$/i.test(sender))sender="";
 
-  // Phone: choose the phone closest to the sender label first, then any
-  // phone on the page.
-  const phoneItems=items.filter(i=>isPhone(i.str));
-  let phone="";
-  if(phoneItems.length){
-    const target=senderLabel||receiverLabel;
-    const chosen=target
-      ? phoneItems.slice().sort((a,b)=>Math.abs(a.y-target.y)-Math.abs(b.y-target.y))[0]
-      : phoneItems[0];
-    phone=norm(chosen.str);
-  }
-
-  // Sender area is the short geographic line under the sender name/phone.
-  let senderArea="";
+  // Sender phone + sender area are in the right column below Pengirim.
+  let phone="", senderArea="";
   if(senderLabel){
-    const areaCandidates=items.filter(i=>
-      i.x>=170 &&
-      i.y>senderLabel.y+8 &&
-      i.y<senderLabel.y+45 &&
-      !isPhone(i.str) &&
-      !/^(Penerima|Pengirim|Berat|Batas|COD|No\.?Pesanan)/i.test(i.str)
+    const rightColumn=items.filter(i=>
+      i.x>=senderLabel.x+30 && i.x<285 &&
+      i.y>senderLabel.y+5 && i.y<senderLabel.y+42
     );
-    // Prefer common area strings such as KAB./KOTA./KEC., otherwise nearest
-    // non-address short line.
-    const preferred=areaCandidates.filter(i=>/^(KAB\.?|KOTA|KEC\.?|PROV\.?)/i.test(i.str));
-    senderArea=norm((preferred.length?preferred:areaCandidates).map(i=>i.str).join(" "));
+    // Phone can be split into multiple PDF text items, for example
+    // "(+62) 822-9542-6825". Reconstruct the whole visual row first.
+    const phoneRows=[];
+    for(const it of rightColumn.filter(i=>i.y>senderLabel.y+5 && i.y<senderLabel.y+25)){
+      let row=phoneRows.find(r=>Math.abs(r.y-it.y)<=3);
+      if(!row){row={y:it.y,items:[]};phoneRows.push(row)}
+      row.items.push(it);
+    }
+    const phoneRow=phoneRows
+      .sort((a,b)=>a.y-b.y)
+      .map(r=>({
+        text:norm(r.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(" ")),
+        y:r.y
+      }))
+      .find(r=>isPhone(r.text));
+    phone=phoneRow?phoneRow.text:"";
+
+    const areaRow=rightColumn
+      .filter(i=>i.y>senderLabel.y+20 && i.y<senderLabel.y+38 && !isPhone(i.str))
+      .sort((a,b)=>a.x-b.x);
+    const areaText=norm(areaRow.map(i=>i.str).join(" "));
+    senderArea=/^(KAB\.?|KOTA|KEC\.?|PROV\.?)/i.test(areaText) && !/SPX[A-Z0-9]{8,}/i.test(areaText) ? areaText : "";
   }
 
-  // Address: collect the receiver-side rows between the name row and the
-  // location summary. This preserves long addresses.
+  // Receiver address is only the left column below the name row.
   const address=[];
   if(receiverLabel){
-    const startY=receiverLabel.y+5;
-    const endY=receiverLabel.y+58;
+    const startY=receiverLabel.y+14, endY=receiverLabel.y+52;
     for(const row of rows){
-      if(row.y>=startY && row.y<=endY){
-        const t=norm(row.items.filter(i=>i.x<180).map(i=>i.str).join(" "));
-        if(t &&
-           !/^Penerima\s*:?$/i.test(t) &&
-           !/^No\.?\s*Resi/i.test(t) &&
-           !/^SPX[A-Z0-9]+$/i.test(t) &&
-           !/^Berat|^Batas Kirim|^COD|^No\.?\s*Pesanan/i.test(t)){
-          address.push(t);
-        }
-      }
+      if(row.y<startY || row.y>endY)continue;
+      const left=row.items.filter(i=>
+        i.x<180 &&
+        !/^SPX[A-Z0-9]{8,}$/i.test(i.str) &&
+        !/^(HOME|STD|REG|COD)$/i.test(i.str)
+      );
+      const t=norm(left.map(i=>i.str).join(" "));
+      if(!t)continue;
+      if(/^No\.?\s*Resi/i.test(t))continue;
+      if(/^Berat|^Batas Kirim|^COD|^No\.?\s*Pesanan/i.test(t))continue;
+      address.push(t);
     }
   }
   const cleanAddress=address.filter((v,i,a)=>i===0||v!==a[i-1]).join(" ");
 
-  const deadline=(flat.match(/Batas\s+Kirim\s*:\s*([0-9]{2}-[0-9]{2}-[0-9]{4})/i)||[])[1]||"";
-  const weight=(flat.match(/(?:Berat\s*:\s*)?([0-9]+(?:[.,][0-9]+)?\s*(?:gr|kg))/i)||[])[1]||"";
-  const cod=(flat.match(/COD\s+Cek\s+Dulu\s*:\s*(\w+)/i)||[])[1]||"";
+  const deadline=(flat.match(/Batas\s+Kirim\s*:?\s*([0-9]{2}-[0-9]{2}-[0-9]{4})/i)||[])[1]||"";
+  const weight=(flat.match(/(?:Berat\s*:?\s*)?([0-9]+(?:[.,][0-9]+)?\s*(?:gr|kg))/i)||[])[1]||"";
+  const codMatch=flat.match(/COD\s*Cek\s*Dulu\s*:?\s*(Ya|Tidak)/i);
+  const cod=codMatch ? (codMatch[1].toLowerCase()==="ya" ? "COD" : "NON-COD") : "TIDAK DIKETAHUI";
+
   const route=(flat.match(/\b([A-Z]{2,4}-[A-Z]-\d{2})\b/)||[])[1]||"";
   const box=(flat.match(/\b([A-Z]{1,3}-\d{2,3})\b/)||[])[1]||"";
   const service=(items.find(x=>/^(STD|REG|ONS|YES)$/i.test(x.str||""))?.str||"STD").toUpperCase();
   const products=ecrParseProducts(rows);
 
+  // "Pesan: (ORDER) (SPX...)" is metadata, not a customer message.
   let note="";
-  const msgIndex=flat.search(/Pesan:/i);
-  if(msgIndex>=0){
-    const m=flat.slice(msgIndex).replace(/^Pesan:\s*/i,"");
-    note=m.replace(/\s*\([A-Z0-9]+\)\s*\(SPX[A-Z0-9]+\).*$/i,"").trim();
+  const msgRow=rows.find(r=>/^Pesan\s*:/i.test(r.text));
+  if(msgRow){
+    let msg=msgRow.text.replace(/^Pesan\s*:\s*/i,"").trim();
+    msg=msg.replace(/\s*\([A-Z0-9]{8,}\)\s*\(SPX[A-Z0-9]{8,}\)\s*$/i,"").trim();
+    if(msg && !/^\([A-Z0-9]{8,}\)\s*\(SPX[A-Z0-9]{8,}\)$/i.test(msg)) note=msg;
   }
 
   return {
-    page:pageNumber,resi,order,recipient,sender,senderArea,phone,
-    address:cleanAddress,deadline,weight,cod,route,box,service,products,note
+    page:pageNumber,resi,order,
+    recipient,sender,phone,senderArea,
+    address:cleanAddress,
+    deadline,weight,cod,route,box,service,
+    products,note
   };
 }
 async function ecrQrDataUrl(pageNumber){try{const page=await ecrPdfDoc.getPage(pageNumber),vp=page.getViewport({scale:2.8}),sx=217.7*2.8,sy=622.38*2.8,sw=(279.8-217.7)*2.8,sh=(677.75-622.38)*2.8,canvas=document.createElement("canvas");canvas.width=Math.ceil(vp.width);canvas.height=Math.ceil(vp.height);const ctx=canvas.getContext("2d",{alpha:false});ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);await page.render({canvasContext:ctx,viewport:vp}).promise;const crop=document.createElement("canvas");crop.width=Math.ceil(sw);crop.height=Math.ceil(sh);crop.getContext("2d",{alpha:false}).drawImage(canvas,sx,sy,sw,sh,0,0,crop.width,crop.height);return crop.toDataURL("image/png") }catch(e){console.warn("QR crop gagal",e);return ""}}
 function ecrCode128B(value){const p=["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];const chars=[];for(let i=0;i<value.length;i++){let n=value.charCodeAt(i)-32;if(n<0||n>94)n=0;chars.push(n)}let checksum=104;for(let i=0;i<chars.length;i++)checksum+=chars[i]*(i+1);const seq=[104,...chars,checksum%103,106];let html='<div class="ecr-barcode">';for(const code of seq){let black=true;for(const ch of p[code]){const w=Number(ch);html+=`<i class="${black?'b':'w'}" style="width:${w}px"></i>`;black=!black}}return html+'</div>'}
-function ecrBuildLabel(d,qr){const products=d.products?.length?d.products:[{product:"",variation:"",qty:"1"}];const productHtml=products.map(p=>`<div class="ecr-product-row"><div class="ecr-product-name">${ecrEsc(p.product)}</div><div class="ecr-product-sku">${ecrEsc(p.sku||"")}</div><div class="ecr-product-variation">${ecrEsc(p.variation)}</div><div class="ecr-product-qty">${ecrEsc(p.qty)}</div></div>`).join("");return `<div class="ecr-print-label"><div class="ecr-top"><b>${ecrEsc(d.box||"")}</b><span>${ecrEsc(d.service||"STD")}</span></div><div class="ecr-route">${ecrEsc(d.route||"")}</div><div class="ecr-rule"></div><div class="ecr-resi-head"><span>NO. RESI</span><b>${ecrEsc(d.resi||"")}</b></div>${ecrCode128B(d.resi||"")}<div class="ecr-two"><div><label>PENERIMA</label><b>${ecrEsc(d.recipient||"Tidak terbaca")}</b><span>${ecrEsc(d.phone||"")}</span></div><div><label>PENGIRIM</label><b>${ecrEsc(d.sender||"Tidak terbaca")}</b><span>${ecrEsc(d.senderArea||"")}</span></div></div><div class="ecr-address">${ecrEsc(d.address)}</div><div class="ecr-rule"></div><div class="ecr-info"><div><label>BERAT</label><b>${ecrEsc(d.weight)}</b></div><div><label>BATAS KIRIM</label><b>${ecrEsc(d.deadline)}</b></div><div><label>COD</label><b>${ecrEsc(d.cod||"Tidak")}</b></div></div><div class="ecr-order-title">NO. PESANAN</div><b class="ecr-order">${ecrEsc(d.order)}</b>${ecrCode128B(d.order||"")}<div class="ecr-qr">${qr?`<img src="${qr}" alt="QR">`:""}</div><div class="ecr-product-head"><b>PRODUK</b><b>SKU</b><b>VARIASI</b><b>QTY</b></div>${productHtml}${d.note?`<div class="ecr-note2"><b>PESAN</b><span>${ecrEsc(d.note)}</span></div>`:""}<div class="ecr-footer">Data dibuat ulang dari informasi pada resi asli.</div></div>`}
+function ecrBuildLabel(d,qr){
+  const products=Array.isArray(d.products)&&d.products.length?d.products:[{
+    name:d.product||"",
+    sku:d.sku||"",
+    variation:d.variation||"",
+    qty:d.qty||"1"
+  }];
+
+  const hasMessage=String(d.note||"").trim().length>0;
+  const qrHtml=qr?`<div class="ecr-qr"><img src="${qr}" alt="QR"></div>`:"";
+
+  const productRows=products.map(p=>`
+    <div class="ecr-product-row">
+      <div class="ecr-product-name">${ecrEsc(p.name||"")}</div>
+      <div class="ecr-product-sku">${ecrEsc(p.sku||"")}</div>
+      <div class="ecr-product-variation">${ecrEsc(p.variation||"")}</div>
+      <div class="ecr-product-qty">${ecrEsc(p.qty||"1")}</div>
+    </div>`).join("");
+
+  return `<div class="ecr-print-label ${hasMessage?"has-message":"no-message"}">
+    <div class="ecr-top"><b>${ecrEsc(d.box||"")}</b><span>${ecrEsc(d.service||"STD")}</span></div>
+    <div class="ecr-route">${ecrEsc(d.route||"")}</div>
+    <div class="ecr-rule"></div>
+
+    <div class="ecr-resi-head"><span>NO. RESI</span><b>${ecrEsc(d.resi||"")}</b></div>
+    ${ecrBarcode(d.resi||"")}
+
+    <div class="ecr-two">
+      <div><label>PENERIMA</label><b>${ecrEsc(d.recipient||"Tidak terbaca")}</b><span>${ecrEsc(d.phone||"")}</span></div>
+      <div><label>PENGIRIM</label><b>${ecrEsc(d.sender||"Tidak terbaca")}</b><span>${ecrEsc(d.senderArea||"")}</span></div>
+    </div>
+
+    <div class="ecr-address">${ecrEsc(d.address||"")}</div>
+    <div class="ecr-rule"></div>
+
+    <div class="ecr-info">
+      <div><label>BERAT</label><b>${ecrEsc(d.weight||"")}</b></div>
+      <div><label>BATAS KIRIM</label><b>${ecrEsc(d.deadline||"")}</b></div>
+      <div class="ecr-cod-cell ${String(d.cod||"").toUpperCase()==="COD"?"is-cod":String(d.cod||"").toUpperCase()==="NON-COD"?"is-noncod":"is-unknown"}">
+        <label>PEMBAYARAN</label>
+        <b>${ecrEsc(d.cod||"TIDAK DIKETAHUI")}</b>
+      </div>
+    </div>
+
+    <div class="ecr-order-title">NO. PESANAN</div>
+    <b class="ecr-order">${ecrEsc(d.order||"")}</b>
+    ${ecrBarcode(d.order||"")}
+
+    ${qrHtml}
+
+    <div class="ecr-product-head"><b>PRODUK</b><b>SKU</b><b>VARIASI</b><b>QTY</b></div>
+    ${productRows}
+
+    ${hasMessage?`
+      <div class="ecr-note2">
+        <b>PESAN</b>
+        <span>${ecrEsc(d.note)}</span>
+      </div>`:""}
+
+    <div class="ecr-footer">
+      Data dibuat ulang dari informasi pada resi asli.
+      <span>${ecrEsc(d.resi||"")}</span>
+    </div>
+  </div>`;
+}
 async function ecrShowPage(page){const rec=ecrPages.find(p=>p.page===page);if(!rec)return;ecrCurrentPage=page;ecrRenderList();const paper=document.getElementById("ecrPaper");paper.innerHTML='<div class="ecr-empty">Menyusun resi...</div>';const qr=await ecrQrDataUrl(page);paper.innerHTML=ecrBuildLabel(rec.data,qr);const label=paper.querySelector(".ecr-print-label");if(label)label.classList.add("ecr-preview-label");const pl=document.getElementById("ecrPreviewLabel");if(pl)pl.textContent=`Resi ${page} / ${ecrPages.length}`;}
 async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}try{ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const data=await ecrParsePage(i);ecrPages.push({page:i,data})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman • data berhasil dibaca`;ecrRenderList();await ecrShowPage(1)}catch(err){console.error(err);alert("PDF berhasil dibuka tetapi data resi gagal dibaca: "+(err?.message||err))}}
 async function ecrPrintSelected(){
@@ -5714,6 +5846,10 @@ async function ecrPrintSelected(){
       .ecr-info{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,.8fr);gap:2mm;width:100%}
       .ecr-info>div{min-width:0}
       .ecr-info b{font-size:7px}
+      .ecr-cod-cell{border:1.2px solid #111827!important;border-radius:1.5mm!important;padding:1.2mm 1.5mm!important;min-height:9mm!important;display:flex!important;flex-direction:column!important;justify-content:center!important;background:#fff!important}
+      .ecr-cod-cell label{font-size:5px!important;font-weight:900!important;letter-spacing:.2px!important}
+      .ecr-cod-cell b{font-size:8.5px!important;font-weight:900!important;line-height:1!important;margin-top:1mm!important}
+      .ecr-cod-cell.is-cod{border-width:1.8px!important}.ecr-cod-cell.is-noncod{border-style:dashed!important}
       .ecr-order-title{font-size:5.8px;font-weight:800;margin-top:2.5mm}
       .ecr-order{font-size:8px;display:block;margin-top:1px;overflow-wrap:anywhere;word-break:break-word}
       .ecr-order+.ecr-barcode{margin-bottom:1.5mm}
@@ -5738,7 +5874,7 @@ async function ecrPrintSelected(){
       .ecr-info{gap:1.5mm!important}.ecr-info b{font-size:6.2px!important}
       .ecr-order-title{margin-top:1.2mm!important}.ecr-order{font-size:6.8px!important}
       .ecr-order+.ecr-barcode{margin-bottom:.8mm!important}
-      .ecr-qr{top:50mm!important;right:3.5mm!important;width:15mm!important;height:15mm!important}
+      .ecr-qr{top:49mm!important;right:3.5mm!important;width:14mm!important;height:14mm!important}
       .ecr-product-head{gap:1mm!important;padding:1mm!important;margin-top:1mm!important}
       .ecr-product-row{gap:1mm!important;padding:1mm!important}
       .ecr-product-name,.ecr-product-sku,.ecr-product-variation{font-size:5.4px!important;line-height:1.12!important}
