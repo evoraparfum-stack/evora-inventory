@@ -1281,6 +1281,45 @@ body.dark-mode #evoraAICenter label,
   .ecr-items{max-height:360px}
 }
 </style>
+<style id="evora-nav-setting-fix">
+.bottom-nav{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.bottom-nav::-webkit-scrollbar{display:none}
+.bottom-nav .nav-item{flex:0 0 auto;min-width:68px}
+</style>
+<style id="evora-kasir-resi-tools">
+.kasir-tools-resi{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 12px;
+}
+.kasir-resi-tool{
+  width:auto!important;
+  min-width:132px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:9px 13px!important;
+  border:1px solid #e2e8f0;
+  border-radius:12px!important;
+  background:var(--bg-card,#fff);
+  color:var(--text-main,#172033);
+  box-shadow:none!important;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.kasir-resi-tool.primary{
+  background:#111827;
+  color:#fff;
+  border-color:#111827;
+}
+@media(max-width:560px){
+  .kasir-tools-resi{display:grid;grid-template-columns:1fr 1fr}
+  .kasir-resi-tool{min-width:0;width:100%!important}
+}
+</style>
 </head>
 <body>
 
@@ -1551,6 +1590,15 @@ body.dark-mode #evoraAICenter label,
   </div>
 
   <div id="tab-kasir" class="tab-content">
+<div id="kasirToolsResi" class="kasir-tools-resi">
+  <button type="button" class="kasir-resi-tool" onclick="openScannerResi && openScannerResi()">
+    <i class="fa-solid fa-qrcode"></i><span>Scanner Resi</span>
+  </button>
+  <button type="button" class="kasir-resi-tool primary" onclick="openCetakResi()">
+    <i class="fa-solid fa-print"></i><span>Cetak Resi</span>
+  </button>
+</div>
+
     <div class="card">
       <h3><i class="fa-solid fa-gear"></i> KONFIGURASI HARGA GLOBAL</h3>
       <input id="inputHargaGlobal" type="number" value="27000" onchange="simpanHargaBaru()" style="font-weight:800; color:var(--primary); font-size:18px; text-align:center; background:var(--bg-card); border-color: var(--primary);">
@@ -1777,7 +1825,8 @@ body.dark-mode #evoraAICenter label,
 
 <div class="bottom-nav">
   <button id="nav-beranda" class="nav-item active" onclick="switchTab('beranda')">
-    <div class="nav-icon"><i class="fa-solid fa-house"></i></div>
+    <div class="nav-icon"><i class="fa-solid fa-house"></i>
+  </div>
     <div>Beranda</div>
   </button>
   <button id="nav-kasir" class="nav-item" onclick="switchTab('kasir')">
@@ -1791,10 +1840,6 @@ body.dark-mode #evoraAICenter label,
   <button id="nav-riwayat" class="nav-item" onclick="switchTab('riwayat')">
     <div class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
     <div>Riwayat</div>
-  </button>
-  <button id="nav-cetak-resi" class="nav-item" type="button" onclick="openCetakResi()">
-    <div class="nav-icon"><i class="fa-solid fa-print"></i></div>
-    <div>Cetak Resi</div>
   </button>
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
     <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
