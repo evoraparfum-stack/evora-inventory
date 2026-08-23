@@ -5176,7 +5176,7 @@ Object.defineProperty(window,"barang",{get:()=>barang});
 <div class="ecr-head"><div><div class="ecr-title">🖨️ Cetak Resi</div><div class="ecr-sub">Upload PDF Shopee → area resi otomatis dipotong → cetak 80 mm.</div></div><button class="ecr-close" onclick="closeCetakResi()">✕ Tutup</button></div>
 <div class="ecr-drop"><label class="ecr-drop-label" for="ecrPdfInput">📄 Pilih PDF Resi Shopee</label><input id="ecrPdfInput" type="file" accept="application/pdf"><div id="ecrFileName" class="ecr-file">Belum ada PDF.</div><div class="ecr-note">Fitur ini HANYA untuk mencetak. Tidak masuk penjualan, stok, kasir, atau iklan.</div><div class="ecr-note">Bluetooth hanya digunakan untuk koneksi printer. Tidak mengubah data penjualan/stok/iklan.</div></div>
 <div class="ecr-toolbar"><button class="ecr-btn secondary" onclick="ecrSelectAll()">☑ Pilih Semua</button><button class="ecr-btn secondary" onclick="ecrClearAll()">☐ Kosongkan</button><button class="ecr-btn primary" onclick="ecrPrintSelected()">🖨️ Cetak Terpilih</button><button id="ecrBtToggle" class="ecr-btn secondary" onclick="toggleEcrBluetooth()">🔵 Aktifkan Bluetooth</button>
-<span id="ecrBtStatus" class="ecr-count" style="align-self:center;">Bluetooth: Nonaktif</span><span id="ecrCount" class="ecr-count">0 resi</span></div>
+<span id="ecrBtStatus" class="ecr-count" style="align-self:center;">Bluetooth: Nonaktif</span><button id="ecrBtTestBtn" class="ecr-btn secondary" onclick="ecrBtTest()">🧪 Test Printer</button><span id="ecrCount" class="ecr-count">0 resi</span></div>
 <div class="ecr-layout"><div class="ecr-list"><div class="ecr-list-head"><b>Daftar Resi</b><span class="ecr-count">Per halaman PDF</span></div><div id="ecrItems" class="ecr-items"><div class="ecr-empty">Upload PDF untuk melihat resi.</div></div></div>
 <div class="ecr-preview"><div class="ecr-list-head"><b>Preview</b><span id="ecrPreviewLabel" class="ecr-count">-</span></div><div class="ecr-preview-wrap"><div id="ecrPaper" class="ecr-paper"><div class="ecr-empty">Belum ada resi dipilih.</div></div></div></div></div></div></div><script id="evora-cetak-resi-logic">
 let ecrPdfDoc=null,ecrPdfBytes=null,ecrPages=[],ecrSelected=new Set(),ecrCurrentPage=1;
@@ -5256,86 +5256,185 @@ async function ecrPrintSelected(){
 document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))})
 </script><script type="module">import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";window.pdfjsLib=pdfjsLib;pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";</script>
 <script id="evora-cetak-resi-bluetooth-logic">
+const ECR_BT_SERVICE="000018f0-0000-1000-8000-00805f9b34fb";
+const ECR_BT_WRITE="00002af1-0000-1000-8000-00805f9b34fb";
 let ecrBluetoothDevice=null;
 let ecrBluetoothPrinterCharacteristic=null;
 let ecrBluetoothConnected=false;
+let ecrBluetoothBusy=false;
+let ecrBluetoothConnectTimer=null;
 
-function updateEcrBluetoothUI(){
-  const btn=document.getElementById("ecrBtToggle");
-  const st=document.getElementById("ecrBtStatus");
+function ecrSetBtStatus(text,mode="off"){
+  const btn=document.getElementById("ecrBtToggle"),st=document.getElementById("ecrBtStatus");
   if(!btn||!st)return;
-  if(ecrBluetoothConnected){
+  st.textContent=text;
+  btn.classList.remove("ecr-bt-connected","ecr-bt-off");
+  if(mode==="connected"){
     btn.textContent="🔵 Nonaktifkan Bluetooth";
-    btn.classList.remove("ecr-bt-off");
     btn.classList.add("ecr-bt-connected");
-    st.textContent=`Bluetooth: Terhubung${ecrBluetoothDevice?.name?" • "+ecrBluetoothDevice.name:""}`;
+  }else if(mode==="busy"){
+    btn.textContent="⏳ Menghubungkan...";
+    btn.classList.add("ecr-bt-off");
   }else{
     btn.textContent="🔵 Aktifkan Bluetooth";
-    btn.classList.remove("ecr-bt-connected");
     btn.classList.add("ecr-bt-off");
-    st.textContent="Bluetooth: Nonaktif";
+  }
+}
+
+function ecrBtDisconnect(){
+  clearTimeout(ecrBluetoothConnectTimer);
+  try{
+    if(ecrBluetoothDevice?.gatt?.connected)ecrBluetoothDevice.gatt.disconnect();
+  }catch(e){}
+  ecrBluetoothPrinterCharacteristic=null;
+  ecrBluetoothConnected=false;
+  ecrSetBtStatus("Bluetooth: Nonaktif","off");
+}
+
+function ecrBtHandleDisconnect(){
+  ecrBluetoothPrinterCharacteristic=null;
+  ecrBluetoothConnected=false;
+  ecrSetBtStatus("Bluetooth: Terputus","off");
+}
+
+function ecrBtAttachDevice(device){
+  if(!device)return;
+  ecrBluetoothDevice=device;
+  device.addEventListener("gattserverdisconnected",ecrBtHandleDisconnect);
+}
+
+async function ecrBtConnectDevice(device){
+  clearTimeout(ecrBluetoothConnectTimer);
+  ecrBtAttachDevice(device);
+
+  if(device.gatt?.connected){
+    const server=device.gatt;
+    const service=await server.getPrimaryService(ECR_BT_SERVICE);
+    const characteristic=await service.getCharacteristic(ECR_BT_WRITE);
+    ecrBluetoothPrinterCharacteristic=characteristic;
+    ecrBluetoothConnected=true;
+    ecrSetBtStatus(`Bluetooth: Terhubung • ${device.name||"RPP02N"}`,"connected");
+    return true;
+  }
+
+  ecrSetBtStatus("Bluetooth: Menghubungkan...","busy");
+
+  let timerResolve;
+  const timeout=new Promise((_,reject)=>{
+    timerResolve=setTimeout(()=>reject(new Error("Koneksi Bluetooth timeout")),8000);
+  });
+
+  try{
+    const connectPromise=(async()=>{
+      const server=await device.gatt.connect();
+      const service=await server.getPrimaryService(ECR_BT_SERVICE);
+      const characteristic=await service.getCharacteristic(ECR_BT_WRITE);
+      return {characteristic};
+    })();
+
+    const result=await Promise.race([connectPromise,timeout]);
+    clearTimeout(timerResolve);
+    ecrBluetoothPrinterCharacteristic=result.characteristic;
+    ecrBluetoothConnected=true;
+    ecrSetBtStatus(`Bluetooth: Terhubung • ${device.name||"RPP02N"}`,"connected");
+    return true;
+  }catch(err){
+    clearTimeout(timerResolve);
+    console.error("RPP02N Bluetooth:",err);
+    try{if(device.gatt?.connected)device.gatt.disconnect()}catch(e){}
+    ecrBluetoothPrinterCharacteristic=null;
+    ecrBluetoothConnected=false;
+    ecrSetBtStatus("Bluetooth: Gagal terhubung","off");
+    throw err;
+  }
+}
+
+async function ecrFindPreviouslyGrantedPrinter(){
+  if(!navigator.bluetooth?.getDevices)return null;
+  try{
+    const devices=await navigator.bluetooth.getDevices();
+    return devices.find(d=>
+      (d.name||"").toUpperCase().includes("RPP02N") ||
+      (d.name||"").toUpperCase().includes("RONGTA")
+    )||null;
+  }catch(e){
+    console.warn("getDevices tidak tersedia:",e);
+    return null;
   }
 }
 
 async function toggleEcrBluetooth(){
+  if(ecrBluetoothBusy)return;
+
   if(ecrBluetoothConnected){
-    try{ecrBluetoothDevice?.gatt?.disconnect();}catch(e){}
-    ecrBluetoothDevice=null;
-    ecrBluetoothPrinterCharacteristic=null;
-    ecrBluetoothConnected=false;
-    updateEcrBluetoothUI();
+    ecrBtDisconnect();
     return;
   }
 
   if(!navigator.bluetooth){
-    alert("Browser/perangkat ini tidak mendukung Bluetooth Web. Gunakan Chrome/Edge pada perangkat yang mendukung Web Bluetooth.");
+    alert("Browser ini tidak mendukung Web Bluetooth.");
     return;
   }
 
+  ecrBluetoothBusy=true;
+  ecrSetBtStatus("Bluetooth: Menyiapkan...","busy");
+
   try{
-    const device=await navigator.bluetooth.requestDevice({
-      acceptAllDevices:true,
-      optionalServices:[
-        "000018f0-0000-1000-8000-00805f9b34fb",
-        "00001101-0000-1000-8000-00805f9b34fb"
-      ]
-    });
+    // 1) Fast path: reconnect to a device this site already has permission for.
+    let device=await ecrFindPreviouslyGrantedPrinter();
 
-    ecrBluetoothDevice=device;
-    device.addEventListener("gattserverdisconnected",()=>{
-      ecrBluetoothConnected=false;
-      ecrBluetoothPrinterCharacteristic=null;
-      updateEcrBluetoothUI();
-    });
-
-    const server=await device.gatt.connect();
-    let characteristic=null;
-
-    // Try common thermal-printer Bluetooth service/characteristic.
-    for(const serviceUuid of [
-      "000018f0-0000-1000-8000-00805f9b34fb",
-      "00001101-0000-1000-8000-00805f9b34fb"
-    ]){
-      try{
-        const service=await server.getPrimaryService(serviceUuid);
-        const chars=await service.getCharacteristics();
-        characteristic=chars.find(c=>c.properties.write||c.properties.writeWithoutResponse)||chars[0];
-        if(characteristic)break;
-      }catch(e){}
+    // 2) If not granted yet, show only thermal-printer BLE devices.
+    if(!device){
+      device=await navigator.bluetooth.requestDevice({
+        filters:[
+          {services:[ECR_BT_SERVICE]},
+          {namePrefix:"RPP02N"},
+          {namePrefix:"RONGTA"}
+        ],
+        optionalServices:[ECR_BT_SERVICE]
+      });
     }
 
-    ecrBluetoothPrinterCharacteristic=characteristic;
-    ecrBluetoothConnected=true;
-    updateEcrBluetoothUI();
-
-    if(!characteristic){
-      alert("Printer Bluetooth terhubung, tetapi karakteristik cetaknya tidak terdeteksi. Cetak PDF tetap bisa menggunakan dialog printer sistem.");
+    if(!device){
+      throw new Error("Printer tidak dipilih");
     }
+
+    await ecrBtConnectDevice(device);
   }catch(err){
-    console.error("Bluetooth Cetak Resi:",err);
+    console.error("Bluetooth:",err);
     if(err?.name!=="NotFoundError"){
-      alert("Bluetooth tidak berhasil diaktifkan. Pastikan printer menyala dan Bluetooth-nya aktif.");
+      alert("Printer belum tersambung. Pastikan RPP02N menyala, dekat dengan komputer, dan Bluetooth printer tidak sedang dipakai perangkat lain.");
+    }else{
+      ecrSetBtStatus("Bluetooth: Nonaktif","off");
     }
+  }finally{
+    ecrBluetoothBusy=false;
+  }
+}
+
+async function ecrBtTest(){
+  if(!ecrBluetoothConnected||!ecrBluetoothPrinterCharacteristic){
+    alert("Hubungkan printer Bluetooth terlebih dahulu.");
+    return false;
+  }
+  try{
+    const data=new Uint8Array([
+      0x1B,0x40,
+      0x1B,0x61,0x01,
+      ...new TextEncoder().encode("EVORA TEST\n"),
+      0x0A,0x0A,0x0A
+    ]);
+    if(ecrBluetoothPrinterCharacteristic.writeValueWithoutResponse){
+      await ecrBluetoothPrinterCharacteristic.writeValueWithoutResponse(data);
+    }else{
+      await ecrBluetoothPrinterCharacteristic.writeValue(data);
+    }
+    return true;
+  }catch(err){
+    console.error("Bluetooth test print:",err);
+    ecrBtHandleDisconnect();
+    alert("Koneksi printer terputus saat test.");
+    return false;
   }
 }
 </script>
