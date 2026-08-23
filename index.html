@@ -1242,7 +1242,19 @@ body.dark-mode #evoraAICenter label,
 .dark-theme #evoraAICenter .eai-history-head{border-bottom-color:#334155!important}
 </style>
 
-</head>
+<style id="evora-cetak-resi-style">
+#evoraCetakResi{display:none;position:fixed;inset:0;z-index:99980;background:var(--bg-main,#f8fafc);overflow:auto}
+.ecr-shell{max-width:1180px;margin:auto;padding:18px}.ecr-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}.ecr-title{font-size:23px;font-weight:900}.ecr-sub,.ecr-file,.ecr-count,.ecr-note{font-size:10px;color:#64748b;margin-top:4px}.ecr-close,.ecr-btn{width:auto;padding:9px 12px;box-shadow:none}.ecr-close{background:#94a3b8}.ecr-btn.primary{background:#111827;color:#fff}.ecr-btn.secondary{background:#e2e8f0;color:#334155}.ecr-drop{border:2px dashed #94a3b8;border-radius:16px;padding:22px;text-align:center;background:var(--bg-card,#fff);margin-bottom:12px}.ecr-drop input{display:none}.ecr-drop-label{display:inline-block;padding:10px 14px;border-radius:12px;background:#111827;color:#fff;cursor:pointer;font-size:11px}.ecr-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.ecr-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px}.ecr-list,.ecr-preview{background:var(--bg-card,#fff);border:1px solid #e2e8f0;border-radius:16px;padding:12px}.ecr-list-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}.ecr-items{display:grid;gap:7px;max-height:620px;overflow:auto}.ecr-item{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid #e2e8f0;border-radius:11px;cursor:pointer}.ecr-item.active{border-color:#111827}.ecr-item-main{min-width:0;flex:1}.ecr-item-title{font-size:10px;font-weight:800}.ecr-item-meta{font-size:9px;color:#64748b}.ecr-preview-wrap{display:flex;justify-content:center;background:#e2e8f0;border-radius:12px;padding:12px;min-height:480px;overflow:auto}.ecr-paper{width:302px;background:#fff;box-shadow:0 5px 18px #0003;overflow:hidden}.ecr-paper canvas{display:block;width:100%;height:auto}.ecr-empty{font-size:11px;color:#64748b;text-align:center;padding:50px 10px}.ecr-note{line-height:1.5}
+@media(max-width:800px){.ecr-shell{padding:12px}.ecr-layout{grid-template-columns:1fr}.ecr-preview{order:-1}.ecr-items{max-height:300px}}
+@media print{body>*:not(#evoraCetakResi){display:none!important}#evoraCetakResi{display:block!important;position:static!important;background:#fff!important}.ecr-shell{padding:0!important}.ecr-head,.ecr-toolbar,.ecr-drop,.ecr-list,.ecr-note,.ecr-count{display:none!important}.ecr-layout{display:block!important}.ecr-preview{padding:0!important;border:0!important}.ecr-preview-wrap{display:block!important;padding:0!important;background:#fff!important}.ecr-paper{width:80mm!important;box-shadow:none!important}}
+</style><style id="evora-cetak-resi-nav-fix">
+.bottom-nav{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.bottom-nav::-webkit-scrollbar{display:none}
+.bottom-nav .nav-item{flex:0 0 auto;min-width:72px}
+@media(max-width:760px){
+  .bottom-nav .nav-item{min-width:68px;font-size:9px}
+}
+</style></head>
 <body>
 
 <div id="topNotification" class="top-toast-alert">
@@ -1752,6 +1764,10 @@ body.dark-mode #evoraAICenter label,
   <button id="nav-riwayat" class="nav-item" onclick="switchTab('riwayat')">
     <div class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
     <div>Riwayat</div>
+  </button>
+  <button id="nav-cetak-resi" class="nav-item" type="button" onclick="openCetakResi()">
+    <div class="nav-icon"><i class="fa-solid fa-print"></i></div>
+    <div>Cetak Resi</div>
   </button>
   <button id="nav-setting" class="nav-item" onclick="switchTab('setting')">
     <div class="nav-icon"><i class="fa-solid fa-gear"></i></div>
@@ -5129,5 +5145,23 @@ Object.defineProperty(window,"barang",{get:()=>barang});
   </div>
 </div>
 
-</body>
+<div id="evoraCetakResi"><div class="ecr-shell">
+<div class="ecr-head"><div><div class="ecr-title">🖨️ Cetak Resi</div><div class="ecr-sub">Upload PDF Shopee → pilih halaman → cetak 80 mm.</div></div><button class="ecr-close" onclick="closeCetakResi()">✕ Tutup</button></div>
+<div class="ecr-drop"><label class="ecr-drop-label" for="ecrPdfInput">📄 Pilih PDF Resi Shopee</label><input id="ecrPdfInput" type="file" accept="application/pdf"><div id="ecrFileName" class="ecr-file">Belum ada PDF.</div><div class="ecr-note">Fitur ini HANYA untuk mencetak. Tidak masuk penjualan, stok, kasir, atau iklan.</div></div>
+<div class="ecr-toolbar"><button class="ecr-btn secondary" onclick="ecrSelectAll()">☑ Pilih Semua</button><button class="ecr-btn secondary" onclick="ecrClearAll()">☐ Kosongkan</button><button class="ecr-btn primary" onclick="ecrPrintSelected()">🖨️ Cetak Terpilih</button><span id="ecrCount" class="ecr-count">0 resi</span></div>
+<div class="ecr-layout"><div class="ecr-list"><div class="ecr-list-head"><b>Daftar Resi</b><span class="ecr-count">Per halaman PDF</span></div><div id="ecrItems" class="ecr-items"><div class="ecr-empty">Upload PDF untuk melihat resi.</div></div></div>
+<div class="ecr-preview"><div class="ecr-list-head"><b>Preview</b><span id="ecrPreviewLabel" class="ecr-count">-</span></div><div class="ecr-preview-wrap"><div id="ecrPaper" class="ecr-paper"><div class="ecr-empty">Belum ada resi dipilih.</div></div></div></div></div></div></div><script id="evora-cetak-resi-logic">
+let ecrPdfDoc=null,ecrPdfBytes=null,ecrPages=[],ecrSelected=new Set(),ecrCurrentPage=1;
+function openCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="block"}
+function closeCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="none"}
+function ecrUpdateCount(){const e=document.getElementById("ecrCount");if(e)e.textContent=`${ecrSelected.size} dari ${ecrPages.length} resi dipilih`}
+function ecrSelectAll(){ecrSelected=new Set(ecrPages.map(x=>x.page));ecrRenderList()}
+function ecrClearAll(){ecrSelected.clear();ecrRenderList()}
+function ecrToggle(p,ev){if(ev)ev.stopPropagation();ecrSelected.has(p)?ecrSelected.delete(p):ecrSelected.add(p);ecrRenderList(false)}
+function ecrRenderList(){const e=document.getElementById("ecrItems");if(!e)return;if(!ecrPages.length){e.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';ecrUpdateCount();return}e.innerHTML=ecrPages.map(p=>`<div class="ecr-item ${p.page===ecrCurrentPage?"active":""}" onclick="ecrShowPage(${p.page})"><input type="checkbox" ${ecrSelected.has(p.page)?"checked":""} onclick="ecrToggle(${p.page},event)"><div class="ecr-item-main"><div class="ecr-item-title">Resi / Halaman ${p.page}</div><div class="ecr-item-meta">${p.widthMm.toFixed(1)} × ${p.heightMm.toFixed(1)} mm</div></div></div>`).join("");ecrUpdateCount()}
+async function ecrShowPage(page){if(!ecrPdfDoc)return;ecrCurrentPage=page;ecrRenderList();const pg=await ecrPdfDoc.getPage(page),base=pg.getViewport({scale:1}),scale=302/base.width,vp=pg.getViewport({scale}),c=document.createElement("canvas");c.width=Math.ceil(vp.width);c.height=Math.ceil(vp.height);await pg.render({canvasContext:c.getContext("2d",{alpha:false}),viewport:vp}).promise;const paper=document.getElementById("ecrPaper");paper.innerHTML="";paper.appendChild(c);document.getElementById("ecrPreviewLabel").textContent=`Halaman ${page} / ${ecrPages.length}`}
+async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const p=await ecrPdfDoc.getPage(i),v=p.getViewport({scale:1});ecrPages.push({page:i,widthMm:v.width*25.4/72,heightMm:v.height*25.4/72})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman`;ecrRenderList();await ecrShowPage(1)}
+function ecrPrintSelected(){if(!ecrPdfDoc||!ecrSelected.size){alert("Pilih minimal satu resi.");return}const pages=[...ecrSelected].sort((a,b)=>a-b);const blob=new Blob([ecrPdfBytes],{type:"application/pdf"}),url=URL.createObjectURL(blob),w=window.open(url,"_blank");if(!w){alert("Popup diblokir browser. Izinkan popup untuk mencetak PDF.");return}w.addEventListener("load",()=>{try{w.print()}catch(e){console.error(e)}});console.log("Cetak halaman terpilih:",pages)}
+document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))})
+</script><script type="module">import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";window.pdfjsLib=pdfjsLib;pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";</script></body>
 </html>
