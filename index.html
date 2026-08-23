@@ -1484,6 +1484,75 @@ body.dark-mode #evoraAICenter label,
   }
 }
 </style>
+
+<style id="ecr-80mm-compact-print">
+@media print{
+  .ecr-print-label{
+    padding:2.8mm 3.5mm 2.2mm!important;
+    font-size:7px!important;
+    line-height:1.12!important;
+  }
+  .ecr-top{font-size:12px!important;line-height:1!important}
+  .ecr-top span{font-size:6.5px!important;padding:1px 3px!important}
+  .ecr-route{font-size:6px!important;margin-top:1mm!important}
+  .ecr-rule{margin:1.5mm 0!important}
+  .ecr-resi-head{font-size:5.8px!important}
+  .ecr-resi-head b{font-size:7px!important}
+  .ecr-barcode{
+    height:8.5mm!important;
+    margin:1mm 0 1.8mm!important;
+  }
+  .ecr-two{gap:2.5mm!important}
+  .ecr-two label,.ecr-info label,.ecr-order-title,.ecr-product-head,.ecr-note2 b{
+    font-size:5px!important;
+  }
+  .ecr-two b{font-size:6.8px!important;margin-top:0!important}
+  .ecr-two span{font-size:5.6px!important}
+  .ecr-address{
+    font-size:5.8px!important;
+    line-height:1.18!important;
+    margin-top:1mm!important;
+  }
+  .ecr-info{gap:1.5mm!important}
+  .ecr-info b{font-size:6.2px!important}
+  .ecr-order-title{margin-top:1.2mm!important}
+  .ecr-order{font-size:6.8px!important;margin-top:0!important}
+  .ecr-order+.ecr-barcode{margin-bottom:0.8mm!important}
+  .ecr-qr{
+    top:50mm!important;
+    right:3.5mm!important;
+    width:15mm!important;
+    height:15mm!important;
+  }
+  .ecr-product-head{
+    gap:1mm!important;
+    padding:1mm!important;
+    margin-top:1mm!important;
+  }
+  .ecr-product-row{
+    gap:1mm!important;
+    padding:1mm!important;
+  }
+  .ecr-product-name,.ecr-product-sku,.ecr-product-variation{
+    font-size:5.4px!important;
+    line-height:1.12!important;
+  }
+  .ecr-product-qty{font-size:6px!important}
+  .ecr-note2{
+    margin-top:1mm!important;
+    padding-top:1mm!important;
+  }
+  .ecr-note2 span{
+    font-size:5.4px!important;
+    line-height:1.18!important;
+  }
+  .ecr-footer{
+    margin-top:1mm!important;
+    padding-top:1mm!important;
+    font-size:4.5px!important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -5515,7 +5584,25 @@ async function ecrPrintSelected(){
       .ecr-product-qty{font-size:7px;font-weight:800;text-align:right}
       .ecr-note2{margin-top:2mm;border-top:1px solid #111;padding-top:1.5mm;overflow-wrap:anywhere;word-break:break-word}
       .ecr-note2 b{display:block;font-size:5.8px}.ecr-note2 span{display:block;font-size:6.2px;line-height:1.35}
-      .ecr-footer{margin-top:2mm;padding-top:1.5mm;border-top:1px solid #111;font-size:5.3px;color:#334155}
+      .ecr-footer{margin-top:1mm;padding-top:1mm;border-top:1px solid #111;font-size:4.5px;color:#334155}
+      /* Compact 80mm thermal layout */
+      .ecr-print-label{padding:2.8mm 3.5mm 2.2mm!important;font-size:7px!important;line-height:1.12!important}
+      .ecr-top{font-size:12px!important}.ecr-top span{font-size:6.5px!important;padding:1px 3px!important}
+      .ecr-route{font-size:6px!important;margin-top:1mm!important}.ecr-rule{margin:1.5mm 0!important}
+      .ecr-resi-head{font-size:5.8px!important}.ecr-resi-head b{font-size:7px!important}
+      .ecr-barcode{height:8.5mm!important;margin:1mm 0 1.8mm!important}
+      .ecr-two{gap:2.5mm!important}.ecr-two label,.ecr-info label,.ecr-order-title,.ecr-product-head,.ecr-note2 b{font-size:5px!important}
+      .ecr-two b{font-size:6.8px!important}.ecr-two span{font-size:5.6px!important}
+      .ecr-address{font-size:5.8px!important;line-height:1.18!important;margin-top:1mm!important}
+      .ecr-info{gap:1.5mm!important}.ecr-info b{font-size:6.2px!important}
+      .ecr-order-title{margin-top:1.2mm!important}.ecr-order{font-size:6.8px!important}
+      .ecr-order+.ecr-barcode{margin-bottom:.8mm!important}
+      .ecr-qr{top:50mm!important;right:3.5mm!important;width:15mm!important;height:15mm!important}
+      .ecr-product-head{gap:1mm!important;padding:1mm!important;margin-top:1mm!important}
+      .ecr-product-row{gap:1mm!important;padding:1mm!important}
+      .ecr-product-name,.ecr-product-sku,.ecr-product-variation{font-size:5.4px!important;line-height:1.12!important}
+      .ecr-product-qty{font-size:6px!important}.ecr-note2{margin-top:1mm!important;padding-top:1mm!important}
+      .ecr-note2 span{font-size:5.4px!important;line-height:1.18!important}
     `;
 
     win.document.open();
