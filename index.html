@@ -1394,6 +1394,25 @@ body.dark-mode #evoraAICenter label,
   #ecrPrintFrame{display:none!important}
 }
 </style>
+
+<style id="ecr-rebuild-print-css">
+.ecr-paper{width:302px!important;background:#fff!important;box-shadow:0 5px 18px #0003;overflow:hidden}
+.ecr-print-label{position:relative;width:80mm;background:#fff;color:#111827;padding:4.5mm 4.5mm 3.5mm;font-family:Arial,Helvetica,sans-serif;font-size:8px;line-height:1.25;box-sizing:border-box;overflow:hidden}
+.ecr-preview-label{width:100%!important;min-width:0!important;font-size:7px!important;padding:4mm!important}
+.ecr-top{display:flex;justify-content:space-between;align-items:flex-start;font-size:15px;line-height:1}.ecr-top span{font-size:8px;font-weight:800;border:1px solid #111;padding:1px 4px}.ecr-route{font-size:7px;font-weight:800;margin-top:2mm}.ecr-rule{border-top:1px solid #111;margin:2.5mm 0}.ecr-resi-head{display:flex;justify-content:space-between;font-size:7px}.ecr-resi-head b{font-size:9px}.ecr-barcode{height:13mm;display:flex;align-items:stretch;justify-content:center;margin:1.5mm 0 3mm;overflow:hidden;white-space:nowrap}.ecr-barcode i{display:block;height:100%;flex:0 0 auto}.ecr-barcode .b{background:#000}.ecr-barcode .w{background:#fff}.ecr-two{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.ecr-two label,.ecr-info label{display:block;font-size:5.8px;font-weight:800}.ecr-two b{display:block;font-size:8px;margin-top:1px}.ecr-two span{display:block;font-size:6.5px}.ecr-address{font-size:6.7px;line-height:1.35;margin-top:2mm;word-break:break-word}.ecr-info{display:grid;grid-template-columns:1fr 1.25fr .8fr;gap:2mm}.ecr-info b{font-size:7px}.ecr-order-title{font-size:5.8px;font-weight:800;margin-top:2.5mm}.ecr-order{font-size:8px;display:block;margin-top:1px}.ecr-order+.ecr-barcode{margin-bottom:1.5mm}.ecr-qr{position:absolute;right:4.5mm;top:63mm;width:18mm;height:18mm;background:#fff}.ecr-qr img{width:100%;height:100%;object-fit:contain;image-rendering:auto}.ecr-product-head{display:grid;grid-template-columns:1.25fr .45fr .75fr .18fr;gap:1.5mm;background:#111827;color:#fff;padding:1.5mm 1.5mm;font-size:5.8px;margin-top:1.5mm}.ecr-product-row{display:grid;grid-template-columns:1.25fr .45fr .75fr .18fr;gap:1.5mm;padding:1.5mm;border-bottom:1px solid #cbd5e1;align-items:start}.ecr-product-name,.ecr-product-sku,.ecr-product-variation{font-size:6.2px;word-break:break-word}.ecr-product-qty{font-size:7px;font-weight:800;text-align:right}.ecr-note2{margin-top:2mm;border-top:1px solid #111;padding-top:1.5mm}.ecr-note2 b{display:block;font-size:5.8px}.ecr-note2 span{display:block;font-size:6.2px;line-height:1.35}.ecr-footer{margin-top:2mm;padding-top:1.5mm;border-top:1px solid #111;font-size:5.3px;color:#334155}
+@media print{
+  @page{size:80mm auto;margin:0}
+  html,body{margin:0!important;padding:0!important;background:#fff!important}
+  body>*:not(#evoraCetakResi){display:none!important}
+  #evoraCetakResi{display:block!important;position:static!important;background:#fff!important}
+  #evoraCetakResi .ecr-shell{padding:0!important;margin:0!important;max-width:none!important}
+  #evoraCetakResi .ecr-head,#evoraCetakResi .ecr-toolbar,#evoraCetakResi .ecr-drop,#evoraCetakResi .ecr-layout{display:none!important}
+  #ecrPrintRoot{display:block!important;width:80mm!important;margin:0!important;padding:0!important}
+  #ecrPrintRoot .ecr-print-label{width:80mm!important;margin:0!important;box-shadow:none!important;page-break-after:always;break-after:page}
+  #ecrPrintRoot .ecr-print-label:last-child{page-break-after:auto;break-after:auto}
+}
+@media screen{#ecrPrintRoot{display:none}.ecr-preview-label{box-shadow:none!important}}
+</style>
 </head>
 <body>
 
@@ -5292,298 +5311,41 @@ Object.defineProperty(window,"barang",{get:()=>barang});
 </div>
 
 <div id="evoraCetakResi"><div class="ecr-shell">
-<div class="ecr-head"><div><div class="ecr-title">🖨️ Cetak Resi</div><div class="ecr-sub">Upload PDF Shopee → area resi otomatis dipotong → cetak 80 mm.</div></div><button class="ecr-close" onclick="closeCetakResi()">✕ Tutup</button></div>
-<div class="ecr-drop"><label class="ecr-drop-label" for="ecrPdfInput">📄 Pilih PDF Resi Shopee</label><input id="ecrPdfInput" type="file" accept="application/pdf"><div id="ecrFileName" class="ecr-file">Belum ada PDF.</div><div class="ecr-note">Fitur ini HANYA untuk mencetak. Tidak masuk penjualan, stok, kasir, atau iklan.</div><div id="ecr-print-note" class="ecr-note">Saat klik Cetak, dialog printer akan muncul. Pilih printer thermal 80 mm dan skala 100%.</div></div>
-<div class="ecr-toolbar"><button class="ecr-btn secondary" onclick="ecrSelectAll()">☑ Pilih Semua</button><button class="ecr-btn secondary" onclick="ecrClearAll()">☐ Kosongkan</button><button class="ecr-btn primary" onclick="ecrPrintSelected()">🖨️ Cetak Terpilih</button>
-<span id="ecrCount" class="ecr-count">0 resi</span></div>
-<div class="ecr-layout"><div class="ecr-list"><div class="ecr-list-head"><b>Daftar Resi</b><span class="ecr-count">Per halaman PDF</span></div><div id="ecrItems" class="ecr-items"><div class="ecr-empty">Upload PDF untuk melihat resi.</div></div></div>
-<div class="ecr-preview"><div class="ecr-list-head"><b>Preview</b><span id="ecrPreviewLabel" class="ecr-count">-</span></div><div class="ecr-preview-wrap"><div id="ecrPaper" class="ecr-paper"><div class="ecr-empty">Belum ada resi dipilih.</div></div></div></div></div></div></div><script id="evora-cetak-resi-logic">
-let ecrPdfDoc=null,ecrPdfBytes=null,ecrPages=[],ecrSelected=new Set(),ecrCurrentPage=1;
+<div class="ecr-head"><div><div class="ecr-title">🖨️ Cetak Resi</div><div class="ecr-sub">Upload PDF Shopee → data dibaca → resi dibuat ulang khusus 80 mm.</div></div><button class="ecr-close" onclick="closeCetakResi()">✕ Tutup</button></div>
+<div class="ecr-drop"><label class="ecr-drop-label" for="ecrPdfInput">📄 Pilih PDF Resi Shopee</label><input id="ecrPdfInput" type="file" accept="application/pdf"><div id="ecrFileName" class="ecr-file">Belum ada PDF.</div><div class="ecr-note">Fitur ini HANYA untuk mencetak. Tidak masuk penjualan, stok, kasir, atau iklan.</div><div id="ecr-print-note" class="ecr-note">Resi dibuat ulang dari data PDF. Tampilan boleh berbeda, tetapi data pesanan tetap dipertahankan.</div></div>
+<div class="ecr-toolbar"><button class="ecr-btn secondary" onclick="ecrSelectAll()">☑ Pilih Semua</button><button class="ecr-btn secondary" onclick="ecrClearAll()">☐ Kosongkan</button><button class="ecr-btn primary" onclick="ecrPrintSelected()">🖨️ Cetak Terpilih</button><span id="ecrCount" class="ecr-count">0 dari 0 resi terpilih</span></div>
+<div class="ecr-layout"><div class="ecr-list"><div class="ecr-list-head"><b>Daftar Resi</b><span class="ecr-count">Data hasil pembacaan PDF</span></div><div id="ecrItems" class="ecr-items"><div class="ecr-empty">Upload PDF untuk melihat resi.</div></div></div>
+<div class="ecr-preview"><div class="ecr-list-head"><b>Preview</b><span id="ecrPreviewLabel" class="ecr-count">-</span></div><div class="ecr-preview-wrap"><div id="ecrPaper" class="ecr-paper"><div class="ecr-empty">Belum ada resi dipilih.</div></div></div></div></div>
+<div id="ecrPrintRoot" class="ecr-print-root" aria-hidden="true"></div>
+</div></div><script id="evora-cetak-resi-logic">
+let ecrPdfDoc=null,ecrPdfBytes=null,ecrPages=[],ecrSelected=new Set(),ecrCurrentPage=1,ecrPrintBusy=false;
 function openCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="block"}
 function closeCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="none"}
 function ecrUpdateCount(){const e=document.getElementById("ecrCount");if(e)e.textContent=`${ecrSelected.size} dari ${ecrPages.length} resi terpilih`}
-function ecrSelectAll(){
-  if(!ecrPages.length){
-    ecrSelected.clear();
-    ecrRenderList();
-    return;
-  }
-  const allSelected=ecrSelected.size===ecrPages.length &&
-    ecrPages.every(p=>ecrSelected.has(p.page));
-
-  if(allSelected){
-    ecrSelected.clear();
-  }else{
-    ecrSelected=new Set(ecrPages.map(p=>p.page));
-  }
-  ecrRenderList();
-}
-function ecrClearAll(){
-  ecrSelected.clear();
-  ecrPages=[];
-  ecrCurrentPage=1;
-  ecrPdfDoc=null;
-  ecrPdfBytes=null;
-  const input=document.getElementById("ecrPdfInput");
-  const name=document.getElementById("ecrFileName");
-  const items=document.getElementById("ecrItems");
-  const paper=document.getElementById("ecrPaper");
-  const label=document.getElementById("ecrPreviewLabel");
-  if(input) input.value="";
-  if(name) name.textContent="Belum ada PDF.";
-  if(items) items.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';
-  if(paper) paper.innerHTML='<div class="ecr-empty">Belum ada resi dipilih.</div>';
-  if(label) label.textContent="-";
-  ecrUpdateCount();
-}
-
-function ecrSelectAndPreview(page,ev){
-  if(ev)ev.stopPropagation();
-  if(!ecrSelected.has(page)){
-    ecrSelected.add(page);
-  }
-  ecrShowPage(page);
-  ecrRenderList();
-}
-
-function ecrToggle(page,ev){
-  if(ev)ev.stopPropagation();
-  if(ecrSelected.has(page)){
-    ecrSelected.delete(page);
-  }else{
-    ecrSelected.add(page);
-  }
-  ecrRenderList();
-}
-function ecrRenderList(){
-  const el=document.getElementById("ecrItems");
-  if(!el)return;
-  if(!ecrPages.length){
-    el.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';
-    ecrUpdateCount();
-    return;
-  }
-
-  const allSelected=ecrSelected.size===ecrPages.length &&
-    ecrPages.every(p=>ecrSelected.has(p.page));
-
-  el.innerHTML=ecrPages.map(p=>{
-    const checked=ecrSelected.has(p.page);
-    return `<div class="ecr-item ${p.page===ecrCurrentPage?"active":""} ${checked?"selected":""}" onclick="ecrSelectAndPreview(${p.page},event)">
-      <input type="checkbox"
-        ${checked?"checked":""}
-        aria-label="Pilih resi halaman ${p.page}"
-        onclick="ecrToggle(${p.page},event)">
-      <div class="ecr-item-main" onclick="ecrSelectAndPreview(${p.page},event)">
-        <div class="ecr-item-title">Resi / Halaman ${p.page}</div>
-        <div class="ecr-item-meta">Ukuran PDF: ${p.widthMm.toFixed(1)} × ${p.heightMm.toFixed(1)} mm</div>
-      </div>
-    </div>`;
-  }).join("");
-
-  ecrUpdateCount();
-
-  const btn=[...document.querySelectorAll(".ecr-btn")].find(b=>b.textContent.includes("Pilih Semua"));
-  if(btn){
-    btn.textContent=allSelected ? "☑ Batalkan Semua" : "☑ Pilih Semua";
-  }
-}
-async function ecrRenderCroppedPage(page,targetWidthPx=3600){
-  if(!ecrPdfDoc)return null;
-  const pg=await ecrPdfDoc.getPage(page);
-  const base=pg.getViewport({scale:1});
-  const scale=targetWidthPx/base.width;
-  const vp=pg.getViewport({scale});
-  const canvas=document.createElement("canvas");
-  canvas.width=Math.ceil(vp.width);canvas.height=Math.ceil(vp.height);
-  const ctx=canvas.getContext("2d",{alpha:false,willReadFrequently:true});
-  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
-  await pg.render({canvasContext:ctx,viewport:vp}).promise;
-  const img=ctx.getImageData(0,0,canvas.width,canvas.height),d=img.data,w=canvas.width,h=canvas.height;
-  let minX=w,minY=h,maxX=-1,maxY=-1;
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-    const i=(y*w+x)*4;
-    if(d[i]<244||d[i+1]<244||d[i+2]<244){if(x<minX)minX=x;if(y<minY)minY=y;if(x>maxX)maxX=x;if(y>maxY)maxY=y}
-  }
-  if(maxX<0){minX=0;minY=0;maxX=w-1;maxY=h-1}
-  const pad=Math.max(6,Math.round(w*.008));
-  minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);maxX=Math.min(w-1,maxX+pad);maxY=Math.min(h-1,maxY+pad);
-  const crop=document.createElement("canvas");
-  crop.width=maxX-minX+1;crop.height=maxY-minY+1;
-  crop.getContext("2d").drawImage(canvas,minX,minY,crop.width,crop.height,0,0,crop.width,crop.height);
-  return {canvas:crop,widthMm:crop.width/targetWidthPx*80,heightMm:crop.height/targetWidthPx*80};
-}
-async function ecrShowPage(page){
-  if(!ecrPdfDoc)return;ecrCurrentPage=page;ecrRenderList();
-  const result=await ecrRenderCroppedPage(page,720),paper=document.getElementById("ecrPaper");
-  paper.innerHTML="";result.canvas.style.width="100%";result.canvas.style.height="auto";paper.style.width="302px";paper.appendChild(result.canvas);
-  const label=document.getElementById("ecrPreviewLabel");
-  if(label)label.textContent=`Halaman ${page} / ${ecrPages.length} • ${result.widthMm.toFixed(0)}×${result.heightMm.toFixed(0)} mm`;
-}
-async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes,fontExtraProperties:true}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const p=await ecrPdfDoc.getPage(i),v=p.getViewport({scale:1});ecrPages.push({page:i,widthMm:v.width*25.4/72,heightMm:v.height*25.4/72})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman`;ecrRenderList();await ecrShowPage(1)}
-
-async function ecrGetVectorCropBox(pageNumber){
-  const pg=await ecrPdfDoc.getPage(pageNumber);
-  const base=pg.getViewport({scale:1});
-  const probeScale=Math.min(2.5,1800/base.width);
-  const vp=pg.getViewport({scale:probeScale});
-  const canvas=document.createElement("canvas");
-  canvas.width=Math.ceil(vp.width);
-  canvas.height=Math.ceil(vp.height);
-  const ctx=canvas.getContext("2d",{alpha:false,willReadFrequently:true});
-  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
-  await pg.render({canvasContext:ctx,viewport:vp}).promise;
-
-  const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-  const w=canvas.width,h=canvas.height;
-  let minX=w,minY=h,maxX=-1,maxY=-1;
-  for(let y=0;y<h;y++){
-    for(let x=0;x<w;x++){
-      const i=(y*w+x)*4;
-      if(data[i]<244||data[i+1]<244||data[i+2]<244){
-        if(x<minX)minX=x;if(y<minY)minY=y;
-        if(x>maxX)maxX=x;if(y>maxY)maxY=y;
-      }
-    }
-  }
-  if(maxX<0){
-    return {x:0,y:0,width:base.width,height:base.height,full:true};
-  }
-
-  const padPx=Math.max(4,Math.round(probeScale*1.5));
-  minX=Math.max(0,minX-padPx);minY=Math.max(0,minY-padPx);
-  maxX=Math.min(w-1,maxX+padPx);maxY=Math.min(h-1,maxY+padPx);
-
-  return {
-    x:minX/probeScale,
-    y:minY/probeScale,
-    width:(maxX-minX+1)/probeScale,
-    height:(maxY-minY+1)/probeScale,
-    full:false
-  };
-}
-
-async function ecrRenderVectorPage(pageNumber){
-  const pg=await ecrPdfDoc.getPage(pageNumber);
-  const viewport=pg.getViewport({scale:1});
-  const crop=await ecrGetVectorCropBox(pageNumber);
-
-  if(!window.pdfjsLib || typeof pdfjsLib.SVGGraphics!=="function"){
-    throw new Error("PDF.js SVGGraphics tidak tersedia.");
-  }
-
-  const operatorList=await pg.getOperatorList();
-
-  // PDF.js 3.11 requires the page's commonObjs/objs and dependencies
-  // to be loaded before getSVG().
-  const svgGfx=new pdfjsLib.SVGGraphics(pg.commonObjs,pg.objs);
-  svgGfx.embedFonts=true; svgGfx.embedFonts = true;
-  await svgGfx.loadDependencies(operatorList);
-  const svg=await svgGfx.getSVG(operatorList,viewport);
-
-  // Crop was detected in top-origin canvas coordinates. Convert to
-  // PDF bottom-origin coordinates for SVG viewBox.
-  const pdfCropY=viewport.height-(crop.y+crop.height);
-
-  svg.setAttribute("xmlns","http://www.w3.org/2000/svg");
-  svg.setAttribute("viewBox",`${crop.x} ${pdfCropY} ${crop.width} ${crop.height}`);
-  svg.setAttribute("width","80mm");
-  svg.setAttribute("height",`${80*crop.height/crop.width}mm`);
-  svg.setAttribute("preserveAspectRatio","none");
-  svg.setAttribute("style","display:block;width:80mm;height:auto;margin:0;padding:0");
-
-  return {
-    svg,
-    widthMm:80,
-    heightMm:80*crop.height/crop.width
-  };
-}
-
-async function ecrPrintSelected(){
-  if(!ecrPdfDoc||!ecrSelected.size){
-    alert("Pilih minimal satu resi.");
-    return;
-  }
-
-  const pages=[...ecrSelected].sort((a,b)=>a-b);
-  const btn=document.querySelector('.ecr-btn.primary[onclick*="ecrPrintSelected"]');
-  if(btn){btn.disabled=true;btn.textContent="⏳ Menyiapkan PDF tajam...";}
-
-  let printFrame=null;
-  try{
-    const rendered=[];
-
-    // IMPORTANT: printing uses the original PDF content as SVG/vector.
-    // The PDF is no longer converted to a PNG for the print path.
-    for(const page of pages){
-      rendered.push(await ecrRenderVectorPage(page));
-    }
-
-    printFrame=document.createElement("iframe");
-    printFrame.id="ecrPrintFrame";
-    printFrame.style.position="fixed";
-    printFrame.style.left="-10000px";
-    printFrame.style.top="0";
-    printFrame.style.width="80mm";
-    printFrame.style.height="100px";
-    printFrame.style.border="0";
-    printFrame.setAttribute("aria-hidden","true");
-    document.body.appendChild(printFrame);
-
-    const doc=printFrame.contentDocument;
-    doc.open();
-    doc.write(`<!doctype html><html><head><meta charset="utf-8"><title>EVORA - Cetak Resi</title>
-<style>
-@page{size:80mm auto;margin:0}
-*{box-sizing:border-box}
-html,body{margin:0!important;padding:0!important;background:#fff!important}
-.sheet{width:80mm;margin:0;padding:0;page-break-after:always;break-after:page;overflow:hidden}
-.sheet:last-child{page-break-after:auto;break-after:auto}
-.sheet svg{display:block;width:80mm!important;height:auto!important;margin:0!important;padding:0!important}
-</style></head><body><div id="ecrPrintRoot"></div></body></html>`);
-    doc.close();
-
-    const root=doc.getElementById("ecrPrintRoot");
-
-    for(const item of rendered){
-      const sheet=doc.createElement("div");
-      sheet.className="sheet";
-      sheet.appendChild(item.svg.cloneNode(true));
-      root.appendChild(sheet);
-    }
-
-    await new Promise(resolve=>setTimeout(resolve,400));
-
-    const cleanup=()=>{
-      setTimeout(()=>{
-        try{document.body.removeChild(printFrame)}catch(e){}
-        printFrame=null;
-        if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
-      },500);
-    };
-
-    printFrame.contentWindow.addEventListener("afterprint",cleanup,{once:true});
-    printFrame.contentWindow.focus();
-    printFrame.contentWindow.print();
-
-    setTimeout(()=>{
-      if(printFrame){
-        try{document.body.removeChild(printFrame)}catch(e){}
-        printFrame=null;
-        if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
-      }
-    },15000);
-
-  }catch(err){
-    console.error("Cetak Resi vector:",err);
-    if(printFrame){
-      try{document.body.removeChild(printFrame)}catch(e){}
-    }
-    if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
-    alert("Mode cetak vector gagal: " + (err?.message || err) + "\n\nJika error menyebut font, PDF.js sedang gagal mengambil data font. Coba upload ulang PDF.");
-  }
-}
-document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))})
+function ecrSelectAll(){if(!ecrPages.length){ecrSelected.clear();ecrRenderList();return}const all=ecrSelected.size===ecrPages.length&&ecrPages.every(p=>ecrSelected.has(p.page));ecrSelected=all?new Set():new Set(ecrPages.map(p=>p.page));ecrRenderList();}
+function ecrClearAll(){ecrSelected.clear();ecrPages=[];ecrCurrentPage=1;ecrPdfDoc=null;ecrPdfBytes=null;const input=document.getElementById("ecrPdfInput"),name=document.getElementById("ecrFileName"),items=document.getElementById("ecrItems"),paper=document.getElementById("ecrPaper"),label=document.getElementById("ecrPreviewLabel"),print=document.getElementById("ecrPrintRoot");if(input)input.value="";if(name)name.textContent="Belum ada PDF.";if(items)items.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';if(paper)paper.innerHTML='<div class="ecr-empty">Belum ada resi dipilih.</div>';if(label)label.textContent="-";if(print)print.innerHTML="";ecrUpdateCount();}
+function ecrSelectAndPreview(page,ev){if(ev)ev.stopPropagation();ecrSelected.add(page);ecrCurrentPage=page;ecrRenderList();ecrShowPage(page)}
+function ecrToggle(page,ev){if(ev)ev.stopPropagation();if(ecrSelected.has(page))ecrSelected.delete(page);else ecrSelected.add(page);ecrRenderList();}
+function ecrRenderList(){const el=document.getElementById("ecrItems");if(!el)return;if(!ecrPages.length){el.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';ecrUpdateCount();return}const all=ecrSelected.size===ecrPages.length&&ecrPages.every(p=>ecrSelected.has(p.page));el.innerHTML=ecrPages.map(p=>{const d=p.data||{},checked=ecrSelected.has(p.page),title=d.resi||`Halaman ${p.page}`,meta=[d.recipient,d.order,d.products?.length?`${d.products.length} produk`:""].filter(Boolean).join(" • ");return `<div class="ecr-item ${p.page===ecrCurrentPage?"active":""} ${checked?"selected":""}" onclick="ecrSelectAndPreview(${p.page},event)"><input type="checkbox" ${checked?"checked":""} aria-label="Pilih resi ${title}" onclick="ecrToggle(${p.page},event)"><div class="ecr-item-main"><div class="ecr-item-title">Resi #${p.page} • ${ecrEsc(title)}</div><div class="ecr-item-meta">${ecrEsc(meta||"Data belum terbaca lengkap")}</div></div></div>`}).join("");ecrUpdateCount();const btn=[...document.querySelectorAll(".ecr-btn")].find(b=>b.textContent.includes("Pilih")||b.textContent.includes("Batalkan"));if(btn)btn.textContent=all?"☑ Batalkan Semua":"☑ Pilih Semua";}
+function ecrEsc(s){return String(s??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function ecrNorm(s){return String(s||"").replace(/\s+/g," ").trim()}
+function ecrLinesFromItems(items,pageHeight){const a=items.filter(x=>ecrNorm(x.str));const rows=[];for(const it of a){const x=it.transform?.[4]||0;const rawY=it.transform?.[5]||0;const y=pageHeight-rawY;let row=rows.find(r=>Math.abs(r.y-y)<=2.8);if(!row){row={y,items:[]};rows.push(row)}row.items.push({x,y,str:ecrNorm(it.str),w:it.width||0})}rows.forEach(r=>r.items.sort((a,b)=>a.x-b.x));rows.sort((a,b)=>a.y-b.y);return rows.map(r=>({...r,text:ecrNorm(r.items.map(i=>i.str).join(" "))}));}
+function ecrFind(items,re){return items.find(i=>re.test(i.str||""))}
+function ecrAllMatches(items,re){return items.filter(i=>re.test(i.str||""))}
+function ecrWordsAtY(items,y,tol=3){return items.filter(i=>Math.abs(i.y-y)<=tol).sort((a,b)=>a.x-b.x)}
+function ecrJoin(items){return ecrNorm(items.map(i=>i.str).join(" "))}
+function ecrParseProducts(items){const header=items.find(i=>/Nama\s+Produk/i.test(i.text));if(!header)return[];const msg=items.find(i=>/^Pesan:/i.test(i.text));const endY=msg?msg.y:Math.min(...items.filter(i=>i.y>header.y+5).map(i=>i.y).concat([header.y+100]));const qtys=[];for(const row of items){for(const it of row.items){if(it.x>=250&&/^\d+$/.test(it.str)&&row.y>header.y+3&&row.y<endY-1){qtys.push({y:row.y,qty:it.str})}}}const starts=[...new Map(qtys.map(q=>[q.y,q])).values()].sort((a,b)=>a.y-b.y);if(!starts.length)return[];return starts.map((st,idx)=>{const next=starts[idx+1]?.y??endY;const productItems=[];const skuItems=[];const variationItems=[];for(const row of items){if(row.y<st.y-2||row.y>=next-1)continue;for(const it of row.items){if(it.x>=18&&it.x<170)productItems.push(it);else if(it.x>=160&&it.x<205)skuItems.push(it);else if(it.x>=205&&it.x<265)variationItems.push(it)}}const product=ecrJoin(productItems);const variation=ecrJoin(variationItems).replace(/\s*,\s*/g,", ");return {product,sku:ecrJoin(skuItems),variation,qty:st.qty}}).filter(p=>p.product||p.variation)}
+async function ecrParsePage(pageNumber){const page=await ecrPdfDoc.getPage(pageNumber),vp=page.getViewport({scale:1}),tc=await page.getTextContent({normalizeWhitespace:true,disableCombineTextItems:false}),items=tc.items.map(it=>({str:it.str,transform:it.transform,width:it.width}));const rows=ecrLinesFromItems(items,vp.height);const flat=rows.map(r=>r.text).join("\n");const resi=(flat.match(/(?:No\.?\s*Resi\s*:?\s*)(SPX[A-Z0-9]+)/i)||flat.match(/\b(SPX[A-Z0-9]{8,})\b/i)||[])[1]||"";let order=(flat.match(/No\.?\s*Pesanan\s*:\s*([A-Z0-9]+)/i)||[])[1]||"";if(!order){const m=flat.match(/\(([A-Z0-9]{8,})\)\s*\(SPX/i);if(m)order=m[1]}
+const phoneItem=items.find(i=>/^(?:\(?\+?62|08)\d[\d\-\s()]+$/.test(i.str.replace(/\s/g,""))||/^\(?\+?62/.test(i.str));let recipient="",sender="",senderArea="",phone="";if(phoneItem){const same=ecrWordsAtY(items,phoneItem.transform?vp.height-phoneItem.transform[5]:0,3);phone=ecrJoin(same.filter(i=>i.x>175));const name=ecrJoin(same.filter(i=>i.x>=35&&i.x<145&&i.str!=="Penerima:"));recipient=name||"";const sy=same.length?same[0].y:0;sender=ecrJoin(ecrWordsAtY(items,sy,3).filter(i=>i.x>=180&&i.x<280&&!/^\(?\+?62/.test(i.str)));const areaRows=items.filter(i=>i.x>=175&&i.x<285&&i.y>sy+18&&i.y<sy+45);senderArea=ecrJoin(areaRows).replace(/\s+/g," ");}
+const address=[];if(phoneItem){const py=vp.height-phoneItem.transform[5];for(const row of rows){if(row.y>py+3&&row.y<py+48){const t=ecrJoin(row.items.filter(i=>i.x<180));if(t&&!/^(KOTA|KAB\.|KEC\.|PROV|HOME|PONDOK|KLARI|BUAHDUA)/i.test(t))address.push(t)}}}
+const deadline=(flat.match(/Batas\s+Kirim\s*:\s*([0-9]{2}-[0-9]{2}-[0-9]{4})/i)||[])[1]||"";const weight=(flat.match(/(?:Berat\s*:\s*)?([0-9]+(?:[.,][0-9]+)?\s*(?:gr|kg))/i)||[])[1]||"";const cod=(flat.match(/COD\s+Cek\s+Dulu\s*:\s*(\w+)/i)||[])[1]||"";const route=(flat.match(/\b([A-Z]{2,4}-[A-Z]-\d{2})\b/)||[])[1]||"";const box=(flat.match(/\b([A-Z]{1,3}-\d{2,3})\b/)||[])[1]||"";const service=(items.find(x=>/^(STD|REG|ONS|YES)$/i.test(x.str||""))?.str||"STD").toUpperCase();const products=ecrParseProducts(rows);let note="";const msgIndex=flat.search(/Pesan:/i);if(msgIndex>=0){const m=flat.slice(msgIndex).replace(/^Pesan:\s*/i,"");note=m.replace(/\s*\([A-Z0-9]+\)\s*\(SPX[A-Z0-9]+\).*$/i,"").trim()}return {page:pageNumber,resi,order,recipient,sender,senderArea,phone,address:address.join(" "),deadline,weight,cod,route,box,service,products,note}}
+async function ecrQrDataUrl(pageNumber){try{const page=await ecrPdfDoc.getPage(pageNumber),vp=page.getViewport({scale:2.8}),sx=217.7*2.8,sy=622.38*2.8,sw=(279.8-217.7)*2.8,sh=(677.75-622.38)*2.8,canvas=document.createElement("canvas");canvas.width=Math.ceil(vp.width);canvas.height=Math.ceil(vp.height);const ctx=canvas.getContext("2d",{alpha:false});ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);await page.render({canvasContext:ctx,viewport:vp}).promise;const crop=document.createElement("canvas");crop.width=Math.ceil(sw);crop.height=Math.ceil(sh);crop.getContext("2d",{alpha:false}).drawImage(canvas,sx,sy,sw,sh,0,0,crop.width,crop.height);return crop.toDataURL("image/png") }catch(e){console.warn("QR crop gagal",e);return ""}}
+function ecrCode128B(value){const p=["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];const chars=[];for(let i=0;i<value.length;i++){let n=value.charCodeAt(i)-32;if(n<0||n>94)n=0;chars.push(n)}let checksum=104;for(let i=0;i<chars.length;i++)checksum+=chars[i]*(i+1);const seq=[104,...chars,checksum%103,106];let html='<div class="ecr-barcode">';for(const code of seq){let black=true;for(const ch of p[code]){const w=Number(ch);html+=`<i class="${black?'b':'w'}" style="width:${w}px"></i>`;black=!black}}return html+'</div>'}
+function ecrBuildLabel(d,qr){const products=d.products?.length?d.products:[{product:"",variation:"",qty:"1"}];const productHtml=products.map(p=>`<div class="ecr-product-row"><div class="ecr-product-name">${ecrEsc(p.product)}</div><div class="ecr-product-sku">${ecrEsc(p.sku||"")}</div><div class="ecr-product-variation">${ecrEsc(p.variation)}</div><div class="ecr-product-qty">${ecrEsc(p.qty)}</div></div>`).join("");return `<div class="ecr-print-label"><div class="ecr-top"><b>${ecrEsc(d.box||"")}</b><span>${ecrEsc(d.service||"STD")}</span></div><div class="ecr-route">${ecrEsc(d.route||"")}</div><div class="ecr-rule"></div><div class="ecr-resi-head"><span>NO. RESI</span><b>${ecrEsc(d.resi||"")}</b></div>${ecrCode128B(d.resi||"")}<div class="ecr-two"><div><label>PENERIMA</label><b>${ecrEsc(d.recipient)}</b><span>${ecrEsc(d.phone)}</span></div><div><label>PENGIRIM</label><b>${ecrEsc(d.sender)}</b><span>${ecrEsc(d.senderArea||"")}</span></div></div><div class="ecr-address">${ecrEsc(d.address)}</div><div class="ecr-rule"></div><div class="ecr-info"><div><label>BERAT</label><b>${ecrEsc(d.weight)}</b></div><div><label>BATAS KIRIM</label><b>${ecrEsc(d.deadline)}</b></div><div><label>COD</label><b>${ecrEsc(d.cod||"Tidak")}</b></div></div><div class="ecr-order-title">NO. PESANAN</div><b class="ecr-order">${ecrEsc(d.order)}</b>${ecrCode128B(d.order||"")}<div class="ecr-qr">${qr?`<img src="${qr}" alt="QR">`:""}</div><div class="ecr-product-head"><b>PRODUK</b><b>SKU</b><b>VARIASI</b><b>QTY</b></div>${productHtml}${d.note?`<div class="ecr-note2"><b>PESAN</b><span>${ecrEsc(d.note)}</span></div>`:""}<div class="ecr-footer">Data dibuat ulang dari informasi pada resi asli.</div></div>`}
+async function ecrShowPage(page){const rec=ecrPages.find(p=>p.page===page);if(!rec)return;ecrCurrentPage=page;ecrRenderList();const paper=document.getElementById("ecrPaper");paper.innerHTML='<div class="ecr-empty">Menyusun resi...</div>';const qr=await ecrQrDataUrl(page);paper.innerHTML=ecrBuildLabel(rec.data,qr);const label=paper.querySelector(".ecr-print-label");if(label)label.classList.add("ecr-preview-label");const pl=document.getElementById("ecrPreviewLabel");if(pl)pl.textContent=`Resi ${page} / ${ecrPages.length}`;}
+async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}try{ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const data=await ecrParsePage(i);ecrPages.push({page:i,data})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman • data berhasil dibaca`;ecrRenderList();await ecrShowPage(1)}catch(err){console.error(err);alert("PDF berhasil dibuka tetapi data resi gagal dibaca: "+(err?.message||err))}}
+async function ecrPrintSelected(){if(ecrPrintBusy||!ecrSelected.size){alert("Pilih minimal satu resi.");return}ecrPrintBusy=true;const btn=document.querySelector('.ecr-btn.primary[onclick*="ecrPrintSelected"]');if(btn){btn.disabled=true;btn.textContent="⏳ Menyiapkan resi..."}try{const root=document.getElementById("ecrPrintRoot");root.innerHTML="";for(const page of [...ecrSelected].sort((a,b)=>a-b)){const rec=ecrPages.find(p=>p.page===page);if(!rec)continue;const qr=await ecrQrDataUrl(page);const wrap=document.createElement("div");wrap.innerHTML=ecrBuildLabel(rec.data,qr);root.appendChild(wrap.firstElementChild)}await new Promise(r=>setTimeout(r,250));window.print();}catch(err){console.error(err);alert("Gagal membuat resi cetak ulang: "+(err?.message||err))}finally{ecrPrintBusy=false;if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih"}}}
+document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))});
 </script>
 
 </body>
