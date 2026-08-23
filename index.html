@@ -5420,7 +5420,7 @@ async function ecrShowPage(page){
   const label=document.getElementById("ecrPreviewLabel");
   if(label)label.textContent=`Halaman ${page} / ${ecrPages.length} • ${result.widthMm.toFixed(0)}×${result.heightMm.toFixed(0)} mm`;
 }
-async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const p=await ecrPdfDoc.getPage(i),v=p.getViewport({scale:1});ecrPages.push({page:i,widthMm:v.width*25.4/72,heightMm:v.height*25.4/72})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman`;ecrRenderList();await ecrShowPage(1)}
+async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes,fontExtraProperties:true}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const p=await ecrPdfDoc.getPage(i),v=p.getViewport({scale:1});ecrPages.push({page:i,widthMm:v.width*25.4/72,heightMm:v.height*25.4/72})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman`;ecrRenderList();await ecrShowPage(1)}
 
 async function ecrGetVectorCropBox(pageNumber){
   const pg=await ecrPdfDoc.getPage(pageNumber);
@@ -5477,7 +5477,7 @@ async function ecrRenderVectorPage(pageNumber){
   // PDF.js 3.11 requires the page's commonObjs/objs and dependencies
   // to be loaded before getSVG().
   const svgGfx=new pdfjsLib.SVGGraphics(pg.commonObjs,pg.objs);
-  svgGfx.embedFonts=true;
+  svgGfx.embedFonts=true; svgGfx.embedFonts = true;
   await svgGfx.loadDependencies(operatorList);
   const svg=await svgGfx.getSVG(operatorList,viewport);
 
@@ -5580,7 +5580,7 @@ html,body{margin:0!important;padding:0!important;background:#fff!important}
       try{document.body.removeChild(printFrame)}catch(e){}
     }
     if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
-    alert("Mode cetak vector gagal: " + (err?.message || err) + "\n\nPDF tetap valid; ini masalah renderer vector, bukan isi PDF.");
+    alert("Mode cetak vector gagal: " + (err?.message || err) + "\n\nJika error menyebut font, PDF.js sedang gagal mengambil data font. Coba upload ulang PDF.");
   }
 }
 document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))})
