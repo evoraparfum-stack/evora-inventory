@@ -1330,7 +1330,18 @@ body.dark-mode #evoraAICenter label,
   cursor:pointer;
   flex:0 0 auto;
 }
-</style></head>
+</style>
+<style id="evora-resi-sharp-print">
+@media print{
+  #ecrPrintFrame{display:none!important}
+}
+.ecr-sharp-note{
+  margin-top:6px;
+  font-size:10px;
+  opacity:.72;
+}
+</style>
+</head>
 <body>
 
 <div id="topNotification" class="top-toast-alert">
@@ -5314,7 +5325,7 @@ function ecrRenderList(){
     btn.textContent=allSelected ? "☑ Batalkan Semua" : "☑ Pilih Semua";
   }
 }
-async function ecrRenderCroppedPage(page,targetWidthPx=720){
+async function ecrRenderCroppedPage(page,targetWidthPx=2400){
   if(!ecrPdfDoc)return null;
   const pg=await ecrPdfDoc.getPage(page);
   const base=pg.getViewport({scale:1});
@@ -5327,7 +5338,7 @@ async function ecrRenderCroppedPage(page,targetWidthPx=720){
   await pg.render({canvasContext:ctx,viewport:vp}).promise;
   const img=ctx.getImageData(0,0,canvas.width,canvas.height),d=img.data,w=canvas.width,h=canvas.height;
   let minX=w,minY=h,maxX=-1,maxY=-1;
-  for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
     const i=(y*w+x)*4;
     if(d[i]<244||d[i+1]<244||d[i+2]<244){if(x<minX)minX=x;if(y<minY)minY=y;if(x>maxX)maxX=x;if(y>maxY)maxY=y}
   }
@@ -5363,7 +5374,7 @@ async function ecrPrintSelected(){
     // a half-loaded window.
     const rendered=[];
     for(const page of pages){
-      const result=await ecrRenderCroppedPage(page,1440);
+      const result=await ecrRenderCroppedPage(page,2880);
       rendered.push({
         page,
         src:result.canvas.toDataURL("image/png"),
