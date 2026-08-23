@@ -1610,7 +1610,88 @@ body.dark-mode #evoraAICenter label,
 </style>
 <style id="ecr-person-field-fix">
 .ecr-two b{max-width:100%!important;overflow-wrap:anywhere!important;word-break:break-word!important}
-</style></head>
+</style>
+<style id="ecr-final-thermal-polish">
+.ecr-print-label{
+  padding:2.6mm 3.4mm 2mm!important;
+  font-size:7.2px!important;
+  line-height:1.16!important;
+}
+.ecr-barcode{
+  display:block!important;
+  width:100%!important;
+  height:8.2mm!important;
+  margin:1mm 0 1.6mm!important;
+  overflow:hidden!important;
+}
+.ecr-barcode svg{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  shape-rendering:crispEdges!important;
+}
+.ecr-resi-head b{font-size:7.4px!important;font-weight:900!important}
+.ecr-two{gap:2.5mm!important}
+.ecr-two label,.ecr-info label,.ecr-order-title,.ecr-product-head,.ecr-note2 b{
+  font-size:5.3px!important;font-weight:900!important;
+}
+.ecr-two b{font-size:7.2px!important;font-weight:800!important}
+.ecr-two span{font-size:5.9px!important}
+.ecr-address{font-size:6.1px!important;line-height:1.22!important;margin-top:1mm!important}
+.ecr-info{gap:1.5mm!important}
+.ecr-info b{font-size:6.5px!important;font-weight:800!important}
+.ecr-cod-cell{
+  min-height:8.2mm!important;
+  padding:1mm 1.2mm!important;
+}
+.ecr-cod-cell b{font-size:8px!important;font-weight:900!important}
+.ecr-order-title{margin-top:1.3mm!important}
+.ecr-order-code-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 16mm!important;
+  gap:2.5mm!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.ecr-order-code{min-width:0!important}
+.ecr-order-code .ecr-barcode{
+  height:7.2mm!important;
+  margin:.7mm 0 1mm!important;
+}
+.ecr-order-code .ecr-order{font-size:6.9px!important;font-weight:800!important}
+.ecr-order-code-row .ecr-qr{
+  position:static!important;
+  width:16mm!important;
+  height:16mm!important;
+  max-width:16mm!important;
+  flex:none!important;
+  background:#fff!important;
+}
+.ecr-order-code-row .ecr-qr img{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+.ecr-product-head{
+  grid-template-columns:minmax(0,1.45fr) minmax(0,.55fr) minmax(0,.8fr) 8mm!important;
+  gap:1mm!important;padding:1mm!important;margin-top:1mm!important;
+}
+.ecr-product-row{
+  grid-template-columns:minmax(0,1.45fr) minmax(0,.55fr) minmax(0,.8fr) 8mm!important;
+  gap:1mm!important;padding:1mm!important;
+}
+.ecr-product-name,.ecr-product-sku,.ecr-product-variation{
+  font-size:5.6px!important;line-height:1.14!important;
+}
+.ecr-product-qty{font-size:6.4px!important;text-align:center!important;font-weight:900!important}
+.ecr-note2{margin-top:1.2mm!important;padding-top:1mm!important}
+.ecr-note2 span{font-size:5.6px!important;line-height:1.2!important}
+.ecr-footer{display:none!important}
+@media print{
+  .ecr-print-label{padding:2.6mm 3.4mm 2mm!important}
+  .ecr-qr{position:static!important}
+}
+</style>
+</head>
 <body>
 
 <div id="topNotification" class="top-toast-alert">
@@ -5663,8 +5744,12 @@ async function ecrParsePage(pageNumber){
 
   const deadline=(flat.match(/Batas\s+Kirim\s*:?\s*([0-9]{2}-[0-9]{2}-[0-9]{4})/i)||[])[1]||"";
   const weight=(flat.match(/(?:Berat\s*:?\s*)?([0-9]+(?:[.,][0-9]+)?\s*(?:gr|kg))/i)||[])[1]||"";
-  const codMatch=flat.match(/COD\s*Cek\s*Dulu\s*:?\s*(Ya|Tidak)/i);
-  const cod=codMatch ? (codMatch[1].toLowerCase()==="ya" ? "COD" : "NON-COD") : "TIDAK DIKETAHUI";
+  const codSource=flat.replace(/\s+/g," ");
+  const codMatch=codSource.match(/COD\s+Cek\s+Dulu\s*:?\s*(Ya|Tidak)\b/i)
+    || items.map(i=>i.str).join(" ").replace(/\s+/g," ").match(/COD\s+Cek\s+Dulu\s*:?\s*(Ya|Tidak)\b/i);
+  const cod=codMatch
+    ? (codMatch[1].toLowerCase()==="ya" ? "COD" : "NON-COD")
+    : "TIDAK DIKETAHUI";
 
   const route=(flat.match(/\b([A-Z]{2,4}-[A-Z]-\d{2})\b/)||[])[1]||"";
   const box=(flat.match(/\b([A-Z]{1,3}-\d{2,3})\b/)||[])[1]||"";
@@ -5689,7 +5774,34 @@ async function ecrParsePage(pageNumber){
   };
 }
 async function ecrQrDataUrl(pageNumber){try{const page=await ecrPdfDoc.getPage(pageNumber),vp=page.getViewport({scale:2.8}),sx=217.7*2.8,sy=622.38*2.8,sw=(279.8-217.7)*2.8,sh=(677.75-622.38)*2.8,canvas=document.createElement("canvas");canvas.width=Math.ceil(vp.width);canvas.height=Math.ceil(vp.height);const ctx=canvas.getContext("2d",{alpha:false});ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);await page.render({canvasContext:ctx,viewport:vp}).promise;const crop=document.createElement("canvas");crop.width=Math.ceil(sw);crop.height=Math.ceil(sh);crop.getContext("2d",{alpha:false}).drawImage(canvas,sx,sy,sw,sh,0,0,crop.width,crop.height);return crop.toDataURL("image/png") }catch(e){console.warn("QR crop gagal",e);return ""}}
-function ecrCode128B(value){const p=["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];const chars=[];for(let i=0;i<value.length;i++){let n=value.charCodeAt(i)-32;if(n<0||n>94)n=0;chars.push(n)}let checksum=104;for(let i=0;i<chars.length;i++)checksum+=chars[i]*(i+1);const seq=[104,...chars,checksum%103,106];let html='<div class="ecr-barcode">';for(const code of seq){let black=true;for(const ch of p[code]){const w=Number(ch);html+=`<i class="${black?'b':'w'}" style="width:${w}px"></i>`;black=!black}}return html+'</div>'}
+function ecrCode128B(value){
+  const p=["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];
+  const v=String(value||"").trim();
+  if(!v)return "";
+  const chars=[];
+  for(let i=0;i<v.length;i++){
+    let n=v.charCodeAt(i)-32;
+    if(n<0||n>94)n=0;
+    chars.push(n);
+  }
+  let checksum=104;
+  for(let i=0;i<chars.length;i++)checksum+=chars[i]*(i+1);
+  const seq=[104,...chars,checksum%103,106];
+  let total=0;
+  for(const code of seq)for(const ch of p[code])total+=Number(ch);
+
+  let x=0, bars="";
+  for(const code of seq){
+    let black=true;
+    for(const ch of p[code]){
+      const w=Number(ch);
+      if(black)bars+=`<rect x="${x}" y="0" width="${w}" height="100" fill="#000"/>`;
+      x+=w;
+      black=!black;
+    }
+  }
+  return `<div class="ecr-barcode"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} 100" preserveAspectRatio="none" aria-label="Barcode"><rect width="${total}" height="100" fill="#fff"/>${bars}</svg></div>`;
+}
 function ecrBarcode(value){
   const v=String(value||"").trim();
   if(!v)return "";
@@ -5700,12 +5812,8 @@ function ecrBarcode(value){
 }
 function ecrBuildLabel(d,qr){
   const products=Array.isArray(d.products)&&d.products.length?d.products:[{
-    name:d.product||"",
-    sku:d.sku||"",
-    variation:d.variation||"",
-    qty:d.qty||"1"
+    name:d.product||"",sku:d.sku||"",variation:d.variation||"",qty:d.qty||"1"
   }];
-
   const hasMessage=String(d.note||"").trim().length>0;
   const qrHtml=qr?`<div class="ecr-qr"><img src="${qr}" alt="QR"></div>`:"";
 
@@ -5716,6 +5824,9 @@ function ecrBuildLabel(d,qr){
       <div class="ecr-product-variation">${ecrEsc(p.variation||"")}</div>
       <div class="ecr-product-qty">${ecrEsc(p.qty||"1")}</div>
     </div>`).join("");
+
+  const payment=String(d.cod||"TIDAK DIKETAHUI").toUpperCase();
+  const paymentClass=payment==="COD"?"is-cod":payment==="NON-COD"?"is-noncod":"is-unknown";
 
   return `<div class="ecr-print-label ${hasMessage?"has-message":"no-message"}">
     <div class="ecr-top"><b>${ecrEsc(d.box||"")}</b><span>${ecrEsc(d.service||"STD")}</span></div>
@@ -5736,31 +5847,27 @@ function ecrBuildLabel(d,qr){
     <div class="ecr-info">
       <div><label>BERAT</label><b>${ecrEsc(d.weight||"")}</b></div>
       <div><label>BATAS KIRIM</label><b>${ecrEsc(d.deadline||"")}</b></div>
-      <div class="ecr-cod-cell ${String(d.cod||"").toUpperCase()==="COD"?"is-cod":String(d.cod||"").toUpperCase()==="NON-COD"?"is-noncod":"is-unknown"}">
-        <label>PEMBAYARAN</label>
-        <b>${ecrEsc(d.cod||"TIDAK DIKETAHUI")}</b>
+      <div class="ecr-cod-cell ${paymentClass}">
+        <label>PEMBAYARAN</label><b>${ecrEsc(payment)}</b>
       </div>
     </div>
 
     <div class="ecr-order-title">NO. PESANAN</div>
-    <b class="ecr-order">${ecrEsc(d.order||"")}</b>
-    ${ecrBarcode(d.order||"")}
-
-    ${qrHtml}
+    <div class="ecr-order-code-row">
+      <div class="ecr-order-code">
+        <b class="ecr-order">${ecrEsc(d.order||"")}</b>
+        ${ecrBarcode(d.order||"")}
+      </div>
+      ${qrHtml}
+    </div>
 
     <div class="ecr-product-head"><b>PRODUK</b><b>SKU</b><b>VARIASI</b><b>QTY</b></div>
     ${productRows}
 
     ${hasMessage?`
-      <div class="ecr-note2">
-        <b>PESAN</b>
-        <span>${ecrEsc(d.note)}</span>
-      </div>`:""}
+      <div class="ecr-note2"><b>PESAN</b><span>${ecrEsc(d.note)}</span></div>`:""}
 
-    <div class="ecr-footer">
-      Data dibuat ulang dari informasi pada resi asli.
-      <span>${ecrEsc(d.resi||"")}</span>
-    </div>
+    <div class="ecr-footer">Data dibuat ulang dari informasi pada resi asli.<span>${ecrEsc(d.resi||"")}</span></div>
   </div>`;
 }
 async function ecrShowPage(page){const rec=ecrPages.find(p=>p.page===page);if(!rec)return;ecrCurrentPage=page;ecrRenderList();const paper=document.getElementById("ecrPaper");paper.innerHTML='<div class="ecr-empty">Menyusun resi...</div>';const qr=await ecrQrDataUrl(page);paper.innerHTML=ecrBuildLabel(rec.data,qr);const label=paper.querySelector(".ecr-print-label");if(label)label.classList.add("ecr-preview-label");const pl=document.getElementById("ecrPreviewLabel");if(pl)pl.textContent=`Resi ${page} / ${ecrPages.length}`;}
@@ -5842,9 +5949,8 @@ async function ecrPrintSelected(){
       .ecr-rule{border-top:1px solid #111;margin:2.5mm 0}
       .ecr-resi-head{display:flex;justify-content:space-between;gap:2mm;font-size:7px}
       .ecr-resi-head b{font-size:9px;min-width:0;text-align:right}
-      .ecr-barcode{height:13mm;width:100%;display:flex;align-items:stretch;justify-content:center;margin:1.5mm 0 3mm;overflow:hidden;white-space:nowrap}
-      .ecr-barcode i{display:block;height:100%;flex:0 1 auto;min-width:0}
-      .ecr-barcode .b{background:#000}.ecr-barcode .w{background:#fff}
+      .ecr-barcode{height:8.2mm;width:100%;display:block;margin:1mm 0 1.6mm;overflow:hidden}
+      .ecr-barcode svg{display:block;width:100%;height:100%;shape-rendering:crispEdges}
       .ecr-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4mm;width:100%}
       .ecr-two>div{min-width:0;overflow-wrap:anywhere;word-break:break-word}
       .ecr-two label,.ecr-info label{display:block;font-size:5.8px;font-weight:800}
@@ -5882,6 +5988,16 @@ async function ecrPrintSelected(){
       .ecr-info{gap:1.5mm!important}.ecr-info b{font-size:6.2px!important}
       .ecr-order-title{margin-top:1.2mm!important}.ecr-order{font-size:6.8px!important}
       .ecr-order+.ecr-barcode{margin-bottom:.8mm!important}
+      .ecr-barcode svg{display:block!important;width:100%!important;height:100%!important;shape-rendering:crispEdges!important}
+      .ecr-order-code-row{display:grid!important;grid-template-columns:minmax(0,1fr) 16mm!important;gap:2.5mm!important;align-items:center!important;width:100%!important}
+      .ecr-order-code{min-width:0!important}
+      .ecr-order-code .ecr-barcode{height:7.2mm!important;margin:.7mm 0 1mm!important}
+      .ecr-order-code-row .ecr-qr{position:static!important;width:16mm!important;height:16mm!important;max-width:16mm!important}
+      .ecr-order-code-row .ecr-qr img{width:100%!important;height:100%!important;object-fit:contain!important}
+      .ecr-product-head{grid-template-columns:minmax(0,1.45fr) minmax(0,.55fr) minmax(0,.8fr) 8mm!important}
+      .ecr-product-row{grid-template-columns:minmax(0,1.45fr) minmax(0,.55fr) minmax(0,.8fr) 8mm!important}
+      .ecr-product-qty{text-align:center!important;font-weight:900!important}
+      .ecr-footer{display:none!important}
       .ecr-qr{top:49mm!important;right:3.5mm!important;width:14mm!important;height:14mm!important}
       .ecr-product-head{gap:1mm!important;padding:1mm!important;margin-top:1mm!important}
       .ecr-product-row{gap:1mm!important;padding:1mm!important}
