@@ -1255,14 +1255,7 @@ body.dark-mode #evoraAICenter label,
   .bottom-nav .nav-item{min-width:68px;font-size:9px}
 }
 </style>
-<style id="evora-cetak-resi-bluetooth-style">
-.ecr-bt-connected{background:#dcfce7!important;color:#166534!important;border-color:#86efac!important}
-.ecr-bt-off{background:#e2e8f0!important;color:#334155!important}
-@media(max-width:760px){
-  #ecrBtToggle{width:100%}
-  #ecrBtStatus{width:100%;text-align:center}
-}
-</style>
+
 
 <style id="evora-cetak-resi-list-fix">
 .ecr-layout{grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr)!important}
@@ -1339,6 +1332,56 @@ body.dark-mode #evoraAICenter label,
   margin-top:6px;
   font-size:10px;
   opacity:.72;
+}
+</style>
+
+<style id="evora-cetak-resi-no-bluetooth">
+.ecr-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ecr-actions .ecr-btn{min-width:120px}
+</style>
+
+<style id="evora-cetak-resi-pc-two-column">
+/* Desktop: daftar resi kiri, preview kanan */
+@media (min-width: 901px){
+  .ecr-layout{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(380px,.72fr)!important;
+    gap:16px!important;
+    align-items:start!important;
+  }
+  .ecr-list-panel{
+    min-width:0!important;
+    width:100%!important;
+  }
+  .ecr-preview-panel{
+    min-width:0!important;
+    width:100%!important;
+    position:sticky;
+    top:16px;
+  }
+  .ecr-items{
+    width:100%!important;
+    max-height:620px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  .ecr-item{
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #ecrPaper{
+    width:302px!important;
+    max-width:100%!important;
+    margin:0 auto!important;
+  }
+}
+/* Mobile tetap satu kolom */
+@media (max-width:900px){
+  .ecr-layout{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+  }
+  .ecr-preview-panel{order:-1}
 }
 </style>
 </head>
@@ -5240,15 +5283,15 @@ Object.defineProperty(window,"barang",{get:()=>barang});
 
 <div id="evoraCetakResi"><div class="ecr-shell">
 <div class="ecr-head"><div><div class="ecr-title">🖨️ Cetak Resi</div><div class="ecr-sub">Upload PDF Shopee → area resi otomatis dipotong → cetak 80 mm.</div></div><button class="ecr-close" onclick="closeCetakResi()">✕ Tutup</button></div>
-<div class="ecr-drop"><label class="ecr-drop-label" for="ecrPdfInput">📄 Pilih PDF Resi Shopee</label><input id="ecrPdfInput" type="file" accept="application/pdf"><div id="ecrFileName" class="ecr-file">Belum ada PDF.</div><div class="ecr-note">Fitur ini HANYA untuk mencetak. Tidak masuk penjualan, stok, kasir, atau iklan.</div><div id="ecr-print-note" class="ecr-note">Saat klik Cetak, dialog printer akan muncul. Pilih printer thermal 80 mm dan skala 100%.</div><div class="ecr-note">Bluetooth hanya digunakan untuk koneksi printer. Tidak mengubah data penjualan/stok/iklan.</div></div>
-<div class="ecr-toolbar"><button class="ecr-btn secondary" onclick="ecrSelectAll()">☑ Pilih Semua</button><button class="ecr-btn secondary" onclick="ecrClearAll()">☐ Kosongkan</button><button class="ecr-btn primary" onclick="ecrPrintSelected()">🖨️ Cetak Terpilih</button><button id="ecrBtToggle" class="ecr-btn secondary" onclick="toggleEcrBluetooth()">🔵 Aktifkan Bluetooth</button>
-<span id="ecrBtStatus" class="ecr-count" style="align-self:center;">Bluetooth: Nonaktif</span><span id="ecrCount" class="ecr-count">0 resi</span></div>
+<div class="ecr-drop"><label class="ecr-drop-label" for="ecrPdfInput">📄 Pilih PDF Resi Shopee</label><input id="ecrPdfInput" type="file" accept="application/pdf"><div id="ecrFileName" class="ecr-file">Belum ada PDF.</div><div class="ecr-note">Fitur ini HANYA untuk mencetak. Tidak masuk penjualan, stok, kasir, atau iklan.</div><div id="ecr-print-note" class="ecr-note">Saat klik Cetak, dialog printer akan muncul. Pilih printer thermal 80 mm dan skala 100%.</div></div>
+<div class="ecr-toolbar"><button class="ecr-btn secondary" onclick="ecrSelectAll()">☑ Pilih Semua</button><button class="ecr-btn secondary" onclick="ecrClearAll()">☐ Kosongkan</button><button class="ecr-btn primary" onclick="ecrPrintSelected()">🖨️ Cetak Terpilih</button>
+<span id="ecrCount" class="ecr-count">0 resi</span></div>
 <div class="ecr-layout"><div class="ecr-list"><div class="ecr-list-head"><b>Daftar Resi</b><span class="ecr-count">Per halaman PDF</span></div><div id="ecrItems" class="ecr-items"><div class="ecr-empty">Upload PDF untuk melihat resi.</div></div></div>
 <div class="ecr-preview"><div class="ecr-list-head"><b>Preview</b><span id="ecrPreviewLabel" class="ecr-count">-</span></div><div class="ecr-preview-wrap"><div id="ecrPaper" class="ecr-paper"><div class="ecr-empty">Belum ada resi dipilih.</div></div></div></div></div></div></div><script id="evora-cetak-resi-logic">
 let ecrPdfDoc=null,ecrPdfBytes=null,ecrPages=[],ecrSelected=new Set(),ecrCurrentPage=1;
 function openCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="block"}
 function closeCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="none"}
-function ecrUpdateCount(){const e=document.getElementById("ecrCount");if(e)e.textContent=`${ecrSelected.size} dari ${ecrPages.length} resi dipilih`}
+function ecrUpdateCount(){const e=document.getElementById("ecrCount");if(e)e.textContent=`${ecrSelected.size} dari ${ecrPages.length} resi terpilih`}
 function ecrSelectAll(){
   if(!ecrPages.length){
     ecrSelected.clear();
@@ -5283,6 +5326,16 @@ function ecrClearAll(){
   if(label) label.textContent="-";
   ecrUpdateCount();
 }
+
+function ecrSelectAndPreview(page,ev){
+  if(ev)ev.stopPropagation();
+  if(!ecrSelected.has(page)){
+    ecrSelected.add(page);
+  }
+  ecrShowPage(page);
+  ecrRenderList();
+}
+
 function ecrToggle(page,ev){
   if(ev)ev.stopPropagation();
   if(ecrSelected.has(page)){
@@ -5306,12 +5359,12 @@ function ecrRenderList(){
 
   el.innerHTML=ecrPages.map(p=>{
     const checked=ecrSelected.has(p.page);
-    return `<div class="ecr-item ${p.page===ecrCurrentPage?"active":""} ${checked?"selected":""}" onclick="ecrShowPage(${p.page})">
+    return `<div class="ecr-item ${p.page===ecrCurrentPage?"active":""} ${checked?"selected":""}" onclick="ecrSelectAndPreview(${p.page},event)">
       <input type="checkbox"
         ${checked?"checked":""}
         aria-label="Pilih resi halaman ${p.page}"
         onclick="ecrToggle(${p.page},event)">
-      <div class="ecr-item-main" onclick="ecrShowPage(${p.page})">
+      <div class="ecr-item-main" onclick="ecrSelectAndPreview(${p.page},event)">
         <div class="ecr-item-title">Resi / Halaman ${p.page}</div>
         <div class="ecr-item-meta">Ukuran PDF: ${p.widthMm.toFixed(1)} × ${p.heightMm.toFixed(1)} mm</div>
       </div>
@@ -5460,154 +5513,6 @@ html,body{margin:0!important;padding:0!important;background:#fff!important}
 }
 document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))})
 </script>
-<script id="evora-cetak-resi-bluetooth-logic">
-let ecrBluetoothDevice = null;
-let ecrBluetoothPrinterCharacteristic = null;
-let ecrBluetoothConnected = false;
-let ecrBluetoothBusy = false;
 
-function ecrUpdateBluetoothUI(connected=false, name="BT Printer"){
-  const btn=document.getElementById("ecrBtToggle");
-  const st=document.getElementById("ecrBtStatus");
-  if(!btn||!st)return;
-
-  ecrBluetoothConnected=connected;
-
-  if(connected){
-    btn.textContent="🔵 Nonaktifkan Bluetooth";
-    btn.classList.remove("ecr-bt-off");
-    btn.classList.add("ecr-bt-connected");
-    st.textContent=`Bluetooth: Terhubung • ${name}`;
-  }else{
-    btn.textContent="🔵 Aktifkan Bluetooth";
-    btn.classList.remove("ecr-bt-connected");
-    btn.classList.add("ecr-bt-off");
-    st.textContent="Bluetooth: Nonaktif";
-  }
-}
-
-function ecrHandleBluetoothDisconnect(){
-  ecrBluetoothPrinterCharacteristic=null;
-  ecrBluetoothConnected=false;
-  ecrUpdateBluetoothUI(false);
-}
-
-async function toggleEcrBluetooth(){
-  if(ecrBluetoothBusy)return;
-  ecrBluetoothBusy=true;
-
-  // Same disconnect behavior as Laporan Harian.
-  if(ecrBluetoothDevice && ecrBluetoothDevice.gatt.connected){
-    try{ecrBluetoothDevice.gatt.disconnect();}catch(e){}
-    ecrHandleBluetoothDisconnect();
-    ecrBluetoothBusy=false;
-    return;
-  }
-
-  if(!navigator.bluetooth){
-    alert("Browser tidak mendukung Web Bluetooth API. Gunakan Google Chrome versi terbaru.");
-    ecrBluetoothBusy=false;
-    return;
-  }
-
-  try{
-    const status=document.getElementById("ecrBtStatus");
-    if(status)status.textContent="Bluetooth: Mencari...";
-
-    // EXACT same discovery strategy as the working Laporan Harian:
-    ecrBluetoothDevice=await navigator.bluetooth.requestDevice({
-      acceptAllDevices:true,
-      optionalServices:[
-        "000018f0-0000-1000-8000-00805f9b34fb",
-        "e7810a71-73ae-499d-8c15-faa9aef0c3f2",
-        "49535343-fe7d-4ae5-8fa9-9fafd205e455"
-      ]
-    });
-
-    // EXACT same GATT connection flow.
-    const server=await ecrBluetoothDevice.gatt.connect();
-    const services=await server.getPrimaryServices();
-
-    if(services.length===0){
-      throw new Error("Service printer tidak ditemukan.");
-    }
-
-    // EXACT same first-service strategy.
-    const service=services[0];
-    const characteristics=await service.getCharacteristics();
-
-    // EXACT same write characteristic selection.
-    ecrBluetoothPrinterCharacteristic=
-      characteristics.find(c=>c.properties.write||c.properties.writeWithoutResponse);
-
-    if(!ecrBluetoothPrinterCharacteristic){
-      throw new Error("Karakteristik Write printer tidak ditemukan.");
-    }
-
-    ecrUpdateBluetoothUI(true,ecrBluetoothDevice.name||"BT Printer");
-
-    ecrBluetoothDevice.addEventListener(
-      "gattserverdisconnected",
-      ecrHandleBluetoothDisconnect
-    );
-
-  }catch(error){
-    console.error("Cetak Resi Bluetooth:",error);
-    ecrHandleBluetoothDisconnect();
-    if(error?.name!=="NotFoundError"){
-      alert("Gagal menyambungkan perangkat printer Bluetooth.");
-    }
-  }finally{
-    ecrBluetoothBusy=false;
-  }
-}
-
-// Same 20-byte write pattern as Laporan Harian.
-// This is kept available for the printer connection/test path.
-async function ecrSendTextToPrinter(text){
-  if(!ecrBluetoothPrinterCharacteristic)return false;
-
-  try{
-    const encoder=new TextEncoder();
-    const data=encoder.encode(text);
-
-    for(let i=0;i<data.length;i+=20){
-      const chunk=data.slice(i,i+20);
-      await ecrBluetoothPrinterCharacteristic.writeValue(chunk);
-    }
-    return true;
-  }catch(error){
-    console.error("Gagal mengirim data print:",error);
-    ecrHandleBluetoothDisconnect();
-    return false;
-  }
-}
-
-async function ecrBtTest(){
-  if(!ecrBluetoothPrinterCharacteristic){
-    alert("Silakan aktifkan/hubungkan printer Bluetooth terlebih dahulu.");
-    return false;
-  }
-
-  const ESC="\x1B";
-  const text=
-    ESC+"@"+
-    ESC+"a"+"\x01"+
-    "=== EVORA ===\n\n"+
-    ESC+"a"+"\x00"+
-    "KONEKSI PRINTER BERHASIL!\n"+
-    "--------------------------------\n\n\n\n";
-
-  const ok=await ecrSendTextToPrinter(text);
-
-  if(ok){
-    alert("Test berhasil dikirim ke printer.");
-  }else{
-    alert("Test gagal dikirim ke printer.");
-  }
-
-  return ok;
-}
-</script>
 </body>
 </html>
