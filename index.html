@@ -5760,32 +5760,52 @@ async function ecrParsePage(pageNumber){
 
   const deadline=(flat.match(/Batas\s+Kirim\s*:?\s*([0-9]{2}-[0-9]{2}-[0-9]{4})/i)||[])[1]||"";
   const weight=(flat.match(/(?:Berat\s*:?\s*)?([0-9]+(?:[.,][0-9]+)?\s*(?:gr|kg))/i)||[])[1]||"";
-  const codSource=(flat+" "+items.map(i=>i.str).join(" ")).replace(/\s+/g," ").trim();
-  let codMatch=codSource.match(/COD\s*Cek\s*Dulu\s*:?\s*(Ya|Tidak)\b/i);
+  // ============================================================
+  // COD / NON-COD — Shopee PDF coordinate-safe parser
+  // Pada PDF Shopee, "COD Cek Dulu: Tidak" berada pada satu
+  // baris visual dengan koordinat Y yang sama. Kita baca baris
+  // tersebut langsung agar tidak terpengaruh urutan text item.
+  // ============================================================
+  let cod="TIDAK DIKETAHUI";
 
-  if(!codMatch){
-    for(let i=0;i<items.length;i++){
-      if(/^COD$/i.test(items[i].str)){
-        const nearby=items.slice(i,Math.min(items.length,i+24)).map(x=>x.str).join(" ");
-        const mm=nearby.match(/COD\s*Cek\s*Dulu\s*:?\s*(Ya|Tidak)\b/i);
-        if(mm){codMatch=mm;break}
-      }
+  const codItem=items.find(i=>/^COD$/i.test(i.str));
+  if(codItem){
+    const codRow=items
+      .filter(i=>Math.abs(i.y-codItem.y)<=3.5)
+      .sort((a,b)=>a.x-b.x)
+      .map(i=>i.str)
+      .join(" ")
+      .replace(/\s+/g," ")
+      .trim();
+
+    const codRowMatch=codRow.match(/COD\s*Cek\s*Dulu\s*:?\s*(Ya|Tidak)\b/i);
+    if(codRowMatch){
+      cod=codRowMatch[1].toLowerCase()==="ya" ? "COD" : "NON-COD";
     }
   }
 
-  // Fallback khusus PDF Shopee yang memisahkan kata menjadi beberapa item.
-  if(!codMatch){
-    const codIdx=items.findIndex(x=>/^COD$/i.test(x.str));
-    if(codIdx>=0){
-      const tail=items.slice(codIdx,codIdx+40).map(x=>x.str).join(" ");
-      if(/\bTidak\b/i.test(tail)) codMatch=["","Tidak"];
-      else if(/\bYa\b/i.test(tail)) codMatch=["","Ya"];
-    }
+  // Fallback 1: full extracted text.
+  if(cod==="TIDAK DIKETAHUI"){
+    const codSource=(flat+" "+items.map(i=>i.str).join(" "))
+      .replace(/\s+/g," ")
+      .trim();
+    const m=codSource.match(/COD\s*Cek\s*Dulu\s*:?\s*(Ya|Tidak)\b/i);
+    if(m) cod=m[1].toLowerCase()==="ya" ? "COD" : "NON-COD";
   }
 
-  const cod=codMatch
-    ? (String(codMatch[1]).toLowerCase()==="ya" ? "COD" : "NON-COD")
-    : "TIDAK DIKETAHUI";
+  // Fallback 2: if the PDF splits the words unusually, inspect
+  // the nearest text items after the COD marker.
+  if(cod==="TIDAK DIKETAHUI" && codItem){
+    const nearby=items
+      .filter(i=>i.x>=codItem.x && i.x<285 && Math.abs(i.y-codItem.y)<=8)
+      .sort((a,b)=>a.x-b.x)
+      .map(i=>i.str)
+      .join(" ")
+      .replace(/\s+/g," ");
+
+    if(/\bTidak\b/i.test(nearby)) cod="NON-COD";
+    else if(/\bYa\b/i.test(nearby)) cod="COD";
+  }
 
   const route=(flat.match(/\b([A-Z]{2,4}-[A-Z]-\d{2})\b/)||[])[1]||"";
   const box=(flat.match(/\b([A-Z]{1,3}-\d{2,3})\b/)||[])[1]||"";
@@ -5806,7 +5826,8 @@ async function ecrParsePage(pageNumber){
     recipient,sender,phone,senderArea,
     address:cleanAddress,
     deadline,weight,cod,route,box,service,
-    products,note
+    products,note,
+    rawCod:cod
   };
 }
 async function ecrQrDataUrl(pageNumber){try{const page=await ecrPdfDoc.getPage(pageNumber),vp=page.getViewport({scale:2.8}),sx=217.7*2.8,sy=622.38*2.8,sw=(279.8-217.7)*2.8,sh=(677.75-622.38)*2.8,canvas=document.createElement("canvas");canvas.width=Math.ceil(vp.width);canvas.height=Math.ceil(vp.height);const ctx=canvas.getContext("2d",{alpha:false});ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);await page.render({canvasContext:ctx,viewport:vp}).promise;const crop=document.createElement("canvas");crop.width=Math.ceil(sw);crop.height=Math.ceil(sh);crop.getContext("2d",{alpha:false}).drawImage(canvas,sx,sy,sw,sh,0,0,crop.width,crop.height);return crop.toDataURL("image/png") }catch(e){console.warn("QR crop gagal",e);return ""}}
@@ -5862,7 +5883,11 @@ function ecrBuildLabel(d,qr){
     </div>`).join("");
 
   const payment=String(d.cod||"TIDAK DIKETAHUI").toUpperCase();
-  const paymentClass=payment==="COD"?"is-cod":payment==="NON-COD"?"is-noncod":"is-unknown";
+  // Parser contract: explicit NON-COD must never fall back to unknown.
+  const paymentSafe = payment==="TIDAK DIKETAHUI"
+    ? (String(d.rawCod||"").toLowerCase().includes("tidak") ? "NON-COD" : payment)
+    : payment;
+  const paymentClass=paymentSafe==="COD"?"is-cod":paymentSafe==="NON-COD"?"is-noncod":"is-unknown";
 
   return `<div class="ecr-print-label ${hasMessage?"has-message":"no-message"}">
     <div class="ecr-top"><b>${ecrEsc(d.box||"")}</b><span>${ecrEsc(d.service||"STD")}</span></div>
@@ -5884,7 +5909,7 @@ function ecrBuildLabel(d,qr){
       <div><label>BERAT</label><b>${ecrEsc(d.weight||"")}</b></div>
       <div><label>BATAS KIRIM</label><b>${ecrEsc(d.deadline||"")}</b></div>
       <div class="ecr-cod-cell ${paymentClass}">
-        <label>PEMBAYARAN</label><b>${ecrEsc(payment)}</b>
+        <label>PEMBAYARAN</label><b>${ecrEsc(paymentSafe)}</b>
       </div>
     </div>
 
