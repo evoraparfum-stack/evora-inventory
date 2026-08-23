@@ -5475,13 +5475,154 @@ function ecrAllMatches(items,re){return items.filter(i=>re.test(i.str||""))}
 function ecrWordsAtY(items,y,tol=3){return items.filter(i=>Math.abs(i.y-y)<=tol).sort((a,b)=>a.x-b.x)}
 function ecrJoin(items){return ecrNorm(items.map(i=>i.str).join(" "))}
 function ecrParseProducts(items){const header=items.find(i=>/Nama\s+Produk/i.test(i.text));if(!header)return[];const msg=items.find(i=>/^Pesan:/i.test(i.text));const endY=msg?msg.y:Math.min(...items.filter(i=>i.y>header.y+5).map(i=>i.y).concat([header.y+100]));const qtys=[];for(const row of items){for(const it of row.items){if(it.x>=250&&/^\d+$/.test(it.str)&&row.y>header.y+3&&row.y<endY-1){qtys.push({y:row.y,qty:it.str})}}}const starts=[...new Map(qtys.map(q=>[q.y,q])).values()].sort((a,b)=>a.y-b.y);if(!starts.length)return[];return starts.map((st,idx)=>{const next=starts[idx+1]?.y??endY;const productItems=[];const skuItems=[];const variationItems=[];for(const row of items){if(row.y<st.y-2||row.y>=next-1)continue;for(const it of row.items){if(it.x>=18&&it.x<170)productItems.push(it);else if(it.x>=160&&it.x<205)skuItems.push(it);else if(it.x>=205&&it.x<265)variationItems.push(it)}}const product=ecrJoin(productItems);const variation=ecrJoin(variationItems).replace(/\s*,\s*/g,", ");return {product,sku:ecrJoin(skuItems),variation,qty:st.qty}}).filter(p=>p.product||p.variation)}
-async function ecrParsePage(pageNumber){const page=await ecrPdfDoc.getPage(pageNumber),vp=page.getViewport({scale:1}),tc=await page.getTextContent({normalizeWhitespace:true,disableCombineTextItems:false}),items=tc.items.map(it=>({str:it.str,transform:it.transform,width:it.width}));const rows=ecrLinesFromItems(items,vp.height);const flat=rows.map(r=>r.text).join("\n");const resi=(flat.match(/(?:No\.?\s*Resi\s*:?\s*)(SPX[A-Z0-9]+)/i)||flat.match(/\b(SPX[A-Z0-9]{8,})\b/i)||[])[1]||"";let order=(flat.match(/No\.?\s*Pesanan\s*:\s*([A-Z0-9]+)/i)||[])[1]||"";if(!order){const m=flat.match(/\(([A-Z0-9]{8,})\)\s*\(SPX/i);if(m)order=m[1]}
-const phoneItem=items.find(i=>/^(?:\(?\+?62|08)\d[\d\-\s()]+$/.test(i.str.replace(/\s/g,""))||/^\(?\+?62/.test(i.str));let recipient="",sender="",senderArea="",phone="";if(phoneItem){const same=ecrWordsAtY(items,phoneItem.transform?vp.height-phoneItem.transform[5]:0,3);phone=ecrJoin(same.filter(i=>i.x>175));const name=ecrJoin(same.filter(i=>i.x>=35&&i.x<145&&i.str!=="Penerima:"));recipient=name||"";const sy=same.length?same[0].y:0;sender=ecrJoin(ecrWordsAtY(items,sy,3).filter(i=>i.x>=180&&i.x<280&&!/^\(?\+?62/.test(i.str)));const areaRows=items.filter(i=>i.x>=175&&i.x<285&&i.y>sy+18&&i.y<sy+45);senderArea=ecrJoin(areaRows).replace(/\s+/g," ");}
-const address=[];if(phoneItem){const py=vp.height-phoneItem.transform[5];for(const row of rows){if(row.y>py+3&&row.y<py+48){const t=ecrJoin(row.items.filter(i=>i.x<180));if(t&&!/^(KOTA|KAB\.|KEC\.|PROV|HOME|PONDOK|KLARI|BUAHDUA)/i.test(t))address.push(t)}}}
-const deadline=(flat.match(/Batas\s+Kirim\s*:\s*([0-9]{2}-[0-9]{2}-[0-9]{4})/i)||[])[1]||"";const weight=(flat.match(/(?:Berat\s*:\s*)?([0-9]+(?:[.,][0-9]+)?\s*(?:gr|kg))/i)||[])[1]||"";const cod=(flat.match(/COD\s+Cek\s+Dulu\s*:\s*(\w+)/i)||[])[1]||"";const route=(flat.match(/\b([A-Z]{2,4}-[A-Z]-\d{2})\b/)||[])[1]||"";const box=(flat.match(/\b([A-Z]{1,3}-\d{2,3})\b/)||[])[1]||"";const service=(items.find(x=>/^(STD|REG|ONS|YES)$/i.test(x.str||""))?.str||"STD").toUpperCase();const products=ecrParseProducts(rows);let note="";const msgIndex=flat.search(/Pesan:/i);if(msgIndex>=0){const m=flat.slice(msgIndex).replace(/^Pesan:\s*/i,"");note=m.replace(/\s*\([A-Z0-9]+\)\s*\(SPX[A-Z0-9]+\).*$/i,"").trim()}return {page:pageNumber,resi,order,recipient,sender,senderArea,phone,address:address.join(" "),deadline,weight,cod,route,box,service,products,note}}
+async function ecrParsePage(pageNumber){
+  const page=await ecrPdfDoc.getPage(pageNumber);
+  const vp=page.getViewport({scale:1});
+  const tc=await page.getTextContent({normalizeWhitespace:true,disableCombineTextItems:false});
+
+  const items=tc.items.map(it=>({
+    str:(it.str||"").trim(),
+    transform:it.transform,
+    width:it.width||0,
+    x:it.transform?.[4]||0,
+    y:vp.height-(it.transform?.[5]||0)
+  })).filter(i=>i.str);
+
+  const rows=ecrLinesFromItems(items,vp.height);
+  const flat=rows.map(r=>r.text).join("\n");
+
+  const resi=(flat.match(/(?:No\.?\s*Resi\s*:?\s*)(SPX[A-Z0-9]+)/i)||flat.match(/\b(SPX[A-Z0-9]{8,})\b/i)||[])[1]||"";
+  let order=(flat.match(/No\.?\s*Pesanan\s*:\s*([A-Z0-9]+)/i)||[])[1]||"";
+  if(!order){
+    const m=flat.match(/\(([A-Z0-9]{8,})\)\s*\(SPX/i);
+    if(m)order=m[1];
+  }
+
+  // IMPORTANT: In Shopee labels, "Penerima:" and "Pengirim:" are
+  // printed on the same row as their names, while the phone number and
+  // sender area are on the rows below. The old parser tried to infer names
+  // from the phone row, which is why names disappeared in the rebuilt label.
+  const norm=s=>String(s||"").replace(/\s+/g," ").trim();
+  const isPhone=s=>/^(?:\(?\+?62|08)[\d\s().-]{7,}$/.test(norm(s).replace(/\s/g,""));
+  const isLabel=s=>/^(Penerima:|Pengirim:|Penerima|Pengirim)$/i.test(norm(s));
+
+  const receiverLabel=items.find(i=>/^Penerima\s*:?\s*$/i.test(i.str));
+  const senderLabel=items.find(i=>/^Pengirim\s*:?\s*$/i.test(i.str));
+
+  function nearestSameRowName(label, side){
+    if(!label)return "";
+    const ly=label.y;
+    const candidates=items.filter(i=>{
+      if(i===label || isLabel(i.str) || isPhone(i.str))return false;
+      const dy=Math.abs(i.y-ly);
+      if(dy>7)return false;
+      if(side==="left") return i.x>=label.x && i.x<175;
+      return i.x>=label.x && i.x<310;
+    }).sort((a,b)=>{
+      const da=Math.abs(a.y-ly), db=Math.abs(b.y-ly);
+      return da-db || a.x-b.x;
+    });
+    return candidates.length?norm(candidates.map(i=>i.str).join(" ")):"";
+  }
+
+  let recipient=nearestSameRowName(receiverLabel,"left");
+  let sender=nearestSameRowName(senderLabel,"right");
+
+  // Fallback for PDFs where the name is combined into the same text item
+  // as the label, e.g. "Penerima: Rabbani Hadawi".
+  if(!recipient){
+    const combined=items.find(i=>/^Penerima\s*:/i.test(i.str));
+    if(combined)recipient=norm(combined.str.replace(/^Penerima\s*:?\s*/i,""));
+  }
+  if(!sender){
+    const combined=items.find(i=>/^Pengirim\s*:/i.test(i.str));
+    if(combined)sender=norm(combined.str.replace(/^Pengirim\s*:?\s*/i,""));
+  }
+
+  // Strong fallback based on the actual page text order. On the supplied
+  // Shopee PDF, recipient/sender names appear immediately before/after the
+  // address block, so use known labels if coordinate extraction changes.
+  if(!recipient){
+    const m=flat.match(/Penerima:\s*(?:\n)?([^\n]+?)(?=\n(?:No\.?\s*Resi|SPX|Jalan|Jl\.|Dusun|$))/i);
+    if(m)recipient=norm(m[1]);
+  }
+  if(!sender){
+    const m=flat.match(/(?:KAB\.?\s+[A-Z .-]+)\s*\n([A-Z][A-Za-z .'-]{2,40})\s*\n(?:\(?\+?62|08)/i);
+    if(m)sender=norm(m[1]);
+  }
+
+  // Phone: choose the phone closest to the sender label first, then any
+  // phone on the page.
+  const phoneItems=items.filter(i=>isPhone(i.str));
+  let phone="";
+  if(phoneItems.length){
+    const target=senderLabel||receiverLabel;
+    const chosen=target
+      ? phoneItems.slice().sort((a,b)=>Math.abs(a.y-target.y)-Math.abs(b.y-target.y))[0]
+      : phoneItems[0];
+    phone=norm(chosen.str);
+  }
+
+  // Sender area is the short geographic line under the sender name/phone.
+  let senderArea="";
+  if(senderLabel){
+    const areaCandidates=items.filter(i=>
+      i.x>=170 &&
+      i.y>senderLabel.y+8 &&
+      i.y<senderLabel.y+45 &&
+      !isPhone(i.str) &&
+      !/^(Penerima|Pengirim|Berat|Batas|COD|No\.?Pesanan)/i.test(i.str)
+    );
+    // Prefer common area strings such as KAB./KOTA./KEC., otherwise nearest
+    // non-address short line.
+    const preferred=areaCandidates.filter(i=>/^(KAB\.?|KOTA|KEC\.?|PROV\.?)/i.test(i.str));
+    senderArea=norm((preferred.length?preferred:areaCandidates).map(i=>i.str).join(" "));
+  }
+
+  // Address: collect the receiver-side rows between the name row and the
+  // location summary. This preserves long addresses.
+  const address=[];
+  if(receiverLabel){
+    const startY=receiverLabel.y+5;
+    const endY=receiverLabel.y+58;
+    for(const row of rows){
+      if(row.y>=startY && row.y<=endY){
+        const t=norm(row.items.filter(i=>i.x<180).map(i=>i.str).join(" "));
+        if(t &&
+           !/^Penerima\s*:?$/i.test(t) &&
+           !/^No\.?\s*Resi/i.test(t) &&
+           !/^SPX[A-Z0-9]+$/i.test(t) &&
+           !/^Berat|^Batas Kirim|^COD|^No\.?\s*Pesanan/i.test(t)){
+          address.push(t);
+        }
+      }
+    }
+  }
+  const cleanAddress=address.filter((v,i,a)=>i===0||v!==a[i-1]).join(" ");
+
+  const deadline=(flat.match(/Batas\s+Kirim\s*:\s*([0-9]{2}-[0-9]{2}-[0-9]{4})/i)||[])[1]||"";
+  const weight=(flat.match(/(?:Berat\s*:\s*)?([0-9]+(?:[.,][0-9]+)?\s*(?:gr|kg))/i)||[])[1]||"";
+  const cod=(flat.match(/COD\s+Cek\s+Dulu\s*:\s*(\w+)/i)||[])[1]||"";
+  const route=(flat.match(/\b([A-Z]{2,4}-[A-Z]-\d{2})\b/)||[])[1]||"";
+  const box=(flat.match(/\b([A-Z]{1,3}-\d{2,3})\b/)||[])[1]||"";
+  const service=(items.find(x=>/^(STD|REG|ONS|YES)$/i.test(x.str||""))?.str||"STD").toUpperCase();
+  const products=ecrParseProducts(rows);
+
+  let note="";
+  const msgIndex=flat.search(/Pesan:/i);
+  if(msgIndex>=0){
+    const m=flat.slice(msgIndex).replace(/^Pesan:\s*/i,"");
+    note=m.replace(/\s*\([A-Z0-9]+\)\s*\(SPX[A-Z0-9]+\).*$/i,"").trim();
+  }
+
+  return {
+    page:pageNumber,resi,order,recipient,sender,senderArea,phone,
+    address:cleanAddress,deadline,weight,cod,route,box,service,products,note
+  };
+}
 async function ecrQrDataUrl(pageNumber){try{const page=await ecrPdfDoc.getPage(pageNumber),vp=page.getViewport({scale:2.8}),sx=217.7*2.8,sy=622.38*2.8,sw=(279.8-217.7)*2.8,sh=(677.75-622.38)*2.8,canvas=document.createElement("canvas");canvas.width=Math.ceil(vp.width);canvas.height=Math.ceil(vp.height);const ctx=canvas.getContext("2d",{alpha:false});ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);await page.render({canvasContext:ctx,viewport:vp}).promise;const crop=document.createElement("canvas");crop.width=Math.ceil(sw);crop.height=Math.ceil(sh);crop.getContext("2d",{alpha:false}).drawImage(canvas,sx,sy,sw,sh,0,0,crop.width,crop.height);return crop.toDataURL("image/png") }catch(e){console.warn("QR crop gagal",e);return ""}}
 function ecrCode128B(value){const p=["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];const chars=[];for(let i=0;i<value.length;i++){let n=value.charCodeAt(i)-32;if(n<0||n>94)n=0;chars.push(n)}let checksum=104;for(let i=0;i<chars.length;i++)checksum+=chars[i]*(i+1);const seq=[104,...chars,checksum%103,106];let html='<div class="ecr-barcode">';for(const code of seq){let black=true;for(const ch of p[code]){const w=Number(ch);html+=`<i class="${black?'b':'w'}" style="width:${w}px"></i>`;black=!black}}return html+'</div>'}
-function ecrBuildLabel(d,qr){const products=d.products?.length?d.products:[{product:"",variation:"",qty:"1"}];const productHtml=products.map(p=>`<div class="ecr-product-row"><div class="ecr-product-name">${ecrEsc(p.product)}</div><div class="ecr-product-sku">${ecrEsc(p.sku||"")}</div><div class="ecr-product-variation">${ecrEsc(p.variation)}</div><div class="ecr-product-qty">${ecrEsc(p.qty)}</div></div>`).join("");return `<div class="ecr-print-label"><div class="ecr-top"><b>${ecrEsc(d.box||"")}</b><span>${ecrEsc(d.service||"STD")}</span></div><div class="ecr-route">${ecrEsc(d.route||"")}</div><div class="ecr-rule"></div><div class="ecr-resi-head"><span>NO. RESI</span><b>${ecrEsc(d.resi||"")}</b></div>${ecrCode128B(d.resi||"")}<div class="ecr-two"><div><label>PENERIMA</label><b>${ecrEsc(d.recipient)}</b><span>${ecrEsc(d.phone)}</span></div><div><label>PENGIRIM</label><b>${ecrEsc(d.sender)}</b><span>${ecrEsc(d.senderArea||"")}</span></div></div><div class="ecr-address">${ecrEsc(d.address)}</div><div class="ecr-rule"></div><div class="ecr-info"><div><label>BERAT</label><b>${ecrEsc(d.weight)}</b></div><div><label>BATAS KIRIM</label><b>${ecrEsc(d.deadline)}</b></div><div><label>COD</label><b>${ecrEsc(d.cod||"Tidak")}</b></div></div><div class="ecr-order-title">NO. PESANAN</div><b class="ecr-order">${ecrEsc(d.order)}</b>${ecrCode128B(d.order||"")}<div class="ecr-qr">${qr?`<img src="${qr}" alt="QR">`:""}</div><div class="ecr-product-head"><b>PRODUK</b><b>SKU</b><b>VARIASI</b><b>QTY</b></div>${productHtml}${d.note?`<div class="ecr-note2"><b>PESAN</b><span>${ecrEsc(d.note)}</span></div>`:""}<div class="ecr-footer">Data dibuat ulang dari informasi pada resi asli.</div></div>`}
+function ecrBuildLabel(d,qr){const products=d.products?.length?d.products:[{product:"",variation:"",qty:"1"}];const productHtml=products.map(p=>`<div class="ecr-product-row"><div class="ecr-product-name">${ecrEsc(p.product)}</div><div class="ecr-product-sku">${ecrEsc(p.sku||"")}</div><div class="ecr-product-variation">${ecrEsc(p.variation)}</div><div class="ecr-product-qty">${ecrEsc(p.qty)}</div></div>`).join("");return `<div class="ecr-print-label"><div class="ecr-top"><b>${ecrEsc(d.box||"")}</b><span>${ecrEsc(d.service||"STD")}</span></div><div class="ecr-route">${ecrEsc(d.route||"")}</div><div class="ecr-rule"></div><div class="ecr-resi-head"><span>NO. RESI</span><b>${ecrEsc(d.resi||"")}</b></div>${ecrCode128B(d.resi||"")}<div class="ecr-two"><div><label>PENERIMA</label><b>${ecrEsc(d.recipient||"Tidak terbaca")}</b><span>${ecrEsc(d.phone||"")}</span></div><div><label>PENGIRIM</label><b>${ecrEsc(d.sender||"Tidak terbaca")}</b><span>${ecrEsc(d.senderArea||"")}</span></div></div><div class="ecr-address">${ecrEsc(d.address)}</div><div class="ecr-rule"></div><div class="ecr-info"><div><label>BERAT</label><b>${ecrEsc(d.weight)}</b></div><div><label>BATAS KIRIM</label><b>${ecrEsc(d.deadline)}</b></div><div><label>COD</label><b>${ecrEsc(d.cod||"Tidak")}</b></div></div><div class="ecr-order-title">NO. PESANAN</div><b class="ecr-order">${ecrEsc(d.order)}</b>${ecrCode128B(d.order||"")}<div class="ecr-qr">${qr?`<img src="${qr}" alt="QR">`:""}</div><div class="ecr-product-head"><b>PRODUK</b><b>SKU</b><b>VARIASI</b><b>QTY</b></div>${productHtml}${d.note?`<div class="ecr-note2"><b>PESAN</b><span>${ecrEsc(d.note)}</span></div>`:""}<div class="ecr-footer">Data dibuat ulang dari informasi pada resi asli.</div></div>`}
 async function ecrShowPage(page){const rec=ecrPages.find(p=>p.page===page);if(!rec)return;ecrCurrentPage=page;ecrRenderList();const paper=document.getElementById("ecrPaper");paper.innerHTML='<div class="ecr-empty">Menyusun resi...</div>';const qr=await ecrQrDataUrl(page);paper.innerHTML=ecrBuildLabel(rec.data,qr);const label=paper.querySelector(".ecr-print-label");if(label)label.classList.add("ecr-preview-label");const pl=document.getElementById("ecrPreviewLabel");if(pl)pl.textContent=`Resi ${page} / ${ecrPages.length}`;}
 async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}try{ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const data=await ecrParsePage(i);ecrPages.push({page:i,data})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman • data berhasil dibaca`;ecrRenderList();await ecrShowPage(1)}catch(err){console.error(err);alert("PDF berhasil dibuka tetapi data resi gagal dibaca: "+(err?.message||err))}}
 async function ecrPrintSelected(){
