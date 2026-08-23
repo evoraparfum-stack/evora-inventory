@@ -1384,6 +1384,16 @@ body.dark-mode #evoraAICenter label,
   .ecr-preview-panel{order:-1}
 }
 </style>
+
+<style id="evora-resi-ultra-sharp">
+.ecr-paper canvas{
+  image-rendering:auto;
+  image-rendering:high-quality;
+}
+@media print{
+  #ecrPrintFrame{display:none!important}
+}
+</style>
 </head>
 <body>
 
@@ -5378,7 +5388,7 @@ function ecrRenderList(){
     btn.textContent=allSelected ? "☑ Batalkan Semua" : "☑ Pilih Semua";
   }
 }
-async function ecrRenderCroppedPage(page,targetWidthPx=2400){
+async function ecrRenderCroppedPage(page,targetWidthPx=3600){
   if(!ecrPdfDoc)return null;
   const pg=await ecrPdfDoc.getPage(page);
   const base=pg.getViewport({scale:1});
@@ -5427,7 +5437,7 @@ async function ecrPrintSelected(){
     // a half-loaded window.
     const rendered=[];
     for(const page of pages){
-      const result=await ecrRenderCroppedPage(page,2880);
+      const result=await ecrRenderCroppedPage(page,4320);
       rendered.push({
         page,
         src:result.canvas.toDataURL("image/png"),
@@ -5468,7 +5478,7 @@ html,body{margin:0!important;padding:0!important;background:#fff!important}
       sheet.className="sheet";
       sheet.style.width="80mm";
       const img=doc.createElement("img");
-      img.src=item.src;
+      img.decoding="sync";img.src=item.src;
       img.alt="Resi "+item.page;
       imagePromises.push(new Promise((resolve,reject)=>{
         img.onload=()=>resolve();
