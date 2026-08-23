@@ -1263,6 +1263,24 @@ body.dark-mode #evoraAICenter label,
   #ecrBtStatus{width:100%;text-align:center}
 }
 </style>
+
+<style id="evora-cetak-resi-list-fix">
+.ecr-layout{grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr)!important}
+.ecr-list{min-width:0;overflow:hidden}
+.ecr-items{width:100%;overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box}
+.ecr-item{width:100%;box-sizing:border-box;min-width:0;overflow:hidden}
+.ecr-item input{flex:0 0 auto;width:16px;height:16px}
+.ecr-item-main{min-width:0!important;width:100%;overflow:hidden}
+.ecr-item-title,.ecr-item-meta{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ecr-item-title{line-height:1.35}
+.ecr-item-meta{line-height:1.35}
+@media(max-width:900px){
+  .ecr-layout{grid-template-columns:1fr!important}
+  .ecr-preview{order:-1}
+  .ecr-list{width:100%;box-sizing:border-box}
+  .ecr-items{max-height:360px}
+}
+</style>
 </head>
 <body>
 
@@ -5166,9 +5184,26 @@ function openCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)
 function closeCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="none"}
 function ecrUpdateCount(){const e=document.getElementById("ecrCount");if(e)e.textContent=`${ecrSelected.size} dari ${ecrPages.length} resi dipilih`}
 function ecrSelectAll(){ecrSelected=new Set(ecrPages.map(x=>x.page));ecrRenderList()}
-function ecrClearAll(){ecrSelected.clear();ecrRenderList()}
+function ecrClearAll(){
+  ecrSelected.clear();
+  ecrPages=[];
+  ecrCurrentPage=1;
+  ecrPdfDoc=null;
+  ecrPdfBytes=null;
+  const input=document.getElementById("ecrPdfInput");
+  const name=document.getElementById("ecrFileName");
+  const items=document.getElementById("ecrItems");
+  const paper=document.getElementById("ecrPaper");
+  const label=document.getElementById("ecrPreviewLabel");
+  if(input) input.value="";
+  if(name) name.textContent="Belum ada PDF.";
+  if(items) items.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';
+  if(paper) paper.innerHTML='<div class="ecr-empty">Belum ada resi dipilih.</div>';
+  if(label) label.textContent="-";
+  ecrUpdateCount();
+}
 function ecrToggle(p,ev){if(ev)ev.stopPropagation();ecrSelected.has(p)?ecrSelected.delete(p):ecrSelected.add(p);ecrRenderList(false)}
-function ecrRenderList(){const e=document.getElementById("ecrItems");if(!e)return;if(!ecrPages.length){e.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';ecrUpdateCount();return}e.innerHTML=ecrPages.map(p=>`<div class="ecr-item ${p.page===ecrCurrentPage?"active":""}" onclick="ecrShowPage(${p.page})"><input type="checkbox" ${ecrSelected.has(p.page)?"checked":""} onclick="ecrToggle(${p.page},event)"><div class="ecr-item-main"><div class="ecr-item-title">Resi / Halaman ${p.page}</div><div class="ecr-item-meta">${p.widthMm.toFixed(1)} × ${p.heightMm.toFixed(1)} mm</div></div></div>`).join("");ecrUpdateCount()}
+function ecrRenderList(){const e=document.getElementById("ecrItems");if(!e)return;if(!ecrPages.length){e.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';ecrUpdateCount();return}e.innerHTML=ecrPages.map(p=>`<div class="ecr-item ${p.page===ecrCurrentPage?"active":""}" onclick="ecrShowPage(${p.page})"><input type="checkbox" ${ecrSelected.has(p.page)?"checked":""} onclick="ecrToggle(${p.page},event)"><div class="ecr-item-main"><div class="ecr-item-title">Resi / Halaman ${p.page}</div><div class="ecr-item-meta">Ukuran PDF: ${p.widthMm.toFixed(1)} × ${p.heightMm.toFixed(1)} mm</div></div></div>`).join("");ecrUpdateCount()}
 async function ecrRenderCroppedPage(page,targetWidthPx=720){
   if(!ecrPdfDoc)return null;
   const pg=await ecrPdfDoc.getPage(page);
@@ -5201,7 +5236,7 @@ async function ecrShowPage(page){
   const label=document.getElementById("ecrPreviewLabel");
   if(label)label.textContent=`Halaman ${page} / ${ecrPages.length} • ${result.widthMm.toFixed(0)}×${result.heightMm.toFixed(0)} mm`;
 }
-async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const p=await ecrPdfDoc.getPage(i),v=p.getViewport({scale:1});ecrPages.push({page:i,widthMm:v.width*25.4/72,heightMm:v.height*25.4/72})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman`;ecrRenderList();await ecrShowPage(1)}
+async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const p=await ecrPdfDoc.getPage(i),v=p.getViewport({scale:1});ecrPages.push({page:i,widthMm:v.width*25.4/72,heightMm:v.height*25.4/72})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman`;ecrRenderList();await ecrShowPage(1)}
 async function ecrPrintSelected(){
   if(!ecrPdfDoc||!ecrSelected.size){alert("Pilih minimal satu resi.");return}
   const pages=[...ecrSelected].sort((a,b)=>a-b),win=window.open("","_blank");
