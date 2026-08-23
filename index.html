@@ -1320,7 +1320,17 @@ body.dark-mode #evoraAICenter label,
   .kasir-resi-tool{min-width:0;width:100%!important}
 }
 </style>
-</head>
+<style id="evora-cetak-resi-selection-fix">
+.ecr-item.selected{
+  border-color:#111827!important;
+  background:rgba(15,23,42,.04);
+  box-shadow:0 0 0 1px rgba(15,23,42,.08) inset;
+}
+.ecr-item input{
+  cursor:pointer;
+  flex:0 0 auto;
+}
+</style></head>
 <body>
 
 <div id="topNotification" class="top-toast-alert">
@@ -5219,7 +5229,7 @@ Object.defineProperty(window,"barang",{get:()=>barang});
 
 <div id="evoraCetakResi"><div class="ecr-shell">
 <div class="ecr-head"><div><div class="ecr-title">🖨️ Cetak Resi</div><div class="ecr-sub">Upload PDF Shopee → area resi otomatis dipotong → cetak 80 mm.</div></div><button class="ecr-close" onclick="closeCetakResi()">✕ Tutup</button></div>
-<div class="ecr-drop"><label class="ecr-drop-label" for="ecrPdfInput">📄 Pilih PDF Resi Shopee</label><input id="ecrPdfInput" type="file" accept="application/pdf"><div id="ecrFileName" class="ecr-file">Belum ada PDF.</div><div class="ecr-note">Fitur ini HANYA untuk mencetak. Tidak masuk penjualan, stok, kasir, atau iklan.</div><div class="ecr-note">Bluetooth hanya digunakan untuk koneksi printer. Tidak mengubah data penjualan/stok/iklan.</div></div>
+<div class="ecr-drop"><label class="ecr-drop-label" for="ecrPdfInput">📄 Pilih PDF Resi Shopee</label><input id="ecrPdfInput" type="file" accept="application/pdf"><div id="ecrFileName" class="ecr-file">Belum ada PDF.</div><div class="ecr-note">Fitur ini HANYA untuk mencetak. Tidak masuk penjualan, stok, kasir, atau iklan.</div><div id="ecr-print-note" class="ecr-note">Saat klik Cetak, dialog printer akan muncul. Pilih printer thermal 80 mm dan skala 100%.</div><div class="ecr-note">Bluetooth hanya digunakan untuk koneksi printer. Tidak mengubah data penjualan/stok/iklan.</div></div>
 <div class="ecr-toolbar"><button class="ecr-btn secondary" onclick="ecrSelectAll()">☑ Pilih Semua</button><button class="ecr-btn secondary" onclick="ecrClearAll()">☐ Kosongkan</button><button class="ecr-btn primary" onclick="ecrPrintSelected()">🖨️ Cetak Terpilih</button><button id="ecrBtToggle" class="ecr-btn secondary" onclick="toggleEcrBluetooth()">🔵 Aktifkan Bluetooth</button>
 <span id="ecrBtStatus" class="ecr-count" style="align-self:center;">Bluetooth: Nonaktif</span><span id="ecrCount" class="ecr-count">0 resi</span></div>
 <div class="ecr-layout"><div class="ecr-list"><div class="ecr-list-head"><b>Daftar Resi</b><span class="ecr-count">Per halaman PDF</span></div><div id="ecrItems" class="ecr-items"><div class="ecr-empty">Upload PDF untuk melihat resi.</div></div></div>
@@ -5228,7 +5238,22 @@ let ecrPdfDoc=null,ecrPdfBytes=null,ecrPages=[],ecrSelected=new Set(),ecrCurrent
 function openCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="block"}
 function closeCetakResi(){const e=document.getElementById("evoraCetakResi");if(e)e.style.display="none"}
 function ecrUpdateCount(){const e=document.getElementById("ecrCount");if(e)e.textContent=`${ecrSelected.size} dari ${ecrPages.length} resi dipilih`}
-function ecrSelectAll(){ecrSelected=new Set(ecrPages.map(x=>x.page));ecrRenderList()}
+function ecrSelectAll(){
+  if(!ecrPages.length){
+    ecrSelected.clear();
+    ecrRenderList();
+    return;
+  }
+  const allSelected=ecrSelected.size===ecrPages.length &&
+    ecrPages.every(p=>ecrSelected.has(p.page));
+
+  if(allSelected){
+    ecrSelected.clear();
+  }else{
+    ecrSelected=new Set(ecrPages.map(p=>p.page));
+  }
+  ecrRenderList();
+}
 function ecrClearAll(){
   ecrSelected.clear();
   ecrPages=[];
@@ -5247,8 +5272,48 @@ function ecrClearAll(){
   if(label) label.textContent="-";
   ecrUpdateCount();
 }
-function ecrToggle(p,ev){if(ev)ev.stopPropagation();ecrSelected.has(p)?ecrSelected.delete(p):ecrSelected.add(p);ecrRenderList(false)}
-function ecrRenderList(){const e=document.getElementById("ecrItems");if(!e)return;if(!ecrPages.length){e.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';ecrUpdateCount();return}e.innerHTML=ecrPages.map(p=>`<div class="ecr-item ${p.page===ecrCurrentPage?"active":""}" onclick="ecrShowPage(${p.page})"><input type="checkbox" ${ecrSelected.has(p.page)?"checked":""} onclick="ecrToggle(${p.page},event)"><div class="ecr-item-main"><div class="ecr-item-title">Resi / Halaman ${p.page}</div><div class="ecr-item-meta">Ukuran PDF: ${p.widthMm.toFixed(1)} × ${p.heightMm.toFixed(1)} mm</div></div></div>`).join("");ecrUpdateCount()}
+function ecrToggle(page,ev){
+  if(ev)ev.stopPropagation();
+  if(ecrSelected.has(page)){
+    ecrSelected.delete(page);
+  }else{
+    ecrSelected.add(page);
+  }
+  ecrRenderList();
+}
+function ecrRenderList(){
+  const el=document.getElementById("ecrItems");
+  if(!el)return;
+  if(!ecrPages.length){
+    el.innerHTML='<div class="ecr-empty">Upload PDF untuk melihat resi.</div>';
+    ecrUpdateCount();
+    return;
+  }
+
+  const allSelected=ecrSelected.size===ecrPages.length &&
+    ecrPages.every(p=>ecrSelected.has(p.page));
+
+  el.innerHTML=ecrPages.map(p=>{
+    const checked=ecrSelected.has(p.page);
+    return `<div class="ecr-item ${p.page===ecrCurrentPage?"active":""} ${checked?"selected":""}" onclick="ecrShowPage(${p.page})">
+      <input type="checkbox"
+        ${checked?"checked":""}
+        aria-label="Pilih resi halaman ${p.page}"
+        onclick="ecrToggle(${p.page},event)">
+      <div class="ecr-item-main" onclick="ecrShowPage(${p.page})">
+        <div class="ecr-item-title">Resi / Halaman ${p.page}</div>
+        <div class="ecr-item-meta">Ukuran PDF: ${p.widthMm.toFixed(1)} × ${p.heightMm.toFixed(1)} mm</div>
+      </div>
+    </div>`;
+  }).join("");
+
+  ecrUpdateCount();
+
+  const btn=[...document.querySelectorAll(".ecr-btn")].find(b=>b.textContent.includes("Pilih Semua"));
+  if(btn){
+    btn.textContent=allSelected ? "☑ Batalkan Semua" : "☑ Pilih Semua";
+  }
+}
 async function ecrRenderCroppedPage(page,targetWidthPx=720){
   if(!ecrPdfDoc)return null;
   const pg=await ecrPdfDoc.getPage(page);
@@ -5283,23 +5348,107 @@ async function ecrShowPage(page){
 }
 async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const p=await ecrPdfDoc.getPage(i),v=p.getViewport({scale:1});ecrPages.push({page:i,widthMm:v.width*25.4/72,heightMm:v.height*25.4/72})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman`;ecrRenderList();await ecrShowPage(1)}
 async function ecrPrintSelected(){
-  if(!ecrPdfDoc||!ecrSelected.size){alert("Pilih minimal satu resi.");return}
-  const pages=[...ecrSelected].sort((a,b)=>a-b),win=window.open("","_blank");
-  if(!win){alert("Popup diblokir browser. Izinkan popup untuk mencetak resi.");return}
-  win.document.open();
-  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Cetak Resi 80mm</title><style>@page{size:80mm auto;margin:0}html,body{margin:0;padding:0;background:#fff}.sheet{width:80mm;margin:0;padding:0;page-break-after:always;break-after:page}.sheet:last-child{page-break-after:auto}.sheet img{display:block;width:80mm;height:auto;margin:0;padding:0}</style></head><body><div id="printRoot"></div></body></html>`);
-  win.document.close();
-  const root=win.document.getElementById("printRoot");
+  if(!ecrPdfDoc||!ecrSelected.size){
+    alert("Pilih minimal satu resi.");
+    return;
+  }
+
+  const pages=[...ecrSelected].sort((a,b)=>a-b);
+  const btn=document.querySelector('.ecr-btn.primary[onclick*="ecrPrintSelected"]');
+  if(btn){btn.disabled=true;btn.textContent="⏳ Menyiapkan...";}
+
+  let printFrame=null;
   try{
+    // Render everything before opening/printing so the browser cannot print
+    // a half-loaded window.
+    const rendered=[];
     for(const page of pages){
-      const result=await ecrRenderCroppedPage(page,1440),sheet=win.document.createElement("div"),img=win.document.createElement("img");
-      sheet.className="sheet";img.src=result.canvas.toDataURL("image/png");img.alt=`Resi halaman ${page}`;sheet.appendChild(img);root.appendChild(sheet);
+      const result=await ecrRenderCroppedPage(page,1440);
+      rendered.push({
+        page,
+        src:result.canvas.toDataURL("image/png"),
+        widthMm:result.widthMm,
+        heightMm:result.heightMm
+      });
     }
-    await new Promise(r=>setTimeout(r,300));win.focus();win.print();
-  }catch(err){console.error(err);try{win.close()}catch(e){}alert("Gagal menyiapkan resi untuk dicetak.")}
+
+    printFrame=document.createElement("iframe");
+    printFrame.id="ecrPrintFrame";
+    printFrame.style.position="fixed";
+    printFrame.style.left="-10000px";
+    printFrame.style.top="0";
+    printFrame.style.width="80mm";
+    printFrame.style.height="100px";
+    printFrame.style.border="0";
+    printFrame.setAttribute("aria-hidden","true");
+    document.body.appendChild(printFrame);
+
+    const doc=printFrame.contentDocument;
+    doc.open();
+    doc.write(`<!doctype html><html><head><meta charset="utf-8"><title>EVORA - Cetak Resi</title>
+<style>
+@page{size:80mm auto;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0!important;padding:0!important;background:#fff!important}
+.sheet{width:80mm;margin:0;padding:0;page-break-after:always;break-after:page;overflow:hidden}
+.sheet:last-child{page-break-after:auto;break-after:auto}
+.sheet img{display:block;width:80mm;height:auto;margin:0;padding:0;border:0}
+</style></head><body><div id="ecrPrintRoot"></div></body></html>`);
+    doc.close();
+
+    const root=doc.getElementById("ecrPrintRoot");
+    const imagePromises=[];
+
+    for(const item of rendered){
+      const sheet=doc.createElement("div");
+      sheet.className="sheet";
+      sheet.style.width="80mm";
+      const img=doc.createElement("img");
+      img.src=item.src;
+      img.alt="Resi "+item.page;
+      imagePromises.push(new Promise((resolve,reject)=>{
+        img.onload=()=>resolve();
+        img.onerror=()=>reject(new Error("Gagal memuat resi "+item.page));
+      }));
+      sheet.appendChild(img);
+      root.appendChild(sheet);
+    }
+
+    await Promise.all(imagePromises);
+    await new Promise(resolve=>setTimeout(resolve,250));
+
+    const cleanup=()=>{
+      setTimeout(()=>{
+        try{document.body.removeChild(printFrame)}catch(e){}
+        printFrame=null;
+        if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
+      },500);
+    };
+
+    printFrame.contentWindow.addEventListener("afterprint",cleanup,{once:true});
+    printFrame.contentWindow.focus();
+    printFrame.contentWindow.print();
+
+    // Fallback for browsers that do not fire afterprint reliably.
+    setTimeout(()=>{
+      if(printFrame){
+        try{document.body.removeChild(printFrame)}catch(e){}
+        printFrame=null;
+        if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
+      }
+    },15000);
+
+  }catch(err){
+    console.error("Cetak Resi:",err);
+    if(printFrame){
+      try{document.body.removeChild(printFrame)}catch(e){}
+    }
+    if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
+    alert("Gagal menyiapkan resi untuk dicetak. Coba pilih satu resi dulu untuk pengujian.");
+  }
 }
 document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))})
-</script><script type="module">import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";window.pdfjsLib=pdfjsLib;pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";</script>
+</script>
 <script id="evora-cetak-resi-bluetooth-logic">
 let ecrBluetoothDevice = null;
 let ecrBluetoothPrinterCharacteristic = null;
