@@ -5744,9 +5744,20 @@ async function ecrParsePage(pageNumber){
 
   const deadline=(flat.match(/Batas\s+Kirim\s*:?\s*([0-9]{2}-[0-9]{2}-[0-9]{4})/i)||[])[1]||"";
   const weight=(flat.match(/(?:Berat\s*:?\s*)?([0-9]+(?:[.,][0-9]+)?\s*(?:gr|kg))/i)||[])[1]||"";
-  const codSource=flat.replace(/\s+/g," ");
-  const codMatch=codSource.match(/COD\s+Cek\s+Dulu\s*:?\s*(Ya|Tidak)\b/i)
-    || items.map(i=>i.str).join(" ").replace(/\s+/g," ").match(/COD\s+Cek\s+Dulu\s*:?\s*(Ya|Tidak)\b/i);
+  const codSource=(flat+" "+items.map(i=>i.str).join(" ")).replace(/\s+/g," ").trim();
+  let codMatch=codSource.match(/COD\s+Cek\s+Dulu\s*:?\s*(Ya|Tidak)\b/i);
+
+  // Fallback for PDFs where each word is a separate text item.
+  if(!codMatch){
+    for(let i=0;i<items.length;i++){
+      if(/^COD$/i.test(items[i].str)){
+        const nearby=items.slice(i,Math.min(items.length,i+18)).map(x=>x.str).join(" ");
+        const mm=nearby.match(/COD\s+Cek\s+Dulu\s*:?\s*(Ya|Tidak)\b/i);
+        if(mm){codMatch=mm;break}
+      }
+    }
+  }
+
   const cod=codMatch
     ? (codMatch[1].toLowerCase()==="ya" ? "COD" : "NON-COD")
     : "TIDAK DIKETAHUI";
@@ -6004,6 +6015,213 @@ async function ecrPrintSelected(){
       .ecr-product-name,.ecr-product-sku,.ecr-product-variation{font-size:5.4px!important;line-height:1.12!important}
       .ecr-product-qty{font-size:6px!important}.ecr-note2{margin-top:1mm!important;padding-top:1mm!important}
       .ecr-note2 span{font-size:5.4px!important;line-height:1.18!important}
+
+      /* =========================================================
+         EVORA V6 — THERMAL 80MM READABILITY MODE
+         Intentionally longer: readability > compactness.
+         ========================================================= */
+      html,body{
+        background:#fff!important;
+        color:#000!important;
+        -webkit-print-color-adjust:exact!important;
+        print-color-adjust:exact!important;
+        text-rendering:geometricPrecision!important;
+      }
+      .ecr-print-label{
+        color:#000!important;
+        background:#fff!important;
+        padding:3.2mm 3.4mm 4mm!important;
+        font-family:Arial,Helvetica,sans-serif!important;
+        font-size:9px!important;
+        line-height:1.3!important;
+        font-weight:600!important;
+        overflow:visible!important;
+        page-break-after:always!important;
+        break-after:page!important;
+      }
+
+      /* Header */
+      .ecr-top{font-size:15px!important;line-height:1.05!important}
+      .ecr-top b{font-weight:900!important}
+      .ecr-top span{
+        font-size:8px!important;
+        font-weight:900!important;
+        border:1.4px solid #000!important;
+        color:#000!important;
+        padding:1.2mm 2mm!important;
+      }
+      .ecr-route{font-size:8px!important;font-weight:900!important;margin-top:1.5mm!important}
+      .ecr-rule{border-top:1.5px solid #000!important;margin:2mm 0!important}
+
+      /* Resi */
+      .ecr-resi-head{font-size:7px!important;font-weight:800!important}
+      .ecr-resi-head span{font-weight:900!important}
+      .ecr-resi-head b{
+        font-size:10px!important;
+        font-weight:900!important;
+        color:#000!important;
+      }
+      .ecr-barcode{
+        height:10.5mm!important;
+        margin:1.2mm 0 2.2mm!important;
+        background:#fff!important;
+      }
+      .ecr-barcode svg{
+        width:100%!important;
+        height:100%!important;
+        display:block!important;
+        shape-rendering:crispEdges!important;
+        shape-rendering:geometricPrecision!important;
+      }
+      .ecr-barcode svg rect{
+        vector-effect:non-scaling-stroke;
+      }
+
+      /* People */
+      .ecr-two{gap:4mm!important}
+      .ecr-two label{
+        font-size:6.5px!important;
+        font-weight:900!important;
+        color:#000!important;
+        letter-spacing:.1px!important;
+      }
+      .ecr-two b{
+        font-size:9px!important;
+        line-height:1.2!important;
+        font-weight:900!important;
+        color:#000!important;
+        margin-top:1mm!important;
+      }
+      .ecr-two span{
+        font-size:7.2px!important;
+        line-height:1.25!important;
+        font-weight:600!important;
+        color:#000!important;
+      }
+      .ecr-address{
+        font-size:7.2px!important;
+        line-height:1.35!important;
+        font-weight:600!important;
+        color:#000!important;
+        margin-top:2mm!important;
+      }
+
+      /* Weight / deadline / payment */
+      .ecr-info{gap:2.5mm!important}
+      .ecr-info label{
+        font-size:6px!important;
+        font-weight:900!important;
+        color:#000!important;
+      }
+      .ecr-info b{
+        font-size:8px!important;
+        font-weight:900!important;
+        color:#000!important;
+        line-height:1.2!important;
+      }
+      .ecr-cod-cell{
+        border:1.8px solid #000!important;
+        border-radius:1.5mm!important;
+        padding:1.5mm 1.7mm!important;
+        min-height:11mm!important;
+        background:#fff!important;
+      }
+      .ecr-cod-cell label{font-size:5.7px!important;font-weight:900!important}
+      .ecr-cod-cell b{
+        font-size:10px!important;
+        font-weight:900!important;
+        line-height:1.05!important;
+        margin-top:1mm!important;
+      }
+      .ecr-cod-cell.is-noncod{border-style:solid!important}
+      .ecr-cod-cell.is-cod{border-width:2px!important}
+
+      /* Order + QR */
+      .ecr-order-title{
+        font-size:6.5px!important;
+        font-weight:900!important;
+        margin-top:2.5mm!important;
+      }
+      .ecr-order{
+        font-size:9px!important;
+        font-weight:900!important;
+        line-height:1.25!important;
+        color:#000!important;
+      }
+      .ecr-order-code-row{
+        grid-template-columns:minmax(0,1fr) 18mm!important;
+        gap:3mm!important;
+        align-items:center!important;
+      }
+      .ecr-order-code .ecr-barcode{
+        height:9.5mm!important;
+        margin:1mm 0 1.5mm!important;
+      }
+      .ecr-order-code-row .ecr-qr{
+        position:static!important;
+        width:18mm!important;
+        height:18mm!important;
+        max-width:18mm!important;
+        background:#fff!important;
+      }
+      .ecr-order-code-row .ecr-qr img{
+        width:100%!important;
+        height:100%!important;
+        object-fit:contain!important;
+        image-rendering:auto!important;
+      }
+
+      /* Products */
+      .ecr-product-head{
+        grid-template-columns:minmax(0,1.45fr) minmax(0,.55fr) minmax(0,.8fr) 8mm!important;
+        gap:1.5mm!important;
+        background:#000!important;
+        color:#fff!important;
+        padding:1.6mm!important;
+        margin-top:2mm!important;
+        font-size:6.2px!important;
+        font-weight:900!important;
+        border:1px solid #000!important;
+      }
+      .ecr-product-row{
+        grid-template-columns:minmax(0,1.45fr) minmax(0,.55fr) minmax(0,.8fr) 8mm!important;
+        gap:1.5mm!important;
+        padding:1.8mm 1.6mm!important;
+        border-bottom:1px solid #000!important;
+      }
+      .ecr-product-name,.ecr-product-sku,.ecr-product-variation{
+        font-size:7px!important;
+        line-height:1.3!important;
+        font-weight:600!important;
+        color:#000!important;
+      }
+      .ecr-product-qty{
+        font-size:8px!important;
+        font-weight:900!important;
+        color:#000!important;
+        text-align:center!important;
+      }
+
+      /* Message */
+      .ecr-note2{
+        margin-top:2.5mm!important;
+        border-top:1.5px solid #000!important;
+        padding-top:1.8mm!important;
+      }
+      .ecr-note2 b{
+        font-size:6.5px!important;
+        font-weight:900!important;
+        color:#000!important;
+      }
+      .ecr-note2 span{
+        font-size:7px!important;
+        line-height:1.35!important;
+        font-weight:600!important;
+        color:#000!important;
+      }
+
+      .ecr-footer{display:none!important}
+
     `;
 
     win.document.open();
