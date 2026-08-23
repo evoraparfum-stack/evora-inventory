@@ -1233,7 +1233,7 @@ body.dark-theme .scan-resi-product-row{border-color:#334155}
       <div class="card" id="panelMappingResi" style="margin-top:12px;">
         <h3><i class="fa-solid fa-link"></i> MAPPING NAMA RESI</h3>
         <div style="font-size:10px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">
-          Atur nama/SKU yang muncul di resi agar diarahkan ke varian kasir yang benar.
+          Atur nama/SKU yang muncul di resi agar diarahkan ke varian kasir yang benar. Contoh: <b>California Blue</b> di resi → <b>Callblue</b> di kasir.
         </div>
         <button type="button" onclick="openResiAlias()" style="font-size:11px;padding:9px;">
           <i class="fa-solid fa-sliders"></i> Atur Mapping Nama Resi
@@ -3066,12 +3066,58 @@ function scanScore(chunk,name){
 }
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
-  // 1) Exact/alias mapping gets priority over fuzzy scoring.
-  const mapped = typeof matchResiProduct === "function" ? matchResiProduct(chunk, barang) : null;
-  if(mapped && mapped.status === "matched"){
-    const idx = barang.findIndex(b=>normScan(b.nama)===normScan(mapped.name));
-    if(idx >= 0) return {index:idx,score:9,method:mapped.method||"alias"};
+
+  const q=normScan(chunk);
+
+  // 1. EXPLICIT RESI ALIAS HAS THE HIGHEST PRIORITY.
+  // Example:
+  // RESI "CALIFORNIA BLUE" -> KASIR "Callblue"
+  // This must happen before generic name matching, otherwise "California"
+  // could incorrectly win because it is contained inside "California Blue".
+  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
+  const aliasHits = Object.keys(aliases)
+    .map(alias=>({alias,norm:normScan(alias),target:aliases[alias]}))
+    .filter(x=>x.norm && q.includes(x.norm))
+    .sort((a,b)=>b.norm.length-a.norm.length);
+
+  if(aliasHits.length){
+    const hit=aliasHits[0];
+    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(hit.target));
+    if(idx>=0){
+      return {
+        index:idx,
+        score:20 + hit.norm.length/1000,
+        method:"explicit-alias"
+      };
+    }
   }
+
+  // 2. Exact full product name. Longer names win over shorter names.
+  const exactProducts=barang.map((b,i)=>({
+    index:i,
+    norm:normScan(b.nama)
+  }))
+  .filter(x=>x.norm && q.includes(x.norm))
+  .sort((a,b)=>b.norm.length-a.norm.length);
+
+  if(exactProducts.length){
+    return {
+      index:exactProducts[0].index,
+      score:12 + exactProducts[0].norm.length/1000,
+      method:"exact-phrase"
+    };
+  }
+
+  // 3. Existing mapping helper as fallback.
+  const mapped=typeof matchResiProduct==="function"
+    ? matchResiProduct(chunk,barang) : null;
+
+  if(mapped && mapped.status==="matched"){
+    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(mapped.name));
+    if(idx>=0) return {index:idx,score:11,method:mapped.method||"alias"};
+  }
+
+  // 4. Conservative fuzzy matching.
   let best={index:-1,score:0};
   barang.forEach((b,i)=>{
     const score=scanScore(chunk,b.nama);
@@ -3082,19 +3128,29 @@ function bestScanMatch(chunk){
 
 function scanAliasIndexMatches(chunk){
   const found=[];
-  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
-  const q = normScan(chunk);
-  Object.keys(aliases).forEach(alias=>{
-    const target=aliases[alias];
-    if(alias && q.includes(alias)){
-      const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
-      if(idx>=0 && !found.some(x=>x.index===idx)) found.push({index:idx,score:10,source:"alias"});
-    }
-  });
-  barang.forEach((b,i)=>{
-    const n=normScan(b.nama);
-    if(n && q.includes(n) && !found.some(x=>x.index===i)) found.push({index:i,score:8,source:"name"});
-  });
+  const aliases=typeof getResiAliases==="function" ? getResiAliases() : {};
+  const q=normScan(chunk);
+
+  // Explicit mapping always beats generic product-name matching.
+  Object.keys(aliases)
+    .map(alias=>({alias,norm:normScan(alias),target:aliases[alias]}))
+    .filter(x=>x.norm && q.includes(x.norm))
+    .sort((a,b)=>b.norm.length-a.norm.length)
+    .forEach(x=>{
+      const idx=barang.findIndex(b=>normScan(b.nama)===normScan(x.target));
+      if(idx>=0 && !found.some(y=>y.index===idx))
+        found.push({index:idx,score:20+x.norm.length/1000,source:"explicit-alias"});
+    });
+
+  // Generic exact product names are only fallback.
+  barang.map((b,i)=>({i,n:normScan(b.nama)}))
+    .filter(x=>x.n && q.includes(x.n))
+    .sort((a,b)=>b.n.length-a.n.length)
+    .forEach(x=>{
+      if(!found.some(y=>y.index===x.i))
+        found.push({index:x.i,score:8+x.n.length/1000,source:"name"});
+    });
+
   return found;
 }
 
