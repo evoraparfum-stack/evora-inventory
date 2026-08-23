@@ -5469,17 +5469,24 @@ async function ecrRenderVectorPage(pageNumber){
   const crop=await ecrGetVectorCropBox(pageNumber);
 
   if(!window.pdfjsLib || typeof pdfjsLib.SVGGraphics!=="function"){
-    throw new Error("SVGGraphics PDF.js tidak tersedia.");
+    throw new Error("PDF.js SVGGraphics tidak tersedia.");
   }
 
   const operatorList=await pg.getOperatorList();
-  const svgGfx=new pdfjsLib.SVGGraphics(ecrPdfDoc.commonObjs, ecrPdfDoc.objs);
+
+  // PDF.js 3.11 requires the page's commonObjs/objs and dependencies
+  // to be loaded before getSVG().
+  const svgGfx=new pdfjsLib.SVGGraphics(pg.commonObjs,pg.objs);
+  svgGfx.embedFonts=true;
+  await svgGfx.loadDependencies(operatorList);
   const svg=await svgGfx.getSVG(operatorList,viewport);
 
-  // Keep the PDF's vector content. Only the viewBox is changed to crop
-  // the blank outer area. Text, paths, and barcode graphics are not rasterized.
+  // Crop was detected in top-origin canvas coordinates. Convert to
+  // PDF bottom-origin coordinates for SVG viewBox.
+  const pdfCropY=viewport.height-(crop.y+crop.height);
+
   svg.setAttribute("xmlns","http://www.w3.org/2000/svg");
-  svg.setAttribute("viewBox",`${crop.x} ${crop.y} ${crop.width} ${crop.height}`);
+  svg.setAttribute("viewBox",`${crop.x} ${pdfCropY} ${crop.width} ${crop.height}`);
   svg.setAttribute("width","80mm");
   svg.setAttribute("height",`${80*crop.height/crop.width}mm`);
   svg.setAttribute("preserveAspectRatio","none");
@@ -5573,7 +5580,7 @@ html,body{margin:0!important;padding:0!important;background:#fff!important}
       try{document.body.removeChild(printFrame)}catch(e){}
     }
     if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
-    alert("Mode cetak PDF tajam gagal dijalankan. Pastikan PDF valid lalu coba lagi.");
+    alert("Mode cetak vector gagal: " + (err?.message || err) + "\n\nPDF tetap valid; ini masalah renderer vector, bukan isi PDF.");
   }
 }
 document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))})
