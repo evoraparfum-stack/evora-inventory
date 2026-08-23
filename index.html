@@ -983,6 +983,46 @@ body.dark-theme .scan-resi-product-row{border-color:#334155}
 @media(max-width:700px){.eai-history-grid{grid-template-columns:1fr 1fr}.eai-history-head{flex-direction:column}.eai-history-actions{justify-content:flex-end}}
 </style>
 
+
+<style id="evora-ai-mobile-refine">
+/* EVORA AI mobile refinement */
+@media (max-width: 760px){
+  #evoraAICenter .eai-shell{width:100%;box-sizing:border-box;padding:14px 12px 28px;overflow-x:hidden}
+  #evoraAICenter .eai-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+  #evoraAICenter .eai-title{font-size:20px;line-height:1.15;white-space:nowrap}
+  #evoraAICenter .eai-sub{font-size:11px;line-height:1.45;max-width:330px}
+  #evoraAICenter .eai-close{padding:8px 11px;font-size:11px;border-radius:12px;min-width:72px}
+  #evoraAICenter .eai-command{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:7px;position:static;padding:0;margin:14px 0 12px}
+  #evoraAICenter .eai-command input{width:100%;min-width:0;box-sizing:border-box;height:48px;font-size:12px;padding:0 13px}
+  #evoraAICenter .eai-command button{width:76px;height:48px;padding:0 8px;font-size:11px}
+  #evoraAICenter .eai-insights{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px}
+  #evoraAICenter .eai-insight{padding:12px;border-radius:14px}
+  #evoraAICenter .eai-insight h4{font-size:12px;line-height:1.3}
+  #evoraAICenter .eai-insight p{font-size:11px;line-height:1.55}
+  #evoraAICenter .eai-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;overflow:visible;padding:0;margin:10px 0 12px}
+  #evoraAICenter .eai-tab{width:100%;min-width:0;min-height:36px;padding:6px 4px;font-size:9px;line-height:1.15;white-space:normal;border-radius:11px}
+  #evoraAICenter .eai-tab:nth-child(5),
+  #evoraAICenter .eai-tab:nth-child(6){grid-column:span 2}
+  #evoraAICenter .eai-card{padding:12px;border-radius:14px}
+  #evoraAICenter .eai-card h4{font-size:12px}
+  #evoraAICenter .eai-row{font-size:11px;line-height:1.35}
+  #evoraAICenter .eai-chat{font-size:11px;line-height:1.55;padding:12px;margin-top:10px}
+  #evoraAICenter .eai-history-grid{grid-template-columns:1fr 1fr}
+  #evoraAICenter .eai-history-title{font-size:11px}
+  #evoraAICenter .eai-history-meta{font-size:9px}
+  #evoraAICenter .eai-history-metric b{font-size:11px}
+}
+@media (max-width:390px){
+  #evoraAICenter .eai-title{font-size:18px}
+  #evoraAICenter .eai-sub{font-size:10px}
+  #evoraAICenter .eai-command{grid-template-columns:minmax(0,1fr) 70px}
+  #evoraAICenter .eai-command button{width:70px;font-size:10px}
+  #evoraAICenter .eai-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #evoraAICenter .eai-tab:nth-child(5),
+  #evoraAICenter .eai-tab:nth-child(6){grid-column:span 1}
+}
+</style>
+
 </head>
 <body>
 
@@ -4433,6 +4473,7 @@ loadDataFromCloud();
       <button class="eai-tab" onclick="switchEAI('simulasi',this)">Simulasi</button>
       <button class="eai-tab" onclick="switchEAI('scanner',this)">Scanner Intelligence</button>
     </div>
+    <div class="eai-muted" style="font-size:10px;margin:0 0 8px;">Tip: <b>Riwayat Iklan</b> = detail setiap campaign. <b>Iklan</b> = ringkasan kondisi iklan.</div>
 
     <div id="eai-iklan-history" class="eai-panel"></div>
     <div id="eai-overview" class="eai-panel active"></div>
@@ -4515,11 +4556,50 @@ function renderEvoraAI(){
       <div class="eai-card"><h4>🎯 Proyeksi</h4><div class="eai-row"><span>Rata-rata penjualan</span><b>${d.avgPerDay.toFixed(1)} pcs/hari</b></div><div class="eai-row"><span>Data transaksi</span><b>${d.sales.length}</b></div><p class="eai-muted">Prediksi awal ini memakai data transaksi yang tersedia. Semakin banyak histori, semakin berguna.</p></div>
     </div>`;
 
-  document.getElementById("eai-iklan").innerHTML=`
+  document.getElementById("eai-iklan").innerHTML=(()=>{
+    const history=Array.isArray(adsCampaignHistory)?adsCampaignHistory:[];
+    const finished=history.filter(c=>String(c.status||"").toLowerCase()!=="aktif");
+    const histRevenue=finished.reduce((s,c)=>s+Number(c.revenue||0),0);
+    const histSpend=finished.reduce((s,c)=>s+Number(c.spend||c.budget||0),0);
+    const histQty=finished.reduce((s,c)=>s+Number(c.manualQty||0),0);
+    const histRoas=histSpend?histRevenue/histSpend:0;
+    const active=currentAdsCampaign;
+    const activeSpend=active?Number(active.spend||active.budget||0):0;
+    const activeRevenue=active?Number(active.revenue||0):0;
+    const activeRoas=activeSpend?activeRevenue/activeSpend:0;
+    return `
     <div class="eai-grid">
-      <div class="eai-card"><h4>📣 Performa Iklan</h4><div class="eai-row"><span>Omzet iklan</span><b>${eaiMoney(d.adRevenue)}</b></div><div class="eai-row"><span>Biaya campaign aktif</span><b>${eaiMoney(d.adSpend)}</b></div><div class="eai-row"><span>ROAS</span><b>${d.adSpend?d.roas.toFixed(2)+"x":"-"}</b></div></div>
-      <div class="eai-card"><h4>💡 Rekomendasi</h4><p class="eai-muted">${d.adSpend? (d.roas>=3?"ROAS bagus. Pertimbangkan menaikkan budget secara bertahap.":d.roas>=2?"ROAS cukup. Pantau sebelum menaikkan budget.":"ROAS rendah. Evaluasi campaign sebelum menambah budget.") : "Mulai campaign untuk mendapatkan data ROAS."}</p></div>
+      <div class="eai-card">
+        <h4>📣 Iklan Aktif</h4>
+        ${active ? `
+          <div class="eai-row"><span>Campaign</span><b>${eaiEsc(active.name||"Iklan aktif")}</b></div>
+          <div class="eai-row"><span>Budget</span><b>${eaiMoney(activeSpend)}</b></div>
+          <div class="eai-row"><span>Omzet dari iklan</span><b>${eaiMoney(activeRevenue)}</b></div>
+          <div class="eai-row"><span>ROAS sementara</span><b>${activeSpend?activeRoas.toFixed(2)+"x":"-"}</b></div>
+        ` : `
+          <div class="eai-muted">Tidak ada campaign iklan yang sedang aktif.</div>
+          <div class="eai-muted" style="margin-top:6px;">Untuk melihat performa iklan yang sudah selesai, buka <b>Riwayat Iklan</b>.</div>
+        `}
+      </div>
+      <div class="eai-card">
+        <h4>📊 Ringkasan Riwayat Iklan</h4>
+        <div class="eai-row"><span>Campaign selesai</span><b>${finished.length}</b></div>
+        <div class="eai-row"><span>Total terjual dari iklan</span><b>${eaiQty(histQty)} pcs</b></div>
+        <div class="eai-row"><span>Total omzet iklan</span><b>${eaiMoney(histRevenue)}</b></div>
+        <div class="eai-row"><span>Total biaya iklan</span><b>${eaiMoney(histSpend)}</b></div>
+        <div class="eai-row"><span>ROAS gabungan</span><b>${histSpend?histRoas.toFixed(2)+"x":"-"}</b></div>
+      </div>
+    </div>
+    <div class="eai-card" style="margin-top:10px;">
+      <h4>💡 Cara membaca data iklan</h4>
+      <p class="eai-muted" style="line-height:1.55;margin:0;">
+        <b>Omzet iklan</b> = omzet dari transaksi yang ditandai sebagai hasil iklan.
+        <br><b>Biaya iklan</b> = budget/spend campaign.
+        <br><b>ROAS</b> = omzet iklan ÷ biaya iklan.
+        <br><br>Untuk melihat <b>tanggal, durasi, total terjual, omzet, biaya, dan ROAS per iklan</b>, buka tab <b>Riwayat Iklan</b>.
+      </p>
     </div>`;
+  })();
 
   document.getElementById("eai-produk").innerHTML=`
     <div class="eai-grid">
@@ -4630,8 +4710,8 @@ function eaiRenderAdHistory(){
   el.innerHTML=`
     <div class="eai-card" style="margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
-        <div><h4 style="margin:0 0 4px;">📣 Riwayat Kampanye Iklan</h4>
-        <div class="eai-muted">Campaign baru tersimpan otomatis. Campaign lama bisa ditambahkan manual.</div></div>
+        <div><h4 style="margin:0 0 4px;">📋 Riwayat Iklan</h4>
+        <div class="eai-muted">Satu kartu = satu campaign. Berisi tanggal, durasi, terjual, omzet, biaya iklan, dan ROAS.</div></div>
         <button type="button" onclick="openLegacyAdModal()" style="width:auto;padding:8px 10px;background:#0ea5e9;font-size:10px;box-shadow:none;white-space:nowrap;">
           + Tambah Iklan Lama
         </button>
@@ -4655,6 +4735,7 @@ function eaiRenderAdHistory(){
               ${start?start.toLocaleDateString("id-ID")+" • "+start.toLocaleTimeString("id-ID"):"Tanggal tidak tersedia"}
               ${end?" → "+end.toLocaleTimeString("id-ID"):""}<br>
               Status: ${eaiEsc(c.status||"Selesai")}
+              ${start&&end?`<br>Durasi: ${Math.max(0,Math.round((end-start)/3600000))} jam`:""}
             </div>
           </div>
           <div class="eai-history-actions">
