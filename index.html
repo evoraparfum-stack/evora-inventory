@@ -5421,6 +5421,77 @@ async function ecrShowPage(page){
   if(label)label.textContent=`Halaman ${page} / ${ecrPages.length} • ${result.widthMm.toFixed(0)}×${result.heightMm.toFixed(0)} mm`;
 }
 async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const p=await ecrPdfDoc.getPage(i),v=p.getViewport({scale:1});ecrPages.push({page:i,widthMm:v.width*25.4/72,heightMm:v.height*25.4/72})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman`;ecrRenderList();await ecrShowPage(1)}
+
+async function ecrGetVectorCropBox(pageNumber){
+  const pg=await ecrPdfDoc.getPage(pageNumber);
+  const base=pg.getViewport({scale:1});
+  const probeScale=Math.min(2.5,1800/base.width);
+  const vp=pg.getViewport({scale:probeScale});
+  const canvas=document.createElement("canvas");
+  canvas.width=Math.ceil(vp.width);
+  canvas.height=Math.ceil(vp.height);
+  const ctx=canvas.getContext("2d",{alpha:false,willReadFrequently:true});
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
+  await pg.render({canvasContext:ctx,viewport:vp}).promise;
+
+  const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  const w=canvas.width,h=canvas.height;
+  let minX=w,minY=h,maxX=-1,maxY=-1;
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const i=(y*w+x)*4;
+      if(data[i]<244||data[i+1]<244||data[i+2]<244){
+        if(x<minX)minX=x;if(y<minY)minY=y;
+        if(x>maxX)maxX=x;if(y>maxY)maxY=y;
+      }
+    }
+  }
+  if(maxX<0){
+    return {x:0,y:0,width:base.width,height:base.height,full:true};
+  }
+
+  const padPx=Math.max(4,Math.round(probeScale*1.5));
+  minX=Math.max(0,minX-padPx);minY=Math.max(0,minY-padPx);
+  maxX=Math.min(w-1,maxX+padPx);maxY=Math.min(h-1,maxY+padPx);
+
+  return {
+    x:minX/probeScale,
+    y:minY/probeScale,
+    width:(maxX-minX+1)/probeScale,
+    height:(maxY-minY+1)/probeScale,
+    full:false
+  };
+}
+
+async function ecrRenderVectorPage(pageNumber){
+  const pg=await ecrPdfDoc.getPage(pageNumber);
+  const viewport=pg.getViewport({scale:1});
+  const crop=await ecrGetVectorCropBox(pageNumber);
+
+  if(!window.pdfjsLib || typeof pdfjsLib.SVGGraphics!=="function"){
+    throw new Error("SVGGraphics PDF.js tidak tersedia.");
+  }
+
+  const operatorList=await pg.getOperatorList();
+  const svgGfx=new pdfjsLib.SVGGraphics(ecrPdfDoc.commonObjs, ecrPdfDoc.objs);
+  const svg=await svgGfx.getSVG(operatorList,viewport);
+
+  // Keep the PDF's vector content. Only the viewBox is changed to crop
+  // the blank outer area. Text, paths, and barcode graphics are not rasterized.
+  svg.setAttribute("xmlns","http://www.w3.org/2000/svg");
+  svg.setAttribute("viewBox",`${crop.x} ${crop.y} ${crop.width} ${crop.height}`);
+  svg.setAttribute("width","80mm");
+  svg.setAttribute("height",`${80*crop.height/crop.width}mm`);
+  svg.setAttribute("preserveAspectRatio","none");
+  svg.setAttribute("style","display:block;width:80mm;height:auto;margin:0;padding:0");
+
+  return {
+    svg,
+    widthMm:80,
+    heightMm:80*crop.height/crop.width
+  };
+}
+
 async function ecrPrintSelected(){
   if(!ecrPdfDoc||!ecrSelected.size){
     alert("Pilih minimal satu resi.");
@@ -5429,21 +5500,16 @@ async function ecrPrintSelected(){
 
   const pages=[...ecrSelected].sort((a,b)=>a-b);
   const btn=document.querySelector('.ecr-btn.primary[onclick*="ecrPrintSelected"]');
-  if(btn){btn.disabled=true;btn.textContent="⏳ Menyiapkan...";}
+  if(btn){btn.disabled=true;btn.textContent="⏳ Menyiapkan PDF tajam...";}
 
   let printFrame=null;
   try{
-    // Render everything before opening/printing so the browser cannot print
-    // a half-loaded window.
     const rendered=[];
+
+    // IMPORTANT: printing uses the original PDF content as SVG/vector.
+    // The PDF is no longer converted to a PNG for the print path.
     for(const page of pages){
-      const result=await ecrRenderCroppedPage(page,4320);
-      rendered.push({
-        page,
-        src:result.canvas.toDataURL("image/png"),
-        widthMm:result.widthMm,
-        heightMm:result.heightMm
-      });
+      rendered.push(await ecrRenderVectorPage(page));
     }
 
     printFrame=document.createElement("iframe");
@@ -5466,30 +5532,20 @@ async function ecrPrintSelected(){
 html,body{margin:0!important;padding:0!important;background:#fff!important}
 .sheet{width:80mm;margin:0;padding:0;page-break-after:always;break-after:page;overflow:hidden}
 .sheet:last-child{page-break-after:auto;break-after:auto}
-.sheet img{display:block;width:80mm;height:auto;margin:0;padding:0;border:0}
+.sheet svg{display:block;width:80mm!important;height:auto!important;margin:0!important;padding:0!important}
 </style></head><body><div id="ecrPrintRoot"></div></body></html>`);
     doc.close();
 
     const root=doc.getElementById("ecrPrintRoot");
-    const imagePromises=[];
 
     for(const item of rendered){
       const sheet=doc.createElement("div");
       sheet.className="sheet";
-      sheet.style.width="80mm";
-      const img=doc.createElement("img");
-      img.decoding="sync";img.src=item.src;
-      img.alt="Resi "+item.page;
-      imagePromises.push(new Promise((resolve,reject)=>{
-        img.onload=()=>resolve();
-        img.onerror=()=>reject(new Error("Gagal memuat resi "+item.page));
-      }));
-      sheet.appendChild(img);
+      sheet.appendChild(item.svg.cloneNode(true));
       root.appendChild(sheet);
     }
 
-    await Promise.all(imagePromises);
-    await new Promise(resolve=>setTimeout(resolve,250));
+    await new Promise(resolve=>setTimeout(resolve,400));
 
     const cleanup=()=>{
       setTimeout(()=>{
@@ -5503,7 +5559,6 @@ html,body{margin:0!important;padding:0!important;background:#fff!important}
     printFrame.contentWindow.focus();
     printFrame.contentWindow.print();
 
-    // Fallback for browsers that do not fire afterprint reliably.
     setTimeout(()=>{
       if(printFrame){
         try{document.body.removeChild(printFrame)}catch(e){}
@@ -5513,12 +5568,12 @@ html,body{margin:0!important;padding:0!important;background:#fff!important}
     },15000);
 
   }catch(err){
-    console.error("Cetak Resi:",err);
+    console.error("Cetak Resi vector:",err);
     if(printFrame){
       try{document.body.removeChild(printFrame)}catch(e){}
     }
     if(btn){btn.disabled=false;btn.textContent="🖨️ Cetak Terpilih";}
-    alert("Gagal menyiapkan resi untuk dicetak. Coba pilih satu resi dulu untuk pengujian.");
+    alert("Mode cetak PDF tajam gagal dijalankan. Pastikan PDF valid lalu coba lagi.");
   }
 }
 document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))})
