@@ -451,7 +451,7 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
   /* Report/printer header */
   #tab-laporan .card > div[style*="justify-content:space-between"] { align-items: stretch !important; }
   #tab-laporan .card > div[style*="justify-content:space-between"] > div { flex-wrap: wrap; }
-  #btnBtLaporan, #tab-laporan .card button[onclick="cetakLaporanHarian()"] { flex: 1 1 auto; }
+  #tab-laporan .card button[onclick="cetakLaporanHarian()"] { flex: 1 1 auto; }
 
   /* Long target / summary labels */
   #targetTextInfo { white-space: normal !important; max-width: 55%; }
@@ -2095,9 +2095,6 @@ body.dark-mode #evoraAICenter label,
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap:wrap; gap:8px;">
         <h3 style="margin:0;"><i class="fa-solid fa-calendar-days"></i> LAPORAN HARIAN (INFO)</h3>
         <div style="display:flex; align-items:center; gap:8px;">
-          <button id="btnBtLaporan" onclick="togglePrinterKoneksi()" style="width:auto; padding:6px 12px; font-size:11px; border-radius:8px; background:var(--danger); box-shadow:none; display:flex; align-items:center; gap:6px;">
-            <i class="fa-brands fa-bluetooth-b"></i> <span id="btStatusLaporanText">BT OFF</span>
-          </button>
           <button onclick="cetakLaporanHarian()" style="width:auto; padding:6px 12px; font-size:11px; border-radius:8px; background:var(--primary); box-shadow:none; display:flex; align-items:center; gap:6px;">
             <i class="fa-solid fa-print"></i> Print
           </button>
@@ -2715,63 +2712,111 @@ async function cetakStrukOtomatis(namaBarang, qty, total) {
   await kirimTeksKePrinter(teksStruk);
 }
 
-async function cetakLaporanHarian() {
-  if (!printCharacteristic) {
-    await customAlert("Printer Terputus", "Silakan aktifkan/hubungkan printer Bluetooth terlebih dahulu.", "warning");
+function cetakLaporanHarian() {
+  let tglPilih = document.getElementById("hariSelect")?.value;
+  if (!tglPilih) tglPilih = getDayKey(new Date());
+
+  const hariKey = getDayKey(tglPilih);
+  const jualHariIni = penjualan.filter(x => getDayKey(x.tanggal) === hariKey);
+  const totalOmzetHariIni = jualHariIni.reduce((a, b) => a + Number(b.nominal || 0), 0);
+  const totalTerjualHariIni = jualHariIni.reduce((a, b) => a + Number(b.qty || 0), 0);
+
+  const salesMapHari = {};
+  jualHariIni.forEach(x => {
+    if (Number(x.qty || 0) > 0) {
+      salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + Number(x.qty || 0);
+    }
+  });
+
+  const itemEntries = Object.entries(salesMapHari)
+    .sort((a, b) => Number(b[1]) - Number(a[1]) || a[0].localeCompare(b[0]));
+
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, s => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[s]));
+
+  const formatTanggal = new Date(tglPilih + "T00:00:00").toLocaleDateString("id-ID", {
+    day: "numeric", month: "long", year: "numeric"
+  });
+
+  const itemRows = itemEntries.length
+    ? itemEntries.map(([namaItem, totalQty]) =>
+        `<div class="item-row"><span>${esc(namaItem)}</span><b>${totalQty} Pcs</b></div>`
+      ).join("")
+    : `<div class="empty">Belum ada item terjual</div>`;
+
+  const toko = esc(namaToko || "EVORA");
+  const kasir = esc(namaUser || "-");
+  const waktu = new Date().toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"});
+
+  const printWindow = window.open("", "_blank", "width=420,height=760");
+
+  if (!printWindow) {
+    customAlert("Popup Diblokir", "Izinkan popup untuk EVORA agar laporan bisa langsung dicetak.", "warning");
     return;
   }
 
-  let tglPilih = document.getElementById("hariSelect").value;
-  if (!tglPilih) tglPilih = getDayKey(new Date());
-  
-  let hariKey = getDayKey(tglPilih);
-  let jualHariIni = penjualan.filter(x => getDayKey(x.tanggal) === hariKey);
-  let totalOmzetHariIni = jualHariIni.reduce((a, b) => a + b.nominal, 0);
-  let totalTerjualHariIni = jualHariIni.reduce((a, b) => a + b.qty, 0);
-  
-  let salesMapHari = {};
-  jualHariIni.forEach(x => { 
-    if(x.qty > 0) salesMapHari[x.barang] = (salesMapHari[x.barang] || 0) + x.qty; 
-  });
-  
-  // Urutkan rincian item dari penjualan tertinggi -> terendah.
-  // Jika jumlah sama, urutkan nama varian secara alfabetis agar hasil konsisten.
-  let itemEntries = Object.entries(salesMapHari)
-    .sort((a, b) => Number(b[1]) - Number(a[1]) || a[0].localeCompare(b[0]));
+  printWindow.document.open();
+  printWindow.document.write(`<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Laporan Harian - ${toko}</title>
+<style>
+@page{size:80mm auto;margin:0}
+*{box-sizing:border-box}
+html,body{width:80mm;margin:0;padding:0;background:#fff;color:#111;font-family:Arial,Helvetica,sans-serif}
+body{padding:5mm 4mm;font-size:11px}
+.title{font-size:16px;font-weight:900;letter-spacing:.5px;text-align:center}
+.store{text-align:center;font-size:12px;font-weight:800;margin-top:2px}
+.line{border-top:1px dashed #111;margin:7px 0}
+.meta{line-height:1.65}
+.summary-row,.item-row{display:flex;justify-content:space-between;gap:8px;padding:4px 0}
+.summary-row b{font-size:12px}
+.section-title{font-weight:900;margin:7px 0 4px;text-transform:uppercase}
+.item-row{border-bottom:1px dotted #aaa}
+.item-row span{min-width:0;overflow-wrap:anywhere}
+.item-row b{white-space:nowrap}
+.empty{text-align:center;padding:8px 0}
+.footer{text-align:center;margin-top:10px;line-height:1.5;font-size:9px}
+@media print{html,body{width:80mm}}
+</style>
+</head>
+<body>
+<div class="title">LAPORAN HARIAN</div>
+<div class="store">${toko}</div>
+<div class="line"></div>
+<div class="meta">
+  <div><b>Tanggal:</b> ${esc(formatTanggal)}</div>
+  <div><b>Waktu Cetak:</b> ${esc(waktu)}</div>
+  <div><b>Kasir:</b> ${kasir}</div>
+</div>
+<div class="line"></div>
+<div class="summary-row"><span>Total Terjual</span><b>${totalTerjualHariIni} Pcs</b></div>
+<div class="summary-row"><span>Omzet Masuk</span><b>Rp ${totalOmzetHariIni.toLocaleString("id-ID")}</b></div>
+<div class="line"></div>
+<div class="section-title">Rincian Item Terjual</div>
+${itemRows}
+<div class="line"></div>
+<div class="footer">~ REKAP SELESAI ~<br>EVORA Tracker Pro</div>
+</body>
+</html>`);
+  printWindow.document.close();
 
-  let itemDetailStruk = "Rincian Item Terjual:\n";
-  if (itemEntries.length > 0) {
-    itemEntries.forEach(([namaItem, totalQty]) => {
-      itemDetailStruk += `- ${namaItem}: ${totalQty} Pcs\n`;
-    });
-  } else {
-    itemDetailStruk += "- Belum ada item terjual\n";
-  }
+  setTimeout(() => {
+    try {
+      printWindow.focus();
+      printWindow.print();
+    } catch (e) {
+      console.error("Print laporan:", e);
+    }
+  }, 400);
 
-  let formatTanggal = new Date(tglPilih).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
-
-  const ESC = '\x1B';
-  let teksStruk = 
-    ESC + '@' + 
-    ESC + 'a' + '\x01' + 
-    "=== LAPORAN HARIAN ===\n" +
-    namaToko.toUpperCase() + "\n" +
-    "--------------------------------\n" +
-    ESC + 'a' + '\x00' +
-    "Tanggal Laporan: " + formatTanggal + "\n" +
-    "Waktu Cetak    : " + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + "\n" +
-    "Kasir          : " + namaUser + "\n" +
-    "--------------------------------\n" +
-    "Total Terjual  : " + totalTerjualHariIni + " Pcs\n" +
-    "Omzet Masuk    : Rp " + totalOmzetHariIni.toLocaleString('id-ID') + "\n" +
-    "--------------------------------\n" +
-    itemDetailStruk +
-    "--------------------------------\n" +
-    ESC + 'a' + '\x01' + 
-    "~ REKAP SELESAI ~\n\n\n\n";
-
-  await kirimTeksKePrinter(teksStruk);
-  customAlert("Berhasil", "Laporan rekapitulasi harian sedang dicetak.", "success");
+  setTimeout(() => {
+    try {
+      if (!printWindow.closed) printWindow.close();
+    } catch (e) {}
+  }, 1500);
 }
 
 async function testPrint() {
