@@ -1735,6 +1735,38 @@ body.dark-mode #evoraAICenter label,
       <div class="evora-auth-actions">
         <button type="button" onclick="loginEvora()"><i class="fa-solid fa-right-to-bracket"></i> Masuk</button>
       </div>
+      <button type="button" onclick="showLupaPassword()" style="margin-top:10px;background:transparent;color:var(--primary);box-shadow:none;padding:6px 8px;font-size:12px;font-weight:800;">
+        <i class="fa-solid fa-key"></i> Lupa Password?
+      </button>
+    </div>
+
+    <div id="authForgotPanel" style="display:none;">
+      <div id="authForgotVerifyStep">
+        <div class="evora-auth-title"><i class="fa-brands fa-whatsapp"></i> Lupa Password</div>
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:10px;">
+          Masukkan No. WA Pemilik yang tersimpan di Pengaturan untuk verifikasi akun.
+        </div>
+        <input id="authForgotWhatsapp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="Masukkan No. WA Pemilik" onkeydown="if(event.key==='Enter') verifikasiWaLupaPassword()">
+        <div id="authForgotError" class="evora-auth-error"></div>
+        <div class="evora-auth-actions" style="gap:8px;">
+          <button type="button" onclick="verifikasiWaLupaPassword()" style="background:var(--success);"><i class="fa-solid fa-circle-check"></i> Konfirmasi No. WA</button>
+          <button type="button" onclick="backToLoginEvora()" style="background:#64748b;"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+        </div>
+      </div>
+
+      <div id="authForgotNewPasswordStep" style="display:none;">
+        <div class="evora-auth-title"><i class="fa-solid fa-key"></i> Buat Password Baru</div>
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:10px;">
+          No. WA berhasil dikonfirmasi. Sekarang masukkan password baru untuk EVORA.
+        </div>
+        <input id="authForgotNewPassword" type="password" autocomplete="new-password" placeholder="Password baru">
+        <input id="authForgotConfirmPassword" type="password" autocomplete="new-password" placeholder="Konfirmasi password baru" style="margin-top:8px;" onkeydown="if(event.key==='Enter') simpanPasswordBaruDariLupa()">
+        <div id="authForgotNewError" class="evora-auth-error"></div>
+        <div class="evora-auth-actions" style="gap:8px;">
+          <button type="button" onclick="simpanPasswordBaruDariLupa()" style="background:var(--success);"><i class="fa-solid fa-floppy-disk"></i> Simpan Password Baru</button>
+          <button type="button" onclick="backToLoginEvora()" style="background:#64748b;"><i class="fa-solid fa-xmark"></i> Batal</button>
+        </div>
+      </div>
     </div>
 
     <div class="evora-auth-note">Password awal EVORA adalah <b>2255</b>. Setelah masuk, password dapat diganti dari menu Pengaturan menggunakan verifikasi No. WA Pemilik.</div>
@@ -2383,7 +2415,9 @@ function showEvoraAuthGate(){
   const gate=document.getElementById("evoraAuthGate");
   const login=document.getElementById("authLoginPanel");
   if(!gate)return;
+  const forgot=document.getElementById("authForgotPanel");
   gate.classList.remove("hidden"); document.body.classList.add("evora-locked");
+  if(forgot)forgot.style.display="none";
   if(login)login.style.display="block";
   setTimeout(()=>document.getElementById("authLoginPassword")?.focus(),50);
 }
@@ -2418,17 +2452,97 @@ function normalizeWhatsapp(value){
   if(v.startsWith("62")) v="0"+v.slice(2);
   return v;
 }
-async function simpanOwnerWhatsapp(){
-  const el=document.getElementById("settingOwnerWhatsapp");
-  const wa=normalizeWhatsapp(el?.value||"");
-  if(wa.length<9){await customAlert("No. WA Tidak Valid","Masukkan No. WA pemilik yang benar.","warning");return;}
-  const ok=await customConfirm("Simpan No. WA",`Gunakan <b>${wa}</b> sebagai No. WA pemilik untuk verifikasi perubahan password?`,"warning");
-  if(!ok)return;
-  ownerWhatsapp=wa;
-  if(el)el.value=wa;
-  await saveData();
-  await customAlert("No. WA Tersimpan","No. WA pemilik berhasil disimpan sebagai verifikasi keamanan.","success");
+let lupaPasswordWaTerverifikasi=false;
+
+function resetLupaPasswordFlow(){
+  lupaPasswordWaTerverifikasi=false;
+  const verify=document.getElementById("authForgotVerifyStep");
+  const newStep=document.getElementById("authForgotNewPasswordStep");
+  const wa=document.getElementById("authForgotWhatsapp");
+  const p1=document.getElementById("authForgotNewPassword");
+  const p2=document.getElementById("authForgotConfirmPassword");
+  if(verify) verify.style.display="block";
+  if(newStep) newStep.style.display="none";
+  if(wa) wa.value="";
+  if(p1) p1.value="";
+  if(p2) p2.value="";
+  evoraSetAuthError("authForgotError","");
+  evoraSetAuthError("authForgotNewError","");
 }
+
+function showLupaPassword(){
+  const login=document.getElementById("authLoginPanel");
+  const forgot=document.getElementById("authForgotPanel");
+  if(login) login.style.display="none";
+  if(forgot) forgot.style.display="block";
+  resetLupaPasswordFlow();
+  setTimeout(()=>document.getElementById("authForgotWhatsapp")?.focus(),50);
+}
+
+function backToLoginEvora(){
+  const login=document.getElementById("authLoginPanel");
+  const forgot=document.getElementById("authForgotPanel");
+  if(forgot) forgot.style.display="none";
+  if(login) login.style.display="block";
+  resetLupaPasswordFlow();
+  setTimeout(()=>document.getElementById("authLoginPassword")?.focus(),50);
+}
+
+async function verifikasiWaLupaPassword(){
+  const el=document.getElementById("authForgotWhatsapp");
+  const wa=normalizeWhatsapp(el?.value||"");
+  evoraSetAuthError("authForgotError","");
+
+  if(!ownerWhatsapp){
+    evoraSetAuthError("authForgotError","No. WA Pemilik belum tersimpan. Hubungi pemilik/admin EVORA.");
+    return;
+  }
+  if(!wa){
+    evoraSetAuthError("authForgotError","Masukkan No. WA Pemilik.");
+    return;
+  }
+  if(wa!==normalizeWhatsapp(ownerWhatsapp)){
+    evoraSetAuthError("authForgotError","No. WA tidak sesuai.");
+    if(el){el.value="";el.focus();}
+    return;
+  }
+
+  lupaPasswordWaTerverifikasi=true;
+  const verify=document.getElementById("authForgotVerifyStep");
+  const newStep=document.getElementById("authForgotNewPasswordStep");
+  if(verify) verify.style.display="none";
+  if(newStep) newStep.style.display="block";
+  evoraSetAuthError("authForgotNewError","");
+  setTimeout(()=>document.getElementById("authForgotNewPassword")?.focus(),50);
+}
+
+async function simpanPasswordBaruDariLupa(){
+  if(!lupaPasswordWaTerverifikasi){
+    evoraSetAuthError("authForgotNewError","Verifikasi No. WA terlebih dahulu.");
+    return;
+  }
+
+  const p1=String(document.getElementById("authForgotNewPassword")?.value||"");
+  const p2=String(document.getElementById("authForgotConfirmPassword")?.value||"");
+  evoraSetAuthError("authForgotNewError","");
+
+  if(p1.length<4){
+    evoraSetAuthError("authForgotNewError","Password baru minimal 4 karakter.");
+    return;
+  }
+  if(p1!==p2){
+    evoraSetAuthError("authForgotNewError","Konfirmasi password baru tidak sama.");
+    return;
+  }
+
+  authPasswordHash=await evoraHashPassword(p1);
+  sessionStorage.removeItem("evora_auth_unlocked");
+  await saveData();
+
+  backToLoginEvora();
+  await customAlert("Password Berhasil Diubah","Password baru berhasil disimpan. Silakan login menggunakan password baru Anda.","success");
+}
+
 async function gantiPasswordEvora(){
   const wa=normalizeWhatsapp(document.getElementById("settingPwWaVerifikasi")?.value||"");
   const baru=String(document.getElementById("settingPwBaru")?.value||"");
