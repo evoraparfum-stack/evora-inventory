@@ -1737,18 +1737,7 @@ body.dark-mode #evoraAICenter label,
       </div>
     </div>
 
-    <div id="authSetupPanel" style="display:none;">
-      <div class="evora-auth-title"><i class="fa-solid fa-shield-halved"></i> Buat Password Pertama</div>
-      <div class="evora-auth-sub" style="margin-bottom:10px;">Belum ada password. Buat password untuk mengunci aplikasi.</div>
-      <input id="authSetupPassword" type="password" autocomplete="new-password" placeholder="Password baru (minimal 6 karakter)">
-      <input id="authSetupConfirm" type="password" autocomplete="new-password" placeholder="Ulangi password baru" onkeydown="if(event.key==='Enter') setupEvoraPassword()">
-      <div id="authSetupError" class="evora-auth-error"></div>
-      <div class="evora-auth-actions">
-        <button type="button" onclick="setupEvoraPassword()"><i class="fa-solid fa-key"></i> Buat Password & Masuk</button>
-      </div>
-    </div>
-
-    <div class="evora-auth-note">Password disimpan sebagai hash, bukan teks password asli. Password yang sama digunakan pada data EVORA yang tersinkron.</div>
+    <div class="evora-auth-note">Password awal EVORA adalah <b>2255</b>. Setelah masuk, password dapat diganti dari menu Pengaturan menggunakan verifikasi No. WA Pemilik.</div>
   </div>
 </div>
 
@@ -2212,9 +2201,14 @@ body.dark-mode #evoraAICenter label,
 
     <div class="card" style="border:1px solid rgba(15,97,109,.25);">
       <h3 style="color:var(--primary)"><i class="fa-solid fa-lock"></i> KEAMANAN & PASSWORD</h3>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">Ganti password login EVORA. Password lama wajib benar sebelum password baru disimpan.</p>
-      <input id="settingPwLama" type="password" autocomplete="current-password" placeholder="Password lama">
-      <input id="settingPwBaru" type="password" autocomplete="new-password" placeholder="Password baru (minimal 6 karakter)">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">Password awal EVORA adalah <b>2255</b>. Simpan No. WA pemilik terlebih dahulu. Setelah itu, perubahan password diverifikasi menggunakan No. WA tersebut.</p>
+      <div style="padding:10px;border:1px solid #e2e8f0;border-radius:12px;background:var(--bg-main);margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:800;margin-bottom:5px;">NO. WA PEMILIK</div>
+        <input id="settingOwnerWhatsapp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="Contoh: 081234567890">
+        <button type="button" onclick="simpanOwnerWhatsapp()" style="margin-top:6px;background:var(--success);box-shadow:none;"><i class="fa-brands fa-whatsapp"></i> Simpan No. WA</button>
+      </div>
+      <input id="settingPwWaVerifikasi" type="tel" inputmode="numeric" autocomplete="tel" placeholder="Masukkan No. WA untuk verifikasi">
+      <input id="settingPwBaru" type="password" autocomplete="new-password" placeholder="Password baru (minimal 4 karakter)">
       <input id="settingPwKonfirmasi" type="password" autocomplete="new-password" placeholder="Ulangi password baru">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button type="button" onclick="gantiPasswordEvora()"><i class="fa-solid fa-key"></i> Ganti Password</button>
@@ -2364,7 +2358,9 @@ let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let isAdsActive = false;
 let currentAdsCampaign = null;
 let adsCampaignHistory = [];
-let authPasswordHash = "";
+const EVORA_DEFAULT_PASSWORD_HASH = "899b9a314067a23557b5db9b87d3e599e2f3200bd69b6cdc6dcf08f8b8e40e2e";
+let authPasswordHash = EVORA_DEFAULT_PASSWORD_HASH;
+let ownerWhatsapp = "";
 let evoraAuthReady = false;
 function getActiveCampaignId(){
   return (isAdsActive && currentAdsCampaign && currentAdsCampaign.id)
@@ -2383,15 +2379,13 @@ function evoraSetAuthError(id,msg){
   const el=document.getElementById(id); if(!el)return;
   el.textContent=msg||""; el.style.display=msg?"block":"none";
 }
-function showEvoraAuthGate(mode){
+function showEvoraAuthGate(){
   const gate=document.getElementById("evoraAuthGate");
   const login=document.getElementById("authLoginPanel");
-  const setup=document.getElementById("authSetupPanel");
   if(!gate)return;
   gate.classList.remove("hidden"); document.body.classList.add("evora-locked");
-  if(login)login.style.display=mode==="login"?"block":"none";
-  if(setup)setup.style.display=mode==="setup"?"block":"none";
-  setTimeout(()=>document.getElementById(mode==="login"?"authLoginPassword":"authSetupPassword")?.focus(),50);
+  if(login)login.style.display="block";
+  setTimeout(()=>document.getElementById("authLoginPassword")?.focus(),50);
 }
 function unlockEvora(){
   const gate=document.getElementById("evoraAuthGate");
@@ -2400,10 +2394,10 @@ function unlockEvora(){
   sessionStorage.setItem("evora_auth_unlocked",authPasswordHash||"setup");
 }
 function initEvoraAuth(){
+  if(!authPasswordHash) authPasswordHash=EVORA_DEFAULT_PASSWORD_HASH;
   const session=sessionStorage.getItem("evora_auth_unlocked")||"";
-  if(authPasswordHash && session===authPasswordHash){ unlockEvora(); return; }
-  if(!authPasswordHash){ showEvoraAuthGate("setup"); return; }
-  showEvoraAuthGate("login");
+  if(session===authPasswordHash){ unlockEvora(); return; }
+  showEvoraAuthGate();
 }
 async function loginEvora(){
   const el=document.getElementById("authLoginPassword");
@@ -2419,41 +2413,43 @@ async function loginEvora(){
   if(el)el.value="";
   unlockEvora();
 }
-async function setupEvoraPassword(){
-  const p1=String(document.getElementById("authSetupPassword")?.value||"");
-  const p2=String(document.getElementById("authSetupConfirm")?.value||"");
-  evoraSetAuthError("authSetupError","");
-  if(p1.length<6){evoraSetAuthError("authSetupError","Password minimal 6 karakter.");return;}
-  if(p1!==p2){evoraSetAuthError("authSetupError","Konfirmasi password tidak sama.");return;}
-  authPasswordHash=await evoraHashPassword(p1);
-  try{
-    await saveData();
-    document.getElementById("authSetupPassword").value="";
-    document.getElementById("authSetupConfirm").value="";
-    unlockEvora();
-    await customAlert("Password Aktif","Password login EVORA berhasil dibuat.","success");
-  }catch(e){evoraSetAuthError("authSetupError","Gagal menyimpan password. Periksa koneksi lalu coba lagi.");}
+function normalizeWhatsapp(value){
+  let v=String(value||"").replace(/\D/g,"");
+  if(v.startsWith("62")) v="0"+v.slice(2);
+  return v;
+}
+async function simpanOwnerWhatsapp(){
+  const el=document.getElementById("settingOwnerWhatsapp");
+  const wa=normalizeWhatsapp(el?.value||"");
+  if(wa.length<9){await customAlert("No. WA Tidak Valid","Masukkan No. WA pemilik yang benar.","warning");return;}
+  const ok=await customConfirm("Simpan No. WA",`Gunakan <b>${wa}</b> sebagai No. WA pemilik untuk verifikasi perubahan password?`,"warning");
+  if(!ok)return;
+  ownerWhatsapp=wa;
+  if(el)el.value=wa;
+  await saveData();
+  await customAlert("No. WA Tersimpan","No. WA pemilik berhasil disimpan sebagai verifikasi keamanan.","success");
 }
 async function gantiPasswordEvora(){
-  const lama=String(document.getElementById("settingPwLama")?.value||"");
+  const wa=normalizeWhatsapp(document.getElementById("settingPwWaVerifikasi")?.value||"");
   const baru=String(document.getElementById("settingPwBaru")?.value||"");
   const ulang=String(document.getElementById("settingPwKonfirmasi")?.value||"");
-  if(!lama||!baru||!ulang){await customAlert("Data Belum Lengkap","Isi password lama, password baru, dan konfirmasi password baru.","warning");return;}
-  if(await evoraHashPassword(lama)!==authPasswordHash){await customAlert("Password Lama Salah","Password lama tidak sesuai.","danger");return;}
-  if(baru.length<6){await customAlert("Password Terlalu Pendek","Password baru minimal 6 karakter.","warning");return;}
+  if(!ownerWhatsapp){await customAlert("No. WA Belum Disimpan","Simpan No. WA Pemilik terlebih dahulu sebelum mengganti password.","warning");return;}
+  if(!wa||!baru||!ulang){await customAlert("Data Belum Lengkap","Isi No. WA verifikasi, password baru, dan konfirmasi password baru.","warning");return;}
+  if(wa!==normalizeWhatsapp(ownerWhatsapp)){await customAlert("Verifikasi Gagal","No. WA yang dimasukkan tidak sesuai dengan No. WA Pemilik.","danger");return;}
+  if(baru.length<4){await customAlert("Password Terlalu Pendek","Password baru minimal 4 karakter.","warning");return;}
   if(baru!==ulang){await customAlert("Konfirmasi Tidak Sama","Password baru dan konfirmasi password tidak sama.","warning");return;}
-  const ok=await customConfirm("Ganti Password","Ganti password login EVORA sekarang?","warning");
+  const ok=await customConfirm("Ganti Password","No. WA cocok. Ganti password login EVORA sekarang?","warning");
   if(!ok)return;
   authPasswordHash=await evoraHashPassword(baru);
   sessionStorage.setItem("evora_auth_unlocked",authPasswordHash);
   await saveData();
-  ["settingPwLama","settingPwBaru","settingPwKonfirmasi"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+  ["settingPwWaVerifikasi","settingPwBaru","settingPwKonfirmasi"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
   await customAlert("Password Diperbarui","Password login berhasil diganti dan disimpan.","success");
 }
 function logoutEvora(){
   sessionStorage.removeItem("evora_auth_unlocked");
   evoraAuthReady=false;
-  showEvoraAuthGate(authPasswordHash?"login":"setup");
+  showEvoraAuthGate();
 }
 
 let printCharacteristic = null;
@@ -2478,6 +2474,8 @@ function initEnterpriseSettings() {
   document.getElementById("inputFooterStruk").value = footerStruk;
   document.getElementById("inputTargetBulanan").value = targetBulanan;
   
+  const waSetting=document.getElementById("settingOwnerWhatsapp");
+  if(waSetting) waSetting.value=ownerWhatsapp||"";
   let btnDark = document.getElementById("btnDarkMode");
   if (isDarkMode) {
     document.body.classList.add("dark-theme");
@@ -3062,11 +3060,13 @@ async function loadDataFromCloud() {
       isAdsActive = dataUtama.isAdsActive || false;
       currentAdsCampaign = dataUtama.currentAdsCampaign || null;
       adsCampaignHistory = Array.isArray(dataUtama.adsCampaignHistory) ? dataUtama.adsCampaignHistory : [];
-      authPasswordHash = String(dataUtama.authPasswordHash || "");
+      authPasswordHash = String(dataUtama.authPasswordHash || EVORA_DEFAULT_PASSWORD_HASH);
+      ownerWhatsapp = normalizeWhatsapp(dataUtama.ownerWhatsapp || "");
       
       document.getElementById("inputHargaGlobal").value = HARGA;
       document.getElementById("inputTargetBulanan").value = targetBulanan;
       if (document.getElementById("adsToggleSwitch")) document.getElementById("adsToggleSwitch").checked = isAdsActive;
+      if (document.getElementById("settingOwnerWhatsapp")) document.getElementById("settingOwnerWhatsapp").value = ownerWhatsapp;
       setSyncStatus("<i class='fa-solid fa-circle-check'></i> Connected");
     } else {
       setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Empty DB");
@@ -3102,7 +3102,8 @@ async function saveData() {
     isAdsActive: isAdsActive,
     currentAdsCampaign: currentAdsCampaign,
     adsCampaignHistory: adsCampaignHistory,
-    authPasswordHash: authPasswordHash
+    authPasswordHash: authPasswordHash,
+    ownerWhatsapp: ownerWhatsapp
   };
   try {
     const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
@@ -3657,7 +3658,8 @@ async function salinDataKeClipboard() {
     isAdsActive: isAdsActive,
     currentAdsCampaign: currentAdsCampaign,
     adsCampaignHistory: adsCampaignHistory,
-    authPasswordHash: authPasswordHash
+    authPasswordHash: authPasswordHash,
+    ownerWhatsapp: ownerWhatsapp
   };
   let stringData = JSON.stringify(paketData);
   try {
@@ -3694,11 +3696,13 @@ async function pasteDataTransfer() {
     isAdsActive = dataBaru.isAdsActive || false;
     currentAdsCampaign = dataBaru.currentAdsCampaign || null;
     adsCampaignHistory = Array.isArray(dataBaru.adsCampaignHistory) ? dataBaru.adsCampaignHistory : [];
-    if (dataBaru.authPasswordHash) authPasswordHash = String(dataBaru.authPasswordHash);
+    authPasswordHash = String(dataBaru.authPasswordHash || EVORA_DEFAULT_PASSWORD_HASH);
+    ownerWhatsapp = normalizeWhatsapp(dataBaru.ownerWhatsapp || ownerWhatsapp || "");
     
     document.getElementById("inputHargaGlobal").value = HARGA;
     document.getElementById("inputTargetBulanan").value = targetBulanan;
     if (document.getElementById("adsToggleSwitch")) document.getElementById("adsToggleSwitch").checked = isAdsActive;
+    if (document.getElementById("settingOwnerWhatsapp")) document.getElementById("settingOwnerWhatsapp").value = ownerWhatsapp;
     document.getElementById("inputTransferData").value = "";
     
     saveData(); 
