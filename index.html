@@ -1768,8 +1768,6 @@ body.dark-mode #evoraAICenter label,
         </div>
       </div>
     </div>
-
-    <div class="evora-auth-note">Password awal EVORA adalah <b>2255</b>. Setelah masuk, password dapat diganti dari menu Pengaturan menggunakan verifikasi No. WA Pemilik.</div>
   </div>
 </div>
 
@@ -2541,6 +2539,28 @@ async function simpanPasswordBaruDariLupa(){
 
   backToLoginEvora();
   await customAlert("Password Berhasil Diubah","Password baru berhasil disimpan. Silakan login menggunakan password baru Anda.","success");
+}
+
+async function simpanOwnerWhatsapp(){
+  const el=document.getElementById("settingOwnerWhatsapp");
+  const wa=normalizeWhatsapp(el?.value||"");
+
+  if(!wa || wa.length<9){
+    await customAlert("No. WA Tidak Valid","Masukkan No. WA Pemilik yang valid.","warning");
+    if(el) el.focus();
+    return;
+  }
+
+  ownerWhatsapp=wa;
+  if(el) el.value=ownerWhatsapp;
+
+  await saveData();
+
+  await customAlert(
+    "No. WA Tersimpan",
+    `No. WA Pemilik <b>${ownerWhatsapp}</b> berhasil disimpan. Nomor ini sekarang dapat digunakan untuk verifikasi Lupa Password.`,
+    "success"
+  );
 }
 
 async function gantiPasswordEvora(){
