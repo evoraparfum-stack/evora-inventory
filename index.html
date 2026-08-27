@@ -698,6 +698,20 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
   #tab-laporan .paylater-actions{grid-template-columns:1fr !important;}
 }
 
+
+
+/* EVORA PASSWORD LOGIN */
+#evoraAuthGate{position:fixed;inset:0;z-index:200000;background:linear-gradient(135deg,#04292e 0%,#063e46 55%,#0f616d 100%);display:flex;align-items:center;justify-content:center;padding:20px;}
+#evoraAuthGate.hidden{display:none!important;}
+.evora-auth-card{width:min(420px,100%);background:var(--bg-card);color:var(--text-main);border-radius:22px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.14);}
+.evora-auth-brand{font-size:22px;font-weight:900;letter-spacing:3px;text-align:center;color:var(--primary);margin-bottom:6px;}
+.evora-auth-sub{text-align:center;font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:20px;}
+.evora-auth-title{font-size:14px;font-weight:900;text-align:center;margin:0 0 12px;}
+.evora-auth-error{display:none;background:#ffe4e6;color:#be123c;border:1px solid #fecdd3;border-radius:10px;padding:9px 10px;font-size:11px;font-weight:700;margin:8px 0;}
+.evora-auth-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;}
+.evora-auth-note{font-size:10px;color:var(--text-muted);text-align:center;line-height:1.45;margin-top:12px;}
+body.evora-locked{overflow:hidden!important;}
+
 </style>
 <style>
 /* EVORA KASIR UI REWORK v9 — cleaner typography + balanced card layout */
@@ -1709,6 +1723,35 @@ body.dark-mode #evoraAICenter label,
 </style>
 </head>
 <body>
+<div id="evoraAuthGate">
+  <div class="evora-auth-card">
+    <div class="evora-auth-brand">EVORA</div>
+    <div class="evora-auth-sub">TRACKER PRO • SECURE ACCESS</div>
+
+    <div id="authLoginPanel" style="display:none;">
+      <div class="evora-auth-title"><i class="fa-solid fa-lock"></i> Masuk ke EVORA Tracker</div>
+      <input id="authLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" onkeydown="if(event.key==='Enter') loginEvora()">
+      <div id="authLoginError" class="evora-auth-error"></div>
+      <div class="evora-auth-actions">
+        <button type="button" onclick="loginEvora()"><i class="fa-solid fa-right-to-bracket"></i> Masuk</button>
+      </div>
+    </div>
+
+    <div id="authSetupPanel" style="display:none;">
+      <div class="evora-auth-title"><i class="fa-solid fa-shield-halved"></i> Buat Password Pertama</div>
+      <div class="evora-auth-sub" style="margin-bottom:10px;">Belum ada password. Buat password untuk mengunci aplikasi.</div>
+      <input id="authSetupPassword" type="password" autocomplete="new-password" placeholder="Password baru (minimal 6 karakter)">
+      <input id="authSetupConfirm" type="password" autocomplete="new-password" placeholder="Ulangi password baru" onkeydown="if(event.key==='Enter') setupEvoraPassword()">
+      <div id="authSetupError" class="evora-auth-error"></div>
+      <div class="evora-auth-actions">
+        <button type="button" onclick="setupEvoraPassword()"><i class="fa-solid fa-key"></i> Buat Password & Masuk</button>
+      </div>
+    </div>
+
+    <div class="evora-auth-note">Password disimpan sebagai hash, bukan teks password asli. Password yang sama digunakan pada data EVORA yang tersinkron.</div>
+  </div>
+</div>
+
 
 <div id="topNotification" class="top-toast-alert">
   <div style="flex: 1; line-height: 1.6;">
@@ -2167,6 +2210,18 @@ body.dark-mode #evoraAICenter label,
       <button onclick="simpanSettingStruk()" style="margin-top:8px;">Simpan Pengaturan Struk</button>
     </div>
 
+    <div class="card" style="border:1px solid rgba(15,97,109,.25);">
+      <h3 style="color:var(--primary)"><i class="fa-solid fa-lock"></i> KEAMANAN & PASSWORD</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">Ganti password login EVORA. Password lama wajib benar sebelum password baru disimpan.</p>
+      <input id="settingPwLama" type="password" autocomplete="current-password" placeholder="Password lama">
+      <input id="settingPwBaru" type="password" autocomplete="new-password" placeholder="Password baru (minimal 6 karakter)">
+      <input id="settingPwKonfirmasi" type="password" autocomplete="new-password" placeholder="Ulangi password baru">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <button type="button" onclick="gantiPasswordEvora()"><i class="fa-solid fa-key"></i> Ganti Password</button>
+        <button type="button" onclick="logoutEvora()" style="background:var(--danger);box-shadow:none;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+      </div>
+    </div>
+
     <div class="card">
       <h3 style="color:var(--primary)"><i class="fa-solid fa-moon"></i> TAMPILAN APLIKASI</h3>
       <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-main); padding:12px; border-radius:12px; border:1px solid #cbd5e1;">
@@ -2309,10 +2364,96 @@ let isDarkMode = localStorage.getItem("evora_darkmode") === "true";
 let isAdsActive = false;
 let currentAdsCampaign = null;
 let adsCampaignHistory = [];
+let authPasswordHash = "";
+let evoraAuthReady = false;
 function getActiveCampaignId(){
   return (isAdsActive && currentAdsCampaign && currentAdsCampaign.id)
     ? currentAdsCampaign.id
     : null;
+}
+
+
+async function evoraHashPassword(value){
+  const text=String(value||"");
+  const data=new TextEncoder().encode(text);
+  const digest=await crypto.subtle.digest("SHA-256",data);
+  return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+function evoraSetAuthError(id,msg){
+  const el=document.getElementById(id); if(!el)return;
+  el.textContent=msg||""; el.style.display=msg?"block":"none";
+}
+function showEvoraAuthGate(mode){
+  const gate=document.getElementById("evoraAuthGate");
+  const login=document.getElementById("authLoginPanel");
+  const setup=document.getElementById("authSetupPanel");
+  if(!gate)return;
+  gate.classList.remove("hidden"); document.body.classList.add("evora-locked");
+  if(login)login.style.display=mode==="login"?"block":"none";
+  if(setup)setup.style.display=mode==="setup"?"block":"none";
+  setTimeout(()=>document.getElementById(mode==="login"?"authLoginPassword":"authSetupPassword")?.focus(),50);
+}
+function unlockEvora(){
+  const gate=document.getElementById("evoraAuthGate");
+  gate?.classList.add("hidden"); document.body.classList.remove("evora-locked");
+  evoraAuthReady=true;
+  sessionStorage.setItem("evora_auth_unlocked",authPasswordHash||"setup");
+}
+function initEvoraAuth(){
+  const session=sessionStorage.getItem("evora_auth_unlocked")||"";
+  if(authPasswordHash && session===authPasswordHash){ unlockEvora(); return; }
+  if(!authPasswordHash){ showEvoraAuthGate("setup"); return; }
+  showEvoraAuthGate("login");
+}
+async function loginEvora(){
+  const el=document.getElementById("authLoginPassword");
+  const pw=String(el?.value||"");
+  evoraSetAuthError("authLoginError","");
+  if(!pw){ evoraSetAuthError("authLoginError","Masukkan password terlebih dahulu."); return; }
+  const hash=await evoraHashPassword(pw);
+  if(hash!==authPasswordHash){
+    evoraSetAuthError("authLoginError","Password salah.");
+    if(el){el.value="";el.focus();}
+    return;
+  }
+  if(el)el.value="";
+  unlockEvora();
+}
+async function setupEvoraPassword(){
+  const p1=String(document.getElementById("authSetupPassword")?.value||"");
+  const p2=String(document.getElementById("authSetupConfirm")?.value||"");
+  evoraSetAuthError("authSetupError","");
+  if(p1.length<6){evoraSetAuthError("authSetupError","Password minimal 6 karakter.");return;}
+  if(p1!==p2){evoraSetAuthError("authSetupError","Konfirmasi password tidak sama.");return;}
+  authPasswordHash=await evoraHashPassword(p1);
+  try{
+    await saveData();
+    document.getElementById("authSetupPassword").value="";
+    document.getElementById("authSetupConfirm").value="";
+    unlockEvora();
+    await customAlert("Password Aktif","Password login EVORA berhasil dibuat.","success");
+  }catch(e){evoraSetAuthError("authSetupError","Gagal menyimpan password. Periksa koneksi lalu coba lagi.");}
+}
+async function gantiPasswordEvora(){
+  const lama=String(document.getElementById("settingPwLama")?.value||"");
+  const baru=String(document.getElementById("settingPwBaru")?.value||"");
+  const ulang=String(document.getElementById("settingPwKonfirmasi")?.value||"");
+  if(!lama||!baru||!ulang){await customAlert("Data Belum Lengkap","Isi password lama, password baru, dan konfirmasi password baru.","warning");return;}
+  if(await evoraHashPassword(lama)!==authPasswordHash){await customAlert("Password Lama Salah","Password lama tidak sesuai.","danger");return;}
+  if(baru.length<6){await customAlert("Password Terlalu Pendek","Password baru minimal 6 karakter.","warning");return;}
+  if(baru!==ulang){await customAlert("Konfirmasi Tidak Sama","Password baru dan konfirmasi password tidak sama.","warning");return;}
+  const ok=await customConfirm("Ganti Password","Ganti password login EVORA sekarang?","warning");
+  if(!ok)return;
+  authPasswordHash=await evoraHashPassword(baru);
+  sessionStorage.setItem("evora_auth_unlocked",authPasswordHash);
+  await saveData();
+  ["settingPwLama","settingPwBaru","settingPwKonfirmasi"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+  await customAlert("Password Diperbarui","Password login berhasil diganti dan disimpan.","success");
+}
+function logoutEvora(){
+  sessionStorage.removeItem("evora_auth_unlocked");
+  evoraAuthReady=false;
+  showEvoraAuthGate(authPasswordHash?"login":"setup");
 }
 
 let printCharacteristic = null;
@@ -2921,6 +3062,7 @@ async function loadDataFromCloud() {
       isAdsActive = dataUtama.isAdsActive || false;
       currentAdsCampaign = dataUtama.currentAdsCampaign || null;
       adsCampaignHistory = Array.isArray(dataUtama.adsCampaignHistory) ? dataUtama.adsCampaignHistory : [];
+      authPasswordHash = String(dataUtama.authPasswordHash || "");
       
       document.getElementById("inputHargaGlobal").value = HARGA;
       document.getElementById("inputTargetBulanan").value = targetBulanan;
@@ -2931,6 +3073,7 @@ async function loadDataFromCloud() {
     }
     
     document.body.classList.remove("skeleton-loading");
+    initEvoraAuth();
     render();
     renderAdsCampaignUI();
     if(document.getElementById("evoraAICenter")?.style.display==="block") renderEvoraAI();
@@ -2939,6 +3082,7 @@ async function loadDataFromCloud() {
     console.error("Gagal load Supabase:", error);
     setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Offline");
     document.body.classList.remove("skeleton-loading");
+    initEvoraAuth();
   }
 }
 
@@ -2957,7 +3101,8 @@ async function saveData() {
     targetBulanan: targetBulanan,
     isAdsActive: isAdsActive,
     currentAdsCampaign: currentAdsCampaign,
-    adsCampaignHistory: adsCampaignHistory
+    adsCampaignHistory: adsCampaignHistory,
+    authPasswordHash: authPasswordHash
   };
   try {
     const { error } = await supabaseApp.from('pos_data').upsert({ id: 1, konten: paketData });
@@ -2981,7 +3126,8 @@ async function simpanHargaBaru() {
     return;
   }
   HARGA = hargaBaru;
-  // Persist on the next normal save cycle; do not call saveData() while rendering AI.
+  await saveData();
+  await customAlert("Harga Disimpan", `Harga global berhasil diperbarui menjadi <b>Rp ${HARGA.toLocaleString("id-ID")}</b>.`, "success");
 }
 
 function setSyncStatus(teks) {
@@ -3508,7 +3654,10 @@ async function salinDataKeClipboard() {
     logPaylater: logPaylater,
     hargaGlobal: HARGA,
     targetBulanan: targetBulanan,
-    isAdsActive: isAdsActive
+    isAdsActive: isAdsActive,
+    currentAdsCampaign: currentAdsCampaign,
+    adsCampaignHistory: adsCampaignHistory,
+    authPasswordHash: authPasswordHash
   };
   let stringData = JSON.stringify(paketData);
   try {
@@ -3543,6 +3692,9 @@ async function pasteDataTransfer() {
     HARGA = Number(dataBaru.hargaGlobal || 27000);
     targetBulanan = Number(dataBaru.targetBulanan || 400);
     isAdsActive = dataBaru.isAdsActive || false;
+    currentAdsCampaign = dataBaru.currentAdsCampaign || null;
+    adsCampaignHistory = Array.isArray(dataBaru.adsCampaignHistory) ? dataBaru.adsCampaignHistory : [];
+    if (dataBaru.authPasswordHash) authPasswordHash = String(dataBaru.authPasswordHash);
     
     document.getElementById("inputHargaGlobal").value = HARGA;
     document.getElementById("inputTargetBulanan").value = targetBulanan;
