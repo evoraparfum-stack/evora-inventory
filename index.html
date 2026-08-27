@@ -1804,9 +1804,9 @@ body.dark-mode #evoraAICenter label,
           <div id="insightMarginHari" class="insight-sub">Margin setelah pengeluaran: 0%</div>
         </div>
         <div class="insight-card">
-          <div class="insight-label">Nilai Stok</div>
+          <div class="insight-label">Potensi Omzet Stok</div>
           <div id="insightNilaiStok" class="insight-value">Rp 0</div>
-          <div id="insightNilaiStokSub" class="insight-sub">Estimasi berdasarkan harga jual global</div>
+          <div id="insightNilaiStokSub" class="insight-sub">Stok siap jual × harga jual global</div>
         </div>
       </div>
     </div>
@@ -4307,12 +4307,20 @@ function renderBusinessInsights(){
   }
   if(marginEl) marginEl.innerText = `Margin setelah pengeluaran: ${marginToday.toFixed(1)}%`;
 
-  let totalStok = barang.reduce((s,b) => s + Number(b.stok || 0), 0);
-  let nilaiStok = totalStok * Number(HARGA || 0);
+  // Nilai stok dihitung dari unit yang benar-benar siap dijual.
+  // 1 unit parfum membutuhkan 1 stok varian + 1 botol + 1 box,
+  // sehingga botol dan box merupakan satu kesatuan logistik dan tidak boleh dijumlahkan.
+  let totalStokVarian = barang.reduce((s,b) => s + Number(b.stok || 0), 0);
+  let stokPaketLogistik = Math.min(
+    Math.max(0, Number(stokBotol || 0)),
+    Math.max(0, Number(stokBox || 0))
+  );
+  let totalStokSiapJual = Math.min(totalStokVarian, stokPaketLogistik);
+  let nilaiStok = totalStokSiapJual * Number(HARGA || 0);
   let stokEl = document.getElementById("insightNilaiStok");
   let stokSub = document.getElementById("insightNilaiStokSub");
   if(stokEl) stokEl.innerText = formatRpInsight(nilaiStok);
-  if(stokSub) stokSub.innerText = `${totalStok} pcs stok × ${formatRpInsight(HARGA)}`;
+  if(stokSub) stokSub.innerText = `${totalStokSiapJual} pcs siap jual × ${formatRpInsight(HARGA)} • Varian ${totalStokVarian} • Paket botol+box ${stokPaketLogistik}`;
 
   // Status bisnis.
   let yesterday = new Date(now);
@@ -5252,7 +5260,8 @@ function getEAIData(){
   const adRevenue=adSales.reduce((s,x)=>s+Number(x.nominal||0),0);
   const campaign=currentAdsCampaign;
   const adSpend=campaign?Number(campaign.spend||0):0;
-  const avgPerDay=qty/Math.max(1,new Set(sales.map(x=>String(x.tanggal||"").slice(0,10))).size);
+  const engineForAvg = getPredictionEngine();
+  const avgPerDay = Number(engineForAvg.avg30 || 0);
 
   const ranking={};
   sales.forEach(x=>{
@@ -5260,8 +5269,13 @@ function getEAIData(){
     ranking[n]=(ranking[n]||0)+Number(x.qty||0);
   });
   const top=Object.entries(ranking).sort((a,b)=>b[1]-a[1]);
-  const stock=products.map(x=>({name:x.nama,stock:Number(x.stok||0),sold:ranking[x.nama]||0}))
-    .sort((a,b)=>a.stock-b.stock);
+  const engine = getPredictionEngine();
+  const stock=products.map(x=>({
+    name:x.nama,
+    stock:Number(x.stok||0),
+    sold:ranking[x.nama]||0,
+    dailyRate:Number(engine.itemPrediction?.[x.nama]?.dailyRate||0)
+  })).sort((a,b)=>a.stock-b.stock);
 
   return {sales,products,revenue,qty,adSales,adRevenue,adSpend,avgPerDay,top,stock,roas:adSpend?adRevenue/adSpend:0};
 }
@@ -5294,7 +5308,7 @@ function renderEvoraAI(){
   document.getElementById("eai-prediksi").innerHTML=`
     <div class="eai-grid">
       <div class="eai-card"><h4>📦 Prediksi Stok</h4>${d.stock.slice(0,8).map(x=>{
-        const rate=x.sold/Math.max(1,new Set(d.sales.map(s=>String(s.tanggal||"").slice(0,10))).size);
+        const rate=Number(x.dailyRate||0);
         const days=rate>0?x.stock/rate:null;
         return `<div class="eai-row"><span>${eaiEsc(x.name)}</span><b>${days?days.toFixed(0)+" hari":"belum cukup data"}</b></div>`;
       }).join("")||"<div class='eai-muted'>Belum ada data produk.</div>"}</div>
@@ -6420,5 +6434,320 @@ async function ecrPrintSelected(){
 document.addEventListener("DOMContentLoaded",()=>{const i=document.getElementById("ecrPdfInput");if(i)i.addEventListener("change",e=>ecrLoadPdf(e.target.files?.[0]))});
 </script>
 
-</body>
+<!-- EVORA TRACKER PRO — DATA INTEGRITY & OPERATIONS UPGRADE v2 -->
+<style id="evora-upgrade-v2-style">
+.ev-upgrade-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ev-upgrade-box{background:var(--bg-main);border:1px solid #e2e8f0;border-radius:12px;padding:10px;min-width:0}.ev-upgrade-box small{display:block;color:var(--text-muted);font-size:9px;font-weight:800;text-transform:uppercase}.ev-upgrade-box b{display:block;margin-top:3px;font-size:14px;color:var(--text-main)}.ev-upgrade-sub{font-size:9px;color:var(--text-muted);margin-top:3px;line-height:1.35}.ev-ledger{max-height:260px;overflow:auto}.ev-ledger-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:8px 9px;border-bottom:1px solid #e2e8f0;font-size:10px}.ev-ledger-row:last-child{border-bottom:none}.ev-ledger-main{min-width:0}.ev-ledger-title{font-weight:800;color:var(--text-main)}.ev-ledger-meta{color:var(--text-muted);font-size:9px;margin-top:2px}.ev-ledger-delta{font-weight:900;white-space:nowrap}.ev-reconcile-modal{display:none;position:fixed;inset:0;z-index:100050;background:rgba(15,23,42,.62);align-items:center;justify-content:center;padding:14px}.ev-reconcile-card{width:min(420px,100%);background:var(--bg-card);border-radius:18px;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.25)}.ev-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}.ev-warning{font-size:10px;color:var(--warning);line-height:1.45;margin-top:6px}.ev-success{color:var(--success)!important}.ev-danger{color:var(--danger)!important}@media(max-width:520px){.ev-upgrade-grid{grid-template-columns:1fr 1fr}.ev-btn-row{grid-template-columns:1fr}}
+</style>
+<script>
+let inventoryLog = [];
+let cloudRevision = 0;
+let evSaving = false;
+let evSavePending = false;
+const EVORA_SCHEMA_VERSION = 2;
+const EVORA_UPGRADE_VERSION = "2026.08.27-v2";
+
+function evId(prefix="EV"){ return prefix+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,8); }
+function evEsc(v){ return String(v??"").replace(/[&<>\"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;","'":"&#039;"}[m])); }
+function evMoney(v){ return "Rp "+Number(v||0).toLocaleString("id-ID"); }
+function evNormalizeReceipt(v){ return String(v||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,""); }
+
+function evBuildDataPackage(revisionOverride=null){
+  return {
+    schemaVersion:EVORA_SCHEMA_VERSION,
+    appUpgradeVersion:EVORA_UPGRADE_VERSION,
+    revision: revisionOverride==null ? cloudRevision : revisionOverride,
+    updatedAt:new Date().toISOString(),
+    stokBotol:Number(stokBotol||0),
+    stokBox:Number(stokBox||0),
+    barang:Array.isArray(barang)?barang:[],
+    penjualan:Array.isArray(penjualan)?penjualan:[],
+    pengeluaran:Array.isArray(pengeluaran)?pengeluaran:[],
+    pesanan:Array.isArray(pesanan)?pesanan:[],
+    logPaylater:Array.isArray(logPaylater)?logPaylater:[],
+    inventoryLog:Array.isArray(inventoryLog)?inventoryLog.slice(-3000):[],
+    hargaGlobal:Number(HARGA||0),
+    targetBulanan:Number(targetBulanan||0),
+    isAdsActive:!!isAdsActive,
+    currentAdsCampaign:currentAdsCampaign||null,
+    adsCampaignHistory:Array.isArray(adsCampaignHistory)?adsCampaignHistory:[]
+  };
+}
+
+async function evLoadUpgradeFields(){
+  try{
+    const {data,error}=await supabaseApp.from('pos_data').select('konten').eq('id',1).single();
+    if(error && error.code!=='PGRST116') throw error;
+    const k=data?.konten||{};
+    inventoryLog=Array.isArray(k.inventoryLog)?k.inventoryLog:[];
+    cloudRevision=Number(k.revision||0);
+    renderUpgradeUI();
+  }catch(e){ console.warn("Upgrade fields load:",e); }
+}
+
+// Save is serialized and carries a revision marker. If another device has already
+// written a newer revision, the current device refuses to blindly overwrite it.
+saveData = async function(){
+  if(evSaving){ evSavePending=true; return false; }
+  evSaving=true;
+  let success=true;
+  try{
+    do{
+      evSavePending=false;
+      setSyncStatus("<i class='fa-solid fa-bolt'></i> Saving...");
+      let remoteRevision=cloudRevision;
+      try{
+        const check=await supabaseApp.from('pos_data').select('konten').eq('id',1).single();
+        if(!check.error && check.data?.konten) remoteRevision=Number(check.data.konten.revision||0);
+      }catch(_e){}
+      if(cloudRevision>0 && remoteRevision>cloudRevision){
+        setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Conflict");
+        success=false;
+        await customAlert("Data Lebih Baru Terdeteksi","Database sudah berubah dari perangkat lain. Muat ulang/sinkronkan terlebih dahulu agar perubahan terbaru tidak tertimpa.","warning");
+        break;
+      }
+      const nextRevision=Math.max(cloudRevision,remoteRevision)+1;
+      const paketData=evBuildDataPackage(nextRevision);
+      const {error}=await supabaseApp.from('pos_data').upsert({id:1,konten:paketData});
+      if(error) throw error;
+      cloudRevision=nextRevision;
+      setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved");
+      if(typeof render==="function") render();
+    }while(evSavePending);
+  }catch(error){
+    console.error("Gagal save Supabase:",error);
+    setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Failed");
+    success=false;
+  }finally{ evSaving=false; }
+  return success;
+};
+
+simpanHargaBaru = async function(){
+  const elHarga=document.getElementById("inputHargaGlobal");
+  const hargaBaru=Number(elHarga?.value);
+  if(hargaBaru<=0||isNaN(hargaBaru)) return;
+  const lama=HARGA;
+  const ok=await customConfirm("Ubah Harga Global",`Ubah harga produk dari <b>${evMoney(lama)}</b> menjadi <b>${evMoney(hargaBaru)}</b>?`,"warning");
+  if(!ok){ if(elHarga)elHarga.value=HARGA; return; }
+  HARGA=hargaBaru;
+  const saved=await saveData();
+  if(saved) await customAlert("Harga Tersimpan",`Harga global berhasil diperbarui menjadi <b>${evMoney(HARGA)}</b>.`,"success");
+  else { HARGA=lama; if(elHarga)elHarga.value=lama; }
+};
+
+function evStockSnapshot(){
+  const products={};
+  (barang||[]).forEach(b=>products[b.nama]=Number(b.stok||0));
+  return {botol:Number(stokBotol||0),box:Number(stokBox||0),products};
+}
+function evLogEntry(target,delta,before,after,source,note=""){
+  if(!delta) return;
+  inventoryLog.push({id:evId("STK"),tanggal:new Date().toISOString(),target,delta:Number(delta),before:Number(before),after:Number(after),source:String(source||"SISTEM"),note:String(note||"")});
+  if(inventoryLog.length>3000) inventoryLog=inventoryLog.slice(-3000);
+}
+function evLogStockDiff(before,source,note=""){
+  const after=evStockSnapshot();
+  if(before.botol!==after.botol) evLogEntry("BOTOL",after.botol-before.botol,before.botol,after.botol,source,note);
+  if(before.box!==after.box) evLogEntry("BOX",after.box-before.box,before.box,after.box,source,note);
+  const keys=new Set([...Object.keys(before.products||{}),...Object.keys(after.products||{})]);
+  keys.forEach(k=>{const a=Number(before.products?.[k]||0),b=Number(after.products?.[k]||0);if(a!==b)evLogEntry(k,b-a,a,b,source,note);});
+}
+
+function evWrapStockFunction(name,source){
+  const base=globalThis[name]; if(typeof base!=="function")return;
+  globalThis[name]=async function(...args){
+    const before=evStockSnapshot();
+    const result=await base.apply(this,args);
+    const after=evStockSnapshot();
+    if(JSON.stringify(before)!==JSON.stringify(after)){ evLogStockDiff(before,source); await saveData(); }
+    return result;
+  };
+}
+
+// Sync wrappers for functions that are intentionally synchronous.
+const _evBaseEksekusiLogistik=eksekusiLogistik;
+eksekusiLogistik=function(...args){const before=evStockSnapshot();const r=_evBaseEksekusiLogistik.apply(this,args);evLogStockDiff(before,"EDIT LOGISTIK");saveData();return r;};
+const _evBaseSimpanModalEdit=simpanModalEdit;
+simpanModalEdit=function(...args){const before=evStockSnapshot();const r=_evBaseSimpanModalEdit.apply(this,args);evLogStockDiff(before,"EDIT STOK VARIAN");saveData();return r;};
+
+[
+  ["quickJualFromSearch","PENJUALAN KASIR"],["quickJual","PENJUALAN KASIR"],["jualBarang","PENJUALAN GROSIR"],
+  ["batalkanPenjualan","BATAL PENJUALAN"],["batalkanResiPenjualan","BATAL RESI"],["terimaPesanan","PENERIMAAN PESANAN"],
+  ["tambahBarang","TAMBAH VARIAN"],["hapusBarang","HAPUS VARIAN"]
+].forEach(x=>evWrapStockFunction(x[0],x[1]));
+
+// Duplicate receipt protection before the existing batch sale logic runs.
+const _evBaseConfirmBatchScanSale=confirmBatchScanSale;
+confirmBatchScanSale=async function(){
+  const rows=scanResiDraft?.rows||[];
+  const existing=new Set();
+  (penjualan||[]).forEach(p=>[p.resi,p.waybill,p.orderId,p.noPesanan,p.nomorPesanan].forEach(v=>{const k=evNormalizeReceipt(v);if(k)existing.add(k);}));
+  const duplicate=[];
+  rows.forEach(r=>[r.waybill,r.resi,r.orderId].forEach(v=>{const k=evNormalizeReceipt(v);if(k&&existing.has(k))duplicate.push(String(v));}));
+  const uniq=[...new Set(duplicate)];
+  if(uniq.length){
+    await customAlert("Resi Sudah Pernah Diproses",`Batch dibatalkan untuk mencegah stok terpotong dua kali.<br><br>Duplikat: <b>${uniq.slice(0,8).map(evEsc).join(", ")}</b>${uniq.length>8?` dan ${uniq.length-8} lainnya`:""}.`,"danger");
+    return;
+  }
+  const before=evStockSnapshot();
+  const result=await _evBaseConfirmBatchScanSale.apply(this,arguments);
+  const after=evStockSnapshot();
+  if(JSON.stringify(before)!==JSON.stringify(after)){evLogStockDiff(before,"SCAN RESI");await saveData();}
+  return result;
+};
+
+// PDF text first; OCR only when the page has almost no extractable text.
+extractPdfTextPages=async function(file){
+  if(!window.pdfjsLib) throw new Error("PDF.js belum termuat. Pastikan internet aktif.");
+  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const buffer=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buffer}).promise;
+  const pages=[];
+  for(let p=1;p<=pdf.numPages;p++){
+    updateScanProgress(`Membaca halaman ${p} dari ${pdf.numPages}...`);
+    const page=await pdf.getPage(p);
+    const content=await page.getTextContent();
+    let lines=reconstructPdfLines(content.items||[]);
+    const extracted=lines.join(" ").trim();
+    if(extracted.length<30 && window.Tesseract){
+      updateScanProgress(`Halaman ${p} berupa scan. Menjalankan OCR...`);
+      const viewport=page.getViewport({scale:1.8});
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+      await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
+      const result=await Tesseract.recognize(canvas,"eng");
+      const text=String(result?.data?.text||"");
+      lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    }
+    pages.push(extractResiInfo(lines,p));
+  }
+  return pages;
+};
+
+// Paylater cash payments are linked to the expense they create.
+catatPaylater=async function(jenis){
+  let nom=0,ket="",extra={};
+  if(jenis==='pakai'){nom=Number(document.getElementById("nominalPakaiPaylater").value);ket=document.getElementById("ketPakaiPaylater").value.trim();extra.jatuhTempo=document.getElementById("tglJatuhTempoPaylater").value;if(!extra.jatuhTempo){customAlert("Peringatan","Tanggal jatuh tempo wajib diisi agar tidak lupa bayar!","warning");return;}}
+  else{nom=Number(document.getElementById("nominalBayarPaylater").value);ket=document.getElementById("ketBayarPaylater").value.trim();extra.sumberDana=document.getElementById("sumberDanaPaylater").value;}
+  if(nom<=0||!ket)return;
+  let msg=`Yakin ingin ${jenis==='pakai'?'mencatat pemakaian Paylater':'mencatat pelunasan Paylater'} sebesar <b>${evMoney(nom)}</b> untuk <i>"${evEsc(ket)}"</i>?`;
+  if(jenis==='bayar'&&extra.sumberDana==='kas')msg+=`<br><br><span style="color:var(--danger);font-size:12px;"><b>Info:</b> otomatis tercatat sebagai pengeluaran dan keduanya akan saling terhubung.</span>`;
+  if(!await customConfirm("Konfirmasi Paylater",msg,jenis==='pakai'?"warning":"success"))return;
+  const logId=evId("PAY");
+  const dataLog={id:logId,tanggal:new Date().toISOString(),jenis,nominal:nom,keterangan:ket};
+  if(jenis==='pakai')dataLog.jatuhTempo=extra.jatuhTempo;
+  if(jenis==='bayar')dataLog.sumberDana=extra.sumberDana;
+  if(jenis==='bayar'&&extra.sumberDana==='kas'){const expenseId=evId("EXP");dataLog.linkedExpenseId=expenseId;pengeluaran.push({id:expenseId,tanggal:new Date().toISOString(),nominal:nom,keterangan:"Pelunasan Paylater: "+ket,kategori:"Paylater",linkedPaylaterId:logId});}
+  logPaylater.push(dataLog);
+  ["nominalPakaiPaylater","ketPakaiPaylater","tglJatuhTempoPaylater","nominalBayarPaylater"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+  await saveData();
+};
+
+hapusPaylater=async function(index){
+  const target=logPaylater[index];if(!target)return;
+  let linked=target.linkedExpenseId?pengeluaran.findIndex(x=>x.id===target.linkedExpenseId):-1;
+  const msg=linked>=0?"Hapus catatan Paylater ini beserta pengeluaran kas yang terhubung?":"Hapus catatan Paylater ini secara permanen?";
+  if(!await customConfirm("Hapus Log Paylater",msg,"danger"))return;
+  if(linked>=0)pengeluaran.splice(linked,1);
+  logPaylater.splice(index,1);
+  await saveData();
+};
+
+// Expense category, while net profit remains strictly income - expenses.
+tambahPengeluaran=async function(){
+  const nom=Number(document.getElementById("nominalKeluar")?.value);
+  const ket=String(document.getElementById("ketKeluar")?.value||"").trim();
+  const kategori=String(document.getElementById("kategoriKeluar")?.value||"Lainnya");
+  if(nom<=0||!ket)return;
+  if(!await customConfirm("Catat Pengeluaran",`Simpan pengeluaran <b>${evMoney(nom)}</b> untuk <i>"${evEsc(ket)}"</i>?<br><small>Kategori: ${evEsc(kategori)}</small>`,"danger"))return;
+  pengeluaran.push({id:evId("EXP"),tanggal:new Date().toISOString(),nominal:nom,keterangan:ket,kategori});
+  document.getElementById("nominalKeluar").value="";document.getElementById("ketKeluar").value="";
+  await saveData();
+};
+
+// Full backup now includes campaign history, stock ledger, schema version and revision.
+salinDataKeClipboard=async function(){
+  const text=JSON.stringify(evBuildDataPackage());
+  try{await navigator.clipboard.writeText(text);await customAlert("Backup Lengkap Disalin","Seluruh data termasuk iklan, audit stok, dan versi database sudah disalin.","success");}
+  catch(e){await customAlert("Gagal Menyalin","Browser tidak mengizinkan copy otomatis.","danger");}
+};
+
+function evValidateImport(d){
+  if(!d||typeof d!=="object")throw new Error("Format bukan objek data.");
+  if(!Array.isArray(d.barang)||!Array.isArray(d.penjualan||[])||!Array.isArray(d.pengeluaran||[]))throw new Error("Struktur array utama tidak valid.");
+  if(!Number.isFinite(Number(d.stokBotol))||!Number.isFinite(Number(d.stokBox)))throw new Error("Stok logistik tidak valid.");
+  d.barang.forEach((b,i)=>{if(!b||typeof b.nama!=="string"||!Number.isFinite(Number(b.stok)))throw new Error(`Varian ke-${i+1} tidak valid.`);});
+  return true;
+}
+
+pasteDataTransfer=async function(){
+  const raw=String(document.getElementById("inputTransferData")?.value||"").trim();if(!raw){customAlert("Kolom Kosong","Teks data masih kosong.","warning");return;}
+  let d;try{d=JSON.parse(raw);evValidateImport(d);}catch(e){customAlert("Transfer Gagal",`Backup tidak valid: ${evEsc(e.message)}`,"danger");return;}
+  if(!await customConfirm("Peringatan Kritis","Data saat ini akan dibuatkan snapshot lokal terlebih dahulu, lalu database ditimpa dengan backup yang dipilih. Lanjutkan?","danger"))return;
+  try{localStorage.setItem("evora_pre_restore_backup",JSON.stringify(evBuildDataPackage()));}catch(_e){}
+  stokBotol=Number(d.stokBotol||0);stokBox=Number(d.stokBox||0);barang=d.barang||[];penjualan=d.penjualan||[];pengeluaran=d.pengeluaran||[];pesanan=d.pesanan||[];logPaylater=d.logPaylater||[];inventoryLog=Array.isArray(d.inventoryLog)?d.inventoryLog:[];HARGA=Number(d.hargaGlobal||27000);targetBulanan=Number(d.targetBulanan||400);isAdsActive=!!d.isAdsActive;currentAdsCampaign=d.currentAdsCampaign||null;adsCampaignHistory=Array.isArray(d.adsCampaignHistory)?d.adsCampaignHistory:[];cloudRevision=Number(d.revision||cloudRevision);
+  document.getElementById("inputHargaGlobal").value=HARGA;document.getElementById("inputTargetBulanan").value=targetBulanan;if(document.getElementById("adsToggleSwitch"))document.getElementById("adsToggleSwitch").checked=isAdsActive;if(document.getElementById("inputTransferData"))document.getElementById("inputTransferData").value="";
+  await saveData();render();await customAlert("Transfer Berhasil","Data berhasil dipulihkan. Snapshot sebelum restore tersimpan di perangkat ini.","success");
+};
+
+async function evRestorePreImportSnapshot(){
+  const raw=localStorage.getItem("evora_pre_restore_backup");if(!raw){customAlert("Tidak Ada Snapshot","Belum ada snapshot sebelum restore di perangkat ini.","warning");return;}
+  document.getElementById("inputTransferData").value=raw;await pasteDataTransfer();
+}
+
+// Low-stock alert now treats bottle + box as one sellable logistics package.
+checkLowStockAlert=function(){
+  const low=[];const botol=Math.max(0,Number(stokBotol||0)),box=Math.max(0,Number(stokBox||0)),paket=Math.min(botol,box);
+  if(paket<15){const limiter=botol<box?"Botol":box<botol?"Box":"Botol & Box";low.push(`<i class="fa-solid fa-boxes-stacked"></i> Paket logistik siap: <b>${paket} pcs</b> • pembatas: <b>${limiter}</b> (Botol ${botol}, Box ${box})`);}
+  (barang||[]).forEach(b=>{if(Number(b.stok||0)<5)low.push(`<i class="fa-solid fa-flask"></i> ${evEsc(b.nama)}: <b>${Number(b.stok||0)} pcs</b>`);});
+  if(low.length){const msg=`Item berikut perlu perhatian:<br><ul style='margin:8px 0 0 20px;padding:0;font-weight:500;font-size:13px;line-height:1.7;'>${low.map(x=>`<li>${x}</li>`).join("")}</ul>`;const m=document.getElementById("notificationMessage");if(m)m.innerHTML=msg;const n=document.getElementById("topNotification");if(n){n.classList.add("show");setTimeout(()=>closeNotification(),10000);}}
+};
+
+function evRestockRecommendations(){
+  const engine=getPredictionEngine();
+  return (barang||[]).map(b=>{const rate=Number(engine.itemPrediction?.[b.nama]?.dailyRate||0);const stock=Number(b.stok||0);const leadDays=7,safetyDays=3;const target=Math.ceil(rate*(leadDays+safetyDays));const order=Math.max(0,target-stock);const days=rate>0?stock/rate:Infinity;return {name:b.nama,stock,rate,days,order};}).filter(x=>x.stock<5||x.days<=7||x.order>0).sort((a,b)=>(a.days-b.days)||(b.order-a.order));
+}
+
+const _evBaseRenderBusinessInsights=renderBusinessInsights;
+renderBusinessInsights=function(){
+  _evBaseRenderBusinessInsights();
+  const el=document.getElementById("restockInsight");if(el){const list=evRestockRecommendations().slice(0,6);el.innerHTML=list.length?list.map(x=>`<div class="insight-row restock-product"><div class="insight-main"><div class="insight-name">${evEsc(x.name)}</div><div class="insight-meta">${x.rate>0?`Laju ${x.rate.toFixed(2)} pcs/hari • ${Math.ceil(x.days)} hari tersisa`:`Belum ada laju penjualan`} • saran order ${x.order} pcs</div></div><div class="insight-number" style="color:var(--danger);">${x.stock} pcs</div></div>`).join(""):`<div class="insight-empty">Stok aman. Belum ada produk yang perlu direstock.</div>`;}
+};
+
+function evCsvCell(v){const x=String(v??"").replace(/"/g,'""');return `"${x}"`; }
+function evDownloadText(name,text,type="text/csv;charset=utf-8"){const blob=new Blob([text],{type});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+function exportPenjualanCSV(){const rows=[["Tanggal","Barang","Qty","Nominal","Resi","Order ID","Iklan"]];(penjualan||[]).forEach(x=>rows.push([x.tanggal,x.barang,x.qty,x.nominal,x.resi||x.waybill||"",x.orderId||x.noPesanan||"",x.iklan?"Ya":"Tidak"]));evDownloadText(`EVORA-Penjualan-${getDayKey(new Date())}.csv`,"\\uFEFF"+rows.map(r=>r.map(evCsvCell).join(",")).join("\
+"));}
+function exportPengeluaranCSV(){const rows=[["Tanggal","Kategori","Keterangan","Nominal"]];(pengeluaran||[]).forEach(x=>rows.push([x.tanggal,x.kategori||"Lainnya",x.keterangan,x.nominal]));evDownloadText(`EVORA-Pengeluaran-${getDayKey(new Date())}.csv`,"\\uFEFF"+rows.map(r=>r.map(evCsvCell).join(",")).join("\
+"));}
+function exportStokCSV(){const rows=[["Jenis","Nama","Stok"] ,["Logistik","Botol",stokBotol],["Logistik","Box",stokBox],...(barang||[]).map(x=>["Varian",x.nama,x.stok])];evDownloadText(`EVORA-Stok-${getDayKey(new Date())}.csv`,"\\uFEFF"+rows.map(r=>r.map(evCsvCell).join(",")).join("\
+"));}
+
+function openStockReconcile(){const m=document.getElementById("evReconcileModal");if(!m)return;const sel=document.getElementById("evRecTarget");sel.innerHTML=`<option value="BOTOL">Botol Kosong</option><option value="BOX">Box Packing</option>`+(barang||[]).map((b,i)=>`<option value="P:${i}">${evEsc(b.nama)}</option>`).join("");document.getElementById("evRecActual").value="";document.getElementById("evRecNote").value="Stok opname fisik";m.style.display="flex";}
+function closeStockReconcile(){const m=document.getElementById("evReconcileModal");if(m)m.style.display="none";}
+async function applyStockReconcile(){const target=document.getElementById("evRecTarget").value;const actual=Number(document.getElementById("evRecActual").value);const note=String(document.getElementById("evRecNote").value||"Stok opname fisik").trim();if(!Number.isFinite(actual)||actual<0){customAlert("Stok Tidak Valid","Masukkan jumlah stok fisik 0 atau lebih.","warning");return;}const before=evStockSnapshot();let label="";if(target==="BOTOL"){label="Botol";stokBotol=actual;}else if(target==="BOX"){label="Box";stokBox=actual;}else{const idx=Number(target.slice(2));if(!barang[idx])return;label=barang[idx].nama;barang[idx].stok=actual;}if(!await customConfirm("Rekonsiliasi Stok",`Set stok fisik <b>${evEsc(label)}</b> menjadi <b>${actual} pcs</b>?`,`warning`)){if(target==="BOTOL")stokBotol=before.botol;else if(target==="BOX")stokBox=before.box;else{const idx=Number(target.slice(2));if(barang[idx])barang[idx].stok=before.products[barang[idx].nama]||0;}return;}evLogStockDiff(before,"STOK OPNAME",note);closeStockReconcile();await saveData();}
+
+function renderUpgradeUI(){
+  const label=document.querySelector('#insightNilaiStok')?.previousElementSibling;if(label&&label.classList.contains('insight-label'))label.textContent="Potensi Omzet Stok";
+  const botol=Number(stokBotol||0),box=Number(stokBox||0),paket=Math.min(botol,box);
+  const totalVar=(barang||[]).reduce((s,b)=>s+Number(b.stok||0),0),ready=Math.min(totalVar,paket);
+  const month=getMonthKey(new Date()),sales=(penjualan||[]).filter(x=>getMonthKey(x.tanggal)===month),exp=(pengeluaran||[]).filter(x=>getMonthKey(x.tanggal)===month);
+  const omzet=sales.reduce((s,x)=>s+Number(x.nominal||0),0),qty=sales.reduce((s,x)=>s+Number(x.qty||0),0),expense=exp.reduce((s,x)=>s+Number(x.nominal||0),0),net=omzet-expense,aov=qty>0?omzet/qty:0;
+  const c=document.getElementById("evOpsSummary");if(c)c.innerHTML=`<div class="ev-upgrade-grid"><div class="ev-upgrade-box"><small>Paket Logistik Siap</small><b>${paket} pcs</b><div class="ev-upgrade-sub">Botol ${botol} • Box ${box}</div></div><div class="ev-upgrade-box"><small>Stok Siap Jual</small><b>${ready} pcs</b><div class="ev-upgrade-sub">dibatasi varian + paket logistik</div></div><div class="ev-upgrade-box"><small>Laba Bersih Bulan Ini</small><b class="${net>=0?'ev-success':'ev-danger'}">${evMoney(net)}</b><div class="ev-upgrade-sub">Omzet − pengeluaran</div></div><div class="ev-upgrade-box"><small>Rata-rata Nilai / Pcs</small><b>${evMoney(aov)}</b><div class="ev-upgrade-sub">Omzet ÷ unit terjual</div></div></div>`;
+  const l=document.getElementById("evStockLedger");if(l){const recent=[...inventoryLog].reverse().slice(0,80);l.innerHTML=recent.length?recent.map(x=>`<div class="ev-ledger-row"><div class="ev-ledger-main"><div class="ev-ledger-title">${evEsc(x.target)} • ${evEsc(x.source)}</div><div class="ev-ledger-meta">${new Date(x.tanggal).toLocaleString('id-ID')} • ${x.before} → ${x.after}${x.note?` • ${evEsc(x.note)}`:""}</div></div><div class="ev-ledger-delta ${Number(x.delta)>=0?'ev-success':'ev-danger'}">${Number(x.delta)>=0?'+':''}${x.delta}</div></div>`).join(""):`<div class="insight-empty">Belum ada audit pergerakan stok pada versi baru.</div>`;}
+}
+
+function evInstallUpgradeUI(){
+  const peng=document.getElementById("nominalKeluar");if(peng&&!document.getElementById("kategoriKeluar")){const sel=document.createElement("select");sel.id="kategoriKeluar";sel.innerHTML='<option>Operasional</option><option>Iklan</option><option>Pengiriman</option><option>Peralatan</option><option>Paylater</option><option>Gaji / Jasa</option><option>Pajak / Admin</option><option selected>Lainnya</option>';peng.parentNode.insertBefore(sel,peng);}
+  const ber=document.getElementById("tab-beranda");if(ber&&!document.getElementById("evOpsSummary")){const card=document.createElement("div");card.className="card";card.innerHTML='<h3><i class="fa-solid fa-shield-halved"></i> OPERASIONAL & DATA HEALTH</h3><div id="evOpsSummary"></div>';ber.appendChild(card);}
+  const lap=document.getElementById("tab-laporan");if(lap&&!document.getElementById("evStockLedger")){const card=document.createElement("div");card.className="card";card.innerHTML='<h3><i class="fa-solid fa-file-export"></i> EXPORT & AUDIT STOK</h3><div class="ev-btn-row"><button onclick="exportPenjualanCSV()"><i class="fa-solid fa-file-csv"></i> Penjualan CSV</button><button onclick="exportPengeluaranCSV()"><i class="fa-solid fa-file-csv"></i> Pengeluaran CSV</button><button onclick="exportStokCSV()"><i class="fa-solid fa-file-csv"></i> Stok CSV</button><button onclick="openStockReconcile()" style="background:var(--warning)"><i class="fa-solid fa-scale-balanced"></i> Rekonsiliasi Stok</button></div><div class="report-section-title">Audit Pergerakan Stok</div><div id="evStockLedger" class="ev-ledger"></div>';lap.appendChild(card);}
+  if(!document.getElementById("evReconcileModal")){const m=document.createElement("div");m.id="evReconcileModal";m.className="ev-reconcile-modal";m.innerHTML='<div class="ev-reconcile-card"><h3><i class="fa-solid fa-scale-balanced"></i> REKONSILIASI STOK FISIK</h3><select id="evRecTarget"></select><input id="evRecActual" type="number" min="0" placeholder="Stok fisik sebenarnya"><input id="evRecNote" placeholder="Catatan / alasan"><div class="ev-warning">Perubahan akan dicatat ke Audit Pergerakan Stok.</div><div class="ev-btn-row" style="margin-top:12px"><button onclick="closeStockReconcile()" style="background:#94a3b8">Batal</button><button onclick="applyStockReconcile()" style="background:var(--warning)">Terapkan</button></div></div>';document.body.appendChild(m);}
+  const transfer=document.getElementById("inputTransferData");if(transfer&&!document.getElementById("evRestoreSnapshotBtn")){const b=document.createElement("button");b.id="evRestoreSnapshotBtn";b.style.cssText="margin-top:7px;background:#64748b;font-size:11px";b.innerHTML='<i class="fa-solid fa-clock-rotate-left"></i> Pulihkan Snapshot Sebelum Restore';b.onclick=evRestorePreImportSnapshot;transfer.parentElement.appendChild(b);}
+  renderUpgradeUI();
+}
+
+const _evBaseRender=render;
+render=function(){const r=_evBaseRender.apply(this,arguments);try{evInstallUpgradeUI();renderUpgradeUI();}catch(e){console.warn("Upgrade UI:",e);}return r;};
+
+document.addEventListener("DOMContentLoaded",()=>{evInstallUpgradeUI();evLoadUpgradeFields();});
+</script>\n</body>
 </html>
