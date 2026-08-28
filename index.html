@@ -4201,14 +4201,107 @@ function scanPhraseBoundaryIncludes(haystack, needle){
   if(!h || !n) return false;
   return (` ${h} `).includes(` ${n} `);
 }
+function extractCanonicalResiProductName(chunk){
+  const raw=String(chunk||"").replace(/\s+/g," ").trim();
+  if(!raw) return "";
+
+  // Produk satuan di packing slip:
+  // EVORA <NAMA PRODUK> Extrait De Parfum ...
+  const m=raw.match(/\bEVORA\s+(.+?)\s+Extrait\s+De\s+Parfum\b/i);
+  if(!m) return "";
+
+  const name=String(m[1]||"").replace(/\s+/g," ").trim();
+  if(/bundling\s*2\s*botol|mix\s*variant/i.test(name)) return "";
+  return name;
+}
+
+function getCashierSlashAliases(productName){
+  // Nama seperti "CALIFORNIA BLUE/INVICTUS" berarti dua nama resi yang
+  // menunjuk ke SATU varian kasir yang sama.
+  return String(productName||"")
+    .split("/")
+    .map(x=>normScan(x))
+    .filter(Boolean);
+}
+
+function matchCanonicalResiProductName(chunk){
+  const canonical=extractCanonicalResiProductName(chunk);
+  if(!canonical) return null;
+  const q=normScan(canonical);
+  if(!q) return null;
+
+  // 1) Exact nama kasir SELALU paling tinggi.
+  // Ini penting untuk ADONIS, karena ada juga "ELIXIR/ADONIS".
+  const exactIndex=barang.findIndex(b=>normScan(b.nama)===q);
+  if(exactIndex>=0){
+    return {
+      index:exactIndex, score:1000, method:"pdf-title-exact",
+      matchedText:canonical, canonicalName:canonical
+    };
+  }
+
+  // 2) Cocokkan salah satu sisi nama kasir yang memakai slash.
+  // Contoh PDF "CALIFORNIA BLUE" -> kasir "CALIFORNIA BLUE/INVICTUS".
+  const slashMatches=[];
+  barang.forEach((b,i)=>{
+    const aliases=getCashierSlashAliases(b.nama);
+    aliases.forEach(alias=>{
+      if(alias===q){
+        slashMatches.push({
+          index:i, score:950, method:"cashier-slash-alias",
+          matchedText:canonical, canonicalName:canonical,
+          specificity:alias.length
+        });
+      }
+    });
+  });
+  if(slashMatches.length){
+    slashMatches.sort((a,b)=>b.specificity-a.specificity);
+    return slashMatches[0];
+  }
+
+  // 3) Nama brand/suffix umum dari marketplace boleh dibuang HANYA jika hasilnya
+  // menjadi exact nama kasir. Contoh "ALPHA BY HMNS" -> "ALPHA".
+  const simplified=q
+    .replace(/\s+by\s+hmns$/,"")
+    .replace(/\s+/g," ")
+    .trim();
+  if(simplified && simplified!==q){
+    const idx=barang.findIndex(b=>normScan(b.nama)===simplified);
+    if(idx>=0){
+      return {
+        index:idx, score:900, method:"pdf-title-simplified",
+        matchedText:canonical, canonicalName:canonical
+      };
+    }
+  }
+
+  // 4) Mapping alias manual hanya setelah nama kasir asli/slash gagal.
+  const aliases=typeof getResiAliases==="function" ? getResiAliases() : {};
+  const target=aliases[q];
+  if(target){
+    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
+    if(idx>=0){
+      return {
+        index:idx, score:850, method:"manual-alias",
+        matchedText:canonical, canonicalName:canonical
+      };
+    }
+  }
+
+  // Jangan pernah menurunkan "CALIFORNIA BLUE" menjadi "CALIFORNIA"
+  // hanya karena prefix-nya sama. Jika tidak terpetakan, biarkan manual.
+  return {
+    index:-1, score:0, method:"pdf-title-unresolved",
+    matchedText:canonical, canonicalName:canonical
+  };
+}
+
 function getLongestExplicitScanMatch(chunk){
   const q=normScan(chunk);
   if(!q) return null;
 
-  // RULE UTAMA: nama varian kasir yang benar-benar tertulis di resi SELALU menang.
-  // Alias tidak boleh menimpa nama produk asli. Contoh: bila kasir punya
-  // CALIFORNIA dan CALIFORNIA BLUE, teks CALIFORNIA BLUE wajib masuk ke
-  // CALIFORNIA BLUE walaupun localStorage masih punya alias lama yang salah.
+  // Exact nama kasir utuh.
   const nameMatches=barang.map((b,i)=>{
     const n=normScan(b.nama);
     if(!n || !scanPhraseBoundaryIncludes(q,n)) return null;
@@ -4217,19 +4310,34 @@ function getLongestExplicitScanMatch(chunk){
   }).filter(Boolean).sort((a,b)=>
     b.tokenCount-a.tokenCount || b.charLength-a.charLength
   );
-
   if(nameMatches.length) return nameMatches[0];
 
-  // Alias hanya menjadi fallback jika TIDAK ADA nama varian kasir yang tertulis utuh.
-  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
+  // Alias dari nama kasir yang memakai slash.
+  // Exact nama produk lain tetap harus menang; karena blok exact sudah dijalankan dulu.
+  const slashMatches=[];
+  barang.forEach((b,i)=>{
+    getCashierSlashAliases(b.nama).forEach(alias=>{
+      if(alias && scanPhraseBoundaryIncludes(q,alias)){
+        // Jika alias ini sendiri adalah nama kasir exact lain, jangan ambil produk slash.
+        if(barang.some((other,oi)=>oi!==i && normScan(other.nama)===alias)) return;
+        slashMatches.push({
+          index:i,score:80,method:"cashier-slash-alias",matchedText:alias,
+          tokenCount:alias.split(" ").length,charLength:alias.length
+        });
+      }
+    });
+  });
+  if(slashMatches.length){
+    slashMatches.sort((a,b)=>b.tokenCount-a.tokenCount || b.charLength-a.charLength);
+    return slashMatches[0];
+  }
+
+  // Alias manual hanya fallback.
+  const aliases=typeof getResiAliases==="function" ? getResiAliases() : {};
   const aliasMatches=Object.keys(aliases).map(alias=>{
     const a=normScan(alias);
     if(!a || !scanPhraseBoundaryIncludes(q,a)) return null;
-
-    // Jika alias itu sendiri sama dengan nama produk kasir, abaikan mapping alias.
-    // Nama asli harus ditangani oleh blok exact-cashier-name di atas.
     if(barang.some(b=>normScan(b.nama)===a)) return null;
-
     const target=aliases[alias];
     const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
     if(idx<0) return null;
@@ -4238,25 +4346,27 @@ function getLongestExplicitScanMatch(chunk){
   }).filter(Boolean).sort((a,b)=>
     b.tokenCount-a.tokenCount || b.charLength-a.charLength || b.score-a.score
   );
-
   return aliasMatches[0]||null;
 }
+
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
 
-  // 1) Explicit phrase/alias match always wins, with the most specific
-  // (longest) product name preferred.
+  // Untuk produk satuan, judul Product Name PDF menjadi sumber kebenaran.
+  // Ini mencegah CALIFORNIA terbaca dari CALIFORNIA BLUE.
+  const canonical=matchCanonicalResiProductName(chunk);
+  if(canonical) return canonical;
+
+  // Bundle tetap memakai pencocokan eksplisit karena nama variannya ada di SKU.
   const explicit=getLongestExplicitScanMatch(chunk);
   if(explicit) return explicit;
 
-  // 2) Whole-query exact mapping remains supported.
   const mapped = typeof matchResiProduct === "function" ? matchResiProduct(chunk, barang) : null;
   if(mapped && mapped.status === "matched"){
     const idx = barang.findIndex(b=>normScan(b.nama)===normScan(mapped.name));
     if(idx >= 0) return {index:idx,score:9,method:mapped.method||"alias",matchedText:mapped.name};
   }
 
-  // 3) Fuzzy scoring fallback. Ties are broken by specificity, not array order.
   let candidates=barang.map((b,i)=>{
     const n=normScan(b.nama);
     return {
@@ -4284,6 +4394,19 @@ function scanAliasIndexMatches(chunk){
     const n=normScan(b.nama);
     if(n && scanPhraseBoundaryIncludes(q,n)) found.push({
       index:i,score:100,source:"exact-cashier-name",specificity:n.split(" ").length*100+n.length
+    });
+  });
+
+  // Nama alternatif yang tertulis setelah/sebelum "/" pada nama kasir.
+  barang.forEach((b,i)=>{
+    getCashierSlashAliases(b.nama).forEach(alias=>{
+      if(!alias || !scanPhraseBoundaryIncludes(q,alias)) return;
+      // Jika alias sama persis dengan produk kasir lain, produk exact lain harus menang.
+      if(barang.some((other,oi)=>oi!==i && normScan(other.nama)===alias)) return;
+      if(!found.some(x=>x.index===i)) found.push({
+        index:i,score:80,source:"cashier-slash-alias",
+        specificity:alias.split(" ").length*100+alias.length
+      });
     });
   });
 
