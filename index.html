@@ -4196,20 +4196,76 @@ function scanScore(chunk,name){
   if(compactName && compactChunk.includes(compactName)) score += 1.5;
   return score;
 }
+function scanPhraseBoundaryIncludes(haystack, needle){
+  const h=normScan(haystack), n=normScan(needle);
+  if(!h || !n) return false;
+  return (` ${h} `).includes(` ${n} `);
+}
+function getLongestExplicitScanMatch(chunk){
+  const q=normScan(chunk);
+  if(!q) return null;
+
+  // Saved aliases are also treated as explicit names. If more than one alias
+  // is present, the longest / most specific alias wins.
+  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
+  const aliasMatches=Object.keys(aliases).map(alias=>{
+    const a=normScan(alias);
+    if(!a || !scanPhraseBoundaryIncludes(q,a)) return null;
+    const target=aliases[alias];
+    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
+    if(idx<0) return null;
+    return {index:idx,score:20,method:"alias",matchedText:alias,
+      tokenCount:a.split(" ").filter(Boolean).length,charLength:a.length};
+  }).filter(Boolean);
+
+  // For cashier variant names, prefer the longest phrase. This prevents
+  // CALIFORNIA from beating CALIFORNIA BLUE when both are present.
+  const nameMatches=barang.map((b,i)=>{
+    const n=normScan(b.nama);
+    if(!n || !scanPhraseBoundaryIncludes(q,n)) return null;
+    return {index:i,score:18,method:"exact-phrase",matchedText:b.nama,
+      tokenCount:n.split(" ").filter(Boolean).length,charLength:n.length};
+  }).filter(Boolean);
+
+  const all=[...aliasMatches,...nameMatches].sort((a,b)=>
+    b.tokenCount-a.tokenCount ||
+    b.charLength-a.charLength ||
+    b.score-a.score
+  );
+  return all[0]||null;
+}
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
-  // 1) Exact/alias mapping gets priority over fuzzy scoring.
+
+  // 1) Explicit phrase/alias match always wins, with the most specific
+  // (longest) product name preferred.
+  const explicit=getLongestExplicitScanMatch(chunk);
+  if(explicit) return explicit;
+
+  // 2) Whole-query exact mapping remains supported.
   const mapped = typeof matchResiProduct === "function" ? matchResiProduct(chunk, barang) : null;
   if(mapped && mapped.status === "matched"){
     const idx = barang.findIndex(b=>normScan(b.nama)===normScan(mapped.name));
-    if(idx >= 0) return {index:idx,score:9,method:mapped.method||"alias"};
+    if(idx >= 0) return {index:idx,score:9,method:mapped.method||"alias",matchedText:mapped.name};
   }
-  let best={index:-1,score:0};
-  barang.forEach((b,i)=>{
-    const score=scanScore(chunk,b.nama);
-    if(score>best.score) best={index:i,score,method:"score"};
-  });
-  return best;
+
+  // 3) Fuzzy scoring fallback. Ties are broken by specificity, not array order.
+  let candidates=barang.map((b,i)=>{
+    const n=normScan(b.nama);
+    return {
+      index:i,
+      score:scanScore(chunk,b.nama),
+      method:"score",
+      matchedText:b.nama,
+      tokenCount:scanTokens(b.nama).length,
+      charLength:n.length
+    };
+  }).sort((a,b)=>
+    b.score-a.score ||
+    b.tokenCount-a.tokenCount ||
+    b.charLength-a.charLength
+  );
+  return candidates[0]||{index:-1,score:0};
 }
 
 function scanAliasIndexMatches(chunk){
@@ -4218,16 +4274,21 @@ function scanAliasIndexMatches(chunk){
   const q = normScan(chunk);
   Object.keys(aliases).forEach(alias=>{
     const target=aliases[alias];
-    if(alias && q.includes(alias)){
+    const a=normScan(alias);
+    if(a && scanPhraseBoundaryIncludes(q,a)){
       const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
-      if(idx>=0 && !found.some(x=>x.index===idx)) found.push({index:idx,score:10,source:"alias"});
+      if(idx>=0 && !found.some(x=>x.index===idx)) found.push({
+        index:idx,score:10,source:"alias",specificity:a.split(" ").length*100+a.length
+      });
     }
   });
   barang.forEach((b,i)=>{
     const n=normScan(b.nama);
-    if(n && q.includes(n) && !found.some(x=>x.index===i)) found.push({index:i,score:8,source:"name"});
+    if(n && scanPhraseBoundaryIncludes(q,n) && !found.some(x=>x.index===i)) found.push({
+      index:i,score:8,source:"name",specificity:n.split(" ").length*100+n.length
+    });
   });
-  return found;
+  return found.sort((a,b)=>(b.specificity||0)-(a.specificity||0) || b.score-a.score);
 }
 
 function scanExplicitProductMatches(chunk){
@@ -4301,11 +4362,11 @@ function extractResiInfo(lines,pageNo){
         }
       }
       if(picked.length===2){
-        picked.forEach(c=>rows.push({page:pageNo,raw:chunk,qty,matchIndex:c.index,score:c.score,orderId,waybill,bundle:true}));
+        picked.forEach(c=>rows.push({page:pageNo,raw:chunk,qty,matchIndex:c.index,score:c.score,matchMethod:c.source||"bundle",resiName:c.matchedText||barang[c.index]?.nama||"",orderId,waybill,bundle:true}));
         continue;
       }
     }
-    rows.push({page:pageNo,raw:chunk,qty,matchIndex:match.index,score:match.score,orderId,waybill,bundle:false});
+    rows.push({page:pageNo,raw:chunk,qty,matchIndex:match.index,score:match.score,matchMethod:match.method||"",resiName:match.matchedText||"",orderId,waybill,bundle:false});
   }
   return {page:pageNo,lines,text,orderId:(text.match(/Order\s*Id\s*:?\s*([0-9]{10,25})/i)||[])[1]||"",waybill:(text.match(/\b(JY\d{8,20})\b/i)||[])[1]||"",rows};
 }
@@ -4394,7 +4455,10 @@ function renderScanDraft(){
                 <div class="scan-resi-product-row">
                   <div class="scan-resi-product-main">
                     <div class="scan-resi-row-top">
-                      <div class="scan-resi-row-name">${escScan(name || "Produk belum cocok")} × ${Number(r.qty||1)}</div>
+                      <div class="scan-resi-row-name">
+                        <div><span style="color:var(--text-muted);font-weight:700;">Resi:</span> ${escScan(r.resiName || name || "Nama belum terbaca")}</div>
+                        <div style="margin-top:3px;"><span style="color:var(--primary);font-weight:800;">Kasir:</span> ${escScan(name || "Produk belum cocok")} × ${Number(r.qty||1)}</div>
+                      </div>
                       <div>${confident&&r.matchIndex>=0
                         ? `<span class="scan-resi-ok">Cocok</span>`
                         : `<span class="scan-resi-warn">Periksa</span>`}</div>
@@ -4428,6 +4492,7 @@ function updateScanRowMatch(rowIndex,value){
   if(!scanResiDraft?.rows[rowIndex]) return;
   scanResiDraft.rows[rowIndex].matchIndex=Number(value);
   scanResiDraft.rows[rowIndex].score=Number(value)>=0?1:0;
+  scanResiDraft.rows[rowIndex].matchMethod=Number(value)>=0?"manual":"";
   renderScanDraft();
 }
 function cancelScanDraft(){
