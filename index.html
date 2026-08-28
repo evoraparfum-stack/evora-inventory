@@ -4205,34 +4205,41 @@ function getLongestExplicitScanMatch(chunk){
   const q=normScan(chunk);
   if(!q) return null;
 
-  // Saved aliases are also treated as explicit names. If more than one alias
-  // is present, the longest / most specific alias wins.
+  // RULE UTAMA: nama varian kasir yang benar-benar tertulis di resi SELALU menang.
+  // Alias tidak boleh menimpa nama produk asli. Contoh: bila kasir punya
+  // CALIFORNIA dan CALIFORNIA BLUE, teks CALIFORNIA BLUE wajib masuk ke
+  // CALIFORNIA BLUE walaupun localStorage masih punya alias lama yang salah.
+  const nameMatches=barang.map((b,i)=>{
+    const n=normScan(b.nama);
+    if(!n || !scanPhraseBoundaryIncludes(q,n)) return null;
+    return {index:i,score:100,method:"exact-cashier-name",matchedText:b.nama,
+      tokenCount:n.split(" ").filter(Boolean).length,charLength:n.length};
+  }).filter(Boolean).sort((a,b)=>
+    b.tokenCount-a.tokenCount || b.charLength-a.charLength
+  );
+
+  if(nameMatches.length) return nameMatches[0];
+
+  // Alias hanya menjadi fallback jika TIDAK ADA nama varian kasir yang tertulis utuh.
   const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
   const aliasMatches=Object.keys(aliases).map(alias=>{
     const a=normScan(alias);
     if(!a || !scanPhraseBoundaryIncludes(q,a)) return null;
+
+    // Jika alias itu sendiri sama dengan nama produk kasir, abaikan mapping alias.
+    // Nama asli harus ditangani oleh blok exact-cashier-name di atas.
+    if(barang.some(b=>normScan(b.nama)===a)) return null;
+
     const target=aliases[alias];
     const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
     if(idx<0) return null;
     return {index:idx,score:20,method:"alias",matchedText:alias,
       tokenCount:a.split(" ").filter(Boolean).length,charLength:a.length};
-  }).filter(Boolean);
-
-  // For cashier variant names, prefer the longest phrase. This prevents
-  // CALIFORNIA from beating CALIFORNIA BLUE when both are present.
-  const nameMatches=barang.map((b,i)=>{
-    const n=normScan(b.nama);
-    if(!n || !scanPhraseBoundaryIncludes(q,n)) return null;
-    return {index:i,score:18,method:"exact-phrase",matchedText:b.nama,
-      tokenCount:n.split(" ").filter(Boolean).length,charLength:n.length};
-  }).filter(Boolean);
-
-  const all=[...aliasMatches,...nameMatches].sort((a,b)=>
-    b.tokenCount-a.tokenCount ||
-    b.charLength-a.charLength ||
-    b.score-a.score
+  }).filter(Boolean).sort((a,b)=>
+    b.tokenCount-a.tokenCount || b.charLength-a.charLength || b.score-a.score
   );
-  return all[0]||null;
+
+  return aliasMatches[0]||null;
 }
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
@@ -4270,25 +4277,30 @@ function bestScanMatch(chunk){
 
 function scanAliasIndexMatches(chunk){
   const found=[];
-  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
   const q = normScan(chunk);
+
+  // Exact cashier names first and with much higher priority.
+  barang.forEach((b,i)=>{
+    const n=normScan(b.nama);
+    if(n && scanPhraseBoundaryIncludes(q,n)) found.push({
+      index:i,score:100,source:"exact-cashier-name",specificity:n.split(" ").length*100+n.length
+    });
+  });
+
+  const aliases = typeof getResiAliases==="function" ? getResiAliases() : {};
   Object.keys(aliases).forEach(alias=>{
     const target=aliases[alias];
     const a=normScan(alias);
-    if(a && scanPhraseBoundaryIncludes(q,a)){
-      const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
-      if(idx>=0 && !found.some(x=>x.index===idx)) found.push({
-        index:idx,score:10,source:"alias",specificity:a.split(" ").length*100+a.length
-      });
-    }
-  });
-  barang.forEach((b,i)=>{
-    const n=normScan(b.nama);
-    if(n && scanPhraseBoundaryIncludes(q,n) && !found.some(x=>x.index===i)) found.push({
-      index:i,score:8,source:"name",specificity:n.split(" ").length*100+n.length
+    if(!a || !scanPhraseBoundaryIncludes(q,a)) return;
+    // Never allow an alias whose key is itself a real cashier product name.
+    if(barang.some(b=>normScan(b.nama)===a)) return;
+    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
+    if(idx>=0 && !found.some(x=>x.index===idx)) found.push({
+      index:idx,score:10,source:"alias",specificity:a.split(" ").length*100+a.length
     });
   });
-  return found.sort((a,b)=>(b.specificity||0)-(a.specificity||0) || b.score-a.score);
+
+  return found.sort((a,b)=>b.score-a.score || (b.specificity||0)-(a.specificity||0));
 }
 
 function scanExplicitProductMatches(chunk){
@@ -5507,12 +5519,15 @@ loadDataFromCloud();
   window.matchResiProduct=function(raw, products){
     const q=normalizeResiText(raw);
     if(!q)return {status:'unknown',query:q};
-    const aliases=getResiAliases();
-    if(aliases[q])return {status:'matched',name:aliases[q],method:'alias'};
 
     const list=(products||[]).filter(x=>x && (x.nama||x.name));
+
+    // Exact cashier product name MUST beat aliases.
     const exact=list.find(x=>normalizeResiText(x.nama||x.name)===q);
-    if(exact)return {status:'matched',name:exact.nama||exact.name,method:'exact'};
+    if(exact)return {status:'matched',name:exact.nama||exact.name,method:'exact-cashier-name'};
+
+    const aliases=getResiAliases();
+    if(aliases[q])return {status:'matched',name:aliases[q],method:'alias'};
 
     // Conservative fuzzy: only very small typo differences and only if unique.
     const dist=(a,b)=>{
