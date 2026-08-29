@@ -4244,12 +4244,13 @@ function scanPhraseBoundaryIncludes(haystack, needle){
   if(!h || !n) return false;
   return (` ${h} `).includes(` ${n} `);
 }
+
 function extractCanonicalResiProductName(chunk){
   const raw=String(chunk||"").replace(/\s+/g," ").trim();
   if(!raw) return "";
 
-  // Produk satuan di packing slip:
-  // EVORA <NAMA PRODUK> Extrait De Parfum ...
+  // Produk satuan:
+  // EVORA <NAMA> Extrait De Parfum ...
   const m=raw.match(/\bEVORA\s+(.+?)\s+Extrait\s+De\s+Parfum\b/i);
   if(!m) return "";
 
@@ -4258,93 +4259,150 @@ function extractCanonicalResiProductName(chunk){
   return name;
 }
 
+function scanCompactName(v){
+  return normScan(v).replace(/\s+/g,"");
+}
+
+function scanEditDistance(a,b){
+  a=String(a||""); b=String(b||"");
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},()=>Array(n+1).fill(0));
+  for(let i=0;i<=m;i++) dp[i][0]=i;
+  for(let j=0;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      dp[i][j]=Math.min(
+        dp[i-1][j]+1,
+        dp[i][j-1]+1,
+        dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1)
+      );
+    }
+  }
+  return dp[m][n];
+}
+
 function getCashierSlashAliases(productName){
-  // Nama seperti "CALIFORNIA BLUE/INVICTUS" berarti dua nama resi yang
-  // menunjuk ke SATU varian kasir yang sama.
   return String(productName||"")
     .split("/")
     .map(x=>normScan(x))
     .filter(Boolean);
 }
 
+function safeMatchResiVariantName(rawName){
+  const original=String(rawName||"").replace(/\s+/g," ").trim();
+  const q=normScan(original);
+  const qc=scanCompactName(original);
+  if(!q) return {index:-1,score:0,method:"empty",matchedText:original,canonicalName:original};
+
+  // 1. Exact nama kasir.
+  let idx=barang.findIndex(b=>normScan(b.nama)===q);
+  if(idx>=0){
+    return {index:idx,score:1000,method:"pdf-name-exact",matchedText:original,canonicalName:original};
+  }
+
+  // 2. Exact setelah spasi akibat PDF dihilangkan.
+  // Contoh KONGKE R -> KONGKER, INCEPTIO N -> INCEPTION.
+  const compactMatches=barang
+    .map((b,i)=>({i,c:scanCompactName(b.nama)}))
+    .filter(x=>x.c && x.c===qc);
+  if(compactMatches.length===1){
+    return {index:compactMatches[0].i,score:990,method:"pdf-name-compact-exact",matchedText:original,canonicalName:original};
+  }
+
+  // 3. Nama alternatif pada varian kasir yang menggunakan "/".
+  // Contoh CALIFORNIA BLUE -> CALIFORNIA BLUE/INVICTUS.
+  // Hanya nama yang cukup panjang agar singkatan pendek tidak salah arah.
+  if(qc.length>=4){
+    const slashMatches=[];
+    barang.forEach((b,i)=>{
+      getCashierSlashAliases(b.nama).forEach(alias=>{
+        if(alias===q || scanCompactName(alias)===qc){
+          slashMatches.push({i,specificity:scanCompactName(alias).length});
+        }
+      });
+    });
+    if(slashMatches.length===1){
+      return {index:slashMatches[0].i,score:970,method:"cashier-slash-alias",matchedText:original,canonicalName:original};
+    }
+  }
+
+  // 4. Suffix marketplace yang sudah diketahui.
+  const simplified=q.replace(/\s+by\s+hmns$/,"").trim();
+  if(simplified && simplified!==q){
+    idx=barang.findIndex(b=>normScan(b.nama)===simplified);
+    if(idx>=0){
+      return {index:idx,score:940,method:"pdf-name-simplified",matchedText:original,canonicalName:original};
+    }
+  }
+
+  // 5. Typo ringan, hanya untuk nama minimal 5 karakter dan HARUS unik.
+  // Contoh PENHOSE -> PENTHOUSE.
+  // Singkatan seperti CL tidak pernah masuk tahap ini.
+  if(qc.length>=5){
+    const fuzzy=barang.map((b,i)=>{
+      const full=scanCompactName(b.nama);
+      const slash=getCashierSlashAliases(b.nama).map(scanCompactName);
+      const variants=[full,...slash].filter(Boolean);
+      const d=Math.min(...variants.map(v=>scanEditDistance(qc,v)));
+      return {i,d};
+    }).filter(x=>x.d<=2).sort((a,b)=>a.d-b.d);
+
+    if(fuzzy.length && (fuzzy.length===1 || fuzzy[0].d<fuzzy[1].d)){
+      return {index:fuzzy[0].i,score:900-fuzzy[0].d,method:"pdf-name-safe-fuzzy",matchedText:original,canonicalName:original};
+    }
+  }
+
+  // 6. Mapping alias manual masih boleh, tetapi alias sangat pendek (CL, DS, dll)
+  // TIDAK boleh dieksekusi otomatis karena berisiko salah produk.
+  if(qc.length>=4){
+    const aliases=typeof getResiAliases==="function" ? getResiAliases() : {};
+    const target=aliases[q] || aliases[String(original||"").toUpperCase().trim()];
+    if(target){
+      idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
+      if(idx>=0){
+        return {index:idx,score:850,method:"manual-alias",matchedText:original,canonicalName:original};
+      }
+    }
+  }
+
+  // Lebih baik minta pilihan manual daripada memasukkan produk salah.
+  return {index:-1,score:0,method:"pdf-name-unresolved",matchedText:original,canonicalName:original};
+}
+
 function matchCanonicalResiProductName(chunk){
   const canonical=extractCanonicalResiProductName(chunk);
   if(!canonical) return null;
-  const q=normScan(canonical);
-  if(!q) return null;
+  return safeMatchResiVariantName(canonical);
+}
 
-  // 1) Exact nama kasir SELALU paling tinggi.
-  // Ini penting untuk ADONIS, karena ada juga "ELIXIR/ADONIS".
-  const exactIndex=barang.findIndex(b=>normScan(b.nama)===q);
-  if(exactIndex>=0){
-    return {
-      index:exactIndex, score:1000, method:"pdf-title-exact",
-      matchedText:canonical, canonicalName:canonical
-    };
-  }
+function extractBundleVariantNames(chunk){
+  const raw=String(chunk||"").replace(/\s+/g," ").trim();
+  if(!/bundling\s*2\s*botol|mix\s*variant/i.test(raw)) return [];
 
-  // 2) Cocokkan salah satu sisi nama kasir yang memakai slash.
-  // Contoh PDF "CALIFORNIA BLUE" -> kasir "CALIFORNIA BLUE/INVICTUS".
-  const slashMatches=[];
-  barang.forEach((b,i)=>{
-    const aliases=getCashierSlashAliases(b.nama);
-    aliases.forEach(alias=>{
-      if(alias===q){
-        slashMatches.push({
-          index:i, score:950, method:"cashier-slash-alias",
-          matchedText:canonical, canonicalName:canonical,
-          specificity:alias.length
-        });
-      }
-    });
-  });
-  if(slashMatches.length){
-    slashMatches.sort((a,b)=>b.specificity-a.specificity);
-    return slashMatches[0];
-  }
+  // Seller SKU berada setelah deskripsi "Premium Fragrance".
+  // Ambil bagian setelahnya lalu buang qty di ujung.
+  let tail=raw;
+  const premiumIdx=tail.toLowerCase().lastIndexOf("premium fragrance");
+  if(premiumIdx>=0) tail=tail.slice(premiumIdx+"premium fragrance".length);
 
-  // 3) Nama brand/suffix umum dari marketplace boleh dibuang HANYA jika hasilnya
-  // menjadi exact nama kasir. Contoh "ALPHA BY HMNS" -> "ALPHA".
-  const simplified=q
-    .replace(/\s+by\s+hmns$/,"")
+  tail=tail
+    .replace(/\bdefault\b/ig," ")
+    .replace(/\s+[0-9]{1,3}\s*$/,"")
     .replace(/\s+/g," ")
     .trim();
-  if(simplified && simplified!==q){
-    const idx=barang.findIndex(b=>normScan(b.nama)===simplified);
-    if(idx>=0){
-      return {
-        index:idx, score:900, method:"pdf-title-simplified",
-        matchedText:canonical, canonicalName:canonical
-      };
-    }
-  }
 
-  // 4) Mapping alias manual hanya setelah nama kasir asli/slash gagal.
-  const aliases=typeof getResiAliases==="function" ? getResiAliases() : {};
-  const target=aliases[q];
-  if(target){
-    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
-    if(idx>=0){
-      return {
-        index:idx, score:850, method:"manual-alias",
-        matchedText:canonical, canonicalName:canonical
-      };
-    }
-  }
+  // Bundle EVORA selalu dipisah koma pada Seller SKU.
+  const parts=tail.split(",")
+    .map(x=>x.replace(/\s+/g," ").trim())
+    .filter(Boolean);
 
-  // Jangan pernah menurunkan "CALIFORNIA BLUE" menjadi "CALIFORNIA"
-  // hanya karena prefix-nya sama. Jika tidak terpetakan, biarkan manual.
-  return {
-    index:-1, score:0, method:"pdf-title-unresolved",
-    matchedText:canonical, canonicalName:canonical
-  };
+  return parts.slice(0,2);
 }
 
 function getLongestExplicitScanMatch(chunk){
   const q=normScan(chunk);
   if(!q) return null;
 
-  // Exact nama kasir utuh.
   const nameMatches=barang.map((b,i)=>{
     const n=normScan(b.nama);
     if(!n || !scanPhraseBoundaryIncludes(q,n)) return null;
@@ -4355,13 +4413,10 @@ function getLongestExplicitScanMatch(chunk){
   );
   if(nameMatches.length) return nameMatches[0];
 
-  // Alias dari nama kasir yang memakai slash.
-  // Exact nama produk lain tetap harus menang; karena blok exact sudah dijalankan dulu.
   const slashMatches=[];
   barang.forEach((b,i)=>{
     getCashierSlashAliases(b.nama).forEach(alias=>{
       if(alias && scanPhraseBoundaryIncludes(q,alias)){
-        // Jika alias ini sendiri adalah nama kasir exact lain, jangan ambil produk slash.
         if(barang.some((other,oi)=>oi!==i && normScan(other.nama)===alias)) return;
         slashMatches.push({
           index:i,score:80,method:"cashier-slash-alias",matchedText:alias,
@@ -4375,57 +4430,18 @@ function getLongestExplicitScanMatch(chunk){
     return slashMatches[0];
   }
 
-  // Alias manual hanya fallback.
-  const aliases=typeof getResiAliases==="function" ? getResiAliases() : {};
-  const aliasMatches=Object.keys(aliases).map(alias=>{
-    const a=normScan(alias);
-    if(!a || !scanPhraseBoundaryIncludes(q,a)) return null;
-    if(barang.some(b=>normScan(b.nama)===a)) return null;
-    const target=aliases[alias];
-    const idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
-    if(idx<0) return null;
-    return {index:idx,score:20,method:"alias",matchedText:alias,
-      tokenCount:a.split(" ").filter(Boolean).length,charLength:a.length};
-  }).filter(Boolean).sort((a,b)=>
-    b.tokenCount-a.tokenCount || b.charLength-a.charLength || b.score-a.score
-  );
-  return aliasMatches[0]||null;
+  return null;
 }
 
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
 
-  // Untuk produk satuan, judul Product Name PDF menjadi sumber kebenaran.
-  // Ini mencegah CALIFORNIA terbaca dari CALIFORNIA BLUE.
   const canonical=matchCanonicalResiProductName(chunk);
   if(canonical) return canonical;
 
-  // Bundle tetap memakai pencocokan eksplisit karena nama variannya ada di SKU.
-  const explicit=getLongestExplicitScanMatch(chunk);
-  if(explicit) return explicit;
-
-  const mapped = typeof matchResiProduct === "function" ? matchResiProduct(chunk, barang) : null;
-  if(mapped && mapped.status === "matched"){
-    const idx = barang.findIndex(b=>normScan(b.nama)===normScan(mapped.name));
-    if(idx >= 0) return {index:idx,score:9,method:mapped.method||"alias",matchedText:mapped.name};
-  }
-
-  let candidates=barang.map((b,i)=>{
-    const n=normScan(b.nama);
-    return {
-      index:i,
-      score:scanScore(chunk,b.nama),
-      method:"score",
-      matchedText:b.nama,
-      tokenCount:scanTokens(b.nama).length,
-      charLength:n.length
-    };
-  }).sort((a,b)=>
-    b.score-a.score ||
-    b.tokenCount-a.tokenCount ||
-    b.charLength-a.charLength
-  );
-  return candidates[0]||{index:-1,score:0};
+  // Tidak lagi melakukan fuzzy scan terhadap seluruh alamat/teks resi.
+  // Jika nama produk tidak dapat dibaca aman, wajib dipilih manual.
+  return {index:-1,score:0,method:"unresolved-no-guess",matchedText:""};
 }
 
 function scanAliasIndexMatches(chunk){
@@ -4525,26 +4541,40 @@ function extractResiInfo(lines,pageNo){
     // Resi "Bundling 2 Botol / Mix Variant" menyimpan dua varian di kolom SKU/Seller SKU.
     // Satu bundle harus masuk sebagai 2 item varian, bukan 1 item bundle.
     if(/bundling\s*2\s*botol|mix\s*variant/i.test(chunk)) {
-      // Bundling 2 Botol / Mix Variant: read BOTH variants from the
-      // product/SKU text. Do not let the first matching product hide the second.
-      const explicit = scanExplicitProductMatches(chunk);
-      const scored = barang.map((b,i)=>({index:i,score:scanScore(chunk,b.nama)}))
-        .filter(x=>x.score>=0.45);
-      const candidates = [...explicit, ...scored]
-        .sort((a,b)=>b.score-a.score);
-      const picked=[];
-      for(const c of candidates){
-        if(!picked.some(x=>x.index===c.index)){
-          picked.push(c);
-          if(picked.length===2) break;
-        }
-      }
-      if(picked.length===2){
-        picked.forEach(c=>rows.push({page:pageNo,raw:chunk,qty,matchIndex:c.index,score:c.score,matchMethod:c.source||"bundle",resiName:c.matchedText||barang[c.index]?.nama||"",orderId,waybill,bundle:true}));
+      // Baca nama varian LANGSUNG dari Seller SKU satu per satu.
+      // Jangan mencari kandidat dari seluruh teks halaman karena bisa membuat
+      // produk "hantu" yang sebenarnya tidak ada di PDF.
+      const variantNames=extractBundleVariantNames(chunk);
+
+      if(variantNames.length){
+        variantNames.forEach(vName=>{
+          const vm=safeMatchResiVariantName(vName);
+          rows.push({
+            page:pageNo,
+            raw:chunk,
+            qty,
+            matchIndex:vm.index,
+            matchName:vm.index>=0 && barang[vm.index] ? barang[vm.index].nama : "",
+            score:vm.score,
+            matchMethod:vm.method||"bundle-name",
+            resiName:vName,
+            orderId,
+            waybill,
+            bundle:true
+          });
+        });
         continue;
       }
+
+      // Jika Seller SKU bundle tidak terbaca, jangan menebak.
+      rows.push({
+        page:pageNo,raw:chunk,qty,matchIndex:-1,matchName:"",score:0,
+        matchMethod:"bundle-unresolved",resiName:"VARIAN BUNDLE BELUM TERBACA",
+        orderId,waybill,bundle:true
+      });
+      continue;
     }
-    rows.push({page:pageNo,raw:chunk,qty,matchIndex:match.index,score:match.score,matchMethod:match.method||"",resiName:match.matchedText||"",orderId,waybill,bundle:false});
+    rows.push({page:pageNo,raw:chunk,qty,matchIndex:match.index,matchName:(match.index>=0&&barang[match.index]?barang[match.index].nama:""),score:match.score,matchMethod:match.method||"",resiName:match.matchedText||"",orderId,waybill,bundle:false});
   }
   return {page:pageNo,lines,text,orderId:(text.match(/Order\s*Id\s*:?\s*([0-9]{10,25})/i)||[])[1]||"",waybill:(text.match(/\b(JY\d{8,20})\b/i)||[])[1]||"",rows};
 }
@@ -4573,9 +4603,11 @@ function renderScanDraft(){
   if(!el || !scanResiDraft) return;
 
   const rows=scanResiDraft.rows || [];
-  const mapped=rows.filter(r=>r.matchIndex>=0).length;
-  const totalQty=rows.reduce((s,r)=>s+Number(r.qty||0),0);
-  const unresolved=rows.length-mapped;
+  normalizeAllScanRowProducts();
+  const activeRows=rows.filter(r=>!r.cancelled);
+  const mapped=activeRows.filter(r=>resolveScanRowProduct(r)>=0).length;
+  const totalQty=activeRows.reduce((s,r)=>s+Number(r.qty||0),0);
+  const unresolved=activeRows.length-mapped;
 
   // Group rows by the actual receipt/page. A bundle such as
   // "MONACO, ICARUS" therefore stays inside ONE Resi #4 card.
@@ -4596,11 +4628,11 @@ function renderScanDraft(){
   el.innerHTML=`
     <div class="scan-resi-summary">
       <div class="scan-resi-stat"><b>${groups.length}</b><span>Resi dibaca</span></div>
-      <div class="scan-resi-stat"><b>${rows.length}</b><span>Baris produk</span></div>
+      <div class="scan-resi-stat"><b>${activeRows.length}</b><span>Baris produk aktif</span></div>
       <div class="scan-resi-stat"><b>${totalQty}</b><span>Total pcs</span></div>
     </div>
     <div class="scan-resi-progress" style="display:block;margin-top:8px;">
-      <b>${mapped}/${rows.length}</b> produk berhasil dicocokkan.
+      <b>${mapped}/${activeRows.length}</b> produk aktif berhasil dicocokkan secara aman.
       ${unresolved
         ? ` <span class="scan-resi-warn">${unresolved} perlu dipilih manual.</span>`
         : ` <span class="scan-resi-ok">Semua produk siap dikonfirmasi.</span>`}
@@ -4608,9 +4640,9 @@ function renderScanDraft(){
 
     <div class="scan-resi-table scan-resi-group-table">
       ${groups.map(g=>{
-        const groupQty=g.rows.reduce((s,x)=>s+Number(x.r.qty||0),0);
+        const groupQty=g.rows.filter(x=>!x.r.cancelled).reduce((s,x)=>s+Number(x.r.qty||0),0);
         return `
-        <div class="scan-resi-receipt-card">
+        <div class="scan-resi-receipt-card" style="${g.rows.every(({r})=>r.cancelled)?'opacity:.55;border:2px solid var(--danger);':''}">
           <div class="scan-resi-receipt-head">
             <div>
               <div class="scan-resi-receipt-title">Resi #${escScan(g.page ?? "")}</div>
@@ -4624,10 +4656,10 @@ function renderScanDraft(){
 
           <div class="scan-resi-receipt-products">
             ${g.rows.map(({r,index})=>{
-              const name=r.matchIndex>=0?barang[r.matchIndex]?.nama:"";
-              const confident=r.score>=0.45;
+              const resolvedIndex=resolveScanRowProduct(r); const name=resolvedIndex>=0?barang[resolvedIndex]?.nama:"";
+              const confident=resolvedIndex>=0 && r.score>=0.45;
               const opts=barang.map((b,idx)=>
-                `<option value="${idx}" ${idx===r.matchIndex?'selected':''}>${escScan(b.nama)} — stok ${Number(b.stok||0)}</option>`
+                `<option value="${idx}" ${idx===resolvedIndex?'selected':''}>${escScan(b.nama)} — stok ${Number(b.stok||0)}</option>`
               ).join("");
               return `
                 <div class="scan-resi-product-row">
@@ -4668,11 +4700,88 @@ function renderScanDraft(){
       </button>
     </div>`;
 }
+
+function getScanProductIndexByName(name){
+  const q=normScan(name);
+  if(!q) return -1;
+  return barang.findIndex(b=>normScan(b.nama)===q);
+}
+
+function setScanRowProduct(row, productIndex, method="manual", trackReplacement=false){
+  if(!row) return false;
+  const idx=Number(productIndex);
+  if(idx<0 || !barang[idx]){
+    row.matchIndex=-1;
+    row.matchName="";
+    row.score=0;
+    row.matchMethod="";
+    return false;
+  }
+
+  const selectedName=String(barang[idx].nama||"").trim();
+
+  // Stable identity: save BOTH index and name.
+  // At final commit, name is used to re-resolve the index so a changed array order
+  // can never silently point to another perfume.
+  row.matchIndex=idx;
+  row.matchName=selectedName;
+  row.score=1;
+  row.matchMethod=method;
+
+  if(trackReplacement){
+    const original=String(row.resiName||"").trim();
+    if(original && normScan(original)!==normScan(selectedName)){
+      row.replacedFrom=original;
+      row.replacementReason=row.replacementReason||"manual_selection";
+    }else{
+      row.replacedFrom="";
+      row.replacementReason="";
+    }
+  }
+  return true;
+}
+
+function resolveScanRowProduct(row){
+  if(!row) return -1;
+
+  // matchName is authoritative once it exists.
+  if(row.matchName){
+    const idx=getScanProductIndexByName(row.matchName);
+    if(idx>=0){
+      row.matchIndex=idx;
+      return idx;
+    }
+    return -1;
+  }
+
+  // Backward compatibility for auto-matched rows created before matchName existed.
+  if(Number(row.matchIndex)>=0 && barang[Number(row.matchIndex)]){
+    row.matchName=String(barang[Number(row.matchIndex)].nama||"");
+    return Number(row.matchIndex);
+  }
+
+  return -1;
+}
+
+function normalizeAllScanRowProducts(){
+  (scanResiDraft?.rows||[]).forEach(row=>resolveScanRowProduct(row));
+}
+
 function updateScanRowMatch(rowIndex,value){
-  if(!scanResiDraft?.rows[rowIndex]) return;
-  scanResiDraft.rows[rowIndex].matchIndex=Number(value);
-  scanResiDraft.rows[rowIndex].score=Number(value)>=0?1:0;
-  scanResiDraft.rows[rowIndex].matchMethod=Number(value)>=0?"manual":"";
+  const row=scanResiDraft?.rows?.[rowIndex];
+  if(!row) return;
+
+  const idx=Number(value);
+  if(idx<0){
+    row.matchIndex=-1;
+    row.matchName="";
+    row.score=0;
+    row.matchMethod="";
+    row.replacedFrom="";
+    row.replacementReason="";
+  }else{
+    setScanRowProduct(row,idx,"manual",true);
+  }
   renderScanDraft();
 }
 function cancelScanDraft(){
@@ -4708,8 +4817,9 @@ function getActiveScanRows(){
 function getScanTotals(rows=getActiveScanRows()){
   const totals={};
   rows.forEach(r=>{
-    if(r.matchIndex>=0 && barang[r.matchIndex]){
-      totals[r.matchIndex]=(totals[r.matchIndex]||0)+Number(r.qty||0);
+    const idx=resolveScanRowProduct(r);
+    if(idx>=0 && barang[idx]){
+      totals[idx]=(totals[idx]||0)+Number(r.qty||0);
     }
   });
   return totals;
@@ -4748,10 +4858,10 @@ function showScanStockResolution(row, needQty, stockQty){
 
     const activeRows=getActiveScanRows();
     const currentTotals=getScanTotals(activeRows);
-    const currentQty=Number(row.qty||1);
+    const currentQty=Number(row.qty||1); const currentIndex=resolveScanRowProduct(row);
 
     const options=barang.map((b,idx)=>{
-      if(idx===row.matchIndex) return "";
+      if(idx===currentIndex) return "";
       const alreadyAssigned=Number(currentTotals[idx]||0);
       const available=Math.max(0,Number(b.stok||0)-alreadyAssigned);
       if(available<currentQty) return "";
@@ -4780,7 +4890,7 @@ function showScanStockResolution(row, needQty, stockQty){
           <div style="font-size:10px;color:var(--text-muted);font-weight:800;text-transform:uppercase;">Varian dari resi</div>
           <div style="font-size:14px;font-weight:900;margin-top:3px;">${escScan(row.resiName || barang[row.matchIndex]?.nama || "Produk")}</div>
           <div style="font-size:12px;margin-top:6px;color:var(--danger);font-weight:800;">
-            Kasir: ${escScan(barang[row.matchIndex]?.nama || "-")} · Butuh ${Number(needQty||0)} · Stok ${Number(stockQty||0)}
+            Kasir: ${escScan(currentIndex>=0?barang[currentIndex]?.nama:"-")} · Total butuh ${Number(needQty||0)} · Stok ${Number(stockQty||0)}
           </div>
         </div>
 
@@ -4856,17 +4966,16 @@ async function resolveScanStockProblems(){
     if(shortageIndex<0) return true;
 
     // Tawarkan solusi per resi yang menggunakan varian bermasalah.
-    const row=activeRows.find(r=>Number(r.matchIndex)===shortageIndex);
+    const row=activeRows.find(r=>resolveScanRowProduct(r)===shortageIndex);
     if(!row) return false;
 
     const decision=await showScanStockResolution(row,need,stock);
     if(!decision) return false;
 
     if(decision.action==="replace"){
-      row.matchIndex=Number(decision.index);
-      row.score=1;
-      row.matchMethod="manual-stock-replacement";
-      row.replacedFrom=barang[shortageIndex]?.nama||"";
+      const originalResiName=String(row.resiName||row.matchName||barang[shortageIndex]?.nama||"").trim();
+      setScanRowProduct(row,Number(decision.index),"manual-stock-replacement",false);
+      row.replacedFrom=originalResiName;
       row.replacementReason="stok_tidak_cukup";
     }else if(decision.action==="cancel"){
       cancelScanReceiptByRow(row);
@@ -4879,8 +4988,134 @@ async function resolveScanStockProblems(){
   return false;
 }
 
+
+
+function auditScanDraftIntegrity(){
+  const issues=[];
+  const rows=scanResiDraft?.rows||[];
+
+  rows.forEach((r,i)=>{
+    if(r.cancelled) return;
+    const idx=resolveScanRowProduct(r);
+    if(idx<0){
+      issues.push(`Baris ${i+1}: ${r.resiName||"produk"} belum punya varian final.`);
+      return;
+    }
+    if(r.matchName && normScan(r.matchName)!==normScan(barang[idx]?.nama||"")){
+      issues.push(`Baris ${i+1}: identitas varian berubah.`);
+    }
+    if(Number(r.qty||0)<=0){
+      issues.push(`Baris ${i+1}: qty tidak valid.`);
+    }
+  });
+
+  const orderPageMap=new Map();
+  rows.filter(r=>!r.cancelled).forEach(r=>{
+    const k=String(r.orderId||"")+"|"+String(r.page||"");
+    if(!orderPageMap.has(k)) orderPageMap.set(k,new Set());
+    orderPageMap.get(k).add(getScanReceiptKey(r));
+  });
+
+  return issues;
+}
+
+
+async function repairKnownScanHistoryBugs(){
+  // Koreksi transaksi lama yang sudah terlanjur tersimpan oleh matcher versi lama.
+  // Koreksi dibuat idempotent: setelah transaksi berubah, fungsi tidak akan mengubahnya lagi.
+  const repairs=[
+    {
+      orderId:"585771806837082040",
+      wrong:"CALIFORNIA BLUE/INVICTUS",
+      correct:"PENTHOUSE",
+      qty:1,
+      sourceResi:"PENHOSE"
+    }
+  ];
+
+  let changed=false;
+  const repaired=[];
+
+  for(const fix of repairs){
+    const tx=(Array.isArray(penjualan)?penjualan:[]).find(x=>
+      String(x.orderId||x.noPesanan||"").trim()===fix.orderId &&
+      normScan(x.barang)===normScan(fix.wrong) &&
+      Number(x.qty||0)===Number(fix.qty||0) &&
+      String(x.sumber||"").toUpperCase()==="SCAN_RESI"
+    );
+    if(!tx) continue;
+
+    const wrongIdx=barang.findIndex(b=>normScan(b.nama)===normScan(fix.wrong));
+    const correctIdx=barang.findIndex(b=>normScan(b.nama)===normScan(fix.correct));
+
+    if(wrongIdx<0 || correctIdx<0){
+      console.warn("Repair scan dilewati, produk tidak ditemukan:",fix);
+      continue;
+    }
+
+    // Balikkan stok yang salah dipotong lalu potong stok produk yang benar.
+    barang[wrongIdx].stok=Number(barang[wrongIdx].stok||0)+Number(fix.qty||0);
+    barang[correctIdx].stok=Math.max(0,Number(barang[correctIdx].stok||0)-Number(fix.qty||0));
+
+    tx.barang=barang[correctIdx].nama;
+    tx.varianFinal=barang[correctIdx].nama;
+    tx.varianAsliResi=fix.sourceResi;
+    tx.matchMethod="history-repair-v16";
+    tx.koreksiRiwayat=true;
+    tx.koreksiDari=fix.wrong;
+    tx.koreksiPada=new Date().toISOString();
+
+    changed=true;
+    repaired.push(`${fix.orderId}: ${fix.wrong} → ${fix.correct}`);
+  }
+
+  if(changed){
+    await saveData();
+    render();
+    console.info("Riwayat scan dikoreksi:",repaired);
+  }
+  return repaired;
+}
+
+function getExistingScanOrderIds(){
+  const set=new Set();
+  (Array.isArray(penjualan)?penjualan:[]).forEach(x=>{
+    if(String(x.sumber||"").toUpperCase()!=="SCAN_RESI") return;
+    const id=String(x.orderId||x.noPesanan||"").trim();
+    if(id) set.add(id);
+  });
+  return set;
+}
+
+function getDuplicateScanOrders(rows=getActiveScanRows()){
+  const existing=getExistingScanOrderIds();
+  return [...new Set(
+    rows.map(r=>String(r.orderId||"").trim())
+      .filter(id=>id && existing.has(id))
+  )];
+}
+
+function getScanFinalRows(){
+  const rows=getActiveScanRows();
+  const final=[];
+  for(const r of rows){
+    const idx=resolveScanRowProduct(r);
+    if(idx<0 || !barang[idx]) return {ok:false,row:r,rows:[]};
+    final.push({...r,finalIndex:idx,finalName:String(barang[idx].nama||"")});
+  }
+  return {ok:true,rows:final};
+}
+
 async function confirmBatchScanSale(){
   if(!scanResiDraft?.rows?.length) return;
+
+  normalizeAllScanRowProducts();
+
+  const integrityIssues=auditScanDraftIntegrity();
+  if(integrityIssues.length){
+    await customAlert("Audit Scan Menemukan Masalah",integrityIssues.map(escScan).join("<br>"),"danger");
+    return;
+  }
 
   let rows=getActiveScanRows();
   if(!rows.length){
@@ -4888,23 +5123,49 @@ async function confirmBatchScanSale(){
     return;
   }
 
-  if(rows.some(r=>r.matchIndex<0 || !barang[r.matchIndex])){
-    await customAlert("Masih Ada Produk Belum Cocok","Pilih varian EVORA pada semua baris yang akan diproses terlebih dahulu.","warning");
+  if(rows.some(r=>resolveScanRowProduct(r)<0)){
+    await customAlert("Masih Ada Produk Belum Cocok","Pilih varian EVORA pada semua baris aktif terlebih dahulu. Sistem tidak akan menebak produk yang belum jelas.","warning");
     return;
   }
 
-  // Jika stok varian habis/kurang, jangan langsung gagal.
-  // Beri pilihan Ganti Varian atau Cancel Resi untuk resi yang bermasalah.
+  // Prevent accidental double input of the same marketplace order.
+  const duplicateOrders=getDuplicateScanOrders(rows);
+  if(duplicateOrders.length){
+    await customAlert(
+      "Pesanan Sudah Pernah Diinput",
+      `Ditemukan No. Pesanan yang sudah ada di riwayat scan:<br><br><b>${duplicateOrders.map(escScan).join("<br>")}</b><br><br>Batch dibatalkan agar stok dan laporan tidak terhitung dua kali.`,
+      "danger"
+    );
+    return;
+  }
+
   const resolved=await resolveScanStockProblems();
   if(!resolved) return;
 
+  normalizeAllScanRowProducts();
   rows=getActiveScanRows();
   if(!rows.length){
     await customAlert("Tidak Ada Resi Diproses","Semua resi pada batch ini sudah dibatalkan.","warning");
     return;
   }
 
-  const totals=getScanTotals(rows);
+  // Rebuild every row from stable product NAME immediately before commit.
+  const finalResult=getScanFinalRows();
+  if(!finalResult.ok){
+    await customAlert(
+      "Data Varian Berubah",
+      `Varian <b>${escScan(finalResult.row?.matchName||finalResult.row?.resiName||"-")}</b> tidak lagi ditemukan di kasir. Pilih ulang varian sebelum input.`,
+      "danger"
+    );
+    renderScanDraft();
+    return;
+  }
+  const finalRows=finalResult.rows;
+
+  const totals={};
+  finalRows.forEach(r=>{
+    totals[r.finalIndex]=(totals[r.finalIndex]||0)+Number(r.qty||0);
+  });
   const totalQty=Object.values(totals).reduce((a,b)=>a+Number(b||0),0);
 
   if(stokBotol<totalQty || stokBox<totalQty){
@@ -4916,7 +5177,6 @@ async function confirmBatchScanSale(){
     return;
   }
 
-  // Safety check terakhir setelah semua replacement/cancel selesai.
   const kurang=[];
   Object.entries(totals).forEach(([idx,qty])=>{
     if(Number(barang[idx]?.stok||0)<Number(qty||0)){
@@ -4930,32 +5190,49 @@ async function confirmBatchScanSale(){
 
   const cancelledRows=(scanResiDraft.rows||[]).filter(r=>r.cancelled);
   const cancelledKeys=[...new Set(cancelledRows.map(getScanReceiptKey))];
+
   const summary=Object.entries(totals)
     .map(([idx,qty])=>`• <b>${escScan(barang[idx].nama)}</b> × ${qty}`)
     .join("<br>");
+
+  const replacementRows=finalRows.filter(r=>r.replacedFrom);
+  const replacementInfo=replacementRows.length
+    ? `<br><br><b>Penggantian varian:</b><br>${replacementRows.map(r=>
+        `${escScan(r.orderId||"-")} · ${escScan(r.replacedFrom)} → <b>${escScan(r.finalName)}</b>`
+      ).join("<br>")}`
+    : "";
 
   const cancelledInfo=cancelledKeys.length
     ? `<br><br><span style="color:var(--danger);font-weight:800;">${cancelledKeys.length} resi dibatalkan dan tidak akan diproses.</span>`
     : "";
 
-  const activeReceiptCount=new Set(rows.map(getScanReceiptKey)).size;
+  const activeReceiptCount=new Set(finalRows.map(getScanReceiptKey)).size;
 
   const ok=await customConfirm(
     "Konfirmasi Batch Penjualan",
-    `Akan input <b>${rows.length} baris produk</b> dari <b>${activeReceiptCount} resi aktif</b> dengan total <b>${totalQty} pcs</b>.<br><br>${summary}${cancelledInfo}`,
+    `Akan input <b>${finalRows.length} baris produk</b> dari <b>${activeReceiptCount} resi aktif</b> dengan total <b>${totalQty} pcs</b>.<br><br>${summary}${replacementInfo}${cancelledInfo}`,
     "success"
   );
   if(!ok) return;
 
+  // Final duplicate check once more immediately before mutating stock.
+  const duplicateAtCommit=getDuplicateScanOrders(finalRows);
+  if(duplicateAtCommit.length){
+    await customAlert("Input Dibatalkan","Pesanan yang sama terdeteksi sudah tersimpan. Tidak ada stok yang dipotong.","danger");
+    return;
+  }
+
   const now=new Date().toISOString();
+
+  // Mutate stock ONLY from the reconciled final indices.
   Object.entries(totals).forEach(([idx,qty])=>{
-    barang[idx].stok-=Number(qty);
+    barang[Number(idx)].stok-=Number(qty);
   });
   stokBotol-=totalQty;
   stokBox-=totalQty;
 
-  rows.forEach(r=>{
-    const item=barang[r.matchIndex];
+  finalRows.forEach(r=>{
+    const item=barang[r.finalIndex];
     penjualan.push({
       tanggal:now,
       barang:item.nama,
@@ -4968,15 +5245,17 @@ async function confirmBatchScanSale(){
       orderId:r.orderId||"",
       resi:r.waybill||"",
       noPesanan:r.orderId||"",
-      batchId:(scanResiDraft.fileName||"")+"|"+(r.page||""),
+      batchId:(scanResiDraft.fileName||"")+"|"+(r.page||"")+"|"+(r.orderId||r.waybill||""),
       fileScan:scanResiDraft.fileName,
       varianAsliResi:r.resiName||"",
       varianDigantiDari:r.replacedFrom||"",
-      penggantianVarian:!!r.replacedFrom
+      varianFinal:item.nama,
+      penggantianVarian:!!r.replacedFrom,
+      matchMethod:r.matchMethod||""
     });
   });
 
-  const processedPages=new Set(rows.map(r=>Number(r.page||0))).size;
+  const processedPages=new Set(finalRows.map(r=>Number(r.page||0))).size;
   const cancelledCount=cancelledKeys.length;
 
   await saveData();
@@ -4985,7 +5264,7 @@ async function confirmBatchScanSale(){
 
   await customAlert(
     "Batch Berhasil Diinput",
-    `${processedPages} resi aktif berhasil diproses dengan total <b>${totalQty} pcs</b>.${cancelledCount?`<br><b>${cancelledCount} resi</b> dibatalkan karena stok dan tidak masuk penjualan.`:""}`,
+    `${processedPages} resi aktif berhasil diproses dengan total <b>${totalQty} pcs</b>.${cancelledCount?`<br><b>${cancelledCount} resi</b> dibatalkan dan tidak masuk penjualan.`:""}`,
     "success"
   );
 }
@@ -7616,5 +7895,16 @@ const _evBaseRender=render;
 render=function(){const r=_evBaseRender.apply(this,arguments);try{evInstallUpgradeUI();renderUpgradeUI();}catch(e){console.warn("Upgrade UI:",e);}return r;};
 
 document.addEventListener("DOMContentLoaded",()=>{evInstallUpgradeUI();evLoadUpgradeFields();});
+
+document.addEventListener("DOMContentLoaded",()=>{
+  // Tunggu proses load cloud selesai, lalu koreksi histori matcher lama bila ditemukan.
+  setTimeout(async()=>{
+    try{
+      await repairKnownScanHistoryBugs();
+    }catch(err){
+      console.error("Gagal menjalankan koreksi histori scan:",err);
+    }
+  },2500);
+});
 </script>\n</body>
 </html>
