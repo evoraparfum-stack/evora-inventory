@@ -3023,6 +3023,38 @@ function cetakLaporanHarian() {
       ).join("")
     : `<div class="empty">Belum ada item terjual</div>`;
 
+  // Catatan penggantian varian khusus untuk transaksi scan resi pada hari yang dipilih.
+  // Hanya tampil jika memang ada varian yang diganti.
+  const replacementMap = new Map();
+  jualHariIni.forEach(x => {
+    if (!x.penggantianVarian || !x.varianDigantiDari) return;
+
+    const orderId = String(x.orderId || x.noPesanan || x.nomorPesanan || "").trim();
+    const from = String(x.varianDigantiDari || "").trim();
+    const to = String(x.barang || "").trim();
+    if (!from || !to || normScan(from) === normScan(to)) return;
+
+    const key = `${orderId}|${normScan(from)}|${normScan(to)}`;
+    if (!replacementMap.has(key)) {
+      replacementMap.set(key, { orderId, from, to });
+    }
+  });
+
+  const replacementNotes = [...replacementMap.values()];
+  const replacementRows = replacementNotes.length
+    ? `
+      <div class="line"></div>
+      <div class="section-title">Catatan Varian Diganti</div>
+      <div class="replacement-box">
+        ${replacementNotes.map(x => `
+          <div class="replacement-item">
+            <div class="replacement-order">No. Pesanan: ${esc(x.orderId || "-")}</div>
+            <div class="replacement-change">${esc(x.from)} &rarr; ${esc(x.to)}</div>
+          </div>
+        `).join("")}
+      </div>`
+    : "";
+
   const toko = esc(namaToko || "EVORA");
   const kasir = esc(namaUser || "-");
   const waktu = new Date().toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit"});
@@ -3056,6 +3088,11 @@ body{padding:5mm 4mm;font-size:11px}
 .item-row span{min-width:0;overflow-wrap:anywhere}
 .item-row b{white-space:nowrap}
 .empty{text-align:center;padding:8px 0}
+.replacement-box{border:1px dashed #111;border-radius:4px;padding:5px 6px;margin-top:3px}
+.replacement-item{padding:4px 0;border-bottom:1px dotted #aaa}
+.replacement-item:last-child{border-bottom:none}
+.replacement-order{font-size:9px;font-weight:800;line-height:1.35}
+.replacement-change{font-size:10px;font-weight:900;line-height:1.4;overflow-wrap:anywhere}
 .footer{text-align:center;margin-top:10px;line-height:1.5;font-size:9px}
 @media print{html,body{width:80mm}}
 </style>
@@ -3075,6 +3112,7 @@ body{padding:5mm 4mm;font-size:11px}
 <div class="line"></div>
 <div class="section-title">Rincian Item Terjual</div>
 ${itemRows}
+${replacementRows}
 <div class="line"></div>
 <div class="footer">~ REKAP SELESAI ~<br>EVORA Tracker Pro</div>
 </body>
