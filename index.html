@@ -1728,6 +1728,8 @@ body.dark-mode #evoraAICenter label,
 </style>
 </head>
 <body>
+<!-- EVORA v16.1 MATCHER FIX: scanner PDF -> match -> stock resolution -> confirmation. No scanner print step added. -->
+
 <div id="evoraAuthGate">
   <div class="evora-auth-card">
     <div class="evora-auth-brand">EVORA</div>
@@ -4248,14 +4250,18 @@ function scanPhraseBoundaryIncludes(haystack, needle){
 function extractCanonicalResiProductName(chunk){
   const raw=String(chunk||"").replace(/\s+/g," ").trim();
   if(!raw) return "";
+  if(/bundling\s*2\s*botol|mix\s*variant/i.test(raw)) return "";
 
-  // Produk satuan:
-  // EVORA <NAMA> Extrait De Parfum ...
-  const m=raw.match(/\bEVORA\s+(.+?)\s+Extrait\s+De\s+Parfum\b/i);
+  // PDF marketplace sering menyisipkan kolom SKU/Qty di antara "Extrait De" dan
+  // "Parfum". Jadi nama produk diambil dari bagian antara EVORA dan Extrait De,
+  // bukan lagi mensyaratkan "Extrait De Parfum" harus berdempetan.
+  // Contoh hasil PDF.js:
+  // "EVORA MONACO Extrait De Default 1 Parfum 30ml ..." -> MONACO
+  const m=raw.match(/\bEVORA\s+(.+?)\s+Extrait\s+De\b/i);
   if(!m) return "";
 
   const name=String(m[1]||"").replace(/\s+/g," ").trim();
-  if(/bundling\s*2\s*botol|mix\s*variant/i.test(name)) return "";
+  if(!name || /^parfum\b/i.test(name)) return "";
   return name;
 }
 
@@ -4379,24 +4385,65 @@ function extractBundleVariantNames(chunk){
   const raw=String(chunk||"").replace(/\s+/g," ").trim();
   if(!/bundling\s*2\s*botol|mix\s*variant/i.test(raw)) return [];
 
-  // Seller SKU berada setelah deskripsi "Premium Fragrance".
-  // Ambil bagian setelahnya lalu buang qty di ujung.
-  let tail=raw;
-  const premiumIdx=tail.toLowerCase().lastIndexOf("premium fragrance");
-  if(premiumIdx>=0) tail=tail.slice(premiumIdx+"premium fragrance".length);
+  const compact=scanCompactName(raw);
+  const matches=[];
 
-  tail=tail
-    .replace(/\bdefault\b/ig," ")
-    .replace(/\s+[0-9]{1,3}\s*$/,"")
-    .replace(/\s+/g," ")
-    .trim();
+  const add=(name,score,pos=0,len=0)=>{
+    const clean=String(name||"").replace(/\s+/g," ").trim();
+    if(!clean) return;
+    matches.push({name:clean,score:Number(score||0),pos:Number(pos||0),len:Number(len||0)});
+  };
 
-  // Bundle EVORA selalu dipisah koma pada Seller SKU.
-  const parts=tail.split(",")
-    .map(x=>x.replace(/\s+/g," ").trim())
-    .filter(Boolean);
+  // Cari nama produk kasir/alias langsung di seluruh CHUNK PRODUK bundling.
+  // Aman karena fungsi ini hanya dipanggil pada baris yang sudah terdeteksi sebagai bundling,
+  // bukan pada alamat atau seluruh halaman.
+  barang.forEach((b)=>{
+    const cashier=String(b.nama||"");
+    const variants=[cashier,...getCashierSlashAliases(cashier)].filter(Boolean);
+    variants.forEach(v=>{
+      const vc=scanCompactName(v);
+      if(vc.length<4) return;
+      const pos=compact.indexOf(vc);
+      if(pos<0) return;
+      add(v,1000+vc.length,pos,vc.length);
+    });
+  });
 
-  return parts.slice(0,2);
+  // Format nyata PDF: CALIFOR ... NIA, 9PM ... RBL
+  if(compact.includes("CALIFORNIA")){
+    const pos=compact.indexOf("CALIFORNIA");
+    add("CALIFORNIA",1400,pos,"CALIFORNIA".length);
+  }
+  if(/\b9\s*PM\b/i.test(raw) && (/\bRBL\b/i.test(raw) || /\bREBEL\b/i.test(raw))){
+    const pos=Math.max(0,compact.indexOf("9PM"));
+    add(/\bRBL\b/i.test(raw)?"9PM RBL":"9PM REBEL",1350,pos,6);
+  }
+  if(/\bS\s*\.?\s*O\s*\.?\s*T\s*\.?\s*B\b/i.test(raw)){
+    const pos=Math.max(0,compact.indexOf("SOTB"));
+    add("S.O.T.B",1350,pos,4);
+  }
+
+  // Pilih kandidat paling spesifik. Kandidat pendek yang seluruh span-nya berada
+  // di dalam kandidat lebih panjang dibuang (mis. CALIFORNIA di dalam CALIFORNIA BLUE).
+  matches.sort((a,b)=>b.score-a.score || b.len-a.len);
+  const selected=[];
+  for(const m of matches){
+    const mc=scanCompactName(m.name);
+    if(selected.some(s=>scanCompactName(s.name)===mc)) continue;
+    const contained=selected.some(s=>{
+      const sc=scanCompactName(s.name);
+      return sc.includes(mc) && sc!==mc;
+    });
+    if(contained) continue;
+
+    const test=safeMatchResiVariantName(m.name);
+    if(test.index<0) continue;
+    if(selected.some(s=>s.index===test.index)) continue;
+    selected.push({name:m.name,index:test.index,score:m.score});
+    if(selected.length===2) break;
+  }
+
+  return selected.map(x=>x.name);
 }
 
 function getLongestExplicitScanMatch(chunk){
@@ -4433,15 +4480,82 @@ function getLongestExplicitScanMatch(chunk){
   return null;
 }
 
+
+function matchGenericSellerSkuFromChunk(chunk){
+  const raw=String(chunk||"").replace(/\s+/g," ").trim();
+  if(!raw || !/\bEVORA\b/i.test(raw)) return null;
+  if(/bundling\s*2\s*botol|mix\s*variant/i.test(raw)) return null;
+
+  // Hanya dipakai ketika judul produknya generik, misalnya:
+  // EVORA Extrait De Parfum 30ml - MONACO ...
+  // sehingga varian sebenarnya berada di SKU/Seller SKU.
+  const norm=normScan(raw);
+  const compact=scanCompactName(raw);
+  const candidates=[];
+
+  const addCandidate=(idx,source,score)=>{
+    if(idx<0 || !barang[idx]) return;
+    candidates.push({index:idx,source:String(source||barang[idx].nama||""),score:Number(score||0)});
+  };
+
+  barang.forEach((b,i)=>{
+    const cashier=String(b.nama||"");
+    const aliases=[cashier,...getCashierSlashAliases(cashier)].filter(Boolean);
+    aliases.forEach(alias=>{
+      const aNorm=normScan(alias);
+      const aCompact=scanCompactName(alias);
+      if(aCompact.length<4) return; // blok alias pendek seperti CL
+
+      let matched=false;
+      if((` ${norm} `).includes(` ${aNorm} `)) matched=true;
+      if(!matched && compact.includes(aCompact)) matched=true;
+      if(!matched) return;
+
+      // Jika alias slash juga ada sebagai produk standalone, standalone menang.
+      const standalone=barang.findIndex((x,xi)=>xi!==i && normScan(x.nama)===aNorm);
+      if(standalone>=0) addCandidate(standalone,barang[standalone].nama,1100+aCompact.length);
+      else addCandidate(i,alias,1000+aCompact.length);
+    });
+  });
+
+  // Beberapa Seller SKU terbelah oleh kolom Qty di PDF.
+  // Contoh: "9PM ... 1 ... REBEL" tidak menjadi string 9PMREBEL yang utuh.
+  if(/\b9\s*PM\b/i.test(raw) && /\bREBEL\b/i.test(raw)){
+    const idx=getScanProductIndexByName("9PM REBEL");
+    if(idx>=0) addCandidate(idx,"9PM REBEL",1300);
+  }
+  if(/S\s*\.?\s*O\s*\.?\s*T\s*\.?\s*B/i.test(raw)){
+    const idx=getScanProductIndexByName("SOTB");
+    if(idx>=0) addCandidate(idx,"S.O.T.B",1300);
+  }
+
+  if(!candidates.length) return null;
+  candidates.sort((a,b)=>b.score-a.score);
+  const best=candidates[0];
+  const tied=candidates.some((x,j)=>j>0 && x.score===best.score && x.index!==best.index);
+  if(tied) return null;
+
+  return {index:best.index,score:best.score,method:"seller-sku-safe",matchedText:best.source};
+}
+
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
 
+  // 1) Nama normal dari judul: EVORA MONACO Extrait De ...
   const canonical=matchCanonicalResiProductName(chunk);
-  if(canonical) return canonical;
+  if(canonical && canonical.index>=0) return canonical;
 
-  // Tidak lagi melakukan fuzzy scan terhadap seluruh alamat/teks resi.
-  // Jika nama produk tidak dapat dibaca aman, wajib dipilih manual.
-  return {index:-1,score:0,method:"unresolved-no-guess",matchedText:""};
+  // 2) Judul marketplace generik: varian ada di SKU/Seller SKU.
+  const sellerSku=matchGenericSellerSkuFromChunk(chunk);
+  if(sellerSku && sellerSku.index>=0) return sellerSku;
+
+  // Tidak pernah fuzzy-scan seluruh alamat/halaman.
+  return {
+    index:-1,
+    score:0,
+    method:"unresolved-no-guess",
+    matchedText:canonical?.matchedText || ""
+  };
 }
 
 function scanAliasIndexMatches(chunk){
@@ -4546,32 +4660,32 @@ function extractResiInfo(lines,pageNo){
       // produk "hantu" yang sebenarnya tidak ada di PDF.
       const variantNames=extractBundleVariantNames(chunk);
 
-      if(variantNames.length){
-        variantNames.forEach(vName=>{
-          const vm=safeMatchResiVariantName(vName);
-          rows.push({
-            page:pageNo,
-            raw:chunk,
-            qty,
-            matchIndex:vm.index,
-            matchName:vm.index>=0 && barang[vm.index] ? barang[vm.index].nama : "",
-            score:vm.score,
-            matchMethod:vm.method||"bundle-name",
-            resiName:vName,
-            orderId,
-            waybill,
-            bundle:true
-          });
+      variantNames.slice(0,2).forEach(vName=>{
+        const vm=safeMatchResiVariantName(vName);
+        rows.push({
+          page:pageNo,
+          raw:chunk,
+          qty:1,
+          matchIndex:vm.index,
+          matchName:vm.index>=0 && barang[vm.index] ? barang[vm.index].nama : "",
+          score:vm.score,
+          matchMethod:vm.method||"bundle-name",
+          resiName:vName,
+          orderId,
+          waybill,
+          bundle:true
         });
-        continue;
-      }
-
-      // Jika Seller SKU bundle tidak terbaca, jangan menebak.
-      rows.push({
-        page:pageNo,raw:chunk,qty,matchIndex:-1,matchName:"",score:0,
-        matchMethod:"bundle-unresolved",resiName:"VARIAN BUNDLE BELUM TERBACA",
-        orderId,waybill,bundle:true
       });
+
+      // Bundling 2 Botol harus selalu menjadi 2 item fisik.
+      while(rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.bundle).length<2){
+        const no=rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.bundle).length+1;
+        rows.push({
+          page:pageNo,raw:chunk,qty:1,matchIndex:-1,matchName:"",score:0,
+          matchMethod:"bundle-unresolved",resiName:`VARIAN BUNDLE #${no} BELUM TERBACA`,
+          orderId,waybill,bundle:true
+        });
+      }
       continue;
     }
     rows.push({page:pageNo,raw:chunk,qty,matchIndex:match.index,matchName:(match.index>=0&&barang[match.index]?barang[match.index].nama:""),score:match.score,matchMethod:match.method||"",resiName:match.matchedText||"",orderId,waybill,bundle:false});
@@ -4657,7 +4771,7 @@ function renderScanDraft(){
           <div class="scan-resi-receipt-products">
             ${g.rows.map(({r,index})=>{
               const resolvedIndex=resolveScanRowProduct(r); const name=resolvedIndex>=0?barang[resolvedIndex]?.nama:"";
-              const confident=resolvedIndex>=0 && r.score>=0.45;
+              const confident=resolvedIndex>=0;
               const opts=barang.map((b,idx)=>
                 `<option value="${idx}" ${idx===resolvedIndex?'selected':''}>${escScan(b.nama)} — stok ${Number(b.stok||0)}</option>`
               ).join("");
@@ -4666,12 +4780,12 @@ function renderScanDraft(){
                   <div class="scan-resi-product-main">
                     <div class="scan-resi-row-top">
                       <div class="scan-resi-row-name">
-                        <div><span style="color:var(--text-muted);font-weight:700;">Resi:</span> ${escScan(r.resiName || name || "Nama belum terbaca")}</div>
+                        <div><span style="color:var(--text-muted);font-weight:700;">Resi:</span> ${escScan(String(r.resiName||"").trim() || "Nama belum terbaca")}</div>
                         <div style="margin-top:3px;"><span style="color:var(--primary);font-weight:800;">Kasir:</span> ${escScan(name || "Produk belum cocok")} × ${Number(r.qty||1)}</div>
                         ${r.replacedFrom?`<div style="margin-top:3px;color:var(--warning);font-size:10px;font-weight:800;">Diganti dari: ${escScan(r.replacedFrom)}</div>`:""}
                         ${r.cancelled?`<div style="margin-top:3px;color:var(--danger);font-size:10px;font-weight:900;">RESI DIBATALKAN — tidak diproses</div>`:""}
                       </div>
-                      <div>${confident&&r.matchIndex>=0
+                      <div>${confident&&resolvedIndex>=0
                         ? `<span class="scan-resi-ok">Cocok</span>`
                         : `<span class="scan-resi-warn">Periksa</span>`}</div>
                     </div>
