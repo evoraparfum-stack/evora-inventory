@@ -4782,6 +4782,10 @@ function updateScanRowMatch(rowIndex,value){
   }else{
     setScanRowProduct(row,idx,"manual",true);
   }
+  if(scanResiDraft){
+    scanResiDraft.printChoiceShown=false;
+    scanResiDraft.printChoice="";
+  }
   renderScanDraft();
 }
 function cancelScanDraft(){
@@ -4801,7 +4805,7 @@ async function handlePdfResiUpload(event){
     const pages=await extractPdfTextPages(file);
     const rows=flattenScanRows(pages);
     if(!rows.length) throw new Error("Tidak menemukan tabel Product Name pada PDF.");
-    scanResiDraft={fileName:file.name,pages,rows,createdAt:new Date().toISOString()};
+    scanResiDraft={fileName:file.name,sourcePdfFile:file,pages,rows,createdAt:new Date().toISOString(),printChoiceShown:false};
     updateScanProgress(`Selesai membaca ${pages.length} halaman. ${rows.length} baris produk ditemukan. Silakan periksa hasil sebelum input penjualan.`);
     renderScanDraft();
   }catch(err){
@@ -4836,6 +4840,7 @@ function cancelScanReceiptByRow(row){
   (scanResiDraft?.rows||[]).forEach(r=>{
     if(getScanReceiptKey(r)===key) r.cancelled=true;
   });
+  if(scanResiDraft){scanResiDraft.printChoiceShown=false;scanResiDraft.printChoice="";}
 }
 
 function restoreScanReceiptByRow(row){
@@ -4843,6 +4848,7 @@ function restoreScanReceiptByRow(row){
   (scanResiDraft?.rows||[]).forEach(r=>{
     if(getScanReceiptKey(r)===key) r.cancelled=false;
   });
+  if(scanResiDraft){scanResiDraft.printChoiceShown=false;scanResiDraft.printChoice="";}
 }
 
 function escAttrScan(s){
@@ -4977,6 +4983,8 @@ async function resolveScanStockProblems(){
       setScanRowProduct(row,Number(decision.index),"manual-stock-replacement",false);
       row.replacedFrom=originalResiName;
       row.replacementReason="stok_tidak_cukup";
+      scanResiDraft.printChoiceShown=false;
+      scanResiDraft.printChoice="";
     }else if(decision.action==="cancel"){
       cancelScanReceiptByRow(row);
     }
@@ -5075,6 +5083,217 @@ async function repairKnownScanHistoryBugs(){
     console.info("Riwayat scan dikoreksi:",repaired);
   }
   return repaired;
+}
+
+
+function getActiveScanPages(){
+  return [...new Set(
+    getActiveScanRows()
+      .map(r=>Number(r.page||0))
+      .filter(n=>Number.isFinite(n) && n>0)
+  )].sort((a,b)=>a-b);
+}
+
+function showScanPrintChoice(){
+  return new Promise(resolve=>{
+    const old=document.getElementById("scanPrintChoiceModal");
+    if(old) old.remove();
+
+    const activeRows=getActiveScanRows();
+    const activePages=getActiveScanPages();
+    const activeOrders=new Set(activeRows.map(getScanReceiptKey)).size;
+    const totalQty=activeRows.reduce((s,r)=>s+Number(r.qty||0),0);
+    const replacements=activeRows.filter(r=>r.replacedFrom).length;
+    const cancelledRows=(scanResiDraft?.rows||[]).filter(r=>r.cancelled);
+    const cancelled=new Set(cancelledRows.map(getScanReceiptKey)).size;
+
+    const modal=document.createElement("div");
+    modal.id="scanPrintChoiceModal";
+    modal.className="modal-overlay";
+    modal.innerHTML=`
+      <div class="modal-content" style="max-width:390px;">
+        <div style="text-align:center;margin-bottom:14px;">
+          <div style="width:52px;height:52px;border-radius:16px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:22px;">
+            <i class="fa-solid fa-print"></i>
+          </div>
+          <div style="font-size:17px;font-weight:900;color:var(--text-main);">Print Resi Sekarang?</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;margin-top:6px;">
+            Semua data scan sudah valid dan masalah stok sudah diselesaikan.
+          </div>
+        </div>
+
+        <div style="background:var(--bg-main);border:1px solid #e2e8f0;border-radius:12px;padding:11px 12px;margin-bottom:13px;font-size:11px;line-height:1.7;color:var(--text-main);">
+          <div><b>${activeOrders}</b> resi aktif • <b>${totalQty}</b> pcs</div>
+          <div><b>${activePages.length}</b> halaman akan tersedia untuk dicetak</div>
+          ${replacements?`<div style="color:var(--warning);font-weight:800;">${replacements} baris menggunakan varian pengganti</div>`:""}
+          ${cancelled?`<div style="color:var(--danger);font-weight:800;">${cancelled} resi di-CANCEL → tidak ikut print</div>`:""}
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button type="button" id="scanPrintNowBtn" style="background:var(--primary);">
+            <i class="fa-solid fa-print"></i> Print Resi
+          </button>
+          <button type="button" id="scanSkipPrintBtn" style="background:#64748b;">
+            <i class="fa-solid fa-forward"></i> Tidak
+          </button>
+        </div>
+
+        <div id="scanPrintChoiceStatus" style="display:none;margin-top:10px;padding:8px 10px;border-radius:9px;background:var(--primary-light);font-size:10px;font-weight:800;text-align:center;color:var(--primary);">
+          Menyiapkan resi...
+        </div>
+      </div>`;
+
+    document.body.appendChild(modal);
+
+    const cleanup=(choice)=>{
+      modal.remove();
+      resolve(choice);
+    };
+
+    modal.querySelector("#scanSkipPrintBtn")?.addEventListener("click",()=>cleanup("skip"));
+
+    modal.querySelector("#scanPrintNowBtn")?.addEventListener("click",async()=>{
+      const btn=modal.querySelector("#scanPrintNowBtn");
+      const skip=modal.querySelector("#scanSkipPrintBtn");
+      const status=modal.querySelector("#scanPrintChoiceStatus");
+      if(btn) btn.disabled=true;
+      if(skip) skip.disabled=true;
+      if(status){status.style.display="block";status.textContent="Menyiapkan resi untuk printer...";}
+
+      try{
+        await printActiveScanReceipts();
+        cleanup("printed");
+      }catch(err){
+        console.error("Print scan resi:",err);
+        if(status){
+          status.style.display="block";
+          status.style.background="#ffe4e6";
+          status.style.color="#be123c";
+          status.textContent=err?.message||"Resi gagal disiapkan.";
+        }
+        if(btn) btn.disabled=false;
+        if(skip) skip.disabled=false;
+      }
+    });
+  });
+}
+
+
+function normalizeScanReceiptIdentity(v){
+  return String(v||"").replace(/[^0-9A-Za-z]/g,"").toUpperCase();
+}
+
+function getActiveScanReceiptIdentities(){
+  const orderIds=new Set();
+  const waybills=new Set();
+  const pageFallback=new Set();
+
+  getActiveScanRows().forEach(r=>{
+    const order=normalizeScanReceiptIdentity(r.orderId);
+    const waybill=normalizeScanReceiptIdentity(r.waybill||r.resi);
+    if(order) orderIds.add(order);
+    if(waybill) waybills.add(waybill);
+    if(!order && !waybill && Number(r.page)>0) pageFallback.add(Number(r.page));
+  });
+
+  return {orderIds,waybills,pageFallback};
+}
+
+function getCancelledScanReceiptIdentities(){
+  const orderIds=new Set();
+  const waybills=new Set();
+  const pageFallback=new Set();
+
+  (scanResiDraft?.rows||[]).filter(r=>r.cancelled).forEach(r=>{
+    const order=normalizeScanReceiptIdentity(r.orderId);
+    const waybill=normalizeScanReceiptIdentity(r.waybill||r.resi);
+    if(order) orderIds.add(order);
+    if(waybill) waybills.add(waybill);
+    if(!order && !waybill && Number(r.page)>0) pageFallback.add(Number(r.page));
+  });
+
+  return {orderIds,waybills,pageFallback};
+}
+
+function isEcrPageAllowedForCurrentScan(rec){
+  const active=getActiveScanReceiptIdentities();
+  const cancelled=getCancelledScanReceiptIdentities();
+
+  const order=normalizeScanReceiptIdentity(rec?.data?.order);
+  const waybill=normalizeScanReceiptIdentity(rec?.data?.resi);
+  const page=Number(rec?.page||0);
+
+  // Hard block: anything explicitly cancelled can NEVER be printed.
+  if(order && cancelled.orderIds.has(order)) return false;
+  if(waybill && cancelled.waybills.has(waybill)) return false;
+  if(!order && !waybill && cancelled.pageFallback.has(page)) return false;
+
+  // Prefer exact marketplace identifiers over page position.
+  if(order) return active.orderIds.has(order);
+  if(waybill) return active.waybills.has(waybill);
+
+  // Page-number fallback only when the PDF parser could not read either ID.
+  return active.pageFallback.has(page);
+}
+
+async function printActiveScanReceipts(){
+  const draft=scanResiDraft;
+  if(!draft?.sourcePdfFile){
+    throw new Error("File PDF asli tidak lagi tersedia. Upload ulang PDF untuk mencetak resi.");
+  }
+  if(typeof ecrLoadPdf!=="function" || typeof ecrPrintSelected!=="function"){
+    throw new Error("Modul Print Resi belum siap.");
+  }
+
+  const activeRows=getActiveScanRows();
+  if(!activeRows.length){
+    throw new Error("Tidak ada resi aktif untuk dicetak.");
+  }
+
+  await ecrLoadPdf(draft.sourcePdfFile);
+
+  // Select print pages by exact Order ID / Waybill.
+  // Cancelled receipts are explicitly hard-blocked above, so they cannot
+  // accidentally re-enter through page-number matching.
+  const printablePages=(Array.isArray(ecrPages)?ecrPages:[])
+    .filter(isEcrPageAllowedForCurrentScan)
+    .map(rec=>Number(rec.page))
+    .filter(page=>Number.isFinite(page) && page>0);
+
+  ecrSelected=new Set(printablePages);
+
+  const activeReceiptCount=new Set(activeRows.map(getScanReceiptKey)).size;
+  if(!ecrSelected.size){
+    throw new Error("Tidak ada resi aktif yang cocok dengan PDF untuk dicetak.");
+  }
+
+  // Safety audit: number of printable labels should never exceed active receipts.
+  if(ecrSelected.size>activeReceiptCount){
+    throw new Error("Audit print gagal: jumlah resi print melebihi resi aktif. Print dibatalkan untuk mencegah resi cancel ikut tercetak.");
+  }
+
+  if(typeof ecrRenderList==="function") ecrRenderList();
+
+  // One last hard-block immediately before print.
+  const cancelled=getCancelledScanReceiptIdentities();
+  for(const page of [...ecrSelected]){
+    const rec=ecrPages.find(x=>Number(x.page)===Number(page));
+    const order=normalizeScanReceiptIdentity(rec?.data?.order);
+    const waybill=normalizeScanReceiptIdentity(rec?.data?.resi);
+    if(
+      (order && cancelled.orderIds.has(order)) ||
+      (waybill && cancelled.waybills.has(waybill)) ||
+      (!order && !waybill && cancelled.pageFallback.has(Number(page)))
+    ){
+      ecrSelected.delete(page);
+    }
+  }
+
+  if(!ecrSelected.size){
+    throw new Error("Semua resi pada batch ini telah di-cancel. Tidak ada resi yang dicetak.");
+  }
+
+  await ecrPrintSelected();
 }
 
 function getExistingScanOrderIds(){
@@ -5186,6 +5405,15 @@ async function confirmBatchScanSale(){
   if(kurang.length){
     await customAlert("Stok Produk Masih Tidak Cukup",kurang.map(escScan).join("<br>"),"danger");
     return;
+  }
+
+  // Setelah semua mapping + stok valid, tawarkan print resi.
+  // Pilihan "Tidak" hanya melewati print; transaksi belum disimpan sampai
+  // pengguna menyetujui konfirmasi batch berikutnya.
+  if(!scanResiDraft.printChoiceShown){
+    const printChoice=await showScanPrintChoice();
+    scanResiDraft.printChoiceShown=true;
+    scanResiDraft.printChoice=printChoice;
   }
 
   const cancelledRows=(scanResiDraft.rows||[]).filter(r=>r.cancelled);
@@ -7033,10 +7261,11 @@ function ecrReplacementNotesForOrder(orderId){
   (scanResiDraft?.rows||[]).forEach(r=>{
     if(r.cancelled) return;
     const rOrder=ecrNormOrderId(r.orderId||"");
-    if(rOrder!==order || !r.replacedFrom || r.matchIndex<0 || !barang[r.matchIndex]) return;
+    const resolvedIdx=(typeof resolveScanRowProduct==="function")?resolveScanRowProduct(r):Number(r.matchIndex);
+    if(rOrder!==order || !r.replacedFrom || resolvedIdx<0 || !barang[resolvedIdx]) return;
 
     const from=String(r.replacedFrom||"").trim();
-    const to=String(barang[r.matchIndex]?.nama||"").trim();
+    const to=String(barang[resolvedIdx]?.nama||"").trim();
     if(!from || !to || normScan(from)===normScan(to)) return;
 
     const key=normScan(from)+"=>"+normScan(to);
@@ -7133,7 +7362,30 @@ function ecrBuildLabel(d,qr){
   </div>`;
 }
 async function ecrShowPage(page){const rec=ecrPages.find(p=>p.page===page);if(!rec)return;ecrCurrentPage=page;ecrRenderList();const paper=document.getElementById("ecrPaper");paper.innerHTML='<div class="ecr-empty">Menyusun resi...</div>';const qr=await ecrQrDataUrl(page);paper.innerHTML=ecrBuildLabel(rec.data,qr);const label=paper.querySelector(".ecr-print-label");if(label)label.classList.add("ecr-preview-label");const pl=document.getElementById("ecrPreviewLabel");if(pl)pl.textContent=`Resi ${page} / ${ecrPages.length}`;}
-async function ecrLoadPdf(file){if(!file)return;if(typeof pdfjsLib==="undefined"){alert("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");return}try{ecrSelected.clear();ecrCurrentPage=1;ecrPdfBytes=await file.arrayBuffer();ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;ecrPages=[];for(let i=1;i<=ecrPdfDoc.numPages;i++){const data=await ecrParsePage(i);ecrPages.push({page:i,data})}ecrSelected=new Set(ecrPages.map(x=>x.page));document.getElementById("ecrFileName").textContent=`${file.name} • ${ecrPages.length} halaman • data berhasil dibaca`;ecrRenderList();await ecrShowPage(1)}catch(err){console.error(err);alert("PDF berhasil dibuka tetapi data resi gagal dibaca: "+(err?.message||err))}}
+async function ecrLoadPdf(file){
+  if(!file) throw new Error("File PDF belum dipilih.");
+  if(typeof pdfjsLib==="undefined") throw new Error("PDF viewer belum siap. Coba buka ulang halaman lalu upload lagi.");
+  try{
+    ecrSelected.clear();
+    ecrCurrentPage=1;
+    ecrPdfBytes=await file.arrayBuffer();
+    ecrPdfDoc=await pdfjsLib.getDocument({data:ecrPdfBytes}).promise;
+    ecrPages=[];
+    for(let i=1;i<=ecrPdfDoc.numPages;i++){
+      const data=await ecrParsePage(i);
+      ecrPages.push({page:i,data});
+    }
+    ecrSelected=new Set(ecrPages.map(x=>x.page));
+    const nameEl=document.getElementById("ecrFileName");
+    if(nameEl) nameEl.textContent=`${file.name} • ${ecrPages.length} halaman • data berhasil dibaca`;
+    if(typeof ecrRenderList==="function") ecrRenderList();
+    if(ecrPages.length && typeof ecrShowPage==="function") await ecrShowPage(1);
+    return true;
+  }catch(err){
+    console.error(err);
+    throw new Error("PDF berhasil dibuka tetapi data resi gagal dibaca: "+(err?.message||err));
+  }
+}
 async function ecrPrintSelected(){
   if(ecrPrintBusy||!ecrSelected.size){
     alert("Pilih minimal satu resi.");
