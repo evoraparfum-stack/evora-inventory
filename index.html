@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro - Premium Suite</title>
+  <title>EVORA Tracker Pro v16.2 - Bundle & Mapping Fixed</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -4300,6 +4300,17 @@ function safeMatchResiVariantName(rawName){
   const qc=scanCompactName(original);
   if(!q) return {index:-1,score:0,method:"empty",matchedText:original,canonicalName:original};
 
+  // 0. Mapping manual adalah keputusan eksplisit user, jadi harus diprioritaskan
+  // dan BOLEH untuk alias pendek seperti CL / DS / IC.
+  const manualAliases=typeof getResiAliases==="function" ? getResiAliases() : {};
+  const manualTarget=manualAliases[q] || manualAliases[String(original||"").toUpperCase().trim()];
+  if(manualTarget){
+    const manualIdx=barang.findIndex(b=>normScan(b.nama)===normScan(manualTarget));
+    if(manualIdx>=0){
+      return {index:manualIdx,score:1100,method:"manual-alias",matchedText:original,canonicalName:original};
+    }
+  }
+
   // 1. Exact nama kasir.
   let idx=barang.findIndex(b=>normScan(b.nama)===q);
   if(idx>=0){
@@ -4341,6 +4352,35 @@ function safeMatchResiVariantName(rawName){
     }
   }
 
+  // 4b. Nama sama tetapi urutan kata di marketplace terbalik.
+  // Contoh: CREME VANILLE -> VANILLE CREME. Harus unik agar tidak salah arah.
+  if(qc.length>=5){
+    const tokenKey=v=>normScan(v).split(" ").filter(Boolean).sort().join("|");
+    const qKey=tokenKey(original);
+    const tokenMatches=[];
+    barang.forEach((b,i)=>{
+      const candidates=[String(b.nama||""),...String(b.nama||"").split("/")];
+      if(candidates.some(v=>tokenKey(v)===qKey)) tokenMatches.push(i);
+    });
+    const unique=[...new Set(tokenMatches)];
+    if(unique.length===1){
+      return {index:unique[0],score:930,method:"pdf-name-token-order",matchedText:original,canonicalName:original};
+    }
+  }
+
+  // 4c. Singkatan marketplace yang sudah pasti.
+  const knownScanAliases={
+    "9pm rbl":"9PM REBEL",
+    "9 pm rbl":"9PM REBEL",
+    "s o t b":"SOTB",
+    "creme vanille":"VANILLE CREME"
+  };
+  const knownTarget=knownScanAliases[q];
+  if(knownTarget){
+    const knownIdx=barang.findIndex(b=>normScan(b.nama)===normScan(knownTarget));
+    if(knownIdx>=0) return {index:knownIdx,score:925,method:"pdf-known-alias",matchedText:original,canonicalName:original};
+  }
+
   // 5. Typo ringan, hanya untuk nama minimal 5 karakter dan HARUS unik.
   // Contoh PENHOSE -> PENTHOUSE.
   // Singkatan seperti CL tidak pernah masuk tahap ini.
@@ -4358,19 +4398,6 @@ function safeMatchResiVariantName(rawName){
     }
   }
 
-  // 6. Mapping alias manual masih boleh, tetapi alias sangat pendek (CL, DS, dll)
-  // TIDAK boleh dieksekusi otomatis karena berisiko salah produk.
-  if(qc.length>=4){
-    const aliases=typeof getResiAliases==="function" ? getResiAliases() : {};
-    const target=aliases[q] || aliases[String(original||"").toUpperCase().trim()];
-    if(target){
-      idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
-      if(idx>=0){
-        return {index:idx,score:850,method:"manual-alias",matchedText:original,canonicalName:original};
-      }
-    }
-  }
-
   // Lebih baik minta pilihan manual daripada memasukkan produk salah.
   return {index:-1,score:0,method:"pdf-name-unresolved",matchedText:original,canonicalName:original};
 }
@@ -4379,6 +4406,17 @@ function matchCanonicalResiProductName(chunk){
   const canonical=extractCanonicalResiProductName(chunk);
   if(!canonical) return null;
   return safeMatchResiVariantName(canonical);
+}
+
+function extractBundleNamesFromShippingSummary(pageText){
+  const raw=String(pageText||"").replace(/\r/g,"");
+  // J&T/TikTok label menaruh varian bundle pada: Jumlah : 1pcs, Barang : A, B
+  const m=raw.match(/Jumlah\s*:\s*\d+\s*pcs\s*,?\s*Ba\s*rang\s*:\s*([^\n]+)/i)
+    || raw.match(/Jumlah\s*:\s*\d+\s*pcs\s*,?\s*Barang\s*:\s*([^\n]+)/i);
+  if(!m) return [];
+  const value=String(m[1]||"").replace(/\s+/g," ").trim();
+  if(!value || /^default$/i.test(value)) return [];
+  return value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,2);
 }
 
 function extractBundleVariantNames(chunk){
@@ -4658,7 +4696,10 @@ function extractResiInfo(lines,pageNo){
       // Baca nama varian LANGSUNG dari Seller SKU satu per satu.
       // Jangan mencari kandidat dari seluruh teks halaman karena bisa membuat
       // produk "hantu" yang sebenarnya tidak ada di PDF.
-      const variantNames=extractBundleVariantNames(chunk);
+      // Sumber paling stabil adalah ringkasan label "Barang: A, B".
+      // Seller SKU tetap menjadi fallback jika ringkasan tidak tersedia.
+      const summaryNames=extractBundleNamesFromShippingSummary(text);
+      const variantNames=summaryNames.length>=2 ? summaryNames : extractBundleVariantNames(chunk);
 
       variantNames.slice(0,2).forEach(vName=>{
         const vm=safeMatchResiVariantName(vName);
@@ -4789,7 +4830,7 @@ function renderScanDraft(){
                         ? `<span class="scan-resi-ok">Cocok</span>`
                         : `<span class="scan-resi-warn">Periksa</span>`}</div>
                     </div>
-                    <div class="scan-resi-row-meta">${escScan(r.raw).slice(0,320)}</div>
+                    ${!confident ? `<div class="scan-resi-row-meta">${escScan(r.raw).slice(0,320)}</div>` : ""}
                   </div>
                   <select onchange="updateScanRowMatch(${index},this.value)">
                     <option value="-1">— Pilih varian EVORA —</option>${opts}
@@ -6215,6 +6256,8 @@ loadDataFromCloud();
 </div>
 
 <script>
+// Mapping selalu membaca daftar varian kasir aktif dari state utama aplikasi.
+window.getEvoraBarang=function(){ return Array.isArray(barang) ? barang : []; };
 (function(){
   const KEY='evora_resi_aliases_v1';
   window.getResiAliases=function(){
@@ -6300,6 +6343,16 @@ loadDataFromCloud();
     saveResiAliases(m);
     document.getElementById('ramAlias').value='';
     renderResiAliases();
+
+    // Terapkan mapping baru langsung ke draft scan yang sedang terbuka.
+    if(typeof scanResiDraft!=="undefined" && scanResiDraft && Array.isArray(scanResiDraft.rows)){
+      scanResiDraft.rows.forEach(row=>{
+        if(row.cancelled || !row.resiName) return;
+        const mm=safeMatchResiVariantName(row.resiName);
+        if(mm.index>=0) setScanRowProduct(row,mm.index,mm.method||'manual-alias',false);
+      });
+      if(typeof renderScanDraft==='function') renderScanDraft();
+    }
   };
   window.removeResiAlias=function(alias){
     const m=getResiAliases(); delete m[alias]; saveResiAliases(m); renderResiAliases();
