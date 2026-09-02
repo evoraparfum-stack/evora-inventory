@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v16.3 - High Accuracy Matcher No Print</title>
+  <title>EVORA Tracker Pro v16.5 - PayLater Date Validation Fixed</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -711,6 +711,25 @@ input, select, textarea, button { min-width: 0; max-width: 100%; }
 .evora-auth-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;}
 .evora-auth-note{font-size:10px;color:var(--text-muted);text-align:center;line-height:1.45;margin-top:12px;}
 body.evora-locked{overflow:hidden!important;}
+
+
+/* PAYLATER v16.4 */
+.paylater-debt-card{border:1px solid #cbd5e1;border-radius:10px;padding:10px;margin-bottom:7px;background:var(--bg-card);}
+.paylater-debt-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.paylater-debt-title{font-size:12px;font-weight:900;color:var(--text-main);}
+.paylater-debt-meta{font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.45;}
+.paylater-debt-value{font-size:12px;font-weight:900;white-space:nowrap;}
+.paylater-status{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:900;margin-top:6px;}
+.paylater-status.due{background:#ffedd5;color:#c2410c;}
+.paylater-status.overdue{background:#ffe4e6;color:#be123c;}
+.paylater-status.paid{background:#ccfbf1;color:#0f766e;}
+.paylater-status.active{background:#e0f2fe;color:#0369a1;}
+.paylater-progress{height:5px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:7px;}
+.paylater-progress>span{display:block;height:100%;background:var(--success);border-radius:999px;}
+body.dark-theme .paylater-progress{background:#334155;}
+.paylater-reminder-box{border:1px solid #fb923c;background:rgba(249,115,22,.08);border-radius:10px;padding:9px 10px;}
+.paylater-reminder-title{font-size:11px;font-weight:900;color:var(--warning);}
+.paylater-reminder-row{font-size:10px;color:var(--text-main);margin-top:4px;line-height:1.4;}
 
 </style>
 <style>
@@ -2129,6 +2148,8 @@ body.dark-mode #evoraAICenter label,
     <!-- PANEL HUTANG PAYLATER -->
     <div class="card paylater-mobile-fix" style="border: 1px solid #8b5cf6; background: rgba(139, 92, 246, 0.05);">
       <h3 style="color:#7c3aed"><i class="fa-solid fa-credit-card"></i> MANAJEMEN HUTANG PAYLATER</h3>
+      <div id="paylaterReminder" style="display:none; margin-bottom:10px;"></div>
+
       <div style="font-size: 13px; margin-bottom: 12px; font-weight: 600;">
         Total Tunggakan Paylater: <br>
         <span id="totalHutangPaylater" style="font-size: 22px; color: var(--danger); font-weight: 900;">Rp 0</span>
@@ -2146,14 +2167,23 @@ body.dark-mode #evoraAICenter label,
         
         <div style="background: var(--bg-card); padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1;">
           <h4 style="margin:0 0 8px 0; font-size:11px; color:var(--success);">Bayar Tagihan</h4>
-          <input id="nominalBayarPaylater" type="number" placeholder="Nominal Rp" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
-          <input id="ketBayarPaylater" type="text" placeholder="Bulan apa?" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
+
+          <div style="font-size:10px; color:var(--text-muted); margin-bottom:2px; text-align:left; font-weight:bold;">Pilih Tagihan:</div>
+          <select id="targetBayarPaylater" onchange="pilihTagihanPaylater()" style="padding:8px; font-size:11px; margin-top:0; margin-bottom:6px; font-weight:bold;">
+            <option value="">— Pilih tagihan aktif —</option>
+          </select>
+
+          <div id="infoTargetPaylater" style="display:none; padding:7px 8px; margin-bottom:6px; border-radius:8px; background:var(--primary-light); font-size:10px; line-height:1.45; text-align:left;"></div>
+
+          <input id="nominalBayarPaylater" type="number" min="1" placeholder="Nominal pembayaran" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
+          <input id="ketBayarPaylater" type="text" placeholder="Catatan pembayaran (opsional)" style="padding: 8px; font-size: 12px; margin-bottom: 6px;">
+
           <div style="font-size:10px; color:var(--text-muted); margin-bottom:2px; text-align:left; font-weight:bold;">Sumber Dana:</div>
           <select id="sumberDanaPaylater" style="padding: 8px; font-size: 11px; margin-top:0; font-weight:bold;">
-            <option value="kas">Kas Toko (Potong Omzet)</option>
-            <option value="pribadi">Uang Pribadi</option>
+            <option value="kas">Kas Toko (masuk Pengeluaran)</option>
+            <option value="pribadi">Uang Pribadi (tidak masuk Pengeluaran)</option>
           </select>
-          <button onclick="catatPaylater('bayar')" style="background:var(--success); padding:8px; font-size:11px; margin-top: 6px; box-shadow:none;">Catat Pelunasan</button>
+          <button onclick="catatPaylater('bayar')" style="background:var(--success); padding:8px; font-size:11px; margin-top: 6px; box-shadow:none;">Bayar Tagihan</button>
         </div>
       </div>
       
@@ -8176,5 +8206,512 @@ document.addEventListener("DOMContentLoaded",()=>{
     }
   },2500);
 });
+
+/* =========================================================
+   EVORA PAYLATER v16.4 — H-3 REMINDER + TARGETED SETTLEMENT
+   ========================================================= */
+
+function evPaylaterEnsureIds(){
+  let changed=false;
+  (logPaylater||[]).forEach((p,i)=>{
+    if(!p.id){
+      p.id=`PAYLEGACY_${i}_${String(p.tanggal||"").replace(/\D/g,"").slice(0,14) || Date.now()}`;
+      changed=true;
+    }
+  });
+  return changed;
+}
+
+function evPaylaterDateOnly(value){
+  const s=String(value||"").trim();
+  if(!s) return null;
+
+  // Canonical storage is YYYY-MM-DD.
+  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m){
+    const y=Number(m[1]), mo=Number(m[2]), d=Number(m[3]);
+    const ms=Date.UTC(y,mo-1,d);
+    const dt=new Date(ms);
+    if(dt.getUTCFullYear()!==y || dt.getUTCMonth()!==mo-1 || dt.getUTCDate()!==d) return null;
+    return ms;
+  }
+
+  // Legacy DD/MM/YYYY or DD-MM-YYYY.
+  m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m){
+    const d=Number(m[1]), mo=Number(m[2]), y=Number(m[3]);
+    const ms=Date.UTC(y,mo-1,d);
+    const dt=new Date(ms);
+    if(dt.getUTCFullYear()!==y || dt.getUTCMonth()!==mo-1 || dt.getUTCDate()!==d) return null;
+    return ms;
+  }
+
+  return null;
+}
+
+function evPaylaterTodayUTC(){
+  const d=new Date();
+  return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
+}
+
+function evPaylaterDaysUntil(dateStr){
+  const due=evPaylaterDateOnly(dateStr);
+  if(due===null) return null;
+
+  const today=evPaylaterTodayUTC();
+  const days=Math.round((due-today)/86400000);
+
+  // Guard corrupted / legacy dates. A PayLater bill dated more than
+  // 365 days in the past is not automatically treated as thousands of
+  // days overdue; it must be corrected first.
+  if(days < -365) return "INVALID_OLD";
+  if(days > 3650) return "INVALID_FUTURE";
+
+  return days;
+}
+
+function evPaylaterFormatDate(dateStr){
+  const ms=evPaylaterDateOnly(dateStr);
+  if(ms===null) return "-";
+  return new Intl.DateTimeFormat("id-ID",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"}).format(new Date(ms));
+}
+
+function evPaylaterMoney(v){
+  return "Rp "+Math.max(0,Number(v||0)).toLocaleString("id-ID");
+}
+
+function evPaylaterLedger(){
+  evPaylaterEnsureIds();
+
+  const debts=(logPaylater||[])
+    .filter(x=>x.jenis==="pakai")
+    .map(x=>({
+      id:String(x.id),
+      ref:x,
+      nominal:Math.max(0,Number(x.nominal||0)),
+      paid:0,
+      remaining:Math.max(0,Number(x.nominal||0))
+    }))
+    .sort((a,b)=>new Date(a.ref.tanggal||0)-new Date(b.ref.tanggal||0));
+
+  const debtMap=new Map(debts.map(d=>[d.id,d]));
+  const payments=(logPaylater||[])
+    .filter(x=>x.jenis==="bayar")
+    .sort((a,b)=>new Date(a.tanggal||0)-new Date(b.tanggal||0));
+
+  // New payments have targetPaylaterId and are applied only to their chosen bill.
+  payments.filter(p=>p.targetPaylaterId).forEach(p=>{
+    const d=debtMap.get(String(p.targetPaylaterId));
+    if(!d) return;
+    const amount=Math.max(0,Number(p.nominal||0));
+    const applied=Math.min(d.remaining,amount);
+    d.paid+=applied;
+    d.remaining-=applied;
+  });
+
+  // Legacy payments did not have a target. Preserve historical totals by
+  // allocating them FIFO to debts that already existed at payment time.
+  payments.filter(p=>!p.targetPaylaterId).forEach(p=>{
+    let amount=Math.max(0,Number(p.nominal||0));
+    const payTime=new Date(p.tanggal||0).getTime();
+    for(const d of debts){
+      if(amount<=0) break;
+      const debtTime=new Date(d.ref.tanggal||0).getTime();
+      if(Number.isFinite(payTime)&&Number.isFinite(debtTime)&&debtTime>payTime) continue;
+      if(d.remaining<=0) continue;
+      const applied=Math.min(d.remaining,amount);
+      d.paid+=applied;
+      d.remaining-=applied;
+      amount-=applied;
+    }
+  });
+
+  return debts;
+}
+
+function evPaylaterGetDebt(id){
+  return evPaylaterLedger().find(d=>String(d.id)===String(id))||null;
+}
+
+function evPaylaterUpdateTargetDropdown(){
+  const select=document.getElementById("targetBayarPaylater");
+  if(!select) return;
+
+  const current=select.value;
+  const active=evPaylaterLedger().filter(d=>d.remaining>0);
+
+  select.innerHTML='<option value="">— Pilih tagihan aktif —</option>'+
+    active.map(d=>{
+      const due=evPaylaterFormatDate(d.ref.jatuhTempo);
+      return `<option value="${evEsc(String(d.id))}">${evEsc(String(d.ref.keterangan||"Tagihan"))} · ${evPaylaterMoney(d.remaining)} · ${evEsc(due)}</option>`;
+    }).join("");
+
+  if(active.some(d=>String(d.id)===current)) select.value=current;
+  pilihTagihanPaylater(false);
+}
+
+function pilihTagihanPaylater(fillAmount=true){
+  const select=document.getElementById("targetBayarPaylater");
+  const info=document.getElementById("infoTargetPaylater");
+  const amount=document.getElementById("nominalBayarPaylater");
+  if(!select||!info||!amount) return;
+
+  const debt=evPaylaterGetDebt(select.value);
+  if(!debt){
+    info.style.display="none";
+    info.innerHTML="";
+    if(fillAmount) amount.value="";
+    return;
+  }
+
+  const days=evPaylaterDaysUntil(debt.ref.jatuhTempo);
+  let dueText="";
+  if(days===null) dueText="Tanggal jatuh tempo tidak tersedia";
+  else if(days==="INVALID_OLD" || days==="INVALID_FUTURE") dueText="Tanggal perlu diperiksa";
+  else if(days<0) dueText=`Terlambat ${Math.abs(days)} hari`;
+  else if(days===0) dueText="Jatuh tempo hari ini";
+  else dueText=`${days} hari lagi`;
+
+  info.style.display="block";
+  info.innerHTML=`Tagihan: <b>${evEsc(String(debt.ref.keterangan||"-"))}</b><br>
+    Awal: <b>${evPaylaterMoney(debt.nominal)}</b> · Sudah dibayar: <b>${evPaylaterMoney(debt.paid)}</b><br>
+    Sisa: <b style="color:var(--danger)">${evPaylaterMoney(debt.remaining)}</b> · ${evEsc(dueText)}`;
+
+  amount.max=String(debt.remaining);
+  if(fillAmount) amount.value=String(debt.remaining);
+}
+
+function evPaylaterRenderReminder(debts){
+  const el=document.getElementById("paylaterReminder");
+  if(!el) return;
+
+  const alerts=debts
+    .filter(d=>d.remaining>0)
+    .map(d=>({...d,days:evPaylaterDaysUntil(d.ref.jatuhTempo)}))
+    .filter(d=>typeof d.days==="number" && d.days<=3)
+    .sort((a,b)=>a.days-b.days);
+
+  if(!alerts.length){
+    el.style.display="none";
+    el.innerHTML="";
+    return;
+  }
+
+  el.style.display="block";
+  el.innerHTML=`<div class="paylater-reminder-box">
+    <div class="paylater-reminder-title"><i class="fa-solid fa-bell"></i> Pengingat Jatuh Tempo PayLater</div>
+    ${alerts.map(d=>{
+      let status=d.days<0?`TERLAMBAT ${Math.abs(d.days)} HARI`:d.days===0?"JATUH TEMPO HARI INI":`H-${d.days}`;
+      return `<div class="paylater-reminder-row"><b>${evEsc(status)}</b> · ${evEsc(String(d.ref.keterangan||"Tagihan"))} · <b>${evPaylaterMoney(d.remaining)}</b> · ${evEsc(evPaylaterFormatDate(d.ref.jatuhTempo))}</div>`;
+    }).join("")}
+  </div>`;
+}
+
+renderPaylater=function(){
+  const listEl=document.getElementById("listPaylater");
+  const totalEl=document.getElementById("totalHutangPaylater");
+  if(!listEl||!totalEl) return;
+
+  const debts=evPaylaterLedger();
+  const total=debts.reduce((s,d)=>s+d.remaining,0);
+  totalEl.innerText=evPaylaterMoney(total);
+
+  evPaylaterRenderReminder(debts);
+  evPaylaterUpdateTargetDropdown();
+
+  if(!debts.length){
+    listEl.innerHTML='<div style="color:var(--text-muted);text-align:center;padding:10px;">Belum ada tagihan PayLater.</div>';
+    return;
+  }
+
+  listEl.innerHTML=[...debts].reverse().map(d=>{
+    const days=evPaylaterDaysUntil(d.ref.jatuhTempo);
+    const paidPct=d.nominal>0?Math.min(100,Math.round((d.paid/d.nominal)*100)):0;
+
+    let statusClass="active", statusText="AKTIF";
+    if(d.remaining<=0){statusClass="paid";statusText="LUNAS";}
+    else if(days==="INVALID_OLD" || days==="INVALID_FUTURE"){statusClass="due";statusText="PERIKSA TANGGAL";}
+    else if(typeof days==="number" && days<0){statusClass="overdue";statusText=`TERLAMBAT ${Math.abs(days)} HARI`;}
+    else if(days===0){statusClass="overdue";statusText="JATUH TEMPO HARI INI";}
+    else if(typeof days==="number" && days<=3){statusClass="due";statusText=`H-${days}`;}
+
+    const originalIndex=logPaylater.indexOf(d.ref);
+
+    return `<div class="paylater-debt-card">
+      <div class="paylater-debt-head">
+        <div style="min-width:0;flex:1">
+          <div class="paylater-debt-title">${evEsc(String(d.ref.keterangan||"Tagihan PayLater"))}</div>
+          <div class="paylater-debt-meta">
+            Jatuh tempo: <b>${evEsc(evPaylaterFormatDate(d.ref.jatuhTempo))}</b>${(days==="INVALID_OLD"||days==="INVALID_FUTURE")?' <span style="color:var(--warning);font-weight:900">— PERIKSA</span>':""}<br>
+            Awal ${evPaylaterMoney(d.nominal)} · Dibayar ${evPaylaterMoney(d.paid)}
+          </div>
+          <span class="paylater-status ${statusClass}">${evEsc(statusText)}</span>
+        </div>
+        <div style="text-align:right">
+          <div class="paylater-debt-value" style="color:${d.remaining>0?'var(--danger)':'var(--success)'}">${evPaylaterMoney(d.remaining)}</div>
+          ${d.remaining>0?`<button onclick="evPaylaterChooseForPayment('${evEsc(String(d.id))}')" style="width:auto;padding:5px 8px;margin-top:5px;font-size:9px;background:var(--success);box-shadow:none;">Bayar</button>`:""}
+          ${d.remaining>0?`<button onclick="evPaylaterEditDueDate('${evEsc(String(d.id))}')" style="width:auto;padding:5px 8px;margin-top:5px;font-size:9px;background:var(--primary);box-shadow:none;">Atur Tanggal</button>`:""}
+          <button onclick="hapusPaylater(${originalIndex})" style="width:auto;padding:5px 7px;margin-top:5px;background:none;color:var(--danger);font-size:10px;box-shadow:none;"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="paylater-progress"><span style="width:${paidPct}%"></span></div>
+    </div>`;
+  }).join("");
+};
+
+
+async function evPaylaterEditDueDate(id){
+  const debt=evPaylaterGetDebt(id);
+  if(!debt) return;
+
+  const current=String(debt.ref.jatuhTempo||"");
+  const suggested=(()=>{
+    const d=new Date();
+    d.setDate(d.getDate()+30);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  })();
+
+  const defaultValue=/^\d{4}-\d{2}-\d{2}$/.test(current)?current:suggested;
+
+  const html=`
+    <div style="text-align:left;font-size:12px;line-height:1.5;margin-bottom:10px;">
+      Tagihan: <b>${evEsc(String(debt.ref.keterangan||"PayLater"))}</b><br>
+      Tanggal tersimpan: <b>${evEsc(current||"-")}</b>
+    </div>
+    <input id="evPaylaterEditDateInput" type="date" value="${evEsc(defaultValue)}" style="font-size:14px;">
+  `;
+
+  // Use existing global dialog as a lightweight date editor.
+  const ok=await new Promise(resolve=>{
+    const modal=document.getElementById("globalDialogModal");
+    const title=document.getElementById("dialogTitle");
+    const msg=document.getElementById("dialogMessage");
+    const buttons=document.getElementById("dialogButtons");
+    const icon=document.getElementById("dialogIcon");
+
+    if(!modal||!title||!msg||!buttons){
+      resolve(false);
+      return;
+    }
+
+    title.innerText="Atur Jatuh Tempo";
+    msg.innerHTML=html;
+    if(icon) icon.innerHTML='<i class="fa-solid fa-calendar-days"></i>';
+
+    buttons.innerHTML=`
+      <button id="evDueSaveBtn" style="background:var(--primary)">Simpan Tanggal</button>
+      <button id="evDueCancelBtn" style="background:#64748b">Batal</button>
+    `;
+    modal.style.display="flex";
+
+    const close=v=>{modal.style.display="none"; resolve(v);};
+    document.getElementById("evDueSaveBtn").onclick=()=>close(true);
+    document.getElementById("evDueCancelBtn").onclick=()=>close(false);
+  });
+
+  if(!ok) return;
+
+  const input=document.getElementById("evPaylaterEditDateInput");
+  const newDate=String(input?.value||"");
+  const ms=evPaylaterDateOnly(newDate);
+  if(ms===null){
+    await customAlert("Tanggal Tidak Valid","Pilih tanggal jatuh tempo yang valid.","warning");
+    return;
+  }
+
+  const days=Math.round((ms-evPaylaterTodayUTC())/86400000);
+  if(days < -365){
+    await customAlert("Tanggal Terlalu Lama","Tanggal lebih dari 1 tahun yang lalu tidak diterima sebagai jatuh tempo PayLater aktif.","warning");
+    return;
+  }
+
+  debt.ref.jatuhTempo=newDate;
+  debt.ref.jatuhTempoDiperbaikiPada=new Date().toISOString();
+  await saveData();
+  renderPaylater();
+  await customAlert("Tanggal Diperbarui",`Jatuh tempo diubah menjadi <b>${evEsc(evPaylaterFormatDate(newDate))}</b>.`,"success");
+}
+
+function evPaylaterChooseForPayment(id){
+  const select=document.getElementById("targetBayarPaylater");
+  if(!select) return;
+  select.value=String(id);
+  pilihTagihanPaylater(true);
+  try{select.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){}
+}
+
+catatPaylater=async function(jenis){
+  evPaylaterEnsureIds();
+
+  if(jenis==="pakai"){
+    const nom=Number(document.getElementById("nominalPakaiPaylater")?.value||0);
+    const ket=String(document.getElementById("ketPakaiPaylater")?.value||"").trim();
+    const jatuhTempo=String(document.getElementById("tglJatuhTempoPaylater")?.value||"");
+
+    if(nom<=0){
+      await customAlert("Nominal Belum Benar","Masukkan nominal hutang PayLater lebih dari Rp 0.","warning");
+      return;
+    }
+    if(!ket){
+      await customAlert("Keterangan Belum Diisi","Isi keterangan tagihan agar mudah dikenali saat pelunasan.","warning");
+      return;
+    }
+    if(!jatuhTempo){
+      await customAlert("Jatuh Tempo Wajib","Tanggal jatuh tempo diperlukan untuk pengingat H-3.","warning");
+      return;
+    }
+
+    const dueMs=evPaylaterDateOnly(jatuhTempo);
+    if(dueMs===null){
+      await customAlert("Tanggal Tidak Valid","Pilih tanggal jatuh tempo yang valid.","warning");
+      return;
+    }
+    const dueDays=Math.round((dueMs-evPaylaterTodayUTC())/86400000);
+    if(dueDays < -30){
+      await customAlert("Periksa Jatuh Tempo","Tanggal jatuh tempo lebih dari 30 hari yang lalu. Periksa kembali tahun/bulan sebelum menyimpan.","warning");
+      return;
+    }
+
+    const msg=`Catat hutang PayLater <b>${evPaylaterMoney(nom)}</b> untuk <b>${evEsc(ket)}</b>?<br><br>Jatuh tempo: <b>${evEsc(evPaylaterFormatDate(jatuhTempo))}</b>.`;
+    if(!await customConfirm("Catat Hutang PayLater",msg,"warning")) return;
+
+    logPaylater.push({
+      id:typeof evId==="function"?evId("PAY"):("PAY_"+Date.now()),
+      tanggal:new Date().toISOString(),
+      jenis:"pakai",
+      nominal:nom,
+      keterangan:ket,
+      jatuhTempo
+    });
+
+    document.getElementById("nominalPakaiPaylater").value="";
+    document.getElementById("ketPakaiPaylater").value="";
+    document.getElementById("tglJatuhTempoPaylater").value="";
+    await saveData();
+    renderPaylater();
+    return;
+  }
+
+  const targetId=String(document.getElementById("targetBayarPaylater")?.value||"");
+  const debt=evPaylaterGetDebt(targetId);
+  const nom=Number(document.getElementById("nominalBayarPaylater")?.value||0);
+  const ketInput=String(document.getElementById("ketBayarPaylater")?.value||"").trim();
+  const sumberDana=String(document.getElementById("sumberDanaPaylater")?.value||"kas");
+
+  if(!debt){
+    await customAlert("Pilih Tagihan","Pilih tagihan PayLater yang ingin dibayar terlebih dahulu.","warning");
+    return;
+  }
+  if(nom<=0){
+    await customAlert("Nominal Belum Benar","Masukkan nominal pembayaran lebih dari Rp 0.","warning");
+    return;
+  }
+  if(nom>debt.remaining){
+    await customAlert("Nominal Terlalu Besar",`Sisa tagihan hanya <b>${evPaylaterMoney(debt.remaining)}</b>. Pembayaran tidak boleh melebihi sisa tagihan.`,"warning");
+    return;
+  }
+
+  const isFull=Math.abs(nom-debt.remaining)<0.001;
+  const ket=ketInput || `Pembayaran ${debt.ref.keterangan||"PayLater"}`;
+  let msg=`Bayar <b>${evEsc(String(debt.ref.keterangan||"Tagihan PayLater"))}</b> sebesar <b>${evPaylaterMoney(nom)}</b>?<br><br>`;
+  msg+=isFull?`Setelah pembayaran ini status menjadi <b style="color:var(--success)">LUNAS</b>.`:`Sisa setelah pembayaran: <b>${evPaylaterMoney(debt.remaining-nom)}</b>.`;
+  if(sumberDana==="kas"){
+    msg+=`<br><br><span style="font-size:11px;color:var(--danger)">Dana dari Kas Toko akan otomatis dicatat sebagai Pengeluaran.</span>`;
+  }else{
+    msg+=`<br><br><span style="font-size:11px;color:var(--text-muted)">Dana pribadi tidak dicatat sebagai Pengeluaran toko.</span>`;
+  }
+
+  if(!await customConfirm("Konfirmasi Pembayaran",msg,"success")) return;
+
+  const logId=typeof evId==="function"?evId("PAY"):("PAY_"+Date.now());
+  const payment={
+    id:logId,
+    tanggal:new Date().toISOString(),
+    jenis:"bayar",
+    nominal:nom,
+    keterangan:ket,
+    sumberDana,
+    targetPaylaterId:String(debt.id),
+    targetKeterangan:String(debt.ref.keterangan||""),
+    pelunasanPenuh:isFull
+  };
+
+  if(sumberDana==="kas"){
+    const expenseId=typeof evId==="function"?evId("EXP"):("EXP_"+Date.now());
+    payment.linkedExpenseId=expenseId;
+    pengeluaran.push({
+      id:expenseId,
+      tanggal:new Date().toISOString(),
+      nominal:nom,
+      keterangan:`Pelunasan PayLater: ${debt.ref.keterangan||ket}`,
+      kategori:"Paylater",
+      linkedPaylaterId:logId,
+      linkedPaylaterDebtId:String(debt.id)
+    });
+  }
+
+  logPaylater.push(payment);
+
+  document.getElementById("targetBayarPaylater").value="";
+  document.getElementById("nominalBayarPaylater").value="";
+  document.getElementById("ketBayarPaylater").value="";
+  const info=document.getElementById("infoTargetPaylater");
+  if(info){info.style.display="none";info.innerHTML="";}
+
+  await saveData();
+  renderPaylater();
+
+  await customAlert(
+    isFull?"Tagihan Lunas":"Pembayaran Tercatat",
+    isFull
+      ? `<b>${evEsc(String(debt.ref.keterangan||"Tagihan"))}</b> sudah lunas.`
+      : `Pembayaran berhasil. Sisa tagihan sekarang <b>${evPaylaterMoney(debt.remaining-nom)}</b>.`,
+    "success"
+  );
+};
+
+hapusPaylater=async function(index){
+  const target=logPaylater[index];
+  if(!target) return;
+
+  // Prevent deleting a debt that already has targeted payment records, because
+  // that would orphan its settlement history.
+  if(target.jenis==="pakai"){
+    const linkedPayments=logPaylater.filter(x=>x.jenis==="bayar" && String(x.targetPaylaterId||"")===String(target.id||""));
+    if(linkedPayments.length){
+      await customAlert(
+        "Tagihan Memiliki Pembayaran",
+        "Tagihan ini sudah memiliki riwayat pembayaran. Hapus pembayaran terkait terlebih dahulu jika memang ingin menghapus tagihan.",
+        "warning"
+      );
+      return;
+    }
+  }
+
+  const linkedIdx=target.linkedExpenseId
+    ? pengeluaran.findIndex(x=>String(x.id)===String(target.linkedExpenseId))
+    : -1;
+
+  let msg="Hapus catatan PayLater ini secara permanen?";
+  if(linkedIdx>=0) msg+="<br><br>Pengeluaran kas yang terhubung juga akan dihapus.";
+
+  if(!await customConfirm("Hapus Catatan PayLater",msg,"danger")) return;
+
+  if(linkedIdx>=0) pengeluaran.splice(linkedIdx,1);
+  logPaylater.splice(index,1);
+  await saveData();
+  renderPaylater();
+};
+
+// Ensure reminders and payment targets refresh whenever laporan is rendered.
+if(typeof renderLaporan==="function"){
+  const _evRenderLaporanPaylater=renderLaporan;
+  renderLaporan=function(){
+    const result=_evRenderLaporanPaylater.apply(this,arguments);
+    try{renderPaylater();}catch(e){console.warn("PayLater render:",e);}
+    return result;
+  };
+}
+
 </script>\n</body>
 </html>
