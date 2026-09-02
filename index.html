@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v16.2 - Bundle & Mapping Fixed</title>
+  <title>EVORA Tracker Pro v16.3 - High Accuracy Matcher No Print</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -4294,66 +4294,171 @@ function getCashierSlashAliases(productName){
     .filter(Boolean);
 }
 
+
+function getBuiltinSafeResiAliases(){
+  return {
+    "ON ROCK":"ON THE ROCK",
+    "ONROCK":"ON THE ROCK",
+    "DARKSEC":"DARK SECRET",
+    "DARK SEC":"DARK SECRET",
+    "ELIXIR":"ELIXIR/ADONIS",
+    "9PM RBL":"9PM REBEL",
+    "9 PM RBL":"9PM REBEL",
+    "9PMRBL":"9PM REBEL",
+    "SOTB":"SOTB",
+    "S O T B":"SOTB",
+    "CREME VANILLE":"VANILLE CREME",
+    "CREMEVANILLE":"VANILLE CREME",
+    "ALPHA BY HMNS":"ALPHA",
+    "INVICTIUS":"CALIFORNIA BLUE/INVICTUS",
+    "INVICTUS":"CALIFORNIA BLUE/INVICTUS"
+  };
+}
+
+function resolveBuiltinSafeAlias(rawName){
+  const original=String(rawName||"").replace(/\s+/g," ").trim();
+  const q=normScan(original).toUpperCase();
+  const qc=scanCompactName(original).toUpperCase();
+  const aliases=getBuiltinSafeResiAliases();
+  const target=aliases[q] || aliases[qc];
+  if(!target) return -1;
+
+  // Exact cashier target.
+  let idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
+  if(idx>=0) return idx;
+
+  // Target may be one side of a slash cashier name.
+  const tc=scanCompactName(target);
+  const hits=[];
+  barang.forEach((b,i)=>{
+    const variants=[String(b.nama||""),...String(b.nama||"").split("/")];
+    if(variants.some(v=>scanCompactName(v)===tc)) hits.push(i);
+  });
+  return [...new Set(hits)].length===1 ? [...new Set(hits)][0] : -1;
+}
+
+function scanSellerSignalCompact(raw){
+  // Remove marketplace boilerplate while preserving variant fragments,
+  // including single-character continuations: INCEPTIO + N, KONGKE + R.
+  const noise=new Set([
+    "evora","extrait","de","parfum","30ml","30","ml","parfume","pria","wanita",
+    "tahan","lama","aroma","premium","fragrance","collection","series","myks",
+    "sweet","floral","powdery","fresh","citrus","woody","fruity","marine",
+    "aquatic","amber","original","default","mix","variant","bundling","botol",
+    "qty","total","sku","seller","product","name"
+  ]);
+  return normScan(raw).split(" ")
+    .filter(t=>t && !noise.has(t) && !/^\d+$/.test(t))
+    .join("");
+}
+
+function uniqueSignalProductMatch(raw){
+  const signal=scanSellerSignalCompact(raw);
+  if(signal.length<4) return null;
+
+  const candidates=[];
+  barang.forEach((b,i)=>{
+    const cashier=String(b.nama||"");
+    const variants=[cashier,...cashier.split("/")].filter(Boolean);
+
+    variants.forEach(v=>{
+      const vc=scanCompactName(v);
+      if(vc.length<4) return;
+      if(signal.includes(vc)){
+        // If alias exactly exists as another standalone cashier product, standalone wins.
+        const standalone=barang.findIndex((x,xi)=>xi!==i && scanCompactName(x.nama)===vc);
+        candidates.push({
+          index:standalone>=0?standalone:i,
+          score:1200+vc.length+(standalone>=0?50:0),
+          source:v
+        });
+      }
+    });
+  });
+
+  // Safe marketplace aliases inside the signal.
+  const aliasRules=[
+    ["onrock","ON THE ROCK"],
+    ["darksec","DARK SECRET"],
+    ["9pmrbl","9PM REBEL"],
+    ["cremevanille","VANILLE CREME"],
+    ["alphabyhmns","ALPHA"],
+    ["invictius","CALIFORNIA BLUE/INVICTUS"]
+  ];
+  aliasRules.forEach(([needle,target])=>{
+    if(!signal.includes(needle)) return;
+    const idx=resolveBuiltinSafeAlias(target) >= 0
+      ? resolveBuiltinSafeAlias(target)
+      : barang.findIndex(b=>normScan(b.nama)===normScan(target));
+    if(idx>=0) candidates.push({index:idx,score:1400+needle.length,source:needle});
+  });
+
+  if(!candidates.length) return null;
+  candidates.sort((a,b)=>b.score-a.score);
+  const best=candidates[0];
+  const otherSame=candidates.some((x,j)=>j>0 && x.score===best.score && x.index!==best.index);
+  if(otherSame) return null;
+  return {index:best.index,score:best.score,method:"seller-signal-safe",matchedText:String(barang[best.index]?.nama||best.source)};
+}
+
 function safeMatchResiVariantName(rawName){
   const original=String(rawName||"").replace(/\s+/g," ").trim();
   const q=normScan(original);
   const qc=scanCompactName(original);
   if(!q) return {index:-1,score:0,method:"empty",matchedText:original,canonicalName:original};
 
-  // 0. Mapping manual adalah keputusan eksplisit user, jadi harus diprioritaskan
-  // dan BOLEH untuk alias pendek seperti CL / DS / IC.
+  // 0. User mapping always wins, including short explicit aliases such as CL.
   const manualAliases=typeof getResiAliases==="function" ? getResiAliases() : {};
-  const manualTarget=manualAliases[q] || manualAliases[String(original||"").toUpperCase().trim()];
+  const manualTarget=
+    manualAliases[q] ||
+    manualAliases[q.toUpperCase()] ||
+    manualAliases[String(original||"").toUpperCase().trim()];
   if(manualTarget){
     const manualIdx=barang.findIndex(b=>normScan(b.nama)===normScan(manualTarget));
     if(manualIdx>=0){
-      return {index:manualIdx,score:1100,method:"manual-alias",matchedText:original,canonicalName:original};
+      return {index:manualIdx,score:1500,method:"manual-alias",matchedText:original,canonicalName:original};
     }
   }
 
-  // 1. Exact nama kasir.
+  // 1. Exact cashier name.
   let idx=barang.findIndex(b=>normScan(b.nama)===q);
   if(idx>=0){
-    return {index:idx,score:1000,method:"pdf-name-exact",matchedText:original,canonicalName:original};
+    return {index:idx,score:1400,method:"pdf-name-exact",matchedText:original,canonicalName:original};
   }
 
-  // 2. Exact setelah spasi akibat PDF dihilangkan.
-  // Contoh KONGKE R -> KONGKER, INCEPTIO N -> INCEPTION.
+  // 2. Exact compact: INCEPTIO N, KONGKE R, PENTHOU SE, P INK FANTAS Y.
   const compactMatches=barang
     .map((b,i)=>({i,c:scanCompactName(b.nama)}))
     .filter(x=>x.c && x.c===qc);
   if(compactMatches.length===1){
-    return {index:compactMatches[0].i,score:990,method:"pdf-name-compact-exact",matchedText:original,canonicalName:original};
+    return {index:compactMatches[0].i,score:1375,method:"pdf-name-compact-exact",matchedText:original,canonicalName:original};
   }
 
-  // 3. Nama alternatif pada varian kasir yang menggunakan "/".
-  // Contoh CALIFORNIA BLUE -> CALIFORNIA BLUE/INVICTUS.
-  // Hanya nama yang cukup panjang agar singkatan pendek tidak salah arah.
+  // 3. Exact side of a slash name, but standalone exact product still owns its own name.
   if(qc.length>=4){
     const slashMatches=[];
     barang.forEach((b,i)=>{
-      getCashierSlashAliases(b.nama).forEach(alias=>{
-        if(alias===q || scanCompactName(alias)===qc){
-          slashMatches.push({i,specificity:scanCompactName(alias).length});
-        }
+      String(b.nama||"").split("/").forEach(aliasRaw=>{
+        const ac=scanCompactName(aliasRaw);
+        if(!ac || ac!==qc) return;
+        const standalone=barang.findIndex((x,xi)=>xi!==i && scanCompactName(x.nama)===ac);
+        slashMatches.push(standalone>=0?standalone:i);
       });
     });
-    if(slashMatches.length===1){
-      return {index:slashMatches[0].i,score:970,method:"cashier-slash-alias",matchedText:original,canonicalName:original};
+    const unique=[...new Set(slashMatches)];
+    if(unique.length===1){
+      return {index:unique[0],score:1350,method:"cashier-slash-alias",matchedText:original,canonicalName:original};
     }
   }
 
-  // 4. Suffix marketplace yang sudah diketahui.
-  const simplified=q.replace(/\s+by\s+hmns$/,"").trim();
-  if(simplified && simplified!==q){
-    idx=barang.findIndex(b=>normScan(b.nama)===simplified);
-    if(idx>=0){
-      return {index:idx,score:940,method:"pdf-name-simplified",matchedText:original,canonicalName:original};
-    }
+  // 4. Built-in aliases proven by actual EVORA marketplace PDFs.
+  // Deliberately excludes CL because it is too short/ambiguous.
+  const builtinIdx=resolveBuiltinSafeAlias(original);
+  if(builtinIdx>=0){
+    return {index:builtinIdx,score:1325,method:"builtin-safe-alias",matchedText:original,canonicalName:original};
   }
 
-  // 4b. Nama sama tetapi urutan kata di marketplace terbalik.
-  // Contoh: CREME VANILLE -> VANILLE CREME. Harus unik agar tidak salah arah.
+  // 5. Same words, different order: CREME VANILLE -> VANILLE CREME.
   if(qc.length>=5){
     const tokenKey=v=>normScan(v).split(" ").filter(Boolean).sort().join("|");
     const qKey=tokenKey(original);
@@ -4364,41 +4469,36 @@ function safeMatchResiVariantName(rawName){
     });
     const unique=[...new Set(tokenMatches)];
     if(unique.length===1){
-      return {index:unique[0],score:930,method:"pdf-name-token-order",matchedText:original,canonicalName:original};
+      return {index:unique[0],score:1300,method:"pdf-name-token-order",matchedText:original,canonicalName:original};
     }
   }
 
-  // 4c. Singkatan marketplace yang sudah pasti.
-  const knownScanAliases={
-    "9pm rbl":"9PM REBEL",
-    "9 pm rbl":"9PM REBEL",
-    "s o t b":"SOTB",
-    "creme vanille":"VANILLE CREME"
-  };
-  const knownTarget=knownScanAliases[q];
-  if(knownTarget){
-    const knownIdx=barang.findIndex(b=>normScan(b.nama)===normScan(knownTarget));
-    if(knownIdx>=0) return {index:knownIdx,score:925,method:"pdf-known-alias",matchedText:original,canonicalName:original};
+  // 6. Known suffix.
+  const simplified=q.replace(/\s+by\s+hmns$/,"").trim();
+  if(simplified && simplified!==q){
+    idx=barang.findIndex(b=>normScan(b.nama)===simplified);
+    if(idx>=0){
+      return {index:idx,score:1275,method:"pdf-name-simplified",matchedText:original,canonicalName:original};
+    }
   }
 
-  // 5. Typo ringan, hanya untuk nama minimal 5 karakter dan HARUS unik.
-  // Contoh PENHOSE -> PENTHOUSE.
-  // Singkatan seperti CL tidak pernah masuk tahap ini.
+  // 7. Safe typo matching. Longer names may tolerate slightly more PDF damage,
+  // but the winner MUST be unique and clearly better than runner-up.
   if(qc.length>=5){
     const fuzzy=barang.map((b,i)=>{
-      const full=scanCompactName(b.nama);
-      const slash=getCashierSlashAliases(b.nama).map(scanCompactName);
-      const variants=[full,...slash].filter(Boolean);
+      const variants=[String(b.nama||""),...String(b.nama||"").split("/")]
+        .map(scanCompactName).filter(Boolean);
       const d=Math.min(...variants.map(v=>scanEditDistance(qc,v)));
       return {i,d};
-    }).filter(x=>x.d<=2).sort((a,b)=>a.d-b.d);
+    }).sort((a,b)=>a.d-b.d);
 
-    if(fuzzy.length && (fuzzy.length===1 || fuzzy[0].d<fuzzy[1].d)){
-      return {index:fuzzy[0].i,score:900-fuzzy[0].d,method:"pdf-name-safe-fuzzy",matchedText:original,canonicalName:original};
+    const limit=qc.length>=10?3:2;
+    if(fuzzy.length && fuzzy[0].d<=limit &&
+       (fuzzy.length===1 || fuzzy[0].d+1<fuzzy[1].d)){
+      return {index:fuzzy[0].i,score:1200-fuzzy[0].d*10,method:"pdf-name-safe-fuzzy",matchedText:original,canonicalName:original};
     }
   }
 
-  // Lebih baik minta pilihan manual daripada memasukkan produk salah.
   return {index:-1,score:0,method:"pdf-name-unresolved",matchedText:original,canonicalName:original};
 }
 
@@ -4410,78 +4510,63 @@ function matchCanonicalResiProductName(chunk){
 
 function extractBundleNamesFromShippingSummary(pageText){
   const raw=String(pageText||"").replace(/\r/g,"");
-  // J&T/TikTok label menaruh varian bundle pada: Jumlah : 1pcs, Barang : A, B
-  const m=raw.match(/Jumlah\s*:\s*\d+\s*pcs\s*,?\s*Ba\s*rang\s*:\s*([^\n]+)/i)
-    || raw.match(/Jumlah\s*:\s*\d+\s*pcs\s*,?\s*Barang\s*:\s*([^\n]+)/i);
+
+  // J&T PDF.js may split labels as "J umla h" and "Ba ra ng".
+  const m=raw.match(
+    /J\s*u\s*m\s*l\s*a\s*h\s*:\s*\d+\s*p\s*c\s*s\s*,?\s*B\s*a\s*r\s*a\s*n\s*g\s*:\s*([^\n]+)/i
+  );
   if(!m) return [];
-  const value=String(m[1]||"").replace(/\s+/g," ").trim();
-  if(!value || /^default$/i.test(value)) return [];
-  return value.split(",").map(x=>x.trim()).filter(Boolean).slice(0,2);
+
+  const value=String(m[1]||"")
+    .replace(/\s+/g," ")
+    .trim();
+
+  if(!value || scanCompactName(value)==="default") return [];
+
+  return value.split(",")
+    .map(x=>x.replace(/\s+/g," ").trim())
+    .filter(Boolean)
+    .slice(0,2);
 }
 
 function extractBundleVariantNames(chunk){
   const raw=String(chunk||"").replace(/\s+/g," ").trim();
   if(!/bundling\s*2\s*botol|mix\s*variant/i.test(raw)) return [];
 
-  const compact=scanCompactName(raw);
-  const matches=[];
+  const candidates=[];
 
-  const add=(name,score,pos=0,len=0)=>{
-    const clean=String(name||"").replace(/\s+/g," ").trim();
+  const add=(source,score)=>{
+    const clean=String(source||"").replace(/\s+/g," ").trim();
     if(!clean) return;
-    matches.push({name:clean,score:Number(score||0),pos:Number(pos||0),len:Number(len||0)});
+    const mm=safeMatchResiVariantName(clean);
+    if(mm.index<0) return;
+    if(candidates.some(x=>x.index===mm.index)) return;
+    candidates.push({name:clean,index:mm.index,score:Number(score||mm.score||0)});
   };
 
-  // Cari nama produk kasir/alias langsung di seluruh CHUNK PRODUK bundling.
-  // Aman karena fungsi ini hanya dipanggil pada baris yang sudah terdeteksi sebagai bundling,
-  // bukan pada alamat atau seluruh halaman.
-  barang.forEach((b)=>{
-    const cashier=String(b.nama||"");
-    const variants=[cashier,...getCashierSlashAliases(cashier)].filter(Boolean);
+  // Detect all cashier names / slash aliases through compact signal.
+  const signal=scanSellerSignalCompact(raw);
+  barang.forEach((b,i)=>{
+    const variants=[String(b.nama||""),...String(b.nama||"").split("/")];
     variants.forEach(v=>{
       const vc=scanCompactName(v);
-      if(vc.length<4) return;
-      const pos=compact.indexOf(vc);
-      if(pos<0) return;
-      add(v,1000+vc.length,pos,vc.length);
+      if(vc.length>=4 && signal.includes(vc)) add(v,1300+vc.length);
     });
   });
 
-  // Format nyata PDF: CALIFOR ... NIA, 9PM ... RBL
-  if(compact.includes("CALIFORNIA")){
-    const pos=compact.indexOf("CALIFORNIA");
-    add("CALIFORNIA",1400,pos,"CALIFORNIA".length);
-  }
-  if(/\b9\s*PM\b/i.test(raw) && (/\bRBL\b/i.test(raw) || /\bREBEL\b/i.test(raw))){
-    const pos=Math.max(0,compact.indexOf("9PM"));
-    add(/\bRBL\b/i.test(raw)?"9PM RBL":"9PM REBEL",1350,pos,6);
-  }
-  if(/\bS\s*\.?\s*O\s*\.?\s*T\s*\.?\s*B\b/i.test(raw)){
-    const pos=Math.max(0,compact.indexOf("SOTB"));
-    add("S.O.T.B",1350,pos,4);
-  }
+  // Proven marketplace abbreviations.
+  [
+    ["9pmrbl","9PM RBL"],
+    ["sotb","S.O.T.B"],
+    ["onrock","ON ROCK"],
+    ["darksec","DARKSEC"],
+    ["cremevanille","CREME VANILLE"]
+  ].forEach(([needle,source])=>{
+    if(signal.includes(needle)) add(source,1450+needle.length);
+  });
 
-  // Pilih kandidat paling spesifik. Kandidat pendek yang seluruh span-nya berada
-  // di dalam kandidat lebih panjang dibuang (mis. CALIFORNIA di dalam CALIFORNIA BLUE).
-  matches.sort((a,b)=>b.score-a.score || b.len-a.len);
-  const selected=[];
-  for(const m of matches){
-    const mc=scanCompactName(m.name);
-    if(selected.some(s=>scanCompactName(s.name)===mc)) continue;
-    const contained=selected.some(s=>{
-      const sc=scanCompactName(s.name);
-      return sc.includes(mc) && sc!==mc;
-    });
-    if(contained) continue;
-
-    const test=safeMatchResiVariantName(m.name);
-    if(test.index<0) continue;
-    if(selected.some(s=>s.index===test.index)) continue;
-    selected.push({name:m.name,index:test.index,score:m.score});
-    if(selected.length===2) break;
-  }
-
-  return selected.map(x=>x.name);
+  candidates.sort((a,b)=>b.score-a.score);
+  return candidates.slice(0,2).map(x=>x.name);
 }
 
 function getLongestExplicitScanMatch(chunk){
@@ -4524,9 +4609,12 @@ function matchGenericSellerSkuFromChunk(chunk){
   if(!raw || !/\bEVORA\b/i.test(raw)) return null;
   if(/bundling\s*2\s*botol|mix\s*variant/i.test(raw)) return null;
 
-  // Hanya dipakai ketika judul produknya generik, misalnya:
-  // EVORA Extrait De Parfum 30ml - MONACO ...
-  // sehingga varian sebenarnya berada di SKU/Seller SKU.
+  // First use a cleaned Seller-SKU signal. It can reconstruct:
+  // INCEPTIO + N, KONGKE + R, PENTHOU + SE, HAWAS + ICE.
+  const signalHit=uniqueSignalProductMatch(raw);
+  if(signalHit && signalHit.index>=0) return signalHit;
+
+  // Then inspect explicit names/aliases in the chunk.
   const norm=normScan(raw);
   const compact=scanCompactName(raw);
   const candidates=[];
@@ -4538,34 +4626,27 @@ function matchGenericSellerSkuFromChunk(chunk){
 
   barang.forEach((b,i)=>{
     const cashier=String(b.nama||"");
-    const aliases=[cashier,...getCashierSlashAliases(cashier)].filter(Boolean);
+    const aliases=[cashier,...cashier.split("/")].filter(Boolean);
     aliases.forEach(alias=>{
       const aNorm=normScan(alias);
       const aCompact=scanCompactName(alias);
-      if(aCompact.length<4) return; // blok alias pendek seperti CL
+      if(aCompact.length<4) return;
 
-      let matched=false;
-      if((` ${norm} `).includes(` ${aNorm} `)) matched=true;
-      if(!matched && compact.includes(aCompact)) matched=true;
-      if(!matched) return;
-
-      // Jika alias slash juga ada sebagai produk standalone, standalone menang.
-      const standalone=barang.findIndex((x,xi)=>xi!==i && normScan(x.nama)===aNorm);
-      if(standalone>=0) addCandidate(standalone,barang[standalone].nama,1100+aCompact.length);
-      else addCandidate(i,alias,1000+aCompact.length);
+      if((` ${norm} `).includes(` ${aNorm} `) || compact.includes(aCompact)){
+        const standalone=barang.findIndex((x,xi)=>xi!==i && normScan(x.nama)===aNorm);
+        addCandidate(standalone>=0?standalone:i,alias,1100+aCompact.length+(standalone>=0?25:0));
+      }
     });
   });
 
-  // Beberapa Seller SKU terbelah oleh kolom Qty di PDF.
-  // Contoh: "9PM ... 1 ... REBEL" tidak menjadi string 9PMREBEL yang utuh.
-  if(/\b9\s*PM\b/i.test(raw) && /\bREBEL\b/i.test(raw)){
-    const idx=getScanProductIndexByName("9PM REBEL");
-    if(idx>=0) addCandidate(idx,"9PM REBEL",1300);
-  }
-  if(/S\s*\.?\s*O\s*\.?\s*T\s*\.?\s*B/i.test(raw)){
-    const idx=getScanProductIndexByName("SOTB");
-    if(idx>=0) addCandidate(idx,"S.O.T.B",1300);
-  }
+  // Built-in alias signals.
+  const builtins=getBuiltinSafeResiAliases();
+  Object.keys(builtins).forEach(alias=>{
+    const ac=scanCompactName(alias);
+    if(ac.length<4 || !scanSellerSignalCompact(raw).includes(ac)) return;
+    const idx=resolveBuiltinSafeAlias(alias);
+    if(idx>=0) addCandidate(idx,alias,1250+ac.length);
+  });
 
   if(!candidates.length) return null;
   candidates.sort((a,b)=>b.score-a.score);
@@ -4662,14 +4743,14 @@ function reconstructPdfLines(items){
   for(const it of sorted){
     const text=String(it.str||"").trim(); if(!text) continue;
     const y=it.transform?.[5]||0;
-    let row=rows.find(r=>Math.abs(r.y-y)<=2.5);
+    let row=rows.find(r=>Math.abs(r.y-y)<=4.2);
     if(!row){row={y,items:[]};rows.push(row);}
     row.items.push({x:it.transform?.[4]||0,text});
   }
   return rows.sort((a,b)=>b.y-a.y).map(r=>r.items.sort((a,b)=>a.x-b.x).map(x=>x.text).join(" ").replace(/\s+/g," ").trim()).filter(Boolean);
 }
 function extractResiInfo(lines,pageNo){
-  const text=lines.join("\\n");
+  const text=lines.join("\n");
   const start=lines.findIndex(x=>/product\s*name\s+sku\s+seller\s*sku\s+qty/i.test(x) || /product\s*name/i.test(x));
   const endCandidates=[];
   lines.forEach((x,i)=>{if(i>Math.max(0,start) && /qty\s*total|order\s*id|nickname/i.test(x)) endCandidates.push(i);});
@@ -4689,7 +4770,19 @@ function extractResiInfo(lines,pageNo){
     }
     const orderId=(text.match(/Order\s*Id\s*:?\s*([0-9]{10,25})/i)||[])[1] || (text.match(/\b(58\d{10,20})\b/)||[])[1] || "";
     const waybill=(text.match(/\b(JY\d{8,20})\b/i)||[])[1] || "";
-    const match=bestScanMatch(chunk);
+    let match=bestScanMatch(chunk);
+
+    // Shipping summary is a second independent signal when it contains a real
+    // variant instead of "Default". This helps generic listings such as
+    // ELIXIR / ON ROCK / HAWAS ICE without guessing from address text.
+    if((!match || match.index<0) && chunks.length===1){
+      const summaryNames=extractBundleNamesFromShippingSummary(text);
+      if(summaryNames.length===1){
+        const sm=safeMatchResiVariantName(summaryNames[0]);
+        if(sm.index>=0) match={...sm,method:"shipping-summary-safe"};
+      }
+    }
+
     // Resi "Bundling 2 Botol / Mix Variant" menyimpan dua varian di kolom SKU/Seller SKU.
     // Satu bundle harus masuk sebagai 2 item varian, bukan 1 item bundle.
     if(/bundling\s*2\s*botol|mix\s*variant/i.test(chunk)) {
@@ -6363,8 +6456,18 @@ window.getEvoraBarang=function(){ return Array.isArray(barang) ? barang : []; };
   window.renderResiAliases=function(){
     const el=document.getElementById('ramList'); if(!el)return;
     const m=getResiAliases(); const keys=Object.keys(m).sort();
+    const builtins=typeof getBuiltinSafeResiAliases==="function"?getBuiltinSafeResiAliases():{};
+    const builtinHtml=Object.keys(builtins).length
+      ? `<div style="margin-bottom:12px;padding:10px;border:1px solid #dbeafe;border-radius:10px;background:rgba(59,130,246,.06)">
+          <div style="font-weight:900;margin-bottom:5px">Mapping Aman Bawaan</div>
+          <div style="font-size:11px;color:#64748b;line-height:1.6">
+            ${Object.entries(builtins).map(([a,t])=>`${a} → <b>${t}</b>`).join(" · ")}
+          </div>
+          <div style="font-size:10px;color:#f97316;margin-top:6px">CL tidak dipetakan otomatis karena terlalu pendek/ambigu. Gunakan mapping manual jika memang diperlukan.</div>
+        </div>`:"";
+
     if(!keys.length){
-      el.innerHTML='<div style="color:#687386">Belum ada mapping.</div>';
+      el.innerHTML=builtinHtml+'<div style="color:#687386">Belum ada mapping manual.</div>';
       return;
     }
 
@@ -6375,7 +6478,7 @@ window.getEvoraBarang=function(){ return Array.isArray(barang) ? barang : []; };
       groups[target].push(a);
     });
 
-    el.innerHTML=Object.keys(groups).sort().map(target=>{
+    el.innerHTML=builtinHtml+Object.keys(groups).sort().map(target=>{
       const aliases=groups[target];
       return `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:9px;margin-bottom:8px">
         <div style="font-weight:800;margin-bottom:5px">${String(target).replace(/</g,'&lt;')}</div>
