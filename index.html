@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v16.8 - PC HP Cloud Sync</title>
+  <title>EVORA Tracker Pro v16.9 - PC HP Sync Fixed</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -9077,13 +9077,17 @@ function normalizeSerahActiveSnapshot(v){
 }
 async function refreshSerahActiveFromCloud(showMessage=false){
   try{
-    const {data,error}=await supabaseApp.from('pos_data').select('data').eq('id',1).single();
-    if(error || !data?.data) throw (error||new Error("Data cloud kosong"));
-    const snap=normalizeSerahActiveSnapshot(data.data.serahEkspedisiActiveSnapshot);
+    const {data,error}=await supabaseApp.from('pos_data').select('konten').eq('id',1).single();
+    if(error || !data?.konten) throw (error||new Error("Data cloud kosong"));
+    const snap=normalizeSerahActiveSnapshot(data.konten.serahEkspedisiActiveSnapshot);
     if(snap.codes.length){
       serahEkspedisiActiveSnapshot=snap;
       renderSerahActivePdfStatus();
-      if(showMessage) setSerahResult("neutral","DATA CLOUD TERBARU",`${snap.orders.length} Order ID · ${snap.resi.length} resi aktif siap dipakai.`);
+      if(showMessage){
+        const d=new Date(snap.importedAt||0);
+        const jam=Number.isNaN(d.getTime())?"":d.toLocaleString("id-ID",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+        setSerahResult("neutral","DATA PC BERHASIL MASUK",`${snap.orders.length} Order ID · ${snap.resi.length} resi${jam?` · update ${jam}`:""}. Siap scan.`);
+      }
       return true;
     }
     renderSerahActivePdfStatus();
@@ -9165,8 +9169,23 @@ async function importSerahActivePdf(){
       count:codes.length
     };
     await saveData();
+
+    // Verify the snapshot really exists in Supabase before telling the PC user it is ready.
+    let cloudVerified=false;
+    try{
+      const {data:verifyData,error:verifyError}=await supabaseApp.from('pos_data').select('konten').eq('id',1).single();
+      if(!verifyError && verifyData?.konten){
+        const remoteSnap=normalizeSerahActiveSnapshot(verifyData.konten.serahEkspedisiActiveSnapshot);
+        cloudVerified=remoteSnap.codes.length===codes.length && remoteSnap.importedAt===serahEkspedisiActiveSnapshot.importedAt;
+      }
+    }catch(_){}
+
     renderSerahActivePdfStatus();
-    setSerahResult("neutral","PDF AKTIF TERSIMPAN KE CLOUD",`${ids.orders.length} Order ID · ${ids.resi.length} resi terbaca. Scanner sekarang memakai daftar ini sebagai acuan.`);
+    if(cloudVerified){
+      setSerahResult("neutral","PDF AKTIF SUDAH MASUK CLOUD",`${ids.orders.length} Order ID · ${ids.resi.length} resi. HP sekarang bisa mengambil data ini otomatis.`);
+    }else{
+      setSerahResult("fail","PDF TERBACA, CLOUD BELUM TERKONFIRMASI","Jangan mulai scan HP dulu. Periksa status koneksi EVORA lalu upload/refresh kembali.");
+    }
   }catch(err){
     console.error(err);
     if(status) status.innerHTML=`<b style="color:var(--danger)">Gagal:</b> ${evEsc(err?.message||"PDF tidak dapat dibaca")}`;
