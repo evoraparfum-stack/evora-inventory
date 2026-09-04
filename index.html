@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v16.5 - PayLater Date Validation Fixed</title>
+  <title>EVORA Tracker Pro v16.6 - Scan Serah Ekspedisi</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -15,6 +15,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
 
 <style>
 :root {
@@ -730,6 +731,40 @@ body.dark-theme .paylater-progress{background:#334155;}
 .paylater-reminder-box{border:1px solid #fb923c;background:rgba(249,115,22,.08);border-radius:10px;padding:9px 10px;}
 .paylater-reminder-title{font-size:11px;font-weight:900;color:var(--warning);}
 .paylater-reminder-row{font-size:10px;color:var(--text-main);margin-top:4px;line-height:1.4;}
+
+
+/* EVORA v16.6 — Scan Serah Ekspedisi */
+.serah-camera-wrap{position:relative;margin-top:12px;border-radius:14px;overflow:hidden;background:#020617;aspect-ratio:16/10;border:1px solid #334155;}
+#serahEkspedisiVideo{width:100%;height:100%;object-fit:cover;display:block;}
+.serah-scan-frame{position:absolute;left:12%;right:12%;top:28%;height:42%;border:2px solid rgba(255,255,255,.85);border-radius:12px;box-shadow:0 0 0 999px rgba(2,6,23,.28);pointer-events:none;}
+.serah-scan-frame:before,.serah-scan-frame:after{content:"";position:absolute;width:26px;height:26px;border-color:#2dd4bf;}
+.serah-scan-frame:before{left:-2px;top:-2px;border-left:4px solid #2dd4bf;border-top:4px solid #2dd4bf;border-radius:10px 0 0 0;}
+.serah-scan-frame:after{right:-2px;bottom:-2px;border-right:4px solid #2dd4bf;border-bottom:4px solid #2dd4bf;border-radius:0 0 10px 0;}
+.serah-camera-state{position:absolute;left:10px;right:10px;bottom:8px;background:rgba(15,23,42,.78);color:white;border-radius:8px;padding:6px 8px;text-align:center;font-size:10px;font-weight:800;}
+.serah-result{display:flex;align-items:center;gap:10px;margin-top:10px;padding:11px;border-radius:12px;border:1px solid #cbd5e1;background:var(--bg-main);}
+.serah-result.success{border-color:#14b8a6;background:rgba(20,184,166,.09);}
+.serah-result.fail{border-color:#e11d48;background:rgba(225,29,72,.09);}
+.serah-result.duplicate{border-color:#f97316;background:rgba(249,115,22,.09);}
+.serah-result-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:0 0 38px;background:#e2e8f0;color:#334155;}
+.serah-result.success .serah-result-icon{background:#ccfbf1;color:#0f766e;}
+.serah-result.fail .serah-result-icon{background:#ffe4e6;color:#be123c;}
+.serah-result.duplicate .serah-result-icon{background:#ffedd5;color:#c2410c;}
+.serah-result-title{font-size:13px;font-weight:900;color:var(--text-main);}
+.serah-result-detail{font-size:10px;color:var(--text-muted);line-height:1.4;margin-top:2px;overflow-wrap:anywhere;}
+.serah-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px;}
+.serah-stats>div{border:1px solid #e2e8f0;border-radius:9px;padding:7px;text-align:center;background:var(--bg-card);}
+body.dark-theme .serah-stats>div{border-color:#334155;}
+.serah-stats b{display:block;font-size:15px;color:var(--text-main);}
+.serah-stats span{font-size:8px;color:var(--text-muted);font-weight:700;}
+.serah-cancel-chip{display:inline-flex;align-items:center;gap:5px;margin:2px;padding:4px 6px;border-radius:999px;background:#ffe4e6;color:#be123c;font-size:9px;font-weight:800;}
+.serah-log-row{display:flex;justify-content:space-between;gap:8px;padding:7px 8px;border-bottom:1px solid #e2e8f0;font-size:9px;}
+body.dark-theme .serah-log-row{border-color:#334155;}
+.serah-log-main{min-width:0;overflow-wrap:anywhere;}
+.serah-log-status{font-weight:900;white-space:nowrap;}
+@media(max-width:430px){
+  .serah-camera-wrap{aspect-ratio:4/3;}
+  .serah-stats{gap:4px;}
+}
 
 </style>
 <style>
@@ -1859,6 +1894,10 @@ body.dark-mode #evoraAICenter label,
           <i class="fa-solid fa-cart-shopping"></i>
           <span>Kasir</span>
         </div>
+        <div class="quick-card" onclick="openSerahEkspedisiScanner()">
+          <i class="fa-solid fa-qrcode"></i>
+          <span>Scan Serah</span>
+        </div>
       </div>
     </div>
     
@@ -2323,6 +2362,72 @@ body.dark-mode #evoraAICenter label,
 
 </div>
 
+
+<div id="serahEkspedisiModal" class="modal-overlay" style="display:none;z-index:300000;">
+  <div class="modal-content" style="max-width:520px;width:100%;padding:18px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+      <div>
+        <h3 style="margin-bottom:4px;color:var(--primary);"><i class="fa-solid fa-truck-fast"></i> SCAN SERAH EKSPEDISI</h3>
+        <div style="font-size:10px;color:var(--text-muted);line-height:1.45;">
+          Kamera standby. Arahkan barcode/QR resi ke kamera, tidak perlu tekan tombol setiap scan.
+        </div>
+      </div>
+      <button type="button" onclick="closeSerahEkspedisiScanner()" style="width:38px;height:38px;padding:0;background:#64748b;box-shadow:none;flex:0 0 38px;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="serah-camera-wrap">
+      <video id="serahEkspedisiVideo" playsinline muted></video>
+      <div class="serah-scan-frame"></div>
+      <div id="serahCameraState" class="serah-camera-state">Kamera belum aktif</div>
+    </div>
+
+    <div id="serahScanResult" class="serah-result neutral">
+      <div id="serahResultIcon" class="serah-result-icon"><i class="fa-solid fa-qrcode"></i></div>
+      <div style="min-width:0;flex:1">
+        <div id="serahResultTitle" class="serah-result-title">Siap Scan</div>
+        <div id="serahResultDetail" class="serah-result-detail">Arahkan barcode resi ke kotak kamera.</div>
+      </div>
+    </div>
+
+    <div class="serah-stats">
+      <div><b id="serahStatBerhasil">0</b><span>Berhasil</span></div>
+      <div><b id="serahStatDuplikat">0</b><span>Duplikat</span></div>
+      <div><b id="serahStatGagal">0</b><span>Gagal/Cancel</span></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+      <button type="button" id="btnStartSerahCamera" onclick="startSerahEkspedisiCamera()" style="background:var(--success);box-shadow:none;font-size:11px;">
+        <i class="fa-solid fa-camera"></i> Aktifkan Kamera
+      </button>
+      <button type="button" onclick="clearSerahSessionStats()" style="background:#64748b;box-shadow:none;font-size:11px;">
+        Reset Hitungan Sesi
+      </button>
+    </div>
+
+    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;">
+      <div style="font-size:10px;font-weight:900;margin-bottom:5px;">DAFTAR PESANAN DIBATALKAN</div>
+      <div style="font-size:9px;color:var(--text-muted);line-height:1.4;margin-bottom:6px;">
+        Masukkan Order ID atau nomor resi yang sudah dibatalkan marketplace. Scanner akan langsung menolak paket tersebut.
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;">
+        <input id="serahCancelInput" type="text" placeholder="Order ID / Resi dibatalkan" style="margin:0;font-size:12px;">
+        <button type="button" onclick="addSerahCancelledCode()" style="width:auto;padding:10px 12px;background:var(--danger);box-shadow:none;font-size:10px;">Tandai Batal</button>
+      </div>
+      <div id="serahCancelledList" style="margin-top:7px;"></div>
+    </div>
+
+    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="font-size:10px;font-weight:900;">SCAN TERAKHIR</div>
+        <button type="button" onclick="renderSerahEkspedisiLog()" style="width:auto;padding:5px 8px;background:none;color:var(--primary);box-shadow:none;font-size:9px;">Refresh</button>
+      </div>
+      <div id="serahEkspedisiLogList" style="max-height:150px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
 <div class="bottom-nav">
   <button id="nav-beranda" class="nav-item active" onclick="switchTab('beranda')">
     <div class="nav-icon"><i class="fa-solid fa-house"></i>
@@ -2415,6 +2520,8 @@ let penjualan = [];
 let pengeluaran = [];
 let pesanan = []; 
 let logPaylater = [];
+let serahEkspedisiLog = [];
+let serahEkspedisiCancelled = [];
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
@@ -3264,6 +3371,8 @@ async function loadDataFromCloud() {
       pengeluaran = dataUtama.pengeluaran || [];
       pesanan = dataUtama.pesanan || []; 
       logPaylater = dataUtama.logPaylater || [];
+      serahEkspedisiLog = Array.isArray(dataUtama.serahEkspedisiLog) ? dataUtama.serahEkspedisiLog : [];
+      serahEkspedisiCancelled = Array.isArray(dataUtama.serahEkspedisiCancelled) ? dataUtama.serahEkspedisiCancelled : [];
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       targetBulanan = Number(dataUtama.targetBulanan || 400);
       isAdsActive = dataUtama.isAdsActive || false;
@@ -3306,6 +3415,8 @@ async function saveData() {
     pengeluaran: pengeluaran,
     pesanan: pesanan, 
     logPaylater: logPaylater,
+    serahEkspedisiLog: serahEkspedisiLog,
+    serahEkspedisiCancelled: serahEkspedisiCancelled,
     hargaGlobal: HARGA,
     targetBulanan: targetBulanan,
     isAdsActive: isAdsActive,
@@ -3862,6 +3973,8 @@ async function salinDataKeClipboard() {
     pengeluaran: pengeluaran,
     pesanan: pesanan,
     logPaylater: logPaylater,
+    serahEkspedisiLog: serahEkspedisiLog,
+    serahEkspedisiCancelled: serahEkspedisiCancelled,
     hargaGlobal: HARGA,
     targetBulanan: targetBulanan,
     isAdsActive: isAdsActive,
@@ -3900,6 +4013,8 @@ async function pasteDataTransfer() {
     pengeluaran = dataBaru.pengeluaran || [];
     pesanan = dataBaru.pesanan || [];
     logPaylater = dataBaru.logPaylater || [];
+    serahEkspedisiLog = Array.isArray(dataBaru.serahEkspedisiLog) ? dataBaru.serahEkspedisiLog : [];
+    serahEkspedisiCancelled = Array.isArray(dataBaru.serahEkspedisiCancelled) ? dataBaru.serahEkspedisiCancelled : [];
     HARGA = Number(dataBaru.hargaGlobal || 27000);
     targetBulanan = Number(dataBaru.targetBulanan || 400);
     isAdsActive = dataBaru.isAdsActive || false;
@@ -8712,6 +8827,441 @@ if(typeof renderLaporan==="function"){
     return result;
   };
 }
+
+
+/* =========================================================
+   EVORA v16.6 — SCAN SERAH EKSPEDISI
+   ========================================================= */
+let serahEkspedisiStream=null;
+let serahEkspedisiDetector=null;
+let serahEkspedisiLoopActive=false;
+let serahEkspedisiRaf=0;
+let serahEkspedisiZXingReader=null;
+let serahEkspedisiLastCode="";
+let serahEkspedisiLastAt=0;
+let serahEkspedisiSession={berhasil:0,duplikat:0,gagal:0};
+
+function normalizeSerahCode(v){
+  return String(v||"").replace(/[^0-9A-Za-z]/g,"").toUpperCase();
+}
+
+function extractSerahCode(raw){
+  const s=String(raw||"").toUpperCase();
+
+  // J&T waybill.
+  let m=s.match(/\bJY[\s\-]*([0-9]{8,20})\b/);
+  if(m) return "JY"+m[1].replace(/\D/g,"");
+
+  // Marketplace order id commonly starts with 58.
+  m=s.match(/\b(58[0-9]{10,22})\b/);
+  if(m) return m[1];
+
+  // Generic long alphanumeric barcode fallback.
+  const compact=normalizeSerahCode(s);
+  if(compact.length>=10 && compact.length<=40) return compact;
+
+  return "";
+}
+
+function getSerahShipmentMatches(code){
+  const c=normalizeSerahCode(code);
+  return (penjualan||[]).filter(p=>{
+    const vals=[
+      p.resi,p.waybill,p.orderId,p.noPesanan,p.nomorPesanan
+    ].map(normalizeSerahCode).filter(Boolean);
+    return vals.includes(c);
+  });
+}
+
+function getSerahShipmentIdentity(matches, scannedCode){
+  const first=(matches||[])[0]||{};
+  const order=normalizeSerahCode(first.orderId||first.noPesanan||first.nomorPesanan||"");
+  const resi=normalizeSerahCode(first.resi||first.waybill||"");
+  return order || resi || normalizeSerahCode(scannedCode);
+}
+
+function isSerahCancelled(code,matches=[]){
+  const c=normalizeSerahCode(code);
+
+  const explicit=(serahEkspedisiCancelled||[]).some(x=>{
+    const v=normalizeSerahCode(typeof x==="string"?x:(x.code||x.orderId||x.resi||""));
+    return v===c;
+  });
+  if(explicit) return true;
+
+  return matches.some(p=>{
+    const status=String(p.status||p.statusPesanan||p.orderStatus||p.keteranganStatus||"").toUpperCase();
+    return p.cancelled===true || p.dibatalkan===true || /CANCEL|BATAL|DIBATALKAN/.test(status);
+  });
+}
+
+function hasSerahBeenScanned(identity,code){
+  const id=normalizeSerahCode(identity);
+  const c=normalizeSerahCode(code);
+  return (serahEkspedisiLog||[]).some(x=>{
+    if(String(x.status||"").toUpperCase()!=="BERHASIL") return false;
+    const xi=normalizeSerahCode(x.identity||"");
+    const xc=normalizeSerahCode(x.code||"");
+    return (id && xi===id) || (c && xc===c);
+  });
+}
+
+function serahAudioContext(){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC) return null;
+  if(!window.__evoraSerahAudio) window.__evoraSerahAudio=new AC();
+  const ctx=window.__evoraSerahAudio;
+  if(ctx.state==="suspended") ctx.resume().catch(()=>{});
+  return ctx;
+}
+
+function playSerahCling(){
+  const ctx=serahAudioContext(); if(!ctx) return;
+  const now=ctx.currentTime;
+  [1046.5,1567.98].forEach((freq,i)=>{
+    const osc=ctx.createOscillator(), gain=ctx.createGain();
+    osc.type="sine"; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001,now+i*.055);
+    gain.gain.exponentialRampToValueAtTime(.18,now+i*.055+.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+i*.055+.20);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(now+i*.055);osc.stop(now+i*.055+.22);
+  });
+}
+
+function playSerahTet(){
+  const ctx=serahAudioContext(); if(!ctx) return;
+  const now=ctx.currentTime;
+  [260,210].forEach((freq,i)=>{
+    const osc=ctx.createOscillator(), gain=ctx.createGain();
+    osc.type="square";osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001,now+i*.13);
+    gain.gain.exponentialRampToValueAtTime(.11,now+i*.13+.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+i*.13+.11);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(now+i*.13);osc.stop(now+i*.13+.12);
+  });
+}
+
+function setSerahResult(type,title,detail){
+  const box=document.getElementById("serahScanResult");
+  const t=document.getElementById("serahResultTitle");
+  const d=document.getElementById("serahResultDetail");
+  const icon=document.getElementById("serahResultIcon");
+  if(!box||!t||!d||!icon) return;
+  box.className="serah-result "+type;
+  t.textContent=title;
+  d.textContent=detail;
+  icon.innerHTML=type==="success"
+    ? '<i class="fa-solid fa-circle-check"></i>'
+    : type==="duplicate"
+      ? '<i class="fa-solid fa-copy"></i>'
+      : type==="fail"
+        ? '<i class="fa-solid fa-circle-xmark"></i>'
+        : '<i class="fa-solid fa-qrcode"></i>';
+}
+
+function updateSerahStats(){
+  const a=document.getElementById("serahStatBerhasil");
+  const b=document.getElementById("serahStatDuplikat");
+  const c=document.getElementById("serahStatGagal");
+  if(a)a.textContent=serahEkspedisiSession.berhasil;
+  if(b)b.textContent=serahEkspedisiSession.duplikat;
+  if(c)c.textContent=serahEkspedisiSession.gagal;
+}
+
+async function processSerahEkspedisiCode(rawValue){
+  const code=extractSerahCode(rawValue);
+  if(!code) return;
+
+  const now=Date.now();
+  if(code===serahEkspedisiLastCode && now-serahEkspedisiLastAt<2600) return;
+  serahEkspedisiLastCode=code;
+  serahEkspedisiLastAt=now;
+
+  const matches=getSerahShipmentMatches(code);
+  const identity=getSerahShipmentIdentity(matches,code);
+
+  if(isSerahCancelled(code,matches)){
+    serahEkspedisiSession.gagal++;
+    setSerahResult("fail","PESANAN DIBATALKAN",`${code} · Paket JANGAN diserahkan ke ekspedisi.`);
+    playSerahTet();
+    serahEkspedisiLog.push({
+      id:"SERAH_"+Date.now(),
+      tanggal:new Date().toISOString(),
+      code,identity,status:"CANCEL",
+      orderId:String(matches[0]?.orderId||matches[0]?.noPesanan||""),
+      resi:String(matches[0]?.resi||"")
+    });
+    updateSerahStats();
+    renderSerahEkspedisiLog();
+    await saveData();
+    return;
+  }
+
+  if(matches.length && hasSerahBeenScanned(identity,code)){
+    serahEkspedisiSession.duplikat++;
+    setSerahResult("duplicate","DUPLIKAT RESI",`${code} sudah pernah lolos scan serah. Cek paket dobel.`);
+    playSerahTet();
+    serahEkspedisiLog.push({
+      id:"SERAH_"+Date.now(),
+      tanggal:new Date().toISOString(),
+      code,identity,status:"DUPLIKAT",
+      orderId:String(matches[0]?.orderId||matches[0]?.noPesanan||""),
+      resi:String(matches[0]?.resi||"")
+    });
+    updateSerahStats();
+    renderSerahEkspedisiLog();
+    await saveData();
+    return;
+  }
+
+  if(!matches.length){
+    serahEkspedisiSession.gagal++;
+    setSerahResult("fail","RESI TIDAK TERDAFTAR",`${code} tidak ditemukan pada riwayat penjualan/scanner. Jangan serahkan sebelum dicek.`);
+    playSerahTet();
+    serahEkspedisiLog.push({
+      id:"SERAH_"+Date.now(),
+      tanggal:new Date().toISOString(),
+      code,identity,status:"GAGAL_TIDAK_TERDAFTAR"
+    });
+    updateSerahStats();
+    renderSerahEkspedisiLog();
+    await saveData();
+    return;
+  }
+
+  const first=matches[0]||{};
+  const order=String(first.orderId||first.noPesanan||"").trim();
+  const resi=String(first.resi||first.waybill||"").trim();
+  serahEkspedisiSession.berhasil++;
+  setSerahResult(
+    "success",
+    "BERHASIL · SIAP DISERAHKAN",
+    `${resi||code}${order?` · Order ${order}`:""}`
+  );
+  playSerahCling();
+
+  serahEkspedisiLog.push({
+    id:"SERAH_"+Date.now(),
+    tanggal:new Date().toISOString(),
+    code,identity,status:"BERHASIL",
+    orderId:order,resi
+  });
+  updateSerahStats();
+  renderSerahEkspedisiLog();
+  await saveData();
+}
+
+async function setupSerahBarcodeDetector(){
+  if("BarcodeDetector" in window){
+    try{
+      const supported=await BarcodeDetector.getSupportedFormats();
+      const wanted=["code_128","qr_code","code_39","ean_13","ean_8","data_matrix"].filter(x=>supported.includes(x));
+      serahEkspedisiDetector=new BarcodeDetector({formats:wanted.length?wanted:supported});
+      return "native";
+    }catch(e){console.warn("BarcodeDetector init gagal",e);}
+  }
+
+  if(window.ZXing && ZXing.BrowserMultiFormatReader){
+    serahEkspedisiZXingReader=new ZXing.BrowserMultiFormatReader();
+    return "zxing";
+  }
+  return "none";
+}
+
+async function startSerahEkspedisiCamera(){
+  const video=document.getElementById("serahEkspedisiVideo");
+  const state=document.getElementById("serahCameraState");
+  const btn=document.getElementById("btnStartSerahCamera");
+  if(!video||!state) return;
+
+  stopSerahEkspedisiCamera();
+  try{
+    if(!navigator.mediaDevices?.getUserMedia){
+      throw new Error("Browser tidak mendukung akses kamera.");
+    }
+
+    serahAudioContext(); // unlock audio from this user gesture
+
+    serahEkspedisiStream=await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:{ideal:"environment"},
+        width:{ideal:1280},
+        height:{ideal:720}
+      },
+      audio:false
+    });
+    video.srcObject=serahEkspedisiStream;
+    await video.play();
+
+    const engine=await setupSerahBarcodeDetector();
+    if(engine==="none") throw new Error("Mesin pembaca barcode tidak tersedia.");
+
+    state.textContent="STANDBY · Arahkan resi ke kotak";
+    if(btn) btn.innerHTML='<i class="fa-solid fa-rotate"></i> Restart Kamera';
+    serahEkspedisiLoopActive=true;
+
+    if(engine==="native") scanSerahNativeLoop();
+    else scanSerahZXingLoop();
+  }catch(err){
+    console.error("Kamera serah ekspedisi:",err);
+    state.textContent="Kamera gagal aktif";
+    setSerahResult("fail","KAMERA GAGAL",err?.message||"Izin kamera ditolak.");
+    playSerahTet();
+  }
+}
+
+async function scanSerahNativeLoop(){
+  if(!serahEkspedisiLoopActive||!serahEkspedisiDetector) return;
+  const video=document.getElementById("serahEkspedisiVideo");
+  if(!video) return;
+
+  try{
+    if(video.readyState>=2){
+      const codes=await serahEkspedisiDetector.detect(video);
+      if(codes?.length){
+        // Prefer JY/order-like result when several barcodes are visible.
+        const sorted=[...codes].sort((a,b)=>{
+          const aa=extractSerahCode(a.rawValue||"")?1:0;
+          const bb=extractSerahCode(b.rawValue||"")?1:0;
+          return bb-aa;
+        });
+        await processSerahEkspedisiCode(sorted[0].rawValue||"");
+      }
+    }
+  }catch(e){}
+  if(serahEkspedisiLoopActive){
+    serahEkspedisiRaf=requestAnimationFrame(scanSerahNativeLoop);
+  }
+}
+
+function scanSerahZXingLoop(){
+  if(!serahEkspedisiLoopActive||!serahEkspedisiZXingReader) return;
+  const video=document.getElementById("serahEkspedisiVideo");
+  if(!video) return;
+
+  serahEkspedisiZXingReader.decodeFromVideoElementContinuously(video,(result,err)=>{
+    if(!serahEkspedisiLoopActive) return;
+    if(result){
+      processSerahEkspedisiCode(result.getText?.()||String(result.text||""));
+    }
+  });
+}
+
+function stopSerahEkspedisiCamera(){
+  serahEkspedisiLoopActive=false;
+  if(serahEkspedisiRaf) cancelAnimationFrame(serahEkspedisiRaf);
+  serahEkspedisiRaf=0;
+
+  try{
+    if(serahEkspedisiZXingReader) serahEkspedisiZXingReader.reset();
+  }catch(e){}
+  serahEkspedisiZXingReader=null;
+  serahEkspedisiDetector=null;
+
+  if(serahEkspedisiStream){
+    serahEkspedisiStream.getTracks().forEach(t=>t.stop());
+    serahEkspedisiStream=null;
+  }
+  const video=document.getElementById("serahEkspedisiVideo");
+  if(video) video.srcObject=null;
+}
+
+function openSerahEkspedisiScanner(){
+  const modal=document.getElementById("serahEkspedisiModal");
+  if(!modal) return;
+  modal.style.display="flex";
+  serahEkspedisiLastCode="";
+  serahEkspedisiLastAt=0;
+  updateSerahStats();
+  renderSerahCancelledList();
+  renderSerahEkspedisiLog();
+  setSerahResult("neutral","Siap Scan","Tekan Aktifkan Kamera satu kali, setelah itu scanner standby otomatis.");
+
+  // Browsers require an explicit user gesture for first camera permission.
+  // This function itself is opened by a user tap, so starting here usually
+  // works. If blocked, the visible Aktifkan Kamera button remains available.
+  startSerahEkspedisiCamera().catch(()=>{});
+}
+
+function closeSerahEkspedisiScanner(){
+  stopSerahEkspedisiCamera();
+  const modal=document.getElementById("serahEkspedisiModal");
+  if(modal) modal.style.display="none";
+}
+
+function clearSerahSessionStats(){
+  serahEkspedisiSession={berhasil:0,duplikat:0,gagal:0};
+  updateSerahStats();
+  setSerahResult("neutral","Hitungan Sesi Direset","Riwayat permanen tetap tersimpan.");
+}
+
+async function addSerahCancelledCode(){
+  const input=document.getElementById("serahCancelInput");
+  const code=extractSerahCode(input?.value||"") || normalizeSerahCode(input?.value||"");
+  if(!code || code.length<8){
+    await customAlert("Kode Tidak Valid","Masukkan Order ID atau nomor resi yang valid.","warning");
+    return;
+  }
+
+  if(!(serahEkspedisiCancelled||[]).some(x=>normalizeSerahCode(typeof x==="string"?x:x.code)===normalizeSerahCode(code))){
+    serahEkspedisiCancelled.push({
+      id:"CANCEL_"+Date.now(),
+      code,
+      tanggal:new Date().toISOString()
+    });
+    await saveData();
+  }
+  if(input) input.value="";
+  renderSerahCancelledList();
+}
+
+async function removeSerahCancelledCode(id){
+  serahEkspedisiCancelled=(serahEkspedisiCancelled||[]).filter(x=>String(x.id||x.code)!==String(id));
+  await saveData();
+  renderSerahCancelledList();
+}
+
+function renderSerahCancelledList(){
+  const el=document.getElementById("serahCancelledList");
+  if(!el) return;
+  const rows=[...(serahEkspedisiCancelled||[])].reverse().slice(0,12);
+  if(!rows.length){
+    el.innerHTML='<div style="font-size:9px;color:var(--text-muted);">Belum ada resi/order yang ditandai batal.</div>';
+    return;
+  }
+  el.innerHTML=rows.map(x=>{
+    const id=String(x.id||x.code||"");
+    const code=String(x.code||x||"");
+    return `<span class="serah-cancel-chip">${evEsc(code)} <button type="button" onclick="removeSerahCancelledCode('${evEsc(id)}')" style="width:auto;padding:0;background:none;color:inherit;box-shadow:none;font-size:9px;"><i class="fa-solid fa-xmark"></i></button></span>`;
+  }).join("");
+}
+
+function renderSerahEkspedisiLog(){
+  const el=document.getElementById("serahEkspedisiLogList");
+  if(!el) return;
+  const rows=[...(serahEkspedisiLog||[])].reverse().slice(0,30);
+  if(!rows.length){
+    el.innerHTML='<div style="font-size:9px;color:var(--text-muted);text-align:center;padding:8px;">Belum ada scan serah ekspedisi.</div>';
+    return;
+  }
+  el.innerHTML=rows.map(x=>{
+    const status=String(x.status||"");
+    const color=status==="BERHASIL"?"var(--success)":status==="DUPLIKAT"?"var(--warning)":"var(--danger)";
+    const dt=new Date(x.tanggal||0);
+    const tm=Number.isNaN(dt.getTime())?"":dt.toLocaleString("id-ID",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    return `<div class="serah-log-row">
+      <div class="serah-log-main"><b>${evEsc(String(x.resi||x.code||"-"))}</b>${x.orderId?`<br>Order ${evEsc(String(x.orderId))}`:""}<br><span style="color:var(--text-muted)">${evEsc(tm)}</span></div>
+      <div class="serah-log-status" style="color:${color}">${evEsc(status.replaceAll("_"," "))}</div>
+    </div>`;
+  }).join("");
+}
+
+// Stop camera if page is hidden so the camera LED does not stay on unnecessarily.
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden && serahEkspedisiLoopActive) stopSerahEkspedisiCamera();
+});
 
 </script>\n</body>
 </html>
