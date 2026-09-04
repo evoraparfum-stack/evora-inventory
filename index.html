@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v16.7 - PDF Resi Aktif Check</title>
+  <title>EVORA Tracker Pro v16.8 - PC HP Cloud Sync</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -2401,15 +2401,18 @@ body.dark-mode #evoraAICenter label,
       <button type="button" id="btnStartSerahCamera" onclick="startSerahEkspedisiCamera()" style="background:var(--success);box-shadow:none;font-size:11px;">
         <i class="fa-solid fa-camera"></i> Aktifkan Kamera
       </button>
-      <button type="button" onclick="clearSerahSessionStats()" style="background:#64748b;box-shadow:none;font-size:11px;">
+      <button type="button" onclick="refreshSerahActiveFromCloud(true)" style="background:#334155;box-shadow:none;font-size:11px;">
+        <i class="fa-solid fa-cloud-arrow-down"></i> Refresh Data
+      </button>
+      <button type="button" onclick="clearSerahSessionStats()" style="background:#64748b;box-shadow:none;font-size:11px;grid-column:1/-1;">
         Reset Hitungan Sesi
       </button>
     </div>
 
     <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;">
-      <div style="font-size:10px;font-weight:900;margin-bottom:5px;">PDF RESI AKTIF TERBARU</div>
+      <div style="font-size:10px;font-weight:900;margin-bottom:5px;">DATA RESI AKTIF / UPDATE DARI PC</div>
       <div style="font-size:9px;color:var(--text-muted);line-height:1.45;margin-bottom:7px;">
-        Setelah packing selesai, export ulang seluruh resi pesanan yang masih aktif dari marketplace lalu upload PDF di sini. EVORA akan menjadikannya daftar acuan sebelum paket diserahkan.
+        Upload PDF cukup sekali dari PC. Di HP tidak perlu upload ulang. Scanner HP mengambil daftar resi aktif dari cloud.
       </div>
       <input id="serahActivePdfInput" type="file" accept="application/pdf,.pdf" style="font-size:10px;text-align:left;text-align-last:left;">
       <button type="button" onclick="importSerahActivePdf()" style="background:var(--primary);box-shadow:none;font-size:10px;">
@@ -3374,7 +3377,7 @@ async function loadDataFromCloud() {
       logPaylater = dataUtama.logPaylater || [];
       serahEkspedisiLog = Array.isArray(dataUtama.serahEkspedisiLog) ? dataUtama.serahEkspedisiLog : [];
       serahEkspedisiCancelled = Array.isArray(dataUtama.serahEkspedisiCancelled) ? dataUtama.serahEkspedisiCancelled : [];
-      serahEkspedisiActiveSnapshot = dataUtama.serahEkspedisiActiveSnapshot && typeof dataUtama.serahEkspedisiActiveSnapshot==="object" ? dataUtama.serahEkspedisiActiveSnapshot : {importedAt:"",sourceName:"",codes:[],orders:[],resi:[],count:0};
+      serahEkspedisiActiveSnapshot = normalizeSerahActiveSnapshot(dataUtama.serahEkspedisiActiveSnapshot);
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       targetBulanan = Number(dataUtama.targetBulanan || 400);
       isAdsActive = dataUtama.isAdsActive || false;
@@ -4019,7 +4022,7 @@ async function pasteDataTransfer() {
     logPaylater = dataBaru.logPaylater || [];
     serahEkspedisiLog = Array.isArray(dataBaru.serahEkspedisiLog) ? dataBaru.serahEkspedisiLog : [];
     serahEkspedisiCancelled = Array.isArray(dataBaru.serahEkspedisiCancelled) ? dataBaru.serahEkspedisiCancelled : [];
-    serahEkspedisiActiveSnapshot = dataBaru.serahEkspedisiActiveSnapshot && typeof dataBaru.serahEkspedisiActiveSnapshot==="object" ? dataBaru.serahEkspedisiActiveSnapshot : {importedAt:"",sourceName:"",codes:[],orders:[],resi:[],count:0};
+    serahEkspedisiActiveSnapshot = normalizeSerahActiveSnapshot(dataBaru.serahEkspedisiActiveSnapshot);
     HARGA = Number(dataBaru.hargaGlobal || 27000);
     targetBulanan = Number(dataBaru.targetBulanan || 400);
     isAdsActive = dataBaru.isAdsActive || false;
@@ -9060,6 +9063,39 @@ async function processSerahEkspedisiCode(rawValue){
 }
 
 
+
+function normalizeSerahActiveSnapshot(v){
+  const x=(v && typeof v==="object") ? v : {};
+  return {
+    importedAt:String(x.importedAt||""), sourceName:String(x.sourceName||""),
+    pages:Number(x.pages||0),
+    codes:Array.isArray(x.codes)?x.codes.map(normalizeSerahCode).filter(Boolean):[],
+    orders:Array.isArray(x.orders)?x.orders.map(normalizeSerahCode).filter(Boolean):[],
+    resi:Array.isArray(x.resi)?x.resi.map(normalizeSerahCode).filter(Boolean):[],
+    count:Number(x.count||0)
+  };
+}
+async function refreshSerahActiveFromCloud(showMessage=false){
+  try{
+    const {data,error}=await supabaseApp.from('pos_data').select('data').eq('id',1).single();
+    if(error || !data?.data) throw (error||new Error("Data cloud kosong"));
+    const snap=normalizeSerahActiveSnapshot(data.data.serahEkspedisiActiveSnapshot);
+    if(snap.codes.length){
+      serahEkspedisiActiveSnapshot=snap;
+      renderSerahActivePdfStatus();
+      if(showMessage) setSerahResult("neutral","DATA CLOUD TERBARU",`${snap.orders.length} Order ID · ${snap.resi.length} resi aktif siap dipakai.`);
+      return true;
+    }
+    renderSerahActivePdfStatus();
+    if(showMessage) setSerahResult("fail","DATA AKTIF BELUM ADA","PDF aktif belum tersimpan di cloud. Upload sekali dari PC.");
+    return false;
+  }catch(err){
+    console.warn("Refresh PDF aktif cloud gagal:",err);
+    renderSerahActivePdfStatus();
+    if(showMessage) setSerahResult("fail","SYNC CLOUD GAGAL","Periksa internet lalu tekan Refresh Data.");
+    return false;
+  }
+}
 function getSerahKnownIdentifiersFromText(raw){
   const text=String(raw||"").toUpperCase();
   const orders=new Set();
@@ -9130,7 +9166,7 @@ async function importSerahActivePdf(){
     };
     await saveData();
     renderSerahActivePdfStatus();
-    setSerahResult("neutral","PDF AKTIF SIAP",`${ids.orders.length} Order ID · ${ids.resi.length} resi terbaca. Scanner sekarang memakai daftar ini sebagai acuan.`);
+    setSerahResult("neutral","PDF AKTIF TERSIMPAN KE CLOUD",`${ids.orders.length} Order ID · ${ids.resi.length} resi terbaca. Scanner sekarang memakai daftar ini sebagai acuan.`);
   }catch(err){
     console.error(err);
     if(status) status.innerHTML=`<b style="color:var(--danger)">Gagal:</b> ${evEsc(err?.message||"PDF tidak dapat dibaca")}`;
@@ -9144,7 +9180,7 @@ function renderSerahActivePdfStatus(){
   const s=serahEkspedisiActiveSnapshot||{};
   const codes=Array.isArray(s.codes)?s.codes:[];
   if(!codes.length){
-    el.innerHTML='<b style="color:var(--warning)">Belum ada PDF aktif.</b> Scan masih bisa dipakai untuk cek duplikat, tetapi EVORA belum bisa membandingkan paket dengan daftar resi aktif terbaru.';
+    el.innerHTML='<b style="color:var(--warning)">Data resi aktif belum masuk di HP ini.</b> Jika sudah upload dari PC, tekan <b>Refresh Data</b>. Tidak perlu upload PDF ulang di HP.';
     return;
   }
   const d=new Date(s.importedAt||0);
@@ -9285,7 +9321,7 @@ function stopSerahEkspedisiCamera(){
   if(video) video.srcObject=null;
 }
 
-function openSerahEkspedisiScanner(){
+async function openSerahEkspedisiScanner(){
   const modal=document.getElementById("serahEkspedisiModal");
   if(!modal) return;
   modal.style.display="flex";
@@ -9294,11 +9330,14 @@ function openSerahEkspedisiScanner(){
   updateSerahStats();
   renderSerahActivePdfStatus();
   renderSerahEkspedisiLog();
-  setSerahResult("neutral","Siap Scan","Tekan Aktifkan Kamera satu kali, setelah itu scanner standby otomatis.");
-
-  // Browsers require an explicit user gesture for first camera permission.
-  // This function itself is opened by a user tap, so starting here usually
-  // works. If blocked, the visible Aktifkan Kamera button remains available.
+  setSerahResult("neutral","Sinkronisasi","Mengambil daftar resi aktif terbaru dari cloud...");
+  await refreshSerahActiveFromCloud(false);
+  const s=serahEkspedisiActiveSnapshot||{};
+  if(Array.isArray(s.codes) && s.codes.length){
+    setSerahResult("neutral","SIAP SCAN",`${Number(s.orders?.length||0)} Order ID · ${Number(s.resi?.length||0)} resi aktif dari PC.`);
+  }else{
+    setSerahResult("fail","DATA AKTIF BELUM MASUK","Jika PDF sudah diupload di PC, tekan Refresh Data. Tidak perlu upload ulang di HP.");
+  }
   startSerahEkspedisiCamera().catch(()=>{});
 }
 
