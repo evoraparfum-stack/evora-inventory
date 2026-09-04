@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v16.6 - Scan Serah Ekspedisi</title>
+  <title>EVORA Tracker Pro v16.7 - PDF Resi Aktif Check</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -2407,15 +2407,15 @@ body.dark-mode #evoraAICenter label,
     </div>
 
     <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;">
-      <div style="font-size:10px;font-weight:900;margin-bottom:5px;">DAFTAR PESANAN DIBATALKAN</div>
-      <div style="font-size:9px;color:var(--text-muted);line-height:1.4;margin-bottom:6px;">
-        Masukkan Order ID atau nomor resi yang sudah dibatalkan marketplace. Scanner akan langsung menolak paket tersebut.
+      <div style="font-size:10px;font-weight:900;margin-bottom:5px;">PDF RESI AKTIF TERBARU</div>
+      <div style="font-size:9px;color:var(--text-muted);line-height:1.45;margin-bottom:7px;">
+        Setelah packing selesai, export ulang seluruh resi pesanan yang masih aktif dari marketplace lalu upload PDF di sini. EVORA akan menjadikannya daftar acuan sebelum paket diserahkan.
       </div>
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;">
-        <input id="serahCancelInput" type="text" placeholder="Order ID / Resi dibatalkan" style="margin:0;font-size:12px;">
-        <button type="button" onclick="addSerahCancelledCode()" style="width:auto;padding:10px 12px;background:var(--danger);box-shadow:none;font-size:10px;">Tandai Batal</button>
-      </div>
-      <div id="serahCancelledList" style="margin-top:7px;"></div>
+      <input id="serahActivePdfInput" type="file" accept="application/pdf,.pdf" style="font-size:10px;text-align:left;text-align-last:left;">
+      <button type="button" onclick="importSerahActivePdf()" style="background:var(--primary);box-shadow:none;font-size:10px;">
+        <i class="fa-solid fa-file-pdf"></i> Baca PDF Resi Aktif
+      </button>
+      <div id="serahActivePdfStatus" style="margin-top:7px;font-size:9px;line-height:1.45;color:var(--text-muted);"></div>
     </div>
 
     <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;">
@@ -2522,6 +2522,7 @@ let pesanan = [];
 let logPaylater = [];
 let serahEkspedisiLog = [];
 let serahEkspedisiCancelled = [];
+let serahEkspedisiActiveSnapshot = { importedAt:"", sourceName:"", codes:[], orders:[], resi:[], count:0 };
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
@@ -3373,6 +3374,7 @@ async function loadDataFromCloud() {
       logPaylater = dataUtama.logPaylater || [];
       serahEkspedisiLog = Array.isArray(dataUtama.serahEkspedisiLog) ? dataUtama.serahEkspedisiLog : [];
       serahEkspedisiCancelled = Array.isArray(dataUtama.serahEkspedisiCancelled) ? dataUtama.serahEkspedisiCancelled : [];
+      serahEkspedisiActiveSnapshot = dataUtama.serahEkspedisiActiveSnapshot && typeof dataUtama.serahEkspedisiActiveSnapshot==="object" ? dataUtama.serahEkspedisiActiveSnapshot : {importedAt:"",sourceName:"",codes:[],orders:[],resi:[],count:0};
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       targetBulanan = Number(dataUtama.targetBulanan || 400);
       isAdsActive = dataUtama.isAdsActive || false;
@@ -3417,6 +3419,7 @@ async function saveData() {
     logPaylater: logPaylater,
     serahEkspedisiLog: serahEkspedisiLog,
     serahEkspedisiCancelled: serahEkspedisiCancelled,
+    serahEkspedisiActiveSnapshot: serahEkspedisiActiveSnapshot,
     hargaGlobal: HARGA,
     targetBulanan: targetBulanan,
     isAdsActive: isAdsActive,
@@ -3975,6 +3978,7 @@ async function salinDataKeClipboard() {
     logPaylater: logPaylater,
     serahEkspedisiLog: serahEkspedisiLog,
     serahEkspedisiCancelled: serahEkspedisiCancelled,
+    serahEkspedisiActiveSnapshot: serahEkspedisiActiveSnapshot,
     hargaGlobal: HARGA,
     targetBulanan: targetBulanan,
     isAdsActive: isAdsActive,
@@ -4015,6 +4019,7 @@ async function pasteDataTransfer() {
     logPaylater = dataBaru.logPaylater || [];
     serahEkspedisiLog = Array.isArray(dataBaru.serahEkspedisiLog) ? dataBaru.serahEkspedisiLog : [];
     serahEkspedisiCancelled = Array.isArray(dataBaru.serahEkspedisiCancelled) ? dataBaru.serahEkspedisiCancelled : [];
+    serahEkspedisiActiveSnapshot = dataBaru.serahEkspedisiActiveSnapshot && typeof dataBaru.serahEkspedisiActiveSnapshot==="object" ? dataBaru.serahEkspedisiActiveSnapshot : {importedAt:"",sourceName:"",codes:[],orders:[],resi:[],count:0};
     HARGA = Number(dataBaru.hargaGlobal || 27000);
     targetBulanan = Number(dataBaru.targetBulanan || 400);
     isAdsActive = dataBaru.isAdsActive || false;
@@ -8982,14 +8987,15 @@ async function processSerahEkspedisiCode(rawValue){
   const matches=getSerahShipmentMatches(code);
   const identity=getSerahShipmentIdentity(matches,code);
 
-  if(isSerahCancelled(code,matches)){
+  const activeCheck=checkSerahActiveSnapshot(code,matches);
+  if(isSerahCancelled(code,matches) || activeCheck==="MISSING"){
     serahEkspedisiSession.gagal++;
-    setSerahResult("fail","PESANAN DIBATALKAN",`${code} · Paket JANGAN diserahkan ke ekspedisi.`);
+    setSerahResult("fail",activeCheck==="MISSING"?"TIDAK ADA DI PDF AKTIF":"PESANAN DIBATALKAN",`${code} · ${activeCheck==="MISSING"?"Diduga sudah dibatalkan / tidak lagi aktif. CEK sebelum diserahkan.":"Paket JANGAN diserahkan ke ekspedisi."}`);
     playSerahTet();
     serahEkspedisiLog.push({
       id:"SERAH_"+Date.now(),
       tanggal:new Date().toISOString(),
-      code,identity,status:"CANCEL",
+      code,identity,status:(activeCheck==="MISSING"?"TIDAK_DI_PDF_AKTIF":"CANCEL"),
       orderId:String(matches[0]?.orderId||matches[0]?.noPesanan||""),
       resi:String(matches[0]?.resi||"")
     });
@@ -9051,6 +9057,117 @@ async function processSerahEkspedisiCode(rawValue){
   updateSerahStats();
   renderSerahEkspedisiLog();
   await saveData();
+}
+
+
+function getSerahKnownIdentifiersFromText(raw){
+  const text=String(raw||"").toUpperCase();
+  const orders=new Set();
+  const resi=new Set();
+
+  // Marketplace order IDs in EVORA PDFs are typically long numeric IDs.
+  for(const m of text.matchAll(/\b(58\d{10,22})\b/g)) orders.add(normalizeSerahCode(m[1]));
+
+  // J&T/JNT waybill: JY + long numeric body, tolerant of PDF spacing/hyphens.
+  for(const m of text.matchAll(/\bJY[\s\-]*([0-9][0-9\s\-]{7,24}[0-9])\b/g)){
+    const code="JY"+String(m[1]).replace(/\D/g,"");
+    if(code.length>=10 && code.length<=28) resi.add(normalizeSerahCode(code));
+  }
+
+  // Also use exact resi/order values already known by EVORA if they appear in PDF text.
+  for(const p of (penjualan||[])){
+    const o=normalizeSerahCode(p.orderId||p.noPesanan||p.nomorPesanan||"");
+    const r=normalizeSerahCode(p.resi||p.waybill||"");
+    const compact=normalizeSerahCode(text);
+    if(o && compact.includes(o)) orders.add(o);
+    if(r && compact.includes(r)) resi.add(r);
+  }
+
+  return {orders:[...orders],resi:[...resi]};
+}
+
+async function extractSerahPdfText(file){
+  if(!window.pdfjsLib) throw new Error("PDF reader belum tersedia.");
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+  let pages=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const tc=await page.getTextContent();
+    const line=(tc.items||[]).map(x=>String(x.str||"")).join(" ");
+    pages.push(line);
+  }
+  return {text:pages.join("\n"),pages:pdf.numPages};
+}
+
+async function importSerahActivePdf(){
+  const input=document.getElementById("serahActivePdfInput");
+  const file=input?.files?.[0];
+  if(!file){
+    await customAlert("PDF Belum Dipilih","Pilih PDF resi aktif terbaru terlebih dahulu.","warning");
+    return;
+  }
+  const status=document.getElementById("serahActivePdfStatus");
+  if(status) status.innerHTML='<b style="color:var(--primary)">Membaca PDF...</b>';
+
+  try{
+    const parsed=await extractSerahPdfText(file);
+    const ids=getSerahKnownIdentifiersFromText(parsed.text);
+    const codes=[...new Set([...ids.orders,...ids.resi])];
+
+    if(!codes.length){
+      throw new Error("Tidak menemukan Order ID / nomor resi yang dapat dikenali pada PDF.");
+    }
+
+    serahEkspedisiActiveSnapshot={
+      importedAt:new Date().toISOString(),
+      sourceName:file.name||"PDF Resi Aktif",
+      pages:parsed.pages,
+      codes,
+      orders:ids.orders,
+      resi:ids.resi,
+      count:codes.length
+    };
+    await saveData();
+    renderSerahActivePdfStatus();
+    setSerahResult("neutral","PDF AKTIF SIAP",`${ids.orders.length} Order ID · ${ids.resi.length} resi terbaca. Scanner sekarang memakai daftar ini sebagai acuan.`);
+  }catch(err){
+    console.error(err);
+    if(status) status.innerHTML=`<b style="color:var(--danger)">Gagal:</b> ${evEsc(err?.message||"PDF tidak dapat dibaca")}`;
+    await customAlert("PDF Gagal Dibaca",err?.message||"PDF tidak dapat dibaca.","warning");
+  }
+}
+
+function renderSerahActivePdfStatus(){
+  const el=document.getElementById("serahActivePdfStatus");
+  if(!el) return;
+  const s=serahEkspedisiActiveSnapshot||{};
+  const codes=Array.isArray(s.codes)?s.codes:[];
+  if(!codes.length){
+    el.innerHTML='<b style="color:var(--warning)">Belum ada PDF aktif.</b> Scan masih bisa dipakai untuk cek duplikat, tetapi EVORA belum bisa membandingkan paket dengan daftar resi aktif terbaru.';
+    return;
+  }
+  const d=new Date(s.importedAt||0);
+  const when=Number.isNaN(d.getTime())?"":d.toLocaleString("id-ID",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+  el.innerHTML=`<b style="color:var(--success)">ACUAN AKTIF:</b> ${evEsc(String(s.sourceName||"PDF"))}<br>${Number(s.orders?.length||0)} Order ID · ${Number(s.resi?.length||0)} resi · ${Number(s.pages||0)} halaman${when?` · ${evEsc(when)}`:""}`;
+}
+
+function checkSerahActiveSnapshot(code,matches=[]){
+  const s=serahEkspedisiActiveSnapshot||{};
+  const set=new Set((Array.isArray(s.codes)?s.codes:[]).map(normalizeSerahCode).filter(Boolean));
+  if(!set.size) return "NO_SNAPSHOT";
+
+  const candidates=new Set([normalizeSerahCode(code)]);
+  for(const p of matches){
+    [
+      p.orderId,p.noPesanan,p.nomorPesanan,p.resi,p.waybill
+    ].map(normalizeSerahCode).filter(Boolean).forEach(x=>candidates.add(x));
+  }
+
+  for(const c of candidates){
+    if(c && set.has(c)) return "ACTIVE";
+  }
+  return "MISSING";
 }
 
 async function setupSerahBarcodeDetector(){
@@ -9175,7 +9292,7 @@ function openSerahEkspedisiScanner(){
   serahEkspedisiLastCode="";
   serahEkspedisiLastAt=0;
   updateSerahStats();
-  renderSerahCancelledList();
+  renderSerahActivePdfStatus();
   renderSerahEkspedisiLog();
   setSerahResult("neutral","Siap Scan","Tekan Aktifkan Kamera satu kali, setelah itu scanner standby otomatis.");
 
