@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v16.6 - Scan Serah Ekspedisi</title>
+  <title>EVORA Tracker Pro v17.1 - Scan Duplicate Only Clean</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -733,7 +733,7 @@ body.dark-theme .paylater-progress{background:#334155;}
 .paylater-reminder-row{font-size:10px;color:var(--text-main);margin-top:4px;line-height:1.4;}
 
 
-/* EVORA v16.6 — Scan Serah Ekspedisi */
+/* EVORA v16.6 — Scan Resi Duplikat */
 .serah-camera-wrap{position:relative;margin-top:12px;border-radius:14px;overflow:hidden;background:#020617;aspect-ratio:16/10;border:1px solid #334155;}
 #serahEkspedisiVideo{width:100%;height:100%;object-fit:cover;display:block;}
 .serah-scan-frame{position:absolute;left:12%;right:12%;top:28%;height:42%;border:2px solid rgba(255,255,255,.85);border-radius:12px;box-shadow:0 0 0 999px rgba(2,6,23,.28);pointer-events:none;}
@@ -1896,7 +1896,7 @@ body.dark-mode #evoraAICenter label,
         </div>
         <div class="quick-card" onclick="openSerahEkspedisiScanner()">
           <i class="fa-solid fa-qrcode"></i>
-          <span>Scan Serah</span>
+          <span>Scan Duplikat</span>
         </div>
       </div>
     </div>
@@ -2367,7 +2367,7 @@ body.dark-mode #evoraAICenter label,
   <div class="modal-content" style="max-width:520px;width:100%;padding:18px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
       <div>
-        <h3 style="margin-bottom:4px;color:var(--primary);"><i class="fa-solid fa-truck-fast"></i> SCAN SERAH EKSPEDISI</h3>
+        <h3 style="margin-bottom:4px;color:var(--primary);"><i class="fa-solid fa-truck-fast"></i> SCAN RESI DUPLIKAT</h3>
         <div style="font-size:10px;color:var(--text-muted);line-height:1.45;">
           Kamera standby. Arahkan barcode/QR resi ke kamera, tidak perlu tekan tombol setiap scan.
         </div>
@@ -2394,30 +2394,24 @@ body.dark-mode #evoraAICenter label,
     <div class="serah-stats">
       <div><b id="serahStatBerhasil">0</b><span>Berhasil</span></div>
       <div><b id="serahStatDuplikat">0</b><span>Duplikat</span></div>
-      <div><b id="serahStatGagal">0</b><span>Gagal/Cancel</span></div>
+      <div><b id="serahStatGagal">0</b><span>Lain</span></div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
       <button type="button" id="btnStartSerahCamera" onclick="startSerahEkspedisiCamera()" style="background:var(--success);box-shadow:none;font-size:11px;">
         <i class="fa-solid fa-camera"></i> Aktifkan Kamera
       </button>
-      <button type="button" onclick="clearSerahSessionStats()" style="background:#64748b;box-shadow:none;font-size:11px;">
+      <button type="button" onclick="clearSerahSessionStats()" style="background:#64748b;box-shadow:none;font-size:11px;grid-column:1/-1;">
         Reset Hitungan Sesi
       </button>
     </div>
 
     <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;">
-      <div style="font-size:10px;font-weight:900;margin-bottom:5px;">DAFTAR PESANAN DIBATALKAN</div>
-      <div style="font-size:9px;color:var(--text-muted);line-height:1.4;margin-bottom:6px;">
-        Masukkan Order ID atau nomor resi yang sudah dibatalkan marketplace. Scanner akan langsung menolak paket tersebut.
+      <div style="font-size:10px;font-weight:900;margin-bottom:5px;">MODE SCAN DUPLIKAT</div>
+      <div style="font-size:9px;color:var(--text-muted);line-height:1.5;">
+        Scanner hanya mengecek resi dobel. Resi pertama bunyi cling dan dicatat. Jika resi yang sama discan lagi, bunyi tet dan muncul DUPLIKAT.
       </div>
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;">
-        <input id="serahCancelInput" type="text" placeholder="Order ID / Resi dibatalkan" style="margin:0;font-size:12px;">
-        <button type="button" onclick="addSerahCancelledCode()" style="width:auto;padding:10px 12px;background:var(--danger);box-shadow:none;font-size:10px;">Tandai Batal</button>
-      </div>
-      <div id="serahCancelledList" style="margin-top:7px;"></div>
     </div>
-
     <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
         <div style="font-size:10px;font-weight:900;">SCAN TERAKHIR</div>
@@ -2521,7 +2515,6 @@ let pengeluaran = [];
 let pesanan = []; 
 let logPaylater = [];
 let serahEkspedisiLog = [];
-let serahEkspedisiCancelled = [];
 let chartInstance = null;
 let currentValuesRegistry = {}; 
 
@@ -3372,7 +3365,6 @@ async function loadDataFromCloud() {
       pesanan = dataUtama.pesanan || []; 
       logPaylater = dataUtama.logPaylater || [];
       serahEkspedisiLog = Array.isArray(dataUtama.serahEkspedisiLog) ? dataUtama.serahEkspedisiLog : [];
-      serahEkspedisiCancelled = Array.isArray(dataUtama.serahEkspedisiCancelled) ? dataUtama.serahEkspedisiCancelled : [];
       HARGA = Number(dataUtama.hargaGlobal || 27000);
       targetBulanan = Number(dataUtama.targetBulanan || 400);
       isAdsActive = dataUtama.isAdsActive || false;
@@ -3416,7 +3408,6 @@ async function saveData() {
     pesanan: pesanan, 
     logPaylater: logPaylater,
     serahEkspedisiLog: serahEkspedisiLog,
-    serahEkspedisiCancelled: serahEkspedisiCancelled,
     hargaGlobal: HARGA,
     targetBulanan: targetBulanan,
     isAdsActive: isAdsActive,
@@ -3974,7 +3965,6 @@ async function salinDataKeClipboard() {
     pesanan: pesanan,
     logPaylater: logPaylater,
     serahEkspedisiLog: serahEkspedisiLog,
-    serahEkspedisiCancelled: serahEkspedisiCancelled,
     hargaGlobal: HARGA,
     targetBulanan: targetBulanan,
     isAdsActive: isAdsActive,
@@ -4014,7 +4004,6 @@ async function pasteDataTransfer() {
     pesanan = dataBaru.pesanan || [];
     logPaylater = dataBaru.logPaylater || [];
     serahEkspedisiLog = Array.isArray(dataBaru.serahEkspedisiLog) ? dataBaru.serahEkspedisiLog : [];
-    serahEkspedisiCancelled = Array.isArray(dataBaru.serahEkspedisiCancelled) ? dataBaru.serahEkspedisiCancelled : [];
     HARGA = Number(dataBaru.hargaGlobal || 27000);
     targetBulanan = Number(dataBaru.targetBulanan || 400);
     isAdsActive = dataBaru.isAdsActive || false;
@@ -8830,7 +8819,7 @@ if(typeof renderLaporan==="function"){
 
 
 /* =========================================================
-   EVORA v16.6 — SCAN SERAH EKSPEDISI
+   EVORA v16.6 — SCAN RESI DUPLIKAT
    ========================================================= */
 let serahEkspedisiStream=null;
 let serahEkspedisiDetector=null;
@@ -8878,21 +8867,6 @@ function getSerahShipmentIdentity(matches, scannedCode){
   const order=normalizeSerahCode(first.orderId||first.noPesanan||first.nomorPesanan||"");
   const resi=normalizeSerahCode(first.resi||first.waybill||"");
   return order || resi || normalizeSerahCode(scannedCode);
-}
-
-function isSerahCancelled(code,matches=[]){
-  const c=normalizeSerahCode(code);
-
-  const explicit=(serahEkspedisiCancelled||[]).some(x=>{
-    const v=normalizeSerahCode(typeof x==="string"?x:(x.code||x.orderId||x.resi||""));
-    return v===c;
-  });
-  if(explicit) return true;
-
-  return matches.some(p=>{
-    const status=String(p.status||p.statusPesanan||p.orderStatus||p.keteranganStatus||"").toUpperCase();
-    return p.cancelled===true || p.dibatalkan===true || /CANCEL|BATAL|DIBATALKAN/.test(status);
-  });
 }
 
 function hasSerahBeenScanned(identity,code){
@@ -8982,48 +8956,16 @@ async function processSerahEkspedisiCode(rawValue){
   const matches=getSerahShipmentMatches(code);
   const identity=getSerahShipmentIdentity(matches,code);
 
-  if(isSerahCancelled(code,matches)){
-    serahEkspedisiSession.gagal++;
-    setSerahResult("fail","PESANAN DIBATALKAN",`${code} · Paket JANGAN diserahkan ke ekspedisi.`);
-    playSerahTet();
-    serahEkspedisiLog.push({
-      id:"SERAH_"+Date.now(),
-      tanggal:new Date().toISOString(),
-      code,identity,status:"CANCEL",
-      orderId:String(matches[0]?.orderId||matches[0]?.noPesanan||""),
-      resi:String(matches[0]?.resi||"")
-    });
-    updateSerahStats();
-    renderSerahEkspedisiLog();
-    await saveData();
-    return;
-  }
-
-  if(matches.length && hasSerahBeenScanned(identity,code)){
+  if(hasSerahBeenScanned(identity,code)){
     serahEkspedisiSession.duplikat++;
-    setSerahResult("duplicate","DUPLIKAT RESI",`${code} sudah pernah lolos scan serah. Cek paket dobel.`);
+    setSerahResult("duplicate","DUPLIKAT RESI",`${code} sudah pernah discan. Jangan serahkan paket kedua.`);
     playSerahTet();
     serahEkspedisiLog.push({
       id:"SERAH_"+Date.now(),
       tanggal:new Date().toISOString(),
       code,identity,status:"DUPLIKAT",
-      orderId:String(matches[0]?.orderId||matches[0]?.noPesanan||""),
-      resi:String(matches[0]?.resi||"")
-    });
-    updateSerahStats();
-    renderSerahEkspedisiLog();
-    await saveData();
-    return;
-  }
-
-  if(!matches.length){
-    serahEkspedisiSession.gagal++;
-    setSerahResult("fail","RESI TIDAK TERDAFTAR",`${code} tidak ditemukan pada riwayat penjualan/scanner. Jangan serahkan sebelum dicek.`);
-    playSerahTet();
-    serahEkspedisiLog.push({
-      id:"SERAH_"+Date.now(),
-      tanggal:new Date().toISOString(),
-      code,identity,status:"GAGAL_TIDAK_TERDAFTAR"
+      orderId:String(matches[0]?.orderId||matches[0]?.noPesanan||matches[0]?.nomorPesanan||""),
+      resi:String(matches[0]?.resi||matches[0]?.waybill||code)
     });
     updateSerahStats();
     renderSerahEkspedisiLog();
@@ -9032,14 +8974,11 @@ async function processSerahEkspedisiCode(rawValue){
   }
 
   const first=matches[0]||{};
-  const order=String(first.orderId||first.noPesanan||"").trim();
-  const resi=String(first.resi||first.waybill||"").trim();
+  const order=String(first.orderId||first.noPesanan||first.nomorPesanan||"").trim();
+  const resi=String(first.resi||first.waybill||code).trim();
+
   serahEkspedisiSession.berhasil++;
-  setSerahResult(
-    "success",
-    "BERHASIL · SIAP DISERAHKAN",
-    `${resi||code}${order?` · Order ${order}`:""}`
-  );
+  setSerahResult("success","BERHASIL · RESI PERTAMA",`${resi||code}${order?` · Order ${order}`:""}`);
   playSerahCling();
 
   serahEkspedisiLog.push({
@@ -9052,6 +8991,8 @@ async function processSerahEkspedisiCode(rawValue){
   renderSerahEkspedisiLog();
   await saveData();
 }
+
+
 
 async function setupSerahBarcodeDetector(){
   if("BarcodeDetector" in window){
@@ -9175,13 +9116,8 @@ function openSerahEkspedisiScanner(){
   serahEkspedisiLastCode="";
   serahEkspedisiLastAt=0;
   updateSerahStats();
-  renderSerahCancelledList();
   renderSerahEkspedisiLog();
-  setSerahResult("neutral","Siap Scan","Tekan Aktifkan Kamera satu kali, setelah itu scanner standby otomatis.");
-
-  // Browsers require an explicit user gesture for first camera permission.
-  // This function itself is opened by a user tap, so starting here usually
-  // works. If blocked, the visible Aktifkan Kamera button remains available.
+  setSerahResult("neutral","SIAP SCAN DUPLIKAT","Arahkan kamera ke barcode resi. Tidak perlu upload PDF.");
   startSerahEkspedisiCamera().catch(()=>{});
 }
 
@@ -9197,48 +9133,7 @@ function clearSerahSessionStats(){
   setSerahResult("neutral","Hitungan Sesi Direset","Riwayat permanen tetap tersimpan.");
 }
 
-async function addSerahCancelledCode(){
-  const input=document.getElementById("serahCancelInput");
-  const code=extractSerahCode(input?.value||"") || normalizeSerahCode(input?.value||"");
-  if(!code || code.length<8){
-    await customAlert("Kode Tidak Valid","Masukkan Order ID atau nomor resi yang valid.","warning");
-    return;
-  }
-
-  if(!(serahEkspedisiCancelled||[]).some(x=>normalizeSerahCode(typeof x==="string"?x:x.code)===normalizeSerahCode(code))){
-    serahEkspedisiCancelled.push({
-      id:"CANCEL_"+Date.now(),
-      code,
-      tanggal:new Date().toISOString()
-    });
-    await saveData();
-  }
-  if(input) input.value="";
-  renderSerahCancelledList();
-}
-
-async function removeSerahCancelledCode(id){
-  serahEkspedisiCancelled=(serahEkspedisiCancelled||[]).filter(x=>String(x.id||x.code)!==String(id));
-  await saveData();
-  renderSerahCancelledList();
-}
-
-function renderSerahCancelledList(){
-  const el=document.getElementById("serahCancelledList");
-  if(!el) return;
-  const rows=[...(serahEkspedisiCancelled||[])].reverse().slice(0,12);
-  if(!rows.length){
-    el.innerHTML='<div style="font-size:9px;color:var(--text-muted);">Belum ada resi/order yang ditandai batal.</div>';
-    return;
-  }
-  el.innerHTML=rows.map(x=>{
-    const id=String(x.id||x.code||"");
-    const code=String(x.code||x||"");
-    return `<span class="serah-cancel-chip">${evEsc(code)} <button type="button" onclick="removeSerahCancelledCode('${evEsc(id)}')" style="width:auto;padding:0;background:none;color:inherit;box-shadow:none;font-size:9px;"><i class="fa-solid fa-xmark"></i></button></span>`;
-  }).join("");
-}
-
-function renderSerahEkspedisiLog(){
+async function renderSerahEkspedisiLog(){
   const el=document.getElementById("serahEkspedisiLogList");
   if(!el) return;
   const rows=[...(serahEkspedisiLog||[])].reverse().slice(0,30);
