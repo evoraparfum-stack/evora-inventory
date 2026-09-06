@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v17.1 - Scan Duplicate Only Clean</title>
+  <title>EVORA Tracker Pro v17.2 - PDF Manual Top + Cancel Resi</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -956,6 +956,27 @@ body.dark-theme .scan-resi-progress,body.dark-theme .scan-resi-table,body.dark-t
 }
 .scan-resi-receipt-title{font-size:12px;font-weight:900;color:var(--text-main)}
 .scan-resi-receipt-total{font-size:9px;font-weight:900;color:var(--primary);white-space:nowrap}
+.scan-resi-receipt-head-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.scan-resi-receipt-remove{
+  width:28px!important;height:28px!important;min-width:28px!important;padding:0!important;margin:0!important;
+  border-radius:8px!important;background:#fee2e2!important;color:#dc2626!important;border:1px solid #fecaca!important;
+  box-shadow:none!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:12px!important
+}
+.scan-resi-receipt-remove:hover{background:#fecaca!important}
+.scan-resi-receipt-restore{
+  padding:6px 9px!important;margin:0!important;border-radius:8px!important;background:#334155!important;
+  box-shadow:none!important;font-size:9px!important;white-space:nowrap
+}
+.scan-resi-manual-badge{
+  display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:4px 7px;border-radius:999px;
+  background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:8px;font-weight:900
+}
+.scan-resi-manual-row{background:rgba(245,158,11,.06)}
+.scan-resi-cancelled-badge{
+  display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;
+  background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;font-size:8px;font-weight:900
+}
+
 .scan-resi-receipt-products{padding:4px 8px}
 .scan-resi-product-row{
   padding:9px 4px;
@@ -2129,7 +2150,7 @@ body.dark-mode #evoraAICenter label,
         <div class="scan-resi-head">
           <div>
             <div class="scan-resi-title"><i class="fa-solid fa-file-pdf"></i> SCAN / UPLOAD RESI</div>
-            <div class="scan-resi-sub">Upload 1 PDF berisi banyak resi. Sistem membaca produk + Qty lalu membuat rekap sebelum masuk penjualan.</div>
+            <div class="scan-resi-sub">Upload 1 PDF berisi banyak resi. Produk yang perlu dipilih manual otomatis muncul paling atas. Tekan × di samping resi untuk membuang/cancel resi sebelum input penjualan.</div>
           </div>
           <span class="scan-resi-badge">BATCH</span>
         </div>
@@ -4991,75 +5012,110 @@ function renderScanDraft(){
   const totalQty=activeRows.reduce((s,r)=>s+Number(r.qty||0),0);
   const unresolved=activeRows.length-mapped;
 
-  // Group rows by the actual receipt/page. A bundle such as
-  // "MONACO, ICARUS" therefore stays inside ONE Resi #4 card.
+  // Group per resi/order.
   const groups=[];
   const groupMap=new Map();
   rows.forEach((r,i)=>{
-    const key=String(r.page || r.sourcePage || r.waybill || r.orderId || i);
+    const key=getScanReceiptKey(r) || String(r.page || r.sourcePage || i);
     if(!groupMap.has(key)){
-      const g={key,page:r.page,waybill:r.waybill||"",orderId:r.orderId||"",rows:[]};
-      groupMap.set(key,g); groups.push(g);
+      const g={key,page:r.page,waybill:r.waybill||"",orderId:r.orderId||"",rows:[],firstIndex:i};
+      groupMap.set(key,g);
+      groups.push(g);
     }
-    groupMap.get(key).rows.push({r,index:i});
-    if(!groupMap.get(key).waybill && r.waybill) groupMap.get(key).waybill=r.waybill;
-    if(!groupMap.get(key).orderId && r.orderId) groupMap.get(key).orderId=r.orderId;
+    const g=groupMap.get(key);
+    g.rows.push({r,index:i});
+    if(!g.waybill && r.waybill) g.waybill=r.waybill;
+    if(!g.orderId && r.orderId) g.orderId=r.orderId;
   });
+
+  // PRIORITAS:
+  // 1. Resi yang masih perlu input/pilihan manual
+  // 2. Resi yang sudah siap
+  // 3. Resi yang dibatalkan
+  groups.forEach(g=>{
+    g.cancelled=g.rows.every(({r})=>!!r.cancelled);
+    g.manualCount=g.rows.filter(({r})=>!r.cancelled && resolveScanRowProduct(r)<0).length;
+    g.readyCount=g.rows.filter(({r})=>!r.cancelled && resolveScanRowProduct(r)>=0).length;
+    g.priority=g.cancelled ? 2 : (g.manualCount>0 ? 0 : 1);
+
+    // Di dalam satu resi, produk yang perlu manual juga selalu paling atas.
+    g.rows.sort((a,b)=>{
+      const ar=a.r.cancelled ? 2 : (resolveScanRowProduct(a.r)<0 ? 0 : 1);
+      const br=b.r.cancelled ? 2 : (resolveScanRowProduct(b.r)<0 ? 0 : 1);
+      return ar-br || a.index-b.index;
+    });
+  });
+  groups.sort((a,b)=>a.priority-b.priority || a.firstIndex-b.firstIndex);
 
   el.style.display="block";
   el.innerHTML=`
     <div class="scan-resi-summary">
-      <div class="scan-resi-stat"><b>${groups.length}</b><span>Resi dibaca</span></div>
-      <div class="scan-resi-stat"><b>${activeRows.length}</b><span>Baris produk aktif</span></div>
+      <div class="scan-resi-stat"><b>${groups.filter(g=>!g.cancelled).length}</b><span>Resi aktif</span></div>
+      <div class="scan-resi-stat"><b>${unresolved}</b><span>Perlu manual</span></div>
       <div class="scan-resi-stat"><b>${totalQty}</b><span>Total pcs</span></div>
     </div>
+
     <div class="scan-resi-progress" style="display:block;margin-top:8px;">
-      <b>${mapped}/${activeRows.length}</b> produk aktif berhasil dicocokkan secara aman.
       ${unresolved
-        ? ` <span class="scan-resi-warn">${unresolved} perlu dipilih manual.</span>`
-        : ` <span class="scan-resi-ok">Semua produk siap dikonfirmasi.</span>`}
+        ? `<b>${unresolved} produk perlu input manual.</b> <span class="scan-resi-warn">Semua yang manual otomatis ditaruh paling atas.</span>`
+        : `<b>${mapped}/${activeRows.length}</b> produk aktif cocok. <span class="scan-resi-ok">Semua siap dikonfirmasi.</span>`}
     </div>
 
     <div class="scan-resi-table scan-resi-group-table">
       ${groups.map(g=>{
         const groupQty=g.rows.filter(x=>!x.r.cancelled).reduce((s,x)=>s+Number(x.r.qty||0),0);
+        const firstRow=g.rows[0]?.r;
         return `
-        <div class="scan-resi-receipt-card" style="${g.rows.every(({r})=>r.cancelled)?'opacity:.55;border:2px solid var(--danger);':''}">
+        <div class="scan-resi-receipt-card" style="${g.cancelled?'opacity:.58;border:2px solid var(--danger);':g.manualCount?'border:2px solid #f59e0b;':''}">
           <div class="scan-resi-receipt-head">
-            <div>
+            <div style="min-width:0;">
               <div class="scan-resi-receipt-title">Resi #${escScan(g.page ?? "")}</div>
               <div class="scan-resi-row-meta">
                 ${g.waybill?`Resi: ${escScan(g.waybill)} · `:""}
                 ${g.orderId?`Order: ${escScan(g.orderId)}`:""}
               </div>
+              ${g.cancelled
+                ? `<span class="scan-resi-cancelled-badge"><i class="fa-solid fa-ban"></i> DIBATALKAN DARI BATCH</span>`
+                : g.manualCount
+                  ? `<span class="scan-resi-manual-badge"><i class="fa-solid fa-hand-pointer"></i> ${g.manualCount} PERLU INPUT MANUAL</span>`
+                  : ""}
             </div>
-            <div class="scan-resi-receipt-total">${g.rows.length} produk · ${groupQty} pcs</div>
+
+            <div class="scan-resi-receipt-head-actions">
+              <div class="scan-resi-receipt-total">${g.rows.length} produk · ${groupQty} pcs</div>
+              ${g.cancelled
+                ? `<button type="button" class="scan-resi-receipt-restore" onclick="restoreScanReceiptByIndex(${g.firstIndex})"><i class="fa-solid fa-rotate-left"></i> Pulihkan</button>`
+                : `<button type="button" class="scan-resi-receipt-remove" title="Buang / Cancel resi ini" onclick="requestCancelScanReceipt(${g.firstIndex})"><i class="fa-solid fa-xmark"></i></button>`}
+            </div>
           </div>
 
           <div class="scan-resi-receipt-products">
             ${g.rows.map(({r,index})=>{
-              const resolvedIndex=resolveScanRowProduct(r); const name=resolvedIndex>=0?barang[resolvedIndex]?.nama:"";
+              const resolvedIndex=resolveScanRowProduct(r);
+              const name=resolvedIndex>=0?barang[resolvedIndex]?.nama:"";
               const confident=resolvedIndex>=0;
               const opts=barang.map((b,idx)=>
                 `<option value="${idx}" ${idx===resolvedIndex?'selected':''}>${escScan(b.nama)} — stok ${Number(b.stok||0)}</option>`
               ).join("");
               return `
-                <div class="scan-resi-product-row">
+                <div class="scan-resi-product-row ${!r.cancelled&&!confident?'scan-resi-manual-row':''}">
                   <div class="scan-resi-product-main">
                     <div class="scan-resi-row-top">
                       <div class="scan-resi-row-name">
                         <div><span style="color:var(--text-muted);font-weight:700;">Resi:</span> ${escScan(String(r.resiName||"").trim() || "Nama belum terbaca")}</div>
-                        <div style="margin-top:3px;"><span style="color:var(--primary);font-weight:800;">Kasir:</span> ${escScan(name || "Produk belum cocok")} × ${Number(r.qty||1)}</div>
+                        <div style="margin-top:3px;"><span style="color:var(--primary);font-weight:800;">Kasir:</span> ${escScan(name || "PILIH MANUAL")} × ${Number(r.qty||1)}</div>
                         ${r.replacedFrom?`<div style="margin-top:3px;color:var(--warning);font-size:10px;font-weight:800;">Diganti dari: ${escScan(r.replacedFrom)}</div>`:""}
-                        ${r.cancelled?`<div style="margin-top:3px;color:var(--danger);font-size:10px;font-weight:900;">RESI DIBATALKAN — tidak diproses</div>`:""}
+                        ${r.cancelled?`<div style="margin-top:3px;color:var(--danger);font-size:10px;font-weight:900;">RESI DIBATALKAN — tidak masuk penjualan</div>`:""}
                       </div>
-                      <div>${confident&&resolvedIndex>=0
-                        ? `<span class="scan-resi-ok">Cocok</span>`
-                        : `<span class="scan-resi-warn">Periksa</span>`}</div>
+                      <div>${r.cancelled
+                        ? `<span class="scan-resi-warn">Batal</span>`
+                        : confident
+                          ? `<span class="scan-resi-ok">Cocok</span>`
+                          : `<span class="scan-resi-warn">MANUAL</span>`}</div>
                     </div>
-                    ${!confident ? `<div class="scan-resi-row-meta">${escScan(r.raw).slice(0,320)}</div>` : ""}
+                    ${!r.cancelled&&!confident ? `<div class="scan-resi-row-meta">${escScan(r.raw).slice(0,320)}</div>` : ""}
                   </div>
-                  <select onchange="updateScanRowMatch(${index},this.value)">
+                  <select onchange="updateScanRowMatch(${index},this.value)" ${r.cancelled?'disabled':''}>
                     <option value="-1">— Pilih varian EVORA —</option>${opts}
                   </select>
                 </div>`;
@@ -5067,7 +5123,7 @@ function renderScanDraft(){
           </div>
 
           <div class="scan-resi-receipt-footer">
-            <span>Total dalam resi</span><b>${groupQty} pcs</b>
+            <span>${g.cancelled?'Resi tidak akan diproses':'Total dalam resi'}</span><b>${groupQty} pcs</b>
           </div>
         </div>`;
       }).join("")}
@@ -5075,7 +5131,7 @@ function renderScanDraft(){
 
     <div class="scan-resi-actions">
       <button type="button" onclick="cancelScanDraft()" style="background:#94a3b8;">
-        <i class="fa-solid fa-xmark"></i> Batal
+        <i class="fa-solid fa-xmark"></i> Batal Semua
       </button>
       <button type="button" onclick="confirmBatchScanSale()" style="background:var(--success);">
         <i class="fa-solid fa-check"></i> Konfirmasi & Input Penjualan
@@ -5226,6 +5282,35 @@ function restoreScanReceiptByRow(row){
     if(getScanReceiptKey(r)===key) r.cancelled=false;
   });
 }
+
+async function requestCancelScanReceipt(rowIndex){
+  const row=scanResiDraft?.rows?.[Number(rowIndex)];
+  if(!row) return;
+
+  const label=row.waybill
+    ? `Resi <b>${escScan(row.waybill)}</b>`
+    : row.orderId
+      ? `Order <b>${escScan(row.orderId)}</b>`
+      : `Resi halaman <b>${Number(row.page||0)}</b>`;
+
+  const ok=await customConfirm(
+    "Buang Resi dari Batch",
+    `${label} akan <b>dicancel dari batch ini</b> dan seluruh produknya tidak akan masuk ke penjualan.<br><br>Yakin buang resi ini?`,
+    "danger"
+  );
+  if(!ok) return;
+
+  cancelScanReceiptByRow(row);
+  renderScanDraft();
+}
+
+function restoreScanReceiptByIndex(rowIndex){
+  const row=scanResiDraft?.rows?.[Number(rowIndex)];
+  if(!row) return;
+  restoreScanReceiptByRow(row);
+  renderScanDraft();
+}
+
 
 function escAttrScan(s){
   return String(s??"")
