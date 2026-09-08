@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v17.2 - PDF Manual Top + Cancel Resi</title>
+  <title>EVORA Business Suite v18.1</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -8046,7 +8046,132 @@ async function ecrPrintSelected(){
     `;
 
     win.document.open();
-    win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Cetak Resi 80mm</title><style>${css}</style></head><body>${labels.join("")}</body></html>`);
+    win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Cetak Resi 80mm</title><style>${css}</style>
+<style id="evora-total-redesign">
+:root{
+  --primary:#7c3aed!important;--primary-dark:#5b21b6!important;
+  --success:#059669!important;--danger:#dc2626!important;--warning:#d97706!important;
+  --bg:#eef1f6!important;--card:#ffffff!important;--text:#172033!important;--text-muted:#718096!important;
+  --border:#e2e7ef!important;--sidebar:#10131a;--sidebar2:#181c25;--accent:#7c3aed;
+  --radius:14px;--shadow:0 8px 28px rgba(16,24,40,.07);
+}
+*{box-sizing:border-box}
+html,body{background:#eef1f6!important}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;color:#172033!important}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(124,58,237,.025),transparent 35%);z-index:-1}
+
+/* Desktop application shell */
+@media(min-width:901px){
+  body{padding-left:244px!important}
+  .container{max-width:none!important;width:100%!important;margin:0!important;padding:30px 34px 50px!important}
+  nav{position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:244px!important;height:100vh!important;
+      padding:22px 14px!important;background:var(--sidebar)!important;border:0!important;box-shadow:none!important;
+      display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:5px!important;z-index:900!important;overflow-y:auto!important}
+  nav:before{content:"EVORA";display:block;color:#fff;font-size:21px;font-weight:950;letter-spacing:3px;padding:8px 13px 3px}
+  nav:after{content:"BUSINESS SUITE";display:block;color:#6f7787;font-size:8px;font-weight:900;letter-spacing:2px;padding:0 13px 22px;order:-1}
+  nav button,nav .nav-item{width:100%!important;min-height:42px!important;border:0!important;border-radius:9px!important;background:transparent!important;
+      color:#8f98a8!important;box-shadow:none!important;justify-content:flex-start!important;text-align:left!important;padding:0 12px!important;margin:0!important;
+      font-size:11px!important;font-weight:750!important;gap:11px!important}
+  nav button i,nav .nav-item i{font-size:14px!important;width:18px!important;text-align:center!important}
+  nav button.active,nav .nav-item.active,nav button:hover,nav .nav-item:hover{background:#222735!important;color:#fff!important}
+  header{background:transparent!important;border:0!important;box-shadow:none!important;padding:0 0 22px!important;margin:0!important;border-radius:0!important}
+}
+
+/* Headers */
+header h1,.page-title,h2{letter-spacing:-.035em!important;color:#111827!important}
+header h1{font-size:25px!important;font-weight:850!important}
+header p,.subtitle{color:#7b8494!important}
+.section-title{font-size:17px!important;font-weight:850!important}
+
+/* Cards become restrained business panels */
+.card,.panel,.stat-card,.summary-card,.menu-card,.quick-card{
+  background:#fff!important;border:1px solid #e3e8f0!important;border-radius:var(--radius)!important;
+  box-shadow:0 3px 14px rgba(15,23,42,.045)!important
+}
+.card:hover,.menu-card:hover,.quick-card:hover{transform:none!important;box-shadow:0 8px 24px rgba(15,23,42,.075)!important}
+.dashboard-grid,.stats-grid{gap:13px!important}
+.stat-card{padding:18px!important;position:relative!important;overflow:hidden!important}
+.stat-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#7c3aed}
+.stat-card b,.stat-card .value{font-size:22px!important;letter-spacing:-.04em!important;color:#111827!important}
+.stat-card span,.stat-card .label{font-size:9px!important;text-transform:uppercase!important;letter-spacing:.08em!important;color:#87909f!important}
+
+/* Buttons */
+button,.btn{border-radius:9px!important;min-height:38px!important;font-size:10px!important;font-weight:800!important;letter-spacing:.01em!important;
+  box-shadow:none!important;transition:.16s ease!important}
+button:not(.danger):not(.secondary):not(.scan-resi-receipt-remove),.btn-primary{background:#171b24!important;color:#fff!important}
+button:hover,.btn:hover{transform:translateY(-1px)!important}
+button.secondary,.btn-secondary{background:#f4f6f9!important;color:#344054!important;border:1px solid #dfe4ec!important}
+button.danger,.btn-danger{background:#fff1f2!important;color:#be123c!important;border:1px solid #fecdd3!important}
+
+/* Forms */
+input,select,textarea{background:#fff!important;border:1px solid #d9e0e9!important;border-radius:9px!important;min-height:40px!important;
+  box-shadow:0 1px 2px rgba(16,24,40,.02)!important;color:#1f2937!important}
+input:focus,select:focus,textarea:focus{outline:none!important;border-color:#8b5cf6!important;box-shadow:0 0 0 3px rgba(124,58,237,.09)!important}
+label{font-size:9px!important;font-weight:850!important;text-transform:uppercase!important;letter-spacing:.055em!important;color:#697386!important}
+
+/* Tables */
+table{border-collapse:separate!important;border-spacing:0!important;background:#fff!important;border:1px solid #e4e8ef!important;border-radius:12px!important;overflow:hidden!important}
+thead th{background:#f8f9fb!important;color:#667085!important;font-size:8px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.07em!important;
+ border-bottom:1px solid #e4e8ef!important}
+tbody td{border-bottom:1px solid #edf0f4!important;font-size:10px!important}
+tbody tr:hover td{background:#fafbfc!important}
+
+/* Kasir: distinct POS workstation */
+#kasirPage .card,#kasir .card{box-shadow:none!important}
+#kasirPage,#kasir{position:relative}
+.product-grid,.barang-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(185px,1fr))!important;gap:9px!important}
+.product-card,.barang-card{border:1px solid #e2e7ee!important;border-radius:11px!important;background:#fff!important;padding:13px!important;box-shadow:none!important}
+.product-card:hover,.barang-card:hover{border-color:#b8a5f7!important;background:#fdfcff!important}
+.product-card h3,.barang-card h3{font-size:11px!important;color:#172033!important}
+
+/* PDF scan batch = operational list, not decorative cards */
+.scan-resi-summary{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+.scan-resi-stat{background:#171b24!important;border:0!important;border-radius:10px!important;color:#fff!important;padding:13px!important}
+.scan-resi-stat b{font-size:19px!important;color:#fff!important}
+.scan-resi-stat span{color:#9ba3b2!important;text-transform:uppercase!important;letter-spacing:.07em!important;font-size:7px!important}
+.scan-resi-receipt-card{border:1px solid #e1e6ed!important;border-radius:11px!important;box-shadow:none!important;background:#fff!important;margin-bottom:9px!important}
+.scan-resi-receipt-head{background:#f8f9fb!important;border-bottom:1px solid #e5e9ef!important;padding:11px 13px!important}
+.scan-resi-receipt-title{font-size:11px!important}
+.scan-resi-product-row{padding:10px 13px!important;border-bottom:1px solid #edf0f4!important}
+.scan-resi-manual-row{background:#fffaf0!important}
+.scan-resi-receipt-remove{background:#fff!important;color:#d92d20!important;border:1px solid #fda29b!important;border-radius:7px!important}
+.scan-resi-manual-badge{background:#fff7ed!important;color:#c2410c!important}
+.scan-resi-cancelled-badge{background:#fff1f2!important;color:#be123c!important}
+
+/* Modals */
+.modal,.modal-content,.popup-content{backdrop-filter:none!important}
+.modal-content,.popup-content{border-radius:16px!important;border:1px solid #e1e6ed!important;box-shadow:0 24px 70px rgba(15,23,42,.22)!important;background:#fff!important}
+
+/* Status chips */
+.badge,.status{border-radius:999px!important;font-size:8px!important;font-weight:850!important;letter-spacing:.04em!important}
+
+/* Mobile = native-ish app, not compressed desktop */
+@media(max-width:900px){
+  body{background:#f3f5f8!important;padding-bottom:76px!important}
+  .container{padding:14px 13px 92px!important}
+  header{background:#151922!important;color:#fff!important;border-radius:0 0 20px 20px!important;margin:-14px -13px 16px!important;padding:22px 17px!important;box-shadow:none!important}
+  header h1,header h2{color:#fff!important}
+  header p{color:#98a2b3!important}
+  nav{position:fixed!important;left:10px!important;right:10px!important;bottom:9px!important;height:62px!important;background:#151922!important;
+      border:1px solid #292f3b!important;border-radius:17px!important;padding:5px!important;box-shadow:0 12px 35px rgba(15,23,42,.24)!important;z-index:1000!important}
+  nav button,nav .nav-item{background:transparent!important;color:#7f8999!important;border:0!important;border-radius:12px!important;box-shadow:none!important;font-size:8px!important}
+  nav button.active,nav .nav-item.active{background:#292f3b!important;color:#fff!important}
+  .dashboard-grid,.stats-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important}
+  .stat-card{padding:14px!important}
+  .stat-card b,.stat-card .value{font-size:18px!important}
+  .product-grid,.barang-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .scan-resi-summary{grid-template-columns:repeat(3,1fr)!important}
+  .scan-resi-receipt-head{align-items:flex-start!important}
+}
+
+/* Scanner is intentionally visually distinct */
+#serahEkspedisiModal .modal-content{background:#0b0e13!important;color:#fff!important;border-color:#272c36!important}
+#serahEkspedisiModal h2,#serahEkspedisiModal h3{color:#fff!important}
+#serahEkspedisiModal video{border-radius:14px!important;border:1px solid #303744!important;background:#000!important}
+#serahEkspedisiModal .card{background:#151922!important;border-color:#2b313c!important;color:#fff!important}
+</style>
+
+</head><body>${labels.join("")}</body></html>`);
     win.document.close();
 
     await new Promise(resolve=>setTimeout(resolve,500));
