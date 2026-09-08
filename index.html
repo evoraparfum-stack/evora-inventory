@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Business POS v21.2 - Fitur Terpisah</title>
+  <title>EVORA Business POS v21.6 - Full Interior Rebuild</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -1816,6 +1816,7 @@ body.dark-mode #evoraAICenter label,
       <button onclick="evOpenView('pengeluaran')"><i class="fa-regular fa-wallet"></i>Pengeluaran</button>
       <button onclick="evOpenView('paylater')"><i class="fa-regular fa-credit-card"></i>PayLater</button>
       <button onclick="evOpenView('laporan')"><i class="fa-solid fa-chart-simple"></i>Laporan</button>
+      <button type="button" onclick="openEvoraAI()"><i class="fa-solid fa-robot"></i>EVORA AI</button>
       <button onclick="evOpenView('setting')"><i class="fa-solid fa-gear"></i>Pengaturan</button>
     </nav>
     <div class="v21-side-art"><div class="v21-bottle"></div><b>EVORA</b><small>SCENT OF CONFIDENCE</small></div>
@@ -4312,7 +4313,7 @@ function getPredictionEngine() {
 }
 
 function processAIAssistant() {
-  const engine = getPredictionEngine();
+  const engine=(typeof getPredictionEngine==="function")?getPredictionEngine():{};
   const predictionEl = document.getElementById("aiPrediksiHariIni");
   const avgEl = document.getElementById("aiAverage30");
   const trendEl = document.getElementById("aiTrend30");
@@ -6851,16 +6852,17 @@ function eaiMoney(n){return "Rp "+Number(n||0).toLocaleString("id-ID");}
 function eaiQty(n){return Number(n||0).toLocaleString("id-ID");}
 
 function getEAIData(){
-  const sales=Array.isArray(window.penjualan)?window.penjualan:[];
-  const products=Array.isArray(window.barang)?window.barang:[];
-  const revenue=sales.reduce((s,x)=>s+Number(x.nominal||0),0);
-  const qty=sales.reduce((s,x)=>s+Number(x.qty||0),0);
-  const adSales=sales.filter(x=>x.iklan===true);
-  const adRevenue=adSales.reduce((s,x)=>s+Number(x.nominal||0),0);
-  const campaign=currentAdsCampaign;
-  const adSpend=campaign?Number(campaign.spend||0):0;
-  const engineForAvg = getPredictionEngine();
-  const avgPerDay = Number(engineForAvg.avg30 || 0);
+  // Read the real EVORA app state. Top-level `let` variables are not window properties.
+  const sales=(typeof penjualan!=="undefined" && Array.isArray(penjualan))?penjualan:[];
+  const products=(typeof barang!=="undefined" && Array.isArray(barang))?barang:[];
+  const revenue=sales.reduce((s,x)=>s+Number(x?.nominal||0),0);
+  const qty=sales.reduce((s,x)=>s+Number(x?.qty||0),0);
+  const adSales=sales.filter(x=>x && x.iklan===true);
+  const adRevenue=adSales.reduce((s,x)=>s+Number(x?.nominal||0),0);
+  const campaign=(typeof currentAdsCampaign!=="undefined")?currentAdsCampaign:null;
+  const adSpend=campaign?Number(campaign.spend||campaign.budget||0):0;
+  const engineForAvg=(typeof getPredictionEngine==="function")?getPredictionEngine():{};
+  const avgPerDay=Number(engineForAvg?.avg30||0);
 
   const ranking={};
   sales.forEach(x=>{
@@ -6880,7 +6882,11 @@ function getEAIData(){
 }
 
 function renderEvoraAI(){
-  recoverLegacyAdCampaigns();
+  try{
+    if(typeof recoverLegacyAdCampaigns==="function") recoverLegacyAdCampaigns();
+  }catch(err){
+    console.warn("EVORA AI campaign recovery:",err);
+  }
   const d=getEAIData();
   const insights=[];
   const low=d.stock.filter(x=>x.stock>0 && x.stock<=10).slice(0,2);
@@ -6900,7 +6906,7 @@ function renderEvoraAI(){
       <div class="eai-card"><h4>Prioritas AI</h4>
         <div class="eai-row"><span>Produk terlaris</span><b>${eaiEsc(d.top[0]?.[0]||"-")}</b></div>
         <div class="eai-row"><span>Stok terendah</span><b>${eaiEsc(d.stock[0]?.name||"-")}</b></div>
-        <div class="eai-row"><span>Status iklan</span><b>${isAdsActive?"Aktif":"Tidak aktif"}</b></div>
+        <div class="eai-row"><span>Status iklan</span><b>${(typeof isAdsActive!=="undefined" && isAdsActive)?"Aktif":"Tidak aktif"}</b></div>
       </div>
     </div>`;
 
@@ -6985,17 +6991,21 @@ function openEvoraAI(){
   const el=document.getElementById("evoraAICenter");
   if(!el)return;
   el.style.display="block";
+  document.body.classList.add("eai-open");
   try{
     renderEvoraAI();
+    const overviewBtn=Array.from(document.querySelectorAll(".eai-tab")).find(b=>(b.textContent||"").trim()==="Overview");
+    switchEAI("overview",overviewBtn||null);
   }catch(err){
     console.error("EVORA AI render error:",err);
     const chat=document.getElementById("eaiChat");
-    if(chat)chat.innerHTML="<b>EVORA AI:</b> Pusat AI terbuka, tetapi ada data yang perlu diperbaiki. Silakan muat ulang halaman.";
+    if(chat)chat.innerHTML="<b>EVORA AI:</b> Ada modul analisis yang gagal dibaca. Data kasir utama tetap aman. Tutup lalu buka EVORA AI lagi.";
   }
 }
 function closeEvoraAI(){
   const el=document.getElementById("evoraAICenter");
   if(el)el.style.display="none";
+  document.body.classList.remove("eai-open");
 }
 function switchEAI(id,btn){
   document.querySelectorAll(".eai-panel").forEach(x=>x.classList.remove("active"));
@@ -9811,6 +9821,1197 @@ document.addEventListener("visibilitychange",()=>{
   .ev-isolated-page-header{padding:8px 2px 12px}
   .ev-isolated-page-header h1{font-size:18px}
   body:not([data-ev-view="beranda"]) #premiumHeaderWrapper{display:none!important}
+}
+</style>
+
+
+<script id="EVORA_V21_3_ROUTER_HARDENING">
+(function(){
+  function q(id){return document.getElementById(id)}
+  function cleanHiddenSections(){
+    document.querySelectorAll(".tab-content").forEach(tab=>{
+      if(!tab.classList.contains("active")) tab.style.removeProperty("display");
+    });
+  }
+  function activateSidebar(view){
+    const labels={
+      beranda:"Dashboard",kasir:"Kasir / Penjualan",produk:"Produk & Stok",
+      pengeluaran:"Pengeluaran",paylater:"PayLater",laporan:"Laporan",
+      riwayat:"Pesanan & Resi",setting:"Pengaturan"
+    };
+    document.querySelectorAll(".v21-side nav button").forEach(btn=>{
+      btn.classList.toggle("ev-active",(btn.textContent||"").trim()===labels[view]);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    const old=window.evOpenView;
+    if(typeof old!=="function") return;
+
+    window.evOpenView=function(view){
+      try{
+        old(view);
+        cleanHiddenSections();
+        activateSidebar(view);
+        requestAnimationFrame(()=>{
+          window.scrollTo(0,0);
+          const first=document.querySelector(".tab-content.active [data-ev-section]:not([style*='display: none'])");
+          if(first) first.scrollIntoView({block:"start",behavior:"instant"});
+          window.scrollTo(0,0);
+        });
+      }catch(e){
+        console.error("EVORA view router error:",e);
+      }
+    };
+
+    // Ensure current screen is normalized once after the app initializes.
+    setTimeout(()=>window.evOpenView(document.body.dataset.evView||"beranda"),80);
+  });
+})();
+</script>
+
+<style id="EVORA_V21_3_CLEANUP">
+/* =========================================================
+   EVORA v21.3 — CLEANUP LAYER
+   Focus: 1 menu = 1 page, tighter spacing, no mixed panels.
+   ========================================================= */
+
+:root{
+  --ev-clean-bg:#f5f7fa;
+  --ev-clean-card:#ffffff;
+  --ev-clean-line:#e6ebf0;
+  --ev-clean-text:#172033;
+  --ev-clean-muted:#718096;
+  --ev-clean-nav:#111d2a;
+}
+
+/* Global polish */
+body{background:var(--ev-clean-bg)!important}
+.card,.action-card,.item-barang,.insight-card,.paylater-debt-card{
+  border:1px solid var(--ev-clean-line)!important;
+  box-shadow:0 2px 8px rgba(30,45,65,.035)!important;
+}
+.card{overflow:visible!important}
+.card h3{line-height:1.25!important}
+input,select,textarea{box-shadow:none!important}
+button{box-shadow:none!important}
+
+/* Isolated page header */
+.ev-isolated-page-header{
+  margin:0 0 12px!important;
+  padding:4px 0 10px!important;
+  border-bottom:1px solid var(--ev-clean-line)!important;
+}
+.ev-isolated-page-header h1{
+  font-size:23px!important;
+  letter-spacing:-.45px!important;
+}
+.ev-isolated-page-header p{
+  max-width:760px!important;
+  font-size:10px!important;
+}
+
+/* Never show empty hidden placeholders as gaps */
+.tab-content > [style*="display: none"]{margin:0!important}
+
+/* Desktop/tablet app shell */
+@media(min-width:700px){
+  .main-sheet{
+    max-width:none!important;
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+
+  /* Keep each isolated feature in a clean single workspace */
+  body[data-ev-view="kasir"] #tab-kasir.active,
+  body[data-ev-view="produk"] #tab-kasir.active,
+  body[data-ev-view="paylater"] #tab-laporan.active,
+  body[data-ev-view="laporan"] #tab-laporan.active,
+  body[data-ev-view="riwayat"] #tab-riwayat.active,
+  body[data-ev-view="setting"] #tab-setting.active{
+    display:block!important;
+    max-width:1180px!important;
+    margin:0 auto!important;
+  }
+
+  /* KASIR — only actual sales flow */
+  body[data-ev-view="kasir"] #tab-kasir > [data-ev-section="kasir"]{
+    margin-bottom:12px!important;
+  }
+  body[data-ev-view="kasir"] #panelKasir{
+    padding:16px!important;
+  }
+  body[data-ev-view="kasir"] #kasirToolsResi{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    margin-bottom:12px!important;
+  }
+  body[data-ev-view="kasir"] #kasirToolsResi button{
+    margin:0!important;
+    min-height:42px!important;
+  }
+  body[data-ev-view="kasir"] #panelKasir .scan-resi-card{
+    margin-top:12px!important;
+  }
+  body[data-ev-view="kasir"] #panelMappingResi{
+    margin-top:10px!important;
+    padding:12px!important;
+  }
+  body[data-ev-view="kasir"] #listBarang{
+    margin-top:12px!important;
+  }
+
+  /* PRODUCT / STOCK — stack clearly, no Kasir residue */
+  body[data-ev-view="produk"] #tab-kasir.active{
+    max-width:900px!important;
+  }
+  body[data-ev-view="produk"] #tab-kasir > [data-ev-section="produk"]{
+    margin-bottom:12px!important;
+  }
+
+  /* PAYLATER */
+  body[data-ev-view="paylater"] #tab-laporan.active{
+    max-width:900px!important;
+  }
+  body[data-ev-view="paylater"] .paylater-mobile-fix{
+    margin:0!important;
+  }
+
+  /* REPORT */
+  body[data-ev-view="laporan"] #tab-laporan.active{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:12px!important;
+  }
+  body[data-ev-view="laporan"] #tab-laporan > [data-ev-section="laporan"]{
+    margin:0!important;
+  }
+
+  /* EXPENSE */
+  body[data-ev-view="pengeluaran"] #tab-beranda.active{
+    max-width:760px!important;
+    margin:0 auto!important;
+  }
+  body[data-ev-view="pengeluaran"] #tab-beranda>.action-grid{
+    display:block!important;
+    max-width:560px!important;
+    margin:0 auto!important;
+  }
+  body[data-ev-view="pengeluaran"] #tab-beranda>.action-grid>.action-card{
+    width:100%!important;
+  }
+
+  /* RIWAYAT */
+  body[data-ev-view="riwayat"] #tab-riwayat.active{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:12px!important;
+  }
+  body[data-ev-view="riwayat"] #tab-riwayat>.card{
+    margin:0!important;
+  }
+  body[data-ev-view="riwayat"] #tab-riwayat>.card:first-child{
+    grid-column:1/-1!important;
+  }
+
+  /* SETTINGS */
+  body[data-ev-view="setting"] #tab-setting.active{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:12px!important;
+  }
+  body[data-ev-view="setting"] #tab-setting>.card{
+    margin:0!important;
+  }
+
+  /* Better grids */
+  #listBarang.grid-barang{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:9px!important;
+  }
+  #listBarang .item-barang{
+    min-height:118px!important;
+    padding:11px!important;
+  }
+
+  /* Cleaner PDF result list */
+  .scan-resi-receipt-card{
+    margin-bottom:8px!important;
+    border-radius:9px!important;
+  }
+  .scan-resi-receipt-head{
+    padding:10px 12px!important;
+  }
+  .scan-resi-product-row{
+    padding:9px 12px!important;
+  }
+
+  /* Sidebar active state */
+  .v21-side nav button.ev-active{
+    background:#2d3b62!important;
+    color:white!important;
+  }
+}
+
+/* Medium width: still app-like, not squashed desktop */
+@media(min-width:700px) and (max-width:1050px){
+  body{padding-left:170px!important}
+  .v21-side{width:170px!important}
+  .v21-top{left:170px!important}
+  .v21-logo{font-size:21px!important}
+  .v21-side nav button{font-size:8.5px!important;padding:0 9px!important}
+  .v21-side-art{display:none!important}
+  .v21-help{margin-top:auto!important}
+  .main-sheet{padding-left:14px!important;padding-right:14px!important}
+  #listBarang.grid-barang{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  body[data-ev-view="laporan"] #tab-laporan.active,
+  body[data-ev-view="riwayat"] #tab-riwayat.active,
+  body[data-ev-view="setting"] #tab-setting.active{
+    grid-template-columns:1fr!important;
+  }
+  body[data-ev-view="riwayat"] #tab-riwayat>.card:first-child{
+    grid-column:1!important;
+  }
+}
+
+/* Mobile: one section at a time, compact spacing */
+@media(max-width:699px){
+  .main-sheet{padding-left:10px!important;padding-right:10px!important}
+  .ev-isolated-page-header{
+    margin-top:0!important;
+    padding:7px 2px 10px!important;
+  }
+  .ev-isolated-page-header h1{font-size:18px!important}
+  .ev-isolated-page-header p{font-size:9px!important}
+
+  body[data-ev-view="kasir"] #kasirToolsResi{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:7px!important;
+    margin-bottom:9px!important;
+  }
+  body[data-ev-view="kasir"] #kasirToolsResi button{
+    margin:0!important;
+    padding:9px 6px!important;
+    font-size:9px!important;
+  }
+
+  body[data-ev-view="produk"] #tab-kasir > [data-ev-section="produk"],
+  body[data-ev-view="kasir"] #tab-kasir > [data-ev-section="kasir"],
+  body[data-ev-view="paylater"] #tab-laporan > [data-ev-section="paylater"],
+  body[data-ev-view="laporan"] #tab-laporan > [data-ev-section="laporan"]{
+    margin-bottom:9px!important;
+  }
+
+  body[data-ev-view="pengeluaran"] #tab-beranda>.action-grid{
+    display:block!important;
+  }
+
+  #listBarang.grid-barang{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+
+  .card{margin-bottom:10px!important}
+}
+
+/* Hide legacy pieces that otherwise make isolated pages look mixed */
+body[data-ev-view="kasir"] #premiumHeaderWrapper,
+body[data-ev-view="produk"] #premiumHeaderWrapper,
+body[data-ev-view="pengeluaran"] #premiumHeaderWrapper,
+body[data-ev-view="paylater"] #premiumHeaderWrapper,
+body[data-ev-view="laporan"] #premiumHeaderWrapper,
+body[data-ev-view="riwayat"] #premiumHeaderWrapper,
+body[data-ev-view="setting"] #premiumHeaderWrapper{
+  display:none!important;
+}
+</style>
+
+
+<style id="EVORA_V21_4_AI_FIX">
+body.eai-open{overflow:hidden!important}
+#evoraAICenter{
+  z-index:220000!important;
+  background:#f5f7fa!important;
+  color:#172033!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+#evoraAICenter .eai-shell{
+  width:min(1180px,100%)!important;
+  min-height:100%!important;
+  margin:0 auto!important;
+  padding:24px 22px 34px!important;
+}
+#evoraAICenter .eai-top{
+  position:sticky!important;
+  top:0!important;
+  z-index:20!important;
+  background:#f5f7fa!important;
+  padding:0 0 12px!important;
+}
+#evoraAICenter .eai-close{
+  width:auto!important;
+  min-width:88px!important;
+}
+#evoraAICenter .eai-card,
+#evoraAICenter .eai-insight{
+  background:#fff!important;
+  border:1px solid #e4e9ef!important;
+  box-shadow:0 2px 8px rgba(20,35,55,.035)!important;
+}
+#evoraAICenter .eai-command{
+  background:#f5f7fa!important;
+}
+#evoraAICenter .eai-tabs{
+  scrollbar-width:thin;
+}
+@media(min-width:700px){
+  #navEvoraAI{display:none!important}
+}
+@media(max-width:699px){
+  #evoraAICenter .eai-shell{padding:12px 10px 26px!important}
+  #evoraAICenter .eai-top{position:static!important}
+  #evoraAICenter .eai-command{position:static!important}
+  #navEvoraAI{
+    right:12px!important;
+    bottom:82px!important;
+    padding:9px 12px!important;
+    font-size:10px!important;
+  }
+}
+</style>
+
+
+<script id="EVORA_V21_5_INTERIOR_CLASSIFIER">
+(function(){
+  function txt(el){return (el?.textContent||"").trim().toUpperCase()}
+  function mark(){
+    document.querySelectorAll(".tab-content .card,.tab-content .action-card").forEach(c=>{
+      const t=txt(c);
+      c.classList.remove("ev-card-sales","ev-card-stock","ev-card-paylater","ev-card-report","ev-card-history","ev-card-setting","ev-card-danger","ev-card-accent");
+      if(t.includes("PANEL KASIR")||t.includes("TRANSAKSI GROSIR")) c.classList.add("ev-card-sales");
+      if(t.includes("RE-STOCK")||t.includes("TAMBAH VARIAN")||t.includes("KONFIGURASI HARGA")) c.classList.add("ev-card-stock");
+      if(t.includes("PAYLATER")) c.classList.add("ev-card-paylater");
+      if(t.includes("LAPORAN HARIAN")||t.includes("REKAPITULASI BULANAN")) c.classList.add("ev-card-report");
+      if(t.includes("RIWAYAT")||t.includes("LOG PENJUALAN")) c.classList.add("ev-card-history");
+      if(t.includes("PENGATURAN")||t.includes("KONFIGURASI TARGET")) c.classList.add("ev-card-setting");
+      if(t.includes("PENGELUARAN")) c.classList.add("ev-card-danger");
+    });
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",mark); else mark();
+  new MutationObserver(mark).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
+<style id="EVORA_V21_5_INTERIOR_UI">
+/* =========================================================
+   EVORA v21.5 — FEATURE INTERIOR REDESIGN
+   Shell/sidebar stays. This redesigns the INSIDE of every feature.
+   ========================================================= */
+:root{
+  --ev5-bg:#f5f7fb;
+  --ev5-card:#fff;
+  --ev5-line:#e7ebf1;
+  --ev5-text:#162033;
+  --ev5-muted:#738095;
+  --ev5-navy:#172235;
+  --ev5-blue:#5b6ff6;
+  --ev5-blue-soft:#eef0ff;
+  --ev5-green:#11a975;
+  --ev5-green-soft:#e9f9f2;
+  --ev5-orange:#ed8b2c;
+  --ev5-orange-soft:#fff3e7;
+  --ev5-red:#df4f63;
+  --ev5-red-soft:#fff0f2;
+  --ev5-purple:#8b5cf6;
+  --ev5-purple-soft:#f3efff;
+  --ev5-cyan:#1493a4;
+  --ev5-cyan-soft:#e9f8fa;
+}
+
+/* General feature surface */
+.main-sheet{background:transparent!important}
+.tab-content{
+  color:var(--ev5-text)!important;
+}
+.tab-content .card,
+.tab-content .action-card{
+  background:var(--ev5-card)!important;
+  border:1px solid var(--ev5-line)!important;
+  border-radius:14px!important;
+  box-shadow:0 8px 24px rgba(21,32,51,.045)!important;
+}
+.tab-content .card{
+  padding:18px!important;
+}
+.tab-content .card>h3,
+.tab-content .action-card>h4{
+  color:var(--ev5-text)!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  letter-spacing:-.1px!important;
+  text-transform:none!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  margin:0 0 14px!important;
+}
+.tab-content .card>h3 i,
+.tab-content .action-card>h4 i{
+  width:32px!important;height:32px!important;
+  min-width:32px!important;border-radius:9px!important;
+  display:grid!important;place-items:center!important;
+  background:var(--ev5-blue-soft)!important;
+  color:var(--ev5-blue)!important;
+  font-size:13px!important;
+}
+
+/* Inputs and buttons feel like modern app controls */
+.tab-content input,
+.tab-content select,
+.tab-content textarea{
+  min-height:42px!important;
+  border:1px solid #dfe5ed!important;
+  border-radius:10px!important;
+  background:#fbfcfe!important;
+  color:var(--ev5-text)!important;
+  font-size:11px!important;
+  padding:10px 12px!important;
+  margin:6px 0!important;
+  text-align:left!important;
+  text-align-last:left!important;
+  transition:.18s!important;
+}
+.tab-content input:focus,
+.tab-content select:focus,
+.tab-content textarea:focus{
+  border-color:#8ea0ff!important;
+  box-shadow:0 0 0 3px rgba(91,111,246,.10)!important;
+  background:#fff!important;
+}
+.tab-content button{
+  min-height:40px!important;
+  border-radius:10px!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  padding:10px 14px!important;
+  letter-spacing:0!important;
+}
+
+/* Page title area */
+.ev-isolated-page-header{
+  background:linear-gradient(135deg,#fff,#f8f9ff)!important;
+  border:1px solid var(--ev5-line)!important;
+  border-radius:14px!important;
+  padding:16px 18px!important;
+  margin-bottom:14px!important;
+}
+.ev-isolated-kicker{
+  color:var(--ev5-blue)!important;
+  font-size:7px!important;
+  letter-spacing:1.7px!important;
+}
+.ev-isolated-page-header h1{
+  font-size:24px!important;
+  margin-top:3px!important;
+}
+.ev-isolated-page-header p{
+  font-size:10px!important;
+  margin-top:5px!important;
+}
+
+/* =========================
+   KASIR
+   ========================= */
+body[data-ev-view="kasir"] #kasirToolsResi{
+  background:#fff!important;
+  border:1px solid var(--ev5-line)!important;
+  border-radius:14px!important;
+  padding:10px!important;
+  box-shadow:0 8px 24px rgba(21,32,51,.04)!important;
+}
+body[data-ev-view="kasir"] #kasirToolsResi button{
+  background:#f7f8fc!important;
+  color:#354159!important;
+  border:1px solid #e8ecf2!important;
+}
+body[data-ev-view="kasir"] #kasirToolsResi button.primary{
+  background:var(--ev5-navy)!important;
+  color:#fff!important;
+  border-color:var(--ev5-navy)!important;
+}
+#panelKasir{
+  overflow:visible!important;
+}
+#panelKasir .search-container{
+  background:#f8faff!important;
+  border:1px solid #e4e9f0!important;
+  border-radius:12px!important;
+  padding:8px!important;
+  margin-bottom:10px!important;
+}
+#panelKasir .search-container input{
+  margin:0!important;
+  background:#fff!important;
+  border-color:#e1e6ee!important;
+}
+#panelKasir .scan-resi-card{
+  border:1px solid #dfe7ff!important;
+  background:linear-gradient(135deg,#f7f9ff,#fff)!important;
+  border-radius:13px!important;
+  padding:14px!important;
+}
+#panelKasir .scan-resi-title{
+  font-size:11px!important;
+  color:#25335a!important;
+}
+#panelKasir .scan-resi-sub{
+  color:#7b8799!important;
+  font-size:9px!important;
+  line-height:1.5!important;
+}
+#panelKasir .scan-resi-badge{
+  background:var(--ev5-blue-soft)!important;
+  color:var(--ev5-blue)!important;
+  border:0!important;
+}
+#panelKasir .scan-resi-upload{
+  background:var(--ev5-blue)!important;
+}
+#panelMappingResi{
+  background:#fbfcff!important;
+  border:1px dashed #cfd8f4!important;
+}
+#panelMappingResi button{
+  background:#eef1ff!important;
+  color:#5364d8!important;
+  border:1px solid #dce2ff!important;
+}
+#listBarang .item-barang{
+  background:#fff!important;
+  border:1px solid #e6ebf1!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+  transition:.16s!important;
+}
+#listBarang .item-barang:hover{
+  border-color:#bac4ff!important;
+  box-shadow:0 6px 18px rgba(91,111,246,.07)!important;
+  transform:translateY(-1px)!important;
+}
+#listBarang .item-barang .item-info>b{
+  color:#1b2638!important;
+}
+#listBarang .stok-text{
+  color:#7b8798!important;
+}
+#listBarang .badge-status{
+  border-radius:999px!important;
+  border:0!important;
+}
+#listBarang button{
+  background:var(--ev5-navy)!important;
+}
+#listBarang select{
+  background:#f4f6fa!important;
+}
+
+/* PDF rows */
+.scan-resi-summary{
+  background:#fff!important;
+  border-radius:12px!important;
+}
+.scan-resi-stat{
+  border-radius:10px!important;
+  background:#f7f9fc!important;
+  border:1px solid #e7ebf1!important;
+  color:var(--ev5-text)!important;
+}
+.scan-resi-stat b{color:var(--ev5-text)!important}
+.scan-resi-receipt-card{
+  border:1px solid #e5eaf0!important;
+  box-shadow:none!important;
+}
+.scan-resi-receipt-head{
+  background:#f9fafc!important;
+}
+.scan-resi-manual-row{
+  background:#fff9ef!important;
+}
+
+/* =========================
+   PRODUK & STOK
+   ========================= */
+.ev-card-stock{
+  position:relative!important;
+}
+.ev-card-stock>h3 i{
+  background:var(--ev5-purple-soft)!important;
+  color:var(--ev5-purple)!important;
+}
+body[data-ev-view="produk"] #tab-kasir{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:12px!important;
+}
+body[data-ev-view="produk"] #tab-kasir>[data-ev-section="produk"]{
+  margin:0!important;
+}
+body[data-ev-view="produk"] #panelRestock{
+  grid-column:1/-1!important;
+  background:linear-gradient(135deg,#fff,#fffaf2)!important;
+  border-color:#f4dfbd!important;
+}
+body[data-ev-view="produk"] #panelRestock>h3 i{
+  background:var(--ev5-orange-soft)!important;
+  color:var(--ev5-orange)!important;
+}
+body[data-ev-view="produk"] #panelRestock button{
+  background:var(--ev5-orange)!important;
+}
+body[data-ev-view="produk"] #listPesanPending>div{
+  background:#fff!important;
+  border:1px solid #eee7dc!important;
+  border-radius:10px!important;
+}
+
+/* =========================
+   PENGELUARAN
+   ========================= */
+body[data-ev-view="pengeluaran"] #tab-beranda>.action-grid{
+  max-width:640px!important;
+}
+body[data-ev-view="pengeluaran"] .action-card{
+  background:linear-gradient(135deg,#fff,#fff8f9)!important;
+  border-color:#f3d8dd!important;
+  padding:18px!important;
+}
+body[data-ev-view="pengeluaran"] .action-card>h4 i{
+  background:var(--ev5-red-soft)!important;
+  color:var(--ev5-red)!important;
+}
+body[data-ev-view="pengeluaran"] .action-card button{
+  background:var(--ev5-red)!important;
+}
+
+/* =========================
+   PAYLATER
+   ========================= */
+.ev-card-paylater{
+  background:linear-gradient(135deg,#fff,#faf8ff)!important;
+  border-color:#e7defe!important;
+}
+.ev-card-paylater>h3 i{
+  background:var(--ev5-purple-soft)!important;
+  color:var(--ev5-purple)!important;
+}
+.paylater-actions{
+  gap:12px!important;
+}
+.paylater-actions>div{
+  background:#fff!important;
+  border:1px solid #e8e2f7!important;
+  border-radius:12px!important;
+  padding:14px!important;
+}
+.paylater-actions h4{
+  margin:0 0 10px!important;
+  font-size:10px!important;
+}
+#totalHutangPaylater{
+  display:inline-block!important;
+  margin-top:4px!important;
+  padding:7px 10px!important;
+  border-radius:9px!important;
+  background:var(--ev5-red-soft)!important;
+}
+.paylater-debt-card{
+  border:1px solid #e5e9ef!important;
+  border-radius:11px!important;
+  box-shadow:none!important;
+}
+.paylater-progress{
+  height:7px!important;
+}
+
+/* =========================
+   LAPORAN
+   ========================= */
+.ev-card-report>h3 i{
+  background:var(--ev5-cyan-soft)!important;
+  color:var(--ev5-cyan)!important;
+}
+body[data-ev-view="laporan"] #tab-laporan.active{
+  gap:14px!important;
+}
+body[data-ev-view="laporan"] .ev-card-report{
+  min-height:280px!important;
+}
+#summaryHarian,#summaryBulanan{
+  background:#f8fafc!important;
+  border:1px solid #e6ebf1!important;
+  border-radius:11px!important;
+  padding:14px!important;
+}
+.report-item{
+  background:#fff!important;
+  border:1px solid #e8edf2!important;
+  border-radius:9px!important;
+}
+.report-summary-box{
+  background:#f8fafc!important;
+  border-color:#e5eaf0!important;
+}
+
+/* =========================
+   RIWAYAT
+   ========================= */
+body[data-ev-view="riwayat"] #tab-riwayat .card{
+  overflow:hidden!important;
+}
+body[data-ev-view="riwayat"] .riwayat-item{
+  background:#fff!important;
+  border:1px solid #e6eaf0!important;
+  border-radius:10px!important;
+  padding:12px!important;
+}
+body[data-ev-view="riwayat"] .riwayat-resi-card{
+  border:1px solid #e4e9ef!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+body[data-ev-view="riwayat"] .riwayat-resi-head{
+  background:#f7f9fc!important;
+  border-bottom:1px solid #e6ebf1!important;
+}
+body[data-ev-view="riwayat"] .riwayat-badge{
+  background:var(--ev5-green-soft)!important;
+  color:var(--ev5-green)!important;
+}
+
+/* =========================
+   SETTINGS
+   ========================= */
+.ev-card-setting>h3 i{
+  background:#eef3f8!important;
+  color:#536174!important;
+}
+body[data-ev-view="setting"] #tab-setting>.card{
+  min-height:190px!important;
+}
+body[data-ev-view="setting"] #tab-setting>.card button{
+  background:var(--ev5-navy)!important;
+}
+
+/* =========================
+   EVORA AI
+   ========================= */
+#evoraAICenter{
+  background:#f4f6fb!important;
+}
+#evoraAICenter .eai-top{
+  background:#f4f6fb!important;
+}
+#evoraAICenter .eai-title{
+  font-size:22px!important;
+  letter-spacing:-.4px!important;
+}
+#evoraAICenter .eai-tabs{
+  background:#fff!important;
+  border:1px solid #e4e9f0!important;
+  border-radius:12px!important;
+  padding:6px!important;
+}
+#evoraAICenter .eai-tab{
+  border-radius:9px!important;
+  background:transparent!important;
+  color:#718096!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#evoraAICenter .eai-tab.active{
+  background:var(--ev5-navy)!important;
+  color:#fff!important;
+}
+#evoraAICenter .eai-command{
+  background:#fff!important;
+  border:1px solid #e3e8ef!important;
+  border-radius:12px!important;
+  padding:10px!important;
+  margin:10px 0 14px!important;
+}
+#evoraAICenter .eai-card{
+  border-radius:14px!important;
+  padding:16px!important;
+}
+#evoraAICenter .eai-insight{
+  border-radius:12px!important;
+  background:#fff!important;
+}
+#evoraAICenter .eai-row{
+  border-bottom:1px solid #edf0f4!important;
+}
+#evoraAICenter .eai-row:last-child{
+  border-bottom:0!important;
+}
+
+/* Desktop refinement */
+@media(min-width:1051px){
+  body[data-ev-view="produk"] #tab-kasir{
+    max-width:1000px!important;
+  }
+  body[data-ev-view="setting"] #tab-setting.active{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+/* Tablet */
+@media(min-width:700px) and (max-width:1050px){
+  body[data-ev-view="produk"] #tab-kasir{
+    grid-template-columns:1fr!important;
+  }
+  #listBarang.grid-barang{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+/* Mobile */
+@media(max-width:699px){
+  .tab-content .card{
+    padding:14px!important;
+    border-radius:12px!important;
+  }
+  .tab-content .card>h3{
+    font-size:11px!important;
+  }
+  .tab-content .card>h3 i{
+    width:28px!important;height:28px!important;min-width:28px!important;
+  }
+  .ev-isolated-page-header{
+    padding:13px!important;
+  }
+  #listBarang.grid-barang{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .paylater-actions{
+    grid-template-columns:1fr!important;
+  }
+}
+</style>
+
+
+<script id="EVORA_V21_6_SECTION_CLASSIFIER">
+(function(){
+  function t(el){return (el?.textContent||"").replace(/\s+/g," ").trim().toUpperCase()}
+  function tag(){
+    const sets=[
+      ["#tab-beranda",[
+        ["AKSES CEPAT","dash-quick"],["PERFORMA HARI INI","dash-performance"],["KONDISI BISNIS","dash-condition"],
+        ["TOP 5 PRODUK","dash-top5"],["GRAFIK PENJUALAN","dash-chart"],["TOP VARIAN","dash-topvarian"],
+        ["TARGET BULAN INI","dash-target"],["RINGKASAN PERFORMA","dash-monthly"],["ANALISIS BULAN INI","dash-analysis"]
+      ]],
+      ["#tab-kasir",[
+        ["KONFIGURASI HARGA","product-price"],["PANEL KASIR","sales-main"],["TRANSAKSI GROSIR","sales-manual"],
+        ["RE-STOCK LOGISTIK","stock-restock"],["TAMBAH VARIAN","stock-add"]
+      ]],
+      ["#tab-laporan",[
+        ["MANAJEMEN HUTANG PAYLATER","paylater-main"],["LAPORAN HARIAN","report-daily"],["REKAPITULASI BULANAN","report-monthly"]
+      ]],
+      ["#tab-riwayat",[
+        ["FILTER LOG","history-filter"],["LOG PENJUALAN","history-sales"],["LOG PENGELUARAN","history-expense"]
+      ]],
+      ["#tab-setting",[
+        ["PENGATURAN PROFIL","settings-profile"],["KONFIGURASI TARGET","settings-target"],["KUSTOMISASI STRUK","settings-receipt"],
+        ["KEAMANAN & PASSWORD","settings-security"],["TAMPILAN APLIKASI","settings-theme"],["PRINTER BLUETOOTH","settings-printer"],
+        ["EKSPORT / COPY DATA","settings-export"],["IMPORT / TRANSFER DATA","settings-import"]
+      ]]
+    ];
+    sets.forEach(([rootSel, rules])=>{
+      const root=document.querySelector(rootSel); if(!root)return;
+      Array.from(root.children).forEach(el=>{
+        const txt=t(el);
+        rules.forEach(([needle,cls])=>{ if(txt.includes(needle)) el.classList.add("ev6-"+cls); });
+      });
+    });
+    document.querySelectorAll("#tab-setting>.card").forEach(c=>c.classList.add("ev6-setting-card"));
+    document.querySelectorAll("#tab-laporan>.card").forEach(c=>c.classList.add("ev6-finance-card"));
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",tag);else tag();
+  setTimeout(tag,300);
+})();
+</script>
+
+<style id="EVORA_V21_6_FULL_INTERIOR_REBUILD">
+:root{
+ --e6-bg:#f5f7fa;--e6-card:#fff;--e6-line:#e7ebf0;--e6-line2:#dbe2e8;
+ --e6-text:#172235;--e6-muted:#778397;--e6-navy:#192537;
+ --e6-blue:#5c6cf2;--e6-blue2:#eef0ff;--e6-green:#13a976;--e6-green2:#eaf8f2;
+ --e6-orange:#ec8b2d;--e6-orange2:#fff4e8;--e6-red:#dc5366;--e6-red2:#fff0f2;
+ --e6-purple:#8b5cf6;--e6-purple2:#f3efff;--e6-cyan:#1596a8;--e6-cyan2:#eaf9fb;
+ --e6-shadow:0 6px 22px rgba(22,34,53,.045);
+}
+body{background:var(--e6-bg)!important}
+.main-sheet{background:transparent!important}
+.tab-content{color:var(--e6-text)!important}
+
+/* ---------- CORE COMPONENTS ---------- */
+.tab-content .card,.tab-content .action-card,.tab-content .insight-card,.tab-content .item-barang{
+ border:1px solid var(--e6-line)!important;background:#fff!important;border-radius:14px!important;
+ box-shadow:var(--e6-shadow)!important;
+}
+.tab-content .card{padding:17px!important;margin-bottom:12px!important}
+.tab-content h3,.tab-content h4{letter-spacing:0!important;text-transform:none!important}
+.tab-content .card>h3,.tab-content .action-card>h4{
+ display:flex!important;align-items:center!important;gap:9px!important;margin:0 0 14px!important;
+ font-size:12px!important;font-weight:850!important;color:var(--e6-text)!important;
+}
+.tab-content .card>h3 i,.tab-content .action-card>h4 i{
+ width:31px!important;height:31px!important;min-width:31px!important;display:grid!important;place-items:center!important;
+ border-radius:9px!important;background:var(--e6-blue2)!important;color:var(--e6-blue)!important;font-size:12px!important;
+}
+.tab-content input,.tab-content select,.tab-content textarea{
+ width:100%!important;min-height:41px!important;margin:6px 0!important;padding:9px 11px!important;
+ background:#fbfcfd!important;border:1px solid #dfe5eb!important;border-radius:9px!important;
+ box-shadow:none!important;color:var(--e6-text)!important;font-size:11px!important;text-align:left!important;text-align-last:left!important;
+}
+.tab-content input:focus,.tab-content select:focus,.tab-content textarea:focus{
+ border-color:#99a4fb!important;background:#fff!important;box-shadow:0 0 0 3px rgba(92,108,242,.09)!important;
+}
+.tab-content button{
+ min-height:39px!important;padding:9px 13px!important;border-radius:9px!important;font-size:10px!important;
+ font-weight:800!important;box-shadow:none!important;
+}
+.ev-isolated-page-header{
+ background:#fff!important;border:1px solid var(--e6-line)!important;border-radius:14px!important;
+ padding:15px 17px!important;margin-bottom:13px!important;box-shadow:0 2px 8px rgba(22,34,53,.025)!important;
+}
+.ev-isolated-kicker{font-size:7px!important;color:var(--e6-blue)!important;letter-spacing:1.6px!important}
+.ev-isolated-page-header h1{font-size:23px!important;color:var(--e6-text)!important;margin:3px 0 0!important}
+.ev-isolated-page-header p{font-size:9px!important;color:var(--e6-muted)!important;margin:5px 0 0!important}
+
+/* ---------- DASHBOARD ---------- */
+@media(min-width:1051px){
+ #tab-beranda.active{display:grid!important;grid-template-columns:1.2fr .8fr!important;gap:12px!important;align-items:start!important}
+ #tab-beranda>*{min-width:0!important}
+ #tab-beranda .ev6-dash-quick{grid-column:1/-1!important}
+ #tab-beranda .ev6-dash-performance{grid-column:1/-1!important}
+ #tab-beranda .ev6-dash-condition{grid-column:1!important}
+ #tab-beranda .ev6-dash-top5{grid-column:2!important;grid-row:3/span 2!important}
+ #tab-beranda>.insight-grid{grid-column:1!important}
+ #tab-beranda .ev6-dash-analysis{grid-column:1/-1!important}
+ #tab-beranda .ev6-dash-chart{grid-column:1!important}
+ #tab-beranda .ev6-dash-topvarian{grid-column:2!important}
+ #tab-beranda .action-grid{grid-column:1/-1!important}
+ #tab-beranda .ev6-dash-target{grid-column:1!important}
+ #tab-beranda .ev6-dash-monthly{grid-column:2!important}
+}
+#tab-beranda .quick-grid{gap:8px!important}
+#tab-beranda .quick-card{
+ min-height:78px!important;height:auto!important;border-radius:12px!important;border:1px solid var(--e6-line)!important;
+ background:#fafbfc!important;box-shadow:none!important;
+}
+#tab-beranda .quick-card i{width:32px;height:32px;border-radius:9px;background:var(--e6-blue2)!important;color:var(--e6-blue)!important;display:grid;place-items:center;margin:0 auto 6px!important;font-size:13px!important}
+#tab-beranda .quick-card span{font-size:9px!important;color:#425068!important}
+#tab-beranda .insight-grid{gap:9px!important}
+#tab-beranda .insight-card{padding:13px!important;box-shadow:none!important}
+#tab-beranda .insight-label{font-size:8px!important;color:var(--e6-muted)!important}
+#tab-beranda .insight-value{font-size:19px!important;color:var(--e6-text)!important}
+#tab-beranda .insight-row{background:#f8fafc!important;border-color:#e8edf2!important;border-radius:9px!important}
+#tab-beranda .business-status{background:#f8fafc!important;border-color:#e7ebf0!important;border-radius:11px!important}
+#tab-beranda .ev6-dash-chart canvas{max-height:230px!important}
+
+/* ---------- KASIR ---------- */
+@media(min-width:1051px){
+ body[data-ev-view="kasir"] #tab-kasir.active{
+  display:grid!important;grid-template-columns:minmax(0,1fr) 300px!important;gap:12px!important;align-items:start!important;max-width:1280px!important
+ }
+ body[data-ev-view="kasir"] #kasirToolsResi{grid-column:1/-1!important}
+ body[data-ev-view="kasir"] .ev6-sales-main{grid-column:1!important;grid-row:2/span 2!important}
+ body[data-ev-view="kasir"] .ev6-sales-manual{grid-column:2!important;grid-row:2!important;position:sticky!important;top:80px!important}
+}
+body[data-ev-view="kasir"] #kasirToolsResi{
+ display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;padding:9px!important;
+ border:1px solid var(--e6-line)!important;background:#fff!important;border-radius:12px!important;box-shadow:var(--e6-shadow)!important;
+}
+body[data-ev-view="kasir"] #kasirToolsResi button{margin:0!important;background:#f6f8fb!important;color:#45536a!important;border:1px solid #e5eaf0!important}
+body[data-ev-view="kasir"] #kasirToolsResi button.primary{background:var(--e6-navy)!important;color:white!important;border-color:var(--e6-navy)!important}
+#panelKasir{padding:16px!important}
+#panelKasir .search-container{
+ padding:8px!important;background:#f7f9fc!important;border:1px solid #e4e9ef!important;border-radius:11px!important;margin-bottom:10px!important;
+}
+#panelKasir .search-container input{margin:0!important;background:#fff!important}
+#panelKasir .scan-resi-card{
+ margin-top:10px!important;background:linear-gradient(135deg,#f8f9ff,#fff)!important;border:1px solid #dfe4ff!important;
+ border-radius:12px!important;padding:13px!important;
+}
+#panelKasir .scan-resi-title{font-size:11px!important;color:#2a3855!important}
+#panelKasir .scan-resi-sub{font-size:9px!important;color:#7e8999!important;line-height:1.5!important}
+#panelKasir .scan-resi-badge{background:var(--e6-blue2)!important;color:var(--e6-blue)!important;border:0!important}
+#panelKasir .scan-resi-upload{background:var(--e6-blue)!important}
+#panelMappingResi{background:#fbfcff!important;border:1px dashed #cfd8f4!important;box-shadow:none!important;padding:11px!important}
+#panelMappingResi button{background:#eef1ff!important;color:#5666dc!important;border:1px solid #dbe1ff!important}
+#listBarang.grid-barang{gap:8px!important}
+@media(min-width:1180px){#listBarang.grid-barang{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+#listBarang .item-barang{min-height:112px!important;padding:10px!important;border-radius:11px!important;box-shadow:none!important}
+#listBarang .item-barang:hover{border-color:#bac3ff!important;box-shadow:0 6px 18px rgba(92,108,242,.07)!important}
+#listBarang .item-info>b{font-size:11px!important}
+#listBarang .stok-text{font-size:9px!important;color:var(--e6-muted)!important}
+#listBarang .badge-status{border-radius:999px!important;border:0!important}
+#listBarang button{background:var(--e6-navy)!important}
+.ev6-sales-manual>h3 i{background:var(--e6-green2)!important;color:var(--e6-green)!important}
+.ev6-sales-manual button{background:var(--e6-green)!important}
+
+/* PDF batch list */
+.scan-resi-summary{gap:7px!important}
+.scan-resi-stat{background:#f8fafc!important;border:1px solid #e5eaf0!important;border-radius:9px!important;color:var(--e6-text)!important}
+.scan-resi-stat b{color:var(--e6-text)!important}
+.scan-resi-receipt-card{border:1px solid #e5eaf0!important;border-radius:10px!important;box-shadow:none!important;overflow:hidden!important}
+.scan-resi-receipt-head{background:#f8fafc!important;border-bottom:1px solid #e7ebf0!important;padding:10px!important}
+.scan-resi-product-row{padding:9px 10px!important}
+.scan-resi-manual-row{background:#fff9ed!important}
+.scan-resi-receipt-remove{border-radius:7px!important}
+
+/* ---------- PRODUK & STOK ---------- */
+body[data-ev-view="produk"] #tab-kasir.active{max-width:1080px!important}
+@media(min-width:1051px){
+ body[data-ev-view="produk"] #tab-kasir.active{
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;align-items:start!important;
+ }
+ body[data-ev-view="produk"] .ev6-stock-restock{grid-column:1/-1!important}
+ body[data-ev-view="produk"] .ev6-product-price{grid-column:1!important}
+ body[data-ev-view="produk"] .ev6-stock-add{grid-column:2!important}
+}
+.ev6-product-price>h3 i,.ev6-stock-add>h3 i{background:var(--e6-purple2)!important;color:var(--e6-purple)!important}
+.ev6-stock-restock{background:linear-gradient(135deg,#fff,#fffaf4)!important;border-color:#f1dfc7!important}
+.ev6-stock-restock>h3 i{background:var(--e6-orange2)!important;color:var(--e6-orange)!important}
+.ev6-stock-restock button{background:var(--e6-orange)!important}
+#listPesanPending>div{border:1px solid #ebe4da!important;background:#fff!important;border-radius:9px!important;padding:9px!important}
+
+/* ---------- PENGELUARAN ---------- */
+body[data-ev-view="pengeluaran"] #tab-beranda.active{max-width:700px!important;margin:0 auto!important}
+body[data-ev-view="pengeluaran"] #tab-beranda>.action-grid{display:block!important;max-width:560px!important;margin:0 auto!important}
+body[data-ev-view="pengeluaran"] #tab-beranda>.action-grid>.action-card{padding:18px!important;background:linear-gradient(135deg,#fff,#fff8f9)!important;border-color:#f2d9de!important}
+body[data-ev-view="pengeluaran"] .action-card>h4 i{background:var(--e6-red2)!important;color:var(--e6-red)!important}
+body[data-ev-view="pengeluaran"] .action-card button{background:var(--e6-red)!important}
+
+/* ---------- PAYLATER ---------- */
+body[data-ev-view="paylater"] #tab-laporan.active{max-width:980px!important;margin:0 auto!important}
+.ev6-paylater-main{background:linear-gradient(135deg,#fff,#faf8ff)!important;border-color:#e8e0fb!important}
+.ev6-paylater-main>h3 i{background:var(--e6-purple2)!important;color:var(--e6-purple)!important}
+.paylater-actions{gap:10px!important}
+.paylater-actions>div{background:#fff!important;border:1px solid #e8e3f4!important;border-radius:11px!important;padding:13px!important}
+#totalHutangPaylater{display:inline-block!important;background:var(--e6-red2)!important;border-radius:8px!important;padding:6px 9px!important;margin-top:4px!important}
+.paylater-debt-card{border:1px solid #e6eaf0!important;border-radius:10px!important;box-shadow:none!important;padding:11px!important}
+.paylater-progress{height:6px!important}
+
+/* ---------- LAPORAN ---------- */
+@media(min-width:1051px){
+ body[data-ev-view="laporan"] #tab-laporan.active{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;max-width:1150px!important;margin:0 auto!important}
+}
+.ev6-report-daily>h3 i,.ev6-report-monthly>h3 i{background:var(--e6-cyan2)!important;color:var(--e6-cyan)!important}
+#summaryHarian,#summaryBulanan{background:#f8fafc!important;border:1px solid #e6ebf0!important;border-radius:10px!important;padding:13px!important}
+.report-summary-grid{gap:8px!important}.report-summary-box{background:#fff!important;border:1px solid #e6ebf0!important;border-radius:9px!important}
+.report-item{background:#fff!important;border:1px solid #e8edf2!important;border-radius:8px!important;padding:8px 9px!important}
+
+/* ---------- RIWAYAT ---------- */
+body[data-ev-view="riwayat"] #tab-riwayat.active{max-width:1180px!important;margin:0 auto!important}
+.ev6-history-filter{background:#fbfcfe!important}
+.ev6-history-filter>h3 i{background:#eef3f8!important;color:#536174!important}
+@media(min-width:1051px){
+ body[data-ev-view="riwayat"] #tab-riwayat.active{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important}
+ body[data-ev-view="riwayat"] .ev6-history-filter{grid-column:1/-1!important}
+}
+.riwayat-item{background:#fff!important;border:1px solid #e7ebf0!important;border-radius:9px!important;padding:10px 11px!important}
+.riwayat-resi-card{border:1px solid #e5eaf0!important;border-radius:10px!important;box-shadow:none!important;overflow:hidden!important}
+.riwayat-resi-head{background:#f8fafc!important;border-bottom:1px solid #e7ebf0!important}
+.riwayat-badge{background:var(--e6-green2)!important;color:var(--e6-green)!important;border:0!important}
+
+/* ---------- SETTINGS ---------- */
+body[data-ev-view="setting"] #tab-setting.active{max-width:1180px!important;margin:0 auto!important}
+@media(min-width:1051px){
+ body[data-ev-view="setting"] #tab-setting.active{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important}
+ body[data-ev-view="setting"] .ev6-settings-export,
+ body[data-ev-view="setting"] .ev6-settings-import{grid-column:auto!important}
+}
+.ev6-setting-card{margin:0!important;min-height:190px!important}
+.ev6-setting-card>h3 i{background:#eef3f8!important;color:#526174!important}
+.ev6-settings-security>h3 i{background:var(--e6-red2)!important;color:var(--e6-red)!important}
+.ev6-settings-printer>h3 i{background:var(--e6-cyan2)!important;color:var(--e6-cyan)!important}
+.ev6-settings-export>h3 i,.ev6-settings-import>h3 i{background:var(--e6-green2)!important;color:var(--e6-green)!important}
+.ev6-setting-card button{background:var(--e6-navy)!important}
+
+/* ---------- SCANNER DUPLIKAT MODAL ---------- */
+#serahEkspedisiModal{background:rgba(10,18,28,.72)!important;backdrop-filter:blur(6px)!important}
+#serahEkspedisiModal .modal-content{
+ width:min(760px,calc(100vw - 24px))!important;max-width:760px!important;border-radius:16px!important;
+ padding:18px!important;background:#fff!important;border:1px solid #dfe5eb!important;box-shadow:0 30px 80px rgba(0,0,0,.28)!important;
+}
+#serahEkspedisiModal h3{font-size:15px!important;color:var(--e6-text)!important}
+.serah-camera-wrap{border-radius:12px!important;border:0!important;box-shadow:inset 0 0 0 1px #2a3545!important}
+.serah-result{border-radius:10px!important}
+.serah-stats>div{border-radius:9px!important;background:#f8fafc!important;border-color:#e5eaf0!important}
+.serah-log-row{border-radius:8px!important}
+@media(min-width:700px){
+ #serahEkspedisiModal .modal-content{max-height:90vh!important}
+}
+
+/* ---------- GENERIC MODALS ---------- */
+.modal-overlay{background:rgba(12,20,30,.58)!important;backdrop-filter:blur(5px)!important}
+.modal-content{border-radius:15px!important;border:1px solid #e1e7ed!important;box-shadow:0 28px 70px rgba(15,25,40,.2)!important;padding:20px!important}
+.modal-content h3{font-size:13px!important}
+
+/* ---------- LOGIN ---------- */
+#evoraAuthGate{background:radial-gradient(circle at 20% 20%,#263b56 0,#162536 42%,#0d1722 100%)!important}
+.evora-auth-card{border-radius:18px!important;padding:28px!important;border:1px solid rgba(255,255,255,.12)!important;box-shadow:0 32px 90px rgba(0,0,0,.4)!important}
+.evora-auth-brand{font-family:Georgia,serif!important;font-size:28px!important;letter-spacing:5px!important;color:#263b56!important}
+.evora-auth-card input{min-height:45px!important;border-radius:10px!important}
+.evora-auth-card button{border-radius:10px!important}
+
+/* ---------- EVORA AI ---------- */
+#evoraAICenter{background:#f4f6fa!important}
+#evoraAICenter .eai-shell{max-width:1200px!important}
+#evoraAICenter .eai-top{background:#f4f6fa!important}
+#evoraAICenter .eai-tabs{display:flex!important;gap:5px!important;padding:6px!important;background:#fff!important;border:1px solid #e4e9ef!important;border-radius:11px!important}
+#evoraAICenter .eai-tab{border-radius:8px!important;border:0!important;background:transparent!important;color:#728094!important;box-shadow:none!important}
+#evoraAICenter .eai-tab.active{background:var(--e6-navy)!important;color:#fff!important}
+#evoraAICenter .eai-command{background:#fff!important;border:1px solid #e4e9ef!important;border-radius:11px!important;padding:9px!important}
+#evoraAICenter .eai-card,#evoraAICenter .eai-insight{border-radius:12px!important;border:1px solid #e4e9ef!important;box-shadow:none!important;background:#fff!important}
+#evoraAICenter .eai-row{border-bottom:1px solid #edf1f4!important}
+
+/* ---------- CETAK RESI / ECR ---------- */
+#evoraCetakResi{background:#f5f7fa!important}
+#evoraCetakResi .ecr-shell{max-width:1180px!important;margin:0 auto!important;padding:18px!important}
+#evoraCetakResi .ecr-head,#evoraCetakResi .ecr-toolbar,#evoraCetakResi .ecr-drop,#evoraCetakResi .ecr-layout{
+ border-radius:12px!important;border-color:#e4e9ef!important;box-shadow:none!important;
+}
+#evoraCetakResi .ecr-toolbar button{border-radius:8px!important}
+#evoraCetakResi .ecr-drop{background:#fbfcfe!important}
+#evoraCetakResi .ecr-list-item{border-radius:9px!important}
+
+/* ---------- TABLET ---------- */
+@media(min-width:700px) and (max-width:1050px){
+ body[data-ev-view="kasir"] #tab-kasir.active,
+ body[data-ev-view="produk"] #tab-kasir.active,
+ body[data-ev-view="laporan"] #tab-laporan.active,
+ body[data-ev-view="riwayat"] #tab-riwayat.active,
+ body[data-ev-view="setting"] #tab-setting.active{display:block!important}
+ #listBarang.grid-barang{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:699px){
+ .tab-content .card{padding:13px!important;border-radius:12px!important}
+ .tab-content .card>h3{font-size:11px!important;margin-bottom:11px!important}
+ .tab-content .card>h3 i{width:28px!important;height:28px!important;min-width:28px!important}
+ .ev-isolated-page-header{padding:12px!important;border-radius:12px!important}
+ .ev-isolated-page-header h1{font-size:18px!important}
+ #listBarang.grid-barang{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ .paylater-actions{grid-template-columns:1fr!important}
+ #serahEkspedisiModal .modal-content{padding:12px!important}
+ #evoraAICenter .eai-shell{padding:10px!important}
 }
 </style>
 
