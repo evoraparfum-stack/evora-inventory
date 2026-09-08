@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Business OS v18.0</title>
+  <title>EVORA Tracker Pro v17.2 - PDF Manual Top + Cancel Resi</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -1801,101 +1801,6 @@ body.dark-mode #evoraAICenter label,
   letter-spacing:.2px!important;
 }
 </style>
-
-<style id="evora-business-os-v18">
-/* =========================================================
-   EVORA BUSINESS OS v18 — VISUAL LAYER ONLY
-   No business logic, IDs, onclick handlers, or data model changed.
-   ========================================================= */
-:root{
-  --premium-gradient:linear-gradient(135deg,#111827 0%,#172033 58%,#0f766e 145%);
-  --bg-main:#f4f6f8;--bg-card:#fff;--text-main:#111827;--text-muted:#6b7280;
-  --primary:#0f766e;--primary-light:#ecfdf5;--success:#059669;--danger:#dc2626;
-  --warning:#d97706;--accent:#0f766e;--radius-sm:10px;--radius-md:14px;--radius-lg:18px;
-  --shadow-sm:0 1px 2px rgba(15,23,42,.04);--shadow-md:0 8px 24px rgba(15,23,42,.055);
-  --ev-border:#e5e7eb;--ev-sidebar:#111827;
-}
-body.dark-theme{--bg-main:#0b1018;--bg-card:#121a27;--text-main:#f3f4f6;--text-muted:#9ca3af;--ev-border:#263244;--primary-light:rgba(16,185,129,.12)}
-*{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-html,body{background:var(--bg-main);letter-spacing:-.005em}
-body{padding-bottom:105px}
-
-/* Header: compact executive summary */
-.premium-header{background:var(--premium-gradient);padding:26px 22px 54px;box-shadow:none;border-bottom:1px solid rgba(255,255,255,.07)}
-.header-top{margin-bottom:18px}.brand-title{font-size:18px;letter-spacing:4px;background:none;-webkit-text-fill-color:#fff;color:#fff}
-.sync-badge{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1);font-size:10px;padding:7px 11px}
-.user-greeting{font-size:13px;color:#cbd5e1}.bank-divider{margin:13px 0;border-color:rgba(255,255,255,.09)}
-.balance-label{font-size:10px;letter-spacing:1.2px}.balance-value{font-size:32px;letter-spacing:-1.5px;margin:5px 0}
-.btn-sync-icon{width:40px;height:40px;border-radius:11px;box-shadow:none}.pills-container{margin-top:18px;gap:7px}
-.premium-pill{border-radius:9px;padding:9px 7px;font-size:10px;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);box-shadow:none}
-
-/* Main canvas */
-.main-sheet{margin-top:-25px;border-radius:22px 22px 0 0;padding:22px 16px 155px;background:var(--bg-main)}
-.card{border:1px solid var(--ev-border);border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow-sm)}
-h3{font-size:10px;letter-spacing:.85px;margin-bottom:14px;color:var(--text-muted)}
-h3 i{color:var(--primary)}
-button{border-radius:10px;box-shadow:none;font-size:13px;padding:12px 14px}
-input,select,textarea{border:1px solid var(--ev-border);border-radius:10px;background:var(--bg-card);padding:11px 12px;text-align:left;text-align-last:auto;margin:7px 0}
-input:focus,select:focus,textarea:focus{border-color:#5eead4;box-shadow:0 0 0 3px rgba(13,148,136,.10)}
-
-/* Dashboard cards */
-.quick-grid{gap:8px}.quick-card{height:76px;border-radius:12px;border-color:var(--ev-border);box-shadow:none;background:var(--bg-card)}
-.quick-card:hover{border-color:#99f6e4;background:var(--primary-light)}.quick-card i{font-size:18px}.quick-card span{font-size:9px}
-.insight-card,.business-status,.report-item,.riwayat-item{border-radius:11px!important;box-shadow:none!important}
-.top-product-grid{gap:8px}.product-badge-card{border-radius:11px;box-shadow:none;border-color:var(--ev-border)}
-.ai-marketing-card{background:linear-gradient(145deg,#111827,#172033)!important;border:1px solid #273449!important;border-radius:14px}
-
-/* Kasir: denser professional POS */
-.grid-barang{gap:8px}.item-barang{border-radius:11px!important;border-color:var(--ev-border)!important;box-shadow:none!important;padding:11px!important}
-.item-barang:hover{border-color:#99f6e4!important}.item-info b{font-weight:750}.search-variant-list{border-radius:10px;box-shadow:0 12px 30px rgba(15,23,42,.09)}
-.scan-resi-receipt-card{border-radius:12px!important;box-shadow:none!important}.scan-resi-product-row{border-radius:9px!important}
-
-/* Tables/history/report feel less card-heavy */
-.scroll-box{scrollbar-width:thin}.riwayat-item{background:var(--bg-card);border:1px solid var(--ev-border);margin:6px 0}
-.badge-status{border-radius:999px;box-shadow:none}.modal-overlay{background:rgba(3,7,18,.68);backdrop-filter:blur(8px)}
-.modal-content{border:1px solid var(--ev-border);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.22)}
-
-/* Mobile navigation — clean app bar, Scan visually emphasized by position/content */
-.bottom-nav{height:72px;background:rgba(255,255,255,.94);border-top:1px solid var(--ev-border);box-shadow:0 -5px 20px rgba(15,23,42,.045);backdrop-filter:blur(16px);padding:0 5px env(safe-area-inset-bottom);overflow-x:auto}
-body.dark-theme .bottom-nav{background:rgba(18,26,39,.95)!important;border-color:var(--ev-border)!important}
-.bottom-nav .nav-item{min-width:66px!important;font-size:9px;font-weight:700;color:#6b7280;width:auto;flex:1}
-.bottom-nav .nav-icon{font-size:17px;padding:5px 12px;border-radius:9px;margin-bottom:2px}
-.bottom-nav .nav-item.active{color:var(--primary)}.bottom-nav .nav-item.active .nav-icon{background:var(--primary-light);transform:none}
-
-/* Scanner: stronger operational feedback */
-#serahEkspedisiModal .modal-content{border-radius:18px;max-width:560px!important}
-.serah-camera-wrap{border-radius:14px!important;overflow:hidden}.serah-result{border-radius:12px!important}
-
-/* DESKTOP: transform existing bottom nav into left sidebar; no JS/navigation changes */
-@media (min-width:900px){
-  body{padding:0 0 0 224px!important;overflow-x:hidden}
-  .bottom-nav{position:fixed!important;left:0!important;top:0!important;bottom:0!important;right:auto!important;width:224px!important;height:100vh!important;max-width:224px!important;background:var(--ev-sidebar)!important;border:0!important;border-right:1px solid #263244!important;box-shadow:none!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;padding:104px 14px 18px!important;overflow:visible!important;gap:5px;z-index:999}
-  .bottom-nav:before{content:'EVORA';position:absolute;top:32px;left:24px;color:#fff;font-size:18px;font-weight:900;letter-spacing:4px}
-  .bottom-nav:after{content:'BUSINESS OS';position:absolute;top:58px;left:24px;color:#64748b;font-size:8px;font-weight:800;letter-spacing:1.8px}
-  .bottom-nav .nav-item{flex:0 0 auto!important;width:100%!important;min-width:0!important;height:44px!important;display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:10px!important;padding:0 12px!important;border-radius:9px!important;color:#94a3b8!important;font-size:11px!important;background:transparent!important;box-shadow:none!important}
-  .bottom-nav .nav-item:hover{background:#1f2937!important;color:#fff!important}.bottom-nav .nav-item.active{background:#1d3b3a!important;color:#a7f3d0!important}
-  .bottom-nav .nav-icon{font-size:14px!important;width:25px!important;padding:0!important;margin:0!important;background:none!important;transform:none!important;text-align:center}
-  .premium-header{margin:0!important;padding:22px 34px 44px!important;min-height:218px}.premium-header .header-top,.premium-header .user-greeting,.premium-header .bank-divider,.premium-header .balance-section,.premium-header .pills-container{max-width:1180px;margin-left:auto;margin-right:auto}
-  .premium-header .pills-container{margin-top:17px}.premium-header .balance-value{font-size:36px}
-  .main-sheet{max-width:1240px!important;margin:-24px auto 0!important;padding:26px 30px 70px!important;border-radius:20px 20px 0 0!important;min-height:calc(100vh - 194px)}
-  .tab-content.active{animation:evoraDesktopIn .22s ease-out}
-  @keyframes evoraDesktopIn{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
-  #tab-beranda .quick-grid{grid-template-columns:repeat(5,1fr)}
-  #tab-beranda>.insight-grid{grid-template-columns:1fr 1fr!important;gap:14px!important}
-  .grid-barang{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-  .modal-content{max-width:430px}
-}
-@media (min-width:1250px){.grid-barang{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
-@media (max-width:899px){
-  .premium-header{padding-top:calc(25px + env(safe-area-inset-top))}.main-sheet{padding-left:14px;padding-right:14px}
-  .grid-barang{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-}
-@media (max-width:480px){
-  .balance-value{font-size:29px}.premium-header{padding-left:17px;padding-right:17px}.main-sheet{border-radius:18px 18px 0 0}
-  .card{padding:15px}.quick-grid{grid-template-columns:repeat(4,1fr)}.quick-card{height:68px}.grid-barang{grid-template-columns:1fr!important}
-}
-</style>
-
 </head>
 <body>
 <!-- EVORA v16.1 MATCHER FIX: scanner PDF -> match -> stock resolution -> confirmation. No scanner print step added. -->
