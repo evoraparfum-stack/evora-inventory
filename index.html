@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Business Suite v18.1</title>
+  <title>EVORA Business POS v21.2 - Fitur Terpisah</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -1803,6 +1803,35 @@ body.dark-mode #evoraAICenter label,
 </style>
 </head>
 <body>
+
+<div class="v21-desktop-shell" aria-hidden="false">
+  <aside class="v21-side">
+    <div class="v21-logo">EVORA<small>EXTRAIT DE PARFUM</small></div>
+    <nav>
+      <button onclick="evOpenView('beranda')"><i class="fa-solid fa-cube"></i>Dashboard</button>
+      <button onclick="evOpenView('kasir')"><i class="fa-solid fa-cart-shopping"></i>Kasir / Penjualan</button>
+      <button onclick="openSerahEkspedisiScanner()"><i class="fa-solid fa-barcode"></i>Scan Resi</button>
+      <button onclick="evOpenView('riwayat')"><i class="fa-regular fa-clipboard"></i>Pesanan & Resi</button>
+      <button onclick="evOpenView('produk')"><i class="fa-solid fa-cube"></i>Produk & Stok</button>
+      <button onclick="evOpenView('pengeluaran')"><i class="fa-regular fa-wallet"></i>Pengeluaran</button>
+      <button onclick="evOpenView('paylater')"><i class="fa-regular fa-credit-card"></i>PayLater</button>
+      <button onclick="evOpenView('laporan')"><i class="fa-solid fa-chart-simple"></i>Laporan</button>
+      <button onclick="evOpenView('setting')"><i class="fa-solid fa-gear"></i>Pengaturan</button>
+    </nav>
+    <div class="v21-side-art"><div class="v21-bottle"></div><b>EVORA</b><small>SCENT OF CONFIDENCE</small></div>
+    <div class="v21-help"><b>Need help?</b><span>Hubungi support jika ada kendala penggunaan aplikasi.</span><button type="button"><i class="fa-solid fa-headset"></i> Hubungi Support</button></div>
+    <div class="v21-side-foot"><span>EVORA Business OS</span><span>v21.0</span></div>
+  </aside>
+
+  <header class="v21-top">
+    <button class="v21-menu"><i class="fa-solid fa-bars"></i></button>
+    <div class="v21-search"><i class="fa-solid fa-magnifying-glass"></i><input placeholder="Cari produk, resi, atau menu..." onclick="evOpenView('kasir');setTimeout(()=>document.getElementById('cariBarangInput')?.focus(),80)"><kbd>Ctrl + K</kbd></div>
+    <div class="v21-sync"><i class="fa-solid fa-cloud-arrow-up"></i><span>Cloud Sync<small>Terhubung</small></span></div>
+    <i class="fa-regular fa-bell v21-bell"></i>
+    <div class="v21-user"><div>FS</div><span><b>Farhan Syah</b><small>Owner</small></span><i class="fa-solid fa-chevron-down"></i></div>
+  </header>
+</div>
+
 <!-- EVORA v16.1 MATCHER FIX: scanner PDF -> match -> stock resolution -> confirmation. No scanner print step added. -->
 
 <div id="evoraAuthGate">
@@ -1893,6 +1922,12 @@ body.dark-mode #evoraAICenter label,
 </div>
 
 <div class="main-sheet">
+  <div id="evIsolatedPageHeader" class="ev-isolated-page-header" style="display:none;">
+    <div class="ev-isolated-kicker">EVORA BUSINESS POS</div>
+    <h1 id="evIsolatedPageTitle">Kasir</h1>
+    <p id="evIsolatedPageSub">Kelola fitur ini tanpa bercampur dengan menu lain.</p>
+  </div>
+
 
   <div id="tab-beranda" class="tab-content active">
     
@@ -9369,4 +9404,414 @@ document.addEventListener("visibilitychange",()=>{
 });
 
 </script>\n</body>
+
+<style id="EVORA_V21_REFERENCE_LAYOUT">
+:root{--v21nav:#111d2a;--v21nav2:#0b1722;--v21bg:#f4f7fa;--v21line:#e6ebf0;--v21text:#152033;--v21muted:#718096}
+@media(min-width:700px){
+ html,body{background:var(--v21bg)!important;overflow-x:hidden!important}
+ body{padding:64px 0 0 220px!important;max-width:none!important;width:auto!important}
+ .v21-desktop-shell{display:block!important}
+ .v21-side{position:fixed!important;left:0;top:0;bottom:0;width:220px;background:linear-gradient(180deg,var(--v21nav),var(--v21nav2));z-index:199000;color:#eef4fa;padding:22px 10px 12px;display:flex;flex-direction:column}
+ .v21-logo{font-family:Georgia,serif;font-size:29px;letter-spacing:6px;text-align:center;margin:2px 0 24px}.v21-logo small{display:block;font-family:Arial,sans-serif;font-size:6px;letter-spacing:2px;margin-top:4px}
+ .v21-side nav{display:flex;flex-direction:column;gap:5px}.v21-side nav button{height:43px!important;min-height:43px!important;padding:0 14px!important;margin:0!important;background:transparent!important;color:#d9e1ea!important;border-radius:9px!important;box-shadow:none!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:13px!important;font-size:11px!important;font-weight:500!important}
+ .v21-side nav button:first-child,.v21-side nav button:hover{background:#2d3b62!important;color:#fff!important}.v21-side nav i{width:16px;text-align:center}
+ .v21-side-art{height:160px;margin-top:auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;background:radial-gradient(ellipse at 50% 80%,rgba(101,120,160,.3),transparent 55%);padding-bottom:10px}.v21-bottle{width:58px;height:76px;border-radius:6px 6px 12px 12px;background:linear-gradient(135deg,#020304,#222,#050607);box-shadow:0 15px 30px #000;margin-bottom:10px;position:relative}.v21-bottle:before{content:"";position:absolute;width:28px;height:22px;background:#050607;left:15px;top:-19px;border-radius:4px}.v21-side-art b{font-family:Georgia,serif;letter-spacing:5px;font-size:14px}.v21-side-art small{font-size:5px;letter-spacing:2px;margin-top:4px}
+ .v21-help{background:#1b2a3d;border-radius:10px;padding:12px;margin-top:8px}.v21-help b{font-size:10px;display:block}.v21-help span{font-size:7px;color:#9eabb9;display:block;line-height:1.4;margin:4px 0 8px}.v21-help button{background:#2c3c66!important;padding:8px!important;font-size:8px!important;margin:0!important}.v21-side-foot{display:flex;justify-content:space-between;font-size:6px;color:#718092;padding:11px 4px 0}
+ .v21-top{position:fixed;left:220px;right:0;top:0;height:64px;background:#fff;border-bottom:1px solid var(--v21line);z-index:198000;display:flex;align-items:center;padding:0 25px;gap:19px}.v21-menu{width:auto!important;background:none!important;color:#203044!important;padding:5px!important;box-shadow:none!important;font-size:14px!important}.v21-search{width:min(650px,55vw);height:41px;border:1px solid #dfe6ed;border-radius:8px;display:flex;align-items:center;gap:11px;padding:0 12px;color:#53657b}.v21-search input{flex:1;border:0!important;background:transparent!important;margin:0!important;padding:0!important;text-align:left!important;text-align-last:left!important;box-shadow:none!important;font-size:10px!important}.v21-search kbd{font-size:7px;background:#f1f4f7;border-radius:5px;padding:4px 6px;color:#718096}.v21-sync{margin-left:auto;display:flex;align-items:center;gap:8px;border:1px solid #cceedd;background:#f0fbf6;color:#07965f;padding:7px 10px;border-radius:8px;font-size:8px}.v21-sync span{color:#344456}.v21-sync small{display:block;color:#07965f;margin-top:1px}.v21-bell{font-size:14px;color:#27384d}.v21-user{display:flex;align-items:center;gap:9px;border-left:1px solid #e6ebf0;padding-left:16px}.v21-user>div{width:35px;height:35px;border-radius:50%;background:#111b28;color:#fff;display:grid;place-items:center;font-size:9px}.v21-user span b{font-size:9px;display:block}.v21-user span small{font-size:7px;color:#65758a;display:block;margin-top:2px}.v21-user>i{font-size:7px;margin-left:8px}
+ #premiumHeaderWrapper{padding:20px 28px 12px!important;background:transparent!important;color:var(--v21text)!important;box-shadow:none!important;margin:0!important}
+ #premiumHeaderWrapper .header-top,#premiumHeaderWrapper .bank-divider{display:none!important}
+ #premiumHeaderWrapper .user-greeting{font-size:11px!important;color:#718096!important;margin:0!important}
+ #premiumHeaderWrapper .user-greeting:before{content:"GOOD AFTERNOON";display:block;font-size:7px;letter-spacing:1.5px;color:#718096;margin-bottom:7px}
+ #premiumHeaderWrapper .user-greeting:after{content:"Selamat datang, Farhan!";display:block;font-size:22px;font-weight:800;color:#152033;margin-top:4px}
+ #premiumHeaderWrapper .balance-section{margin-top:15px!important;background:#fff!important;border:1px solid var(--v21line)!important;border-radius:10px!important;padding:14px 16px!important;box-shadow:none!important}
+ #premiumHeaderWrapper .balance-label{font-size:9px!important;color:#718096!important}.balance-value{font-size:26px!important;color:#152033!important}.trend-badge{font-size:8px!important}
+ #premiumHeaderWrapper .pills-container{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:10px!important;margin-top:10px!important}.premium-pill{background:#fff!important;color:#445268!important;border:1px solid var(--v21line)!important;border-radius:9px!important;font-size:8px!important;box-shadow:none!important}
+ .main-sheet{margin:0!important;padding:0 28px 50px!important;border-radius:0!important;background:transparent!important;max-width:none!important}
+ .card,.action-card,.item-barang,.insight-card,.paylater-debt-card{border:1px solid var(--v21line)!important;border-radius:10px!important;box-shadow:0 2px 7px rgba(25,40,60,.025)!important;background:#fff!important}
+ .card{padding:15px!important;margin-bottom:12px!important}h3{font-size:10px!important;letter-spacing:0!important;text-transform:none!important;color:#172235!important;margin-bottom:10px!important}
+ button{box-shadow:none!important;border-radius:8px!important}
+ input,select,textarea{border-radius:7px!important;box-shadow:none!important}
+ .bottom-nav{display:none!important}
+ #tab-beranda.active{display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr)!important;gap:12px!important;align-items:start!important}
+ #tab-beranda>.card:first-child{grid-column:1/-1!important}
+ #tab-beranda>.card:nth-child(2){grid-column:1/-1!important}
+ #tab-beranda>.card:nth-child(3){grid-column:1!important}
+ #tab-beranda>.card:nth-child(4){grid-column:2!important;grid-row:3/span 2!important}
+ #tab-beranda>.insight-grid{grid-column:1!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+ #tab-beranda>.card:nth-child(6){grid-column:1/-1!important}
+ #tab-kasir.active{display:grid!important;grid-template-columns:minmax(0,1.4fr) minmax(300px,.6fr)!important;gap:12px!important;align-items:start!important}
+ #tab-kasir>.card:first-child{grid-column:1/-1!important}#panelKasir{grid-column:1!important}#panelRestock{grid-column:2!important}
+ #listBarang.grid-barang{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+ #tab-laporan.active,#tab-riwayat.active,#tab-setting.active{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;align-items:start!important}
+ #tab-laporan>.card:first-child,#tab-riwayat>.card:first-child,#tab-setting>.card:first-child{grid-column:1/-1!important}
+}
+@media(max-width:699px){.v21-desktop-shell{display:none!important}}
+</style>
+
+
+<style id="EVORA_V21_1_TABLET_DESKTOP_FIX">
+/* 700–1099px: desktop/tablet POS layout. Keeps sidebar + topbar,
+   removes the right utility rail so the center workspace remains usable. */
+@media (min-width:700px) and (max-width:1099px){
+  body{
+    padding-left:184px!important;
+    padding-right:0!important;
+    padding-top:58px!important;
+  }
+  .v21-side{width:184px!important;padding:15px 8px 10px!important}
+  .v21-logo{font-size:23px!important;letter-spacing:4px!important;margin-bottom:16px!important}
+  .v21-logo small{font-size:5px!important}
+  .v21-side nav button{
+    height:39px!important;min-height:39px!important;
+    padding:0 10px!important;font-size:9px!important;gap:9px!important;
+  }
+  .v21-side nav i{width:14px!important;font-size:11px!important}
+  .v21-side-art{height:115px!important}
+  .v21-bottle{width:43px!important;height:58px!important}
+  .v21-bottle:before{width:22px!important;height:17px!important;left:10px!important;top:-14px!important}
+  .v21-side-art b{font-size:11px!important}
+  .v21-side-art small{font-size:4px!important}
+  .v21-help{padding:9px!important}
+  .v21-help span{display:none!important}
+  .v21-help button{font-size:7px!important;padding:7px!important}
+  .v21-side-foot{font-size:5px!important}
+
+  .v21-top{
+    left:184px!important;right:0!important;height:58px!important;
+    padding:0 14px!important;gap:10px!important;
+  }
+  .v21-top-search{width:auto!important;flex:1!important}
+  .v21-top-search input{font-size:8px!important}
+  .v21-search{width:auto!important;flex:1!important;height:36px!important}
+  .v21-search kbd,.v21-sync,.v21-bell{display:none!important}
+  .v21-user{padding-left:8px!important}
+  .v21-user span{display:none!important}
+
+  /* The right utility rail is hidden on medium widths. */
+  .v21-right,.ev20-rightbar,.ev-v20-rightbar{display:none!important}
+
+  #premiumHeaderWrapper{
+    padding:16px 16px 10px!important;
+  }
+  #premiumHeaderWrapper .user-greeting:after{
+    font-size:18px!important;
+  }
+  #premiumHeaderWrapper .balance-section{
+    padding:12px!important;
+  }
+  #premiumHeaderWrapper .balance-value{
+    font-size:23px!important;
+  }
+  #premiumHeaderWrapper .pills-container{
+    gap:6px!important;
+  }
+  #premiumHeaderWrapper .premium-pill{
+    padding:7px 5px!important;font-size:7px!important;
+  }
+
+  .main-sheet{padding:0 16px 38px!important}
+
+  #tab-beranda.active{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+  #tab-beranda>.card,
+  #tab-beranda>.insight-grid{
+    grid-column:1!important;
+    grid-row:auto!important;
+  }
+  #tab-beranda>.insight-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  #tab-kasir.active{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+  #tab-kasir>.card,
+  #panelKasir,
+  #panelRestock{
+    grid-column:1!important;
+    grid-row:auto!important;
+  }
+  #listBarang.grid-barang{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  #tab-laporan.active,#tab-riwayat.active,#tab-setting.active{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #tab-laporan>.card,#tab-riwayat>.card,#tab-setting>.card{
+    grid-column:1!important;
+  }
+
+  .bottom-nav{display:none!important}
+}
+
+/* Full desktop: show the right-side utility rail from the generated reference shell
+   if present; for this version the center simply gets more space. */
+@media (min-width:1100px){
+  body{padding-right:0!important}
+}
+</style>
+
+
+<script id="EVORA_V21_2_ISOLATED_ROUTER">
+(function(){
+  let originalSwitchTab=null;
+  let internalNav=false;
+
+  const titles={
+    beranda:["Dashboard","Ringkasan bisnis dan performa EVORA."],
+    kasir:["Kasir / Penjualan","Hanya transaksi penjualan, PDF resi, pencarian varian dan penjualan manual."],
+    produk:["Produk & Stok","Hanya pengaturan harga, restock logistik dan varian parfum."],
+    pengeluaran:["Pengeluaran","Hanya pencatatan pengeluaran usaha."],
+    paylater:["PayLater","Hanya manajemen hutang dan pembayaran PayLater."],
+    laporan:["Laporan","Hanya laporan harian dan rekapitulasi bulanan."],
+    riwayat:["Pesanan & Riwayat","Hanya riwayat transaksi dan resi."],
+    setting:["Pengaturan","Hanya konfigurasi aplikasi EVORA."]
+  };
+
+  function directChildren(el){return el?Array.from(el.children):[]}
+
+  function markSections(){
+    const kasir=document.getElementById("tab-kasir");
+    if(kasir){
+      const children=directChildren(kasir);
+      children.forEach(el=>el.removeAttribute("data-ev-section"));
+
+      const tools=document.getElementById("kasirToolsResi");
+      const panel=document.getElementById("panelKasir");
+      const restock=document.getElementById("panelRestock");
+      if(tools) tools.dataset.evSection="kasir";
+      if(panel) panel.dataset.evSection="kasir";
+      if(restock) restock.dataset.evSection="produk";
+
+      children.forEach(el=>{
+        if(el.dataset.evSection) return;
+        const txt=(el.textContent||"").toUpperCase();
+        if(txt.includes("KONFIGURASI HARGA GLOBAL")) el.dataset.evSection="produk";
+        else if(txt.includes("TRANSAKSI GROSIR") || txt.includes("TRANSAKSI MANUAL")) el.dataset.evSection="kasir";
+        else if(txt.includes("TAMBAH VARIAN PARFUM BARU")) el.dataset.evSection="produk";
+        else el.dataset.evSection="kasir";
+      });
+    }
+
+    const laporan=document.getElementById("tab-laporan");
+    if(laporan){
+      directChildren(laporan).forEach(el=>{
+        const txt=(el.textContent||"").toUpperCase();
+        if(txt.includes("MANAJEMEN HUTANG PAYLATER")) el.dataset.evSection="paylater";
+        else if(txt.includes("LAPORAN HARIAN") || txt.includes("REKAPITULASI BULANAN")) el.dataset.evSection="laporan";
+        else el.dataset.evSection="laporan";
+      });
+    }
+
+    const riwayat=document.getElementById("tab-riwayat");
+    if(riwayat){
+      directChildren(riwayat).forEach(el=>{
+        const txt=(el.textContent||"").toUpperCase();
+        if(txt.includes("LOG PENGELUARAN")) el.dataset.evSection="expense-log";
+        else el.dataset.evSection="riwayat";
+      });
+    }
+
+    const beranda=document.getElementById("tab-beranda");
+    if(beranda){
+      directChildren(beranda).forEach(el=>{
+        if(el.classList.contains("action-grid")){
+          el.dataset.evSection="actions";
+          const cards=Array.from(el.children);
+          cards.forEach(c=>{
+            const t=(c.textContent||"").toUpperCase();
+            c.dataset.evAction=t.includes("PENGELUARAN")?"pengeluaran":"omzet";
+          });
+        }
+      });
+    }
+  }
+
+  function nativeSwitch(tab){
+    if(!originalSwitchTab) originalSwitchTab=window.switchTab;
+    if(typeof originalSwitchTab==="function"){
+      internalNav=true;
+      try{ originalSwitchTab(tab); } finally { internalNav=false; }
+    }
+  }
+
+  function hideKasirExcept(section){
+    const tab=document.getElementById("tab-kasir");
+    if(!tab) return;
+    directChildren(tab).forEach(el=>{
+      el.style.display=(el.dataset.evSection===section)?"":"none";
+    });
+  }
+
+  function showLaporan(section){
+    const tab=document.getElementById("tab-laporan");
+    if(!tab) return;
+    directChildren(tab).forEach(el=>{
+      el.style.display=(el.dataset.evSection===section)?"":"none";
+    });
+  }
+
+  function showRiwayat(){
+    const tab=document.getElementById("tab-riwayat");
+    if(!tab) return;
+    directChildren(tab).forEach(el=>{
+      el.style.display=el.dataset.evSection==="expense-log"?"none":"";
+    });
+  }
+
+  function showPengeluaran(){
+    const tab=document.getElementById("tab-beranda");
+    if(!tab) return;
+    directChildren(tab).forEach(el=>{
+      el.style.display=(el.dataset.evSection==="actions")?"":"none";
+    });
+    const ag=tab.querySelector('[data-ev-section="actions"]');
+    if(ag){
+      ag.style.display="grid";
+      Array.from(ag.children).forEach(c=>{
+        c.style.display=c.dataset.evAction==="pengeluaran"?"":"none";
+      });
+      ag.style.gridTemplateColumns="minmax(0,520px)";
+    }
+  }
+
+  function resetBeranda(){
+    const tab=document.getElementById("tab-beranda");
+    if(!tab) return;
+    directChildren(tab).forEach(el=>el.style.display="");
+    const ag=tab.querySelector('[data-ev-section="actions"]');
+    if(ag){
+      Array.from(ag.children).forEach(c=>c.style.display="");
+      ag.style.gridTemplateColumns="";
+    }
+  }
+
+  function resetAllSectionVisibility(){
+    ["tab-kasir","tab-laporan","tab-riwayat"].forEach(id=>{
+      const t=document.getElementById(id);
+      if(t) directChildren(t).forEach(el=>el.style.display="");
+    });
+    resetBeranda();
+  }
+
+  function updateHeader(view){
+    document.body.dataset.evView=view;
+    const h=document.getElementById("evIsolatedPageHeader");
+    const title=document.getElementById("evIsolatedPageTitle");
+    const sub=document.getElementById("evIsolatedPageSub");
+    const info=titles[view]||titles.beranda;
+    if(title) title.textContent=info[0];
+    if(sub) sub.textContent=info[1];
+    if(h) h.style.display=view==="beranda"?"none":"block";
+
+    document.querySelectorAll(".v21-side nav button").forEach(b=>b.classList.remove("ev-active"));
+    const buttons=Array.from(document.querySelectorAll(".v21-side nav button"));
+    const labelMap={beranda:"Dashboard",kasir:"Kasir / Penjualan",produk:"Produk & Stok",pengeluaran:"Pengeluaran",paylater:"PayLater",laporan:"Laporan",riwayat:"Pesanan & Resi",setting:"Pengaturan"};
+    const target=buttons.find(b=>(b.textContent||"").trim()===labelMap[view]);
+    if(target) target.classList.add("ev-active");
+  }
+
+  window.evOpenView=function(view){
+    markSections();
+    resetAllSectionVisibility();
+
+    if(view==="kasir"){
+      nativeSwitch("kasir");
+      hideKasirExcept("kasir");
+    }else if(view==="produk"){
+      nativeSwitch("kasir");
+      hideKasirExcept("produk");
+    }else if(view==="paylater"){
+      nativeSwitch("laporan");
+      showLaporan("paylater");
+    }else if(view==="laporan"){
+      nativeSwitch("laporan");
+      showLaporan("laporan");
+    }else if(view==="pengeluaran"){
+      nativeSwitch("beranda");
+      showPengeluaran();
+    }else if(view==="riwayat"){
+      nativeSwitch("riwayat");
+      showRiwayat();
+    }else if(view==="setting"){
+      nativeSwitch("setting");
+    }else{
+      nativeSwitch("beranda");
+      resetBeranda();
+      view="beranda";
+    }
+
+    updateHeader(view);
+    window.scrollTo({top:0,left:0,behavior:"instant"});
+  };
+
+  function boot(){
+    originalSwitchTab=window.switchTab;
+    if(typeof originalSwitchTab==="function"){
+      window.switchTab=function(tab){
+        if(internalNav) return originalSwitchTab(tab);
+        const map={beranda:"beranda",kasir:"kasir",laporan:"laporan",riwayat:"riwayat",setting:"setting"};
+        return window.evOpenView(map[tab]||"beranda");
+      };
+    }
+
+    /* Any existing shortcut to stock now opens the isolated stock page instead of scrolling inside Kasir. */
+    if(typeof window.shortcutRestock==="function"){
+      window.__evOriginalShortcutRestock=window.shortcutRestock;
+      window.shortcutRestock=function(){window.evOpenView("produk")};
+    }
+
+    markSections();
+
+    /* Bottom navigation on phones also gets clean isolated views. */
+    document.getElementById("nav-beranda")?.addEventListener("click",()=>setTimeout(()=>evOpenView("beranda"),0));
+    document.getElementById("nav-kasir")?.addEventListener("click",()=>setTimeout(()=>evOpenView("kasir"),0));
+    document.getElementById("nav-laporan")?.addEventListener("click",()=>setTimeout(()=>evOpenView("laporan"),0));
+    document.getElementById("nav-riwayat")?.addEventListener("click",()=>setTimeout(()=>evOpenView("riwayat"),0));
+    document.getElementById("nav-setting")?.addEventListener("click",()=>setTimeout(()=>evOpenView("setting"),0));
+
+    evOpenView("beranda");
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
+  else boot();
+})();
+</script>
+
+<style id="EVORA_V21_2_ISOLATED_STYLE">
+.ev-isolated-page-header{padding:18px 2px 14px}
+.ev-isolated-kicker{font-size:7px;font-weight:900;letter-spacing:1.5px;color:#8190a4;margin-bottom:5px}
+.ev-isolated-page-header h1{font-size:22px;line-height:1.1;margin:0;color:#172235;letter-spacing:-.5px}
+.ev-isolated-page-header p{font-size:9px;color:#718096;margin:5px 0 0}
+.v21-side nav button.ev-active{background:#2d3b62!important;color:#fff!important}
+@media(min-width:700px){
+  body:not([data-ev-view="beranda"]) #premiumHeaderWrapper{display:none!important}
+  body:not([data-ev-view="beranda"]) .main-sheet{padding-top:15px!important}
+  body[data-ev-view="kasir"] #tab-kasir.active,
+  body[data-ev-view="produk"] #tab-kasir.active,
+  body[data-ev-view="paylater"] #tab-laporan.active,
+  body[data-ev-view="laporan"] #tab-laporan.active{
+    display:block!important;
+  }
+  body[data-ev-view="pengeluaran"] #tab-beranda.active{
+    display:block!important;
+  }
+  body[data-ev-view="pengeluaran"] #tab-beranda>.action-grid{
+    max-width:540px!important;
+    margin:0!important;
+  }
+  body[data-ev-view="kasir"] #panelKasir,
+  body[data-ev-view="produk"] #panelRestock{max-width:none!important}
+}
+@media(max-width:699px){
+  .ev-isolated-page-header{padding:8px 2px 12px}
+  .ev-isolated-page-header h1{font-size:18px}
+  body:not([data-ev-view="beranda"]) #premiumHeaderWrapper{display:none!important}
+}
+</style>
+
 </html>
