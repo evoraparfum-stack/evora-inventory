@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v17.5.3 - Mobile Kasir 2 Column</title>
+  <title>EVORA Tracker Pro v17.5.5 - Mobile Kasir Overflow Fixed</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -3527,153 +3527,7 @@ ${replacementRows}
 <div class="line"></div>
 <div class="footer">~ REKAP SELESAI ~<br>EVORA Tracker Pro</div>
 
-<style id="evora-v1753-mobile-kasir-two-column">
-/* EVORA v17.5.3 — mobile cashier: 2 readable product cards side-by-side */
-@media (max-width:620px){
-  #listBarang.grid-barang{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:8px!important;
-    align-items:stretch!important;
-  }
 
-  #listBarang .item-barang{
-    min-width:0!important;
-    padding:10px!important;
-    gap:8px!important;
-    border-radius:14px!important;
-    overflow:hidden!important;
-  }
-
-  #listBarang .item-barang .item-info{
-    position:relative!important;
-    padding-right:32px!important;
-    gap:4px!important;
-    min-width:0!important;
-  }
-
-  #listBarang .item-barang .item-info > b{
-    font-size:12.5px!important;
-    line-height:1.22!important;
-    font-weight:900!important;
-    letter-spacing:0!important;
-    white-space:normal!important;
-    overflow:visible!important;
-    overflow-wrap:anywhere!important;
-    word-break:normal!important;
-    min-height:30px!important;
-  }
-
-  #listBarang .item-barang .stok-text{
-    font-size:9.5px!important;
-    line-height:1.25!important;
-    margin-top:1px!important;
-  }
-  #listBarang .item-barang .stok-text b{
-    font-size:16px!important;
-    line-height:1!important;
-  }
-
-  #listBarang .item-barang .item-info > div[style*="font-size:11px"]{
-    font-size:9px!important;
-    line-height:1.3!important;
-    margin-top:1px!important;
-    overflow-wrap:anywhere!important;
-  }
-
-  #listBarang .item-barang .badge-status{
-    width:max-content!important;
-    max-width:100%!important;
-    font-size:7.5px!important;
-    line-height:1!important;
-    padding:4px 6px!important;
-    margin-top:1px!important;
-    letter-spacing:.35px!important;
-  }
-
-  #listBarang .ev-prod-insight-btn{
-    right:8px!important;
-    top:8px!important;
-    width:29px!important;
-    height:29px!important;
-    min-width:29px!important;
-    min-height:29px!important;
-    padding:0!important;
-    font-size:11px!important;
-    border-radius:9px!important;
-  }
-
-  /* Keep the four cashier controls on one compact row on normal phones. */
-  #listBarang .item-barang > div:last-child{
-    display:grid!important;
-    grid-template-columns:38px minmax(52px,1fr) 31px 31px!important;
-    gap:4px!important;
-    align-items:center!important;
-    width:100%!important;
-    margin-top:auto!important;
-  }
-  #listBarang .item-barang > div:last-child select{
-    width:38px!important;
-    min-width:0!important;
-    height:36px!important;
-    min-height:36px!important;
-    padding:3px 1px!important;
-    margin:0!important;
-    font-size:11px!important;
-    border-radius:9px!important;
-  }
-  #listBarang .item-barang > div:last-child button{
-    width:100%!important;
-    min-width:0!important;
-    height:36px!important;
-    min-height:36px!important;
-    padding:5px 3px!important;
-    margin:0!important;
-    font-size:10px!important;
-    border-radius:9px!important;
-  }
-  #listBarang .item-barang > div:last-child button:first-of-type{
-    white-space:nowrap!important;
-    font-size:10.5px!important;
-  }
-  #listBarang .item-barang > div:last-child button[style*="width:40px"]{
-    width:31px!important;
-    min-width:31px!important;
-    padding:0!important;
-    font-size:11px!important;
-  }
-
-  /* Search/manual picker can also stay compact without becoming unreadable. */
-  #searchVariantList{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:7px!important;
-    max-height:55vh!important;
-  }
-  #searchVariantList .search-variant-row{padding:9px!important}
-  #searchVariantList .search-variant-name{font-size:11px!important;line-height:1.25!important}
-  #searchVariantList .search-variant-stock{font-size:9px!important}
-  #searchVariantList .search-variant-qty,#searchVariantList .search-variant-buy{min-height:34px!important;font-size:10px!important}
-}
-
-/* Extra narrow phones: preserve 2 cards across, but put actions into a clean 2×2 control grid. */
-@media (max-width:355px){
-  #listBarang.grid-barang{gap:6px!important}
-  #listBarang .item-barang{padding:8px!important}
-  #listBarang .item-barang .item-info{padding-right:28px!important}
-  #listBarang .item-barang .item-info > b{font-size:11.5px!important}
-  #listBarang .ev-prod-insight-btn{width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;right:6px!important;top:6px!important}
-  #listBarang .item-barang > div:last-child{
-    grid-template-columns:38px minmax(0,1fr)!important;
-    grid-auto-rows:34px!important;
-  }
-  #listBarang .item-barang > div:last-child select,
-  #listBarang .item-barang > div:last-child button{
-    height:34px!important;min-height:34px!important;width:100%!important;min-width:0!important;
-  }
-  #listBarang .item-barang > div:last-child button[style*="width:40px"]{
-    width:100%!important;min-width:0!important;
-  }
-}
-</style>
 
 </body>
 </html>`);
@@ -9642,7 +9496,7 @@ document.addEventListener("visibilitychange",()=>{
       wrap.innerHTML=`<div class="ev-pro-hero"><div class="ev-pro-kicker">EVORA BUSINESS COMMAND CENTER</div><div class="ev-pro-title">Ringkasan bisnis hari ini</div><div class="ev-pro-sub">Angka utama dan tindakan penting dalam satu layar.</div><div class="ev-pro-metrics"><div class="ev-pro-metric"><span>Omzet</span><b id="proOmzet">Rp 0</b></div><div class="ev-pro-metric"><span>Terjual</span><b id="proQty">0 pcs</b></div><div class="ev-pro-metric"><span>Siap Jual</span><b id="proSellable">0 pcs</b></div></div><div style="margin-top:10px;font-size:9px;opacity:.7">Terlaris: <b id="proTop">Belum ada</b></div></div><div class="ev-pro-side"><div class="ev-pro-action" onclick="shortcutKasir()"><i class="fa-solid fa-cart-plus"></i><div><b>Buka Kasir</b><small>Transaksi & PDF resi</small></div></div><div class="ev-pro-action" onclick="openSerahEkspedisiScanner()"><i class="fa-solid fa-qrcode"></i><div><b>Scan Resi</b><small>Cek resi duplikat</small></div></div></div>`;
       home.insertBefore(wrap,home.firstChild);
     }
-    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.5.3 PRO';document.body.appendChild(v);}
+    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.5.5 PRO';document.body.appendChild(v);}
     document.title='EVORA Tracker Pro v17.4.6 - Scroll & Tab Top Fixed';
     syncPro();
     setInterval(syncPro,1200);
@@ -10036,7 +9890,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function ensureAIInsight(){const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evAIInsight'))return;const el=document.createElement('div');el.id='evAIInsight';el.className='ev-v175-card';el.innerHTML=`<div class="ev-ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ev-ai-copy"><b>EVORA INSIGHT</b><span id="evAIInsightText">Menganalisis data bisnis...</span></div><button class="ev-ai-more" onclick="openEvoraAI()">Lihat Analisis</button>`;const att=document.getElementById('evAttentionCenter'),morning=document.getElementById('evMorningBrief');if(att&&att.nextSibling)home.insertBefore(el,att.nextSibling);else if(morning&&morning.nextSibling)home.insertBefore(el,morning.nextSibling);else home.insertBefore(el,home.firstChild)}
   function renderAIInsight(){const s=arr('penjualan'),now=new Date();now.setHours(0,0,0,0);const s7=startDaysAgo(6),s14=startDaysAgo(13),last7=s.filter(x=>new Date(x.tanggal)>=s7),prev7=s.filter(x=>new Date(x.tanggal)>=s14&&new Date(x.tanggal)<s7),q7=last7.reduce((n,x)=>n+Number(x.qty||0),0),qp=prev7.reduce((n,x)=>n+Number(x.qty||0),0),tr=pct(q7,qp),top=topProduct(last7),st=stockData();let msg=`Penjualan 7 hari ${tr>=0?'naik':'turun'} ${Math.abs(tr).toFixed(1)}%. `;msg+=top?`${top[0]} paling laris dengan ${top[1]} pcs. `:'Belum ada produk dominan. ';msg+=st.critical.length?`${st.critical.length} varian perlu segera direstock.`:`Stok utama dalam kondisi aman.`;const e=document.getElementById('evAIInsightText');if(e)e.textContent=msg}
 
-  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.5.3 PRO';document.title='EVORA Tracker Pro v17.5.3 - Mobile Kasir 2 Column'}
+  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.5.5 PRO';document.title='EVORA Tracker Pro v17.5.5 - Mobile Kasir Overflow Fixed'}
 
   function init(){refreshAll();setTimeout(refreshAll,450);setTimeout(refreshAll,1300);setInterval(refreshAll,2200);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.evV175OpenSearch()}if(e.key==='Escape'){window.evV175CloseSearch();window.evV175CloseNotifications();window.evV175CloseProduct();closeQuick()}});document.addEventListener('click',e=>{if(!e.target.closest('#evQuickFab')&&!e.target.closest('#evQuickActions'))closeQuick()});
     const riwayat=document.getElementById('tab-riwayat');if(riwayat){riwayat.addEventListener('input',()=>setTimeout(()=>renderUnifiedTimeline(true),20));riwayat.addEventListener('change',()=>setTimeout(()=>renderUnifiedTimeline(true),20))}
@@ -10145,6 +9999,261 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   #listBarang .item-barang .item-info > b{font-size:15px!important}
 }
 </style>
+
+
+<style id="evora-v1754-mobile-kasir-final-override">
+/* EVORA v17.5.4 — FINAL mobile cashier override.
+   Keep two products side-by-side while preserving readable name, stock,
+   depletion estimate and all four transaction controls. */
+@media (max-width:620px){
+  #tab-kasir #panelKasir{padding-left:10px!important;padding-right:10px!important}
+  #tab-kasir #listBarang.grid-barang,
+  #tab-kasir .grid-barang#listBarang{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    width:100%!important;
+    min-width:0!important;
+    align-items:stretch!important;
+  }
+
+  #tab-kasir #listBarang .item-barang{
+    min-width:0!important;
+    width:100%!important;
+    padding:10px!important;
+    border-radius:14px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:space-between!important;
+    gap:8px!important;
+    overflow:hidden!important;
+  }
+
+  #tab-kasir #listBarang .item-barang .item-info{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    gap:3px!important;
+    width:100%!important;
+    min-width:0!important;
+    padding-right:30px!important;
+  }
+
+  #tab-kasir #listBarang .item-barang .item-info > b{
+    width:100%!important;
+    min-width:0!important;
+    min-height:28px!important;
+    font-size:12px!important;
+    line-height:1.18!important;
+    font-weight:900!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    overflow:hidden!important;
+  }
+
+  #tab-kasir #listBarang .item-barang .stok-text{
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:baseline!important;
+    flex-wrap:nowrap!important;
+    gap:3px!important;
+    width:100%!important;
+    margin:1px 0!important;
+    font-size:9px!important;
+    line-height:1.2!important;
+    font-weight:800!important;
+    white-space:nowrap!important;
+  }
+  #tab-kasir #listBarang .item-barang .stok-text b{
+    display:inline!important;
+    font-size:16px!important;
+    line-height:1!important;
+    font-weight:950!important;
+  }
+
+  #tab-kasir #listBarang .item-barang .item-info > div[style*="font-size:11px"]{
+    width:100%!important;
+    min-height:31px!important;
+    margin:1px 0!important;
+    font-size:9px!important;
+    line-height:1.28!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+  }
+  #tab-kasir #listBarang .item-barang .item-info > div[style*="font-size:11px"] b{
+    font-size:10.5px!important;
+  }
+
+  #tab-kasir #listBarang .item-barang .badge-status{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    max-width:100%!important;
+    margin-top:2px!important;
+    padding:4px 6px!important;
+    border-radius:999px!important;
+    font-size:7.5px!important;
+    line-height:1!important;
+    letter-spacing:.35px!important;
+    white-space:nowrap!important;
+  }
+
+  #tab-kasir #listBarang .item-barang > div:last-child{
+    display:grid!important;
+    grid-template-columns:35px minmax(0,1fr) 30px 30px!important;
+    gap:4px!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:2px 0 0!important;
+    align-items:center!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child select{
+    width:35px!important;
+    min-width:35px!important;
+    height:34px!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:3px 1px!important;
+    border-radius:9px!important;
+    font-size:10px!important;
+    font-weight:900!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child button{
+    width:100%!important;
+    min-width:0!important;
+    height:34px!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:4px 3px!important;
+    border-radius:9px!important;
+    font-size:10px!important;
+    line-height:1!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child button:first-of-type{
+    font-size:10px!important;
+    font-weight:900!important;
+    white-space:nowrap!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child button[style*="width:40px"]{
+    width:30px!important;
+    min-width:30px!important;
+    padding:0!important;
+  }
+
+  #tab-kasir #listBarang .ev-prod-insight-btn{
+    top:8px!important;
+    right:8px!important;
+    width:27px!important;
+    min-width:27px!important;
+    height:27px!important;
+    min-height:27px!important;
+    padding:0!important;
+    border-radius:8px!important;
+    font-size:10px!important;
+  }
+
+  #tab-kasir #searchVariantList{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+}
+
+/* iPhone mini / other very narrow screens: still two columns, only controls tighten. */
+@media (max-width:390px){
+  #tab-kasir #listBarang.grid-barang{gap:6px!important}
+  #tab-kasir #listBarang .item-barang{padding:8px!important;gap:6px!important}
+  #tab-kasir #listBarang .item-barang .item-info{padding-right:27px!important}
+  #tab-kasir #listBarang .item-barang .item-info > b{font-size:11px!important;min-height:26px!important}
+  #tab-kasir #listBarang .item-barang .stok-text{font-size:8.5px!important}
+  #tab-kasir #listBarang .item-barang .stok-text b{font-size:15px!important}
+  #tab-kasir #listBarang .item-barang .item-info > div[style*="font-size:11px"]{font-size:8.3px!important;min-height:29px!important}
+  #tab-kasir #listBarang .item-barang .badge-status{font-size:7px!important;padding:3px 5px!important}
+  #tab-kasir #listBarang .item-barang > div:last-child{grid-template-columns:32px minmax(0,1fr) 28px 28px!important;gap:3px!important}
+  #tab-kasir #listBarang .item-barang > div:last-child select{width:32px!important;min-width:32px!important;height:32px!important;min-height:32px!important;font-size:9px!important}
+  #tab-kasir #listBarang .item-barang > div:last-child button{height:32px!important;min-height:32px!important;font-size:9px!important}
+  #tab-kasir #listBarang .item-barang > div:last-child button[style*="width:40px"]{width:28px!important;min-width:28px!important}
+  #tab-kasir #listBarang .ev-prod-insight-btn{width:25px!important;min-width:25px!important;height:25px!important;min-height:25px!important;font-size:9px!important}
+}
+</style>
+
+
+<style id="evora-v1755-mobile-kasir-overflow-fix">
+/* EVORA v17.5.5 — final mobile cashier overflow fix */
+@media (max-width:620px){
+  #tab-kasir #listBarang.grid-barang,
+  #tab-kasir .grid-barang#listBarang{
+    box-sizing:border-box!important;
+    overflow:visible!important;
+    padding-left:0!important;
+    padding-right:0!important;
+  }
+  #tab-kasir #listBarang .item-barang{
+    box-sizing:border-box!important;
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  #tab-kasir #listBarang .item-barang *,
+  #tab-kasir #listBarang .item-barang *::before,
+  #tab-kasir #listBarang .item-barang *::after{box-sizing:border-box!important}
+
+  #tab-kasir #listBarang .item-barang > div:last-child{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    grid-template-columns:32px minmax(0,1fr) 27px 27px!important;
+    gap:3px!important;
+    overflow:visible!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child select{
+    width:32px!important;min-width:0!important;max-width:32px!important;
+    padding-left:0!important;padding-right:0!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child button{
+    min-width:0!important;max-width:100%!important;overflow:hidden!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child button[style*="width:40px"]{
+    width:27px!important;min-width:27px!important;max-width:27px!important;padding:0!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child button:first-of-type{
+    padding-left:2px!important;padding-right:2px!important;
+  }
+  #tab-kasir #listBarang .item-barang .item-info{padding-right:27px!important}
+  #tab-kasir #listBarang .ev-prod-insight-btn{
+    right:7px!important;top:7px!important;width:25px!important;min-width:25px!important;
+    height:25px!important;min-height:25px!important;
+  }
+}
+@media (max-width:390px){
+  #tab-kasir #listBarang .item-barang{padding:7px!important}
+  #tab-kasir #listBarang .item-barang > div:last-child{
+    grid-template-columns:29px minmax(0,1fr) 25px 25px!important;gap:2px!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child select{width:29px!important;max-width:29px!important;font-size:9px!important}
+  #tab-kasir #listBarang .item-barang > div:last-child button[style*="width:40px"]{
+    width:25px!important;min-width:25px!important;max-width:25px!important;
+  }
+  #tab-kasir #listBarang .item-barang > div:last-child button:first-of-type{font-size:9px!important}
+}
+</style>
+<script id="evora-v1755-version-finalizer">
+(function(){
+  function applyV1755(){
+    const v=document.getElementById('evoraProVersion');
+    if(v) v.textContent='v17.5.5 PRO';
+    document.title='EVORA Tracker Pro v17.5.5 - Mobile Kasir Overflow Fixed';
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1755);
+  else applyV1755();
+  setTimeout(applyV1755,500);
+  setTimeout(applyV1755,1600);
+})();
+</script>
 
 </body>
 </html>
