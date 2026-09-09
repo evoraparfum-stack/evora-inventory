@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v17.4.4 - PC Full Width Fixed</title>
+  <title>EVORA Tracker Pro v17.4.5 - Password Reset Persist Fixed</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -2700,9 +2700,19 @@ let isAdsActive = false;
 let currentAdsCampaign = null;
 let adsCampaignHistory = [];
 const EVORA_DEFAULT_PASSWORD_HASH = "899b9a314067a23557b5db9b87d3e599e2f3200bd69b6cdc6dcf08f8b8e40e2e";
-let authPasswordHash = EVORA_DEFAULT_PASSWORD_HASH;
+let authPasswordHash = String(localStorage.getItem("evora_auth_password_hash") || EVORA_DEFAULT_PASSWORD_HASH);
+let authPasswordUpdatedAt = Number(localStorage.getItem("evora_auth_password_updated_at") || 0);
 let ownerWhatsapp = normalizeWhatsapp(localStorage.getItem("evora_owner_whatsapp") || "");
 let evoraAuthReady = false;
+
+function persistEvoraPasswordLocal(hash, updatedAt){
+  const safeHash=String(hash||EVORA_DEFAULT_PASSWORD_HASH);
+  const safeTime=Number(updatedAt||Date.now());
+  localStorage.setItem("evora_auth_password_hash", safeHash);
+  localStorage.setItem("evora_auth_password_updated_at", String(safeTime));
+  authPasswordHash=safeHash;
+  authPasswordUpdatedAt=safeTime;
+}
 function getActiveCampaignId(){
   return (isAdsActive && currentAdsCampaign && currentAdsCampaign.id)
     ? currentAdsCampaign.id
@@ -2844,12 +2854,17 @@ async function simpanPasswordBaruDariLupa(){
     return;
   }
 
-  authPasswordHash=await evoraHashPassword(p1);
+  const newHash=await evoraHashPassword(p1);
+  persistEvoraPasswordLocal(newHash, Date.now());
   sessionStorage.removeItem("evora_auth_unlocked");
-  await saveData();
+  const cloudSaved=await saveData();
 
   backToLoginEvora();
-  await customAlert("Password Berhasil Diubah","Password baru berhasil disimpan. Silakan login menggunakan password baru Anda.","success");
+  if(cloudSaved){
+    await customAlert("Password Berhasil Diubah","Password baru berhasil disimpan. Silakan login menggunakan password baru Anda.","success");
+  }else{
+    await customAlert("Password Diubah di Perangkat","Password baru sudah aktif di perangkat ini, tetapi sinkronisasi cloud belum berhasil. Gunakan password baru untuk login dan tekan Sync saat koneksi tersedia.","warning");
+  }
 }
 
 async function simpanOwnerWhatsapp(){
@@ -2866,15 +2881,14 @@ async function simpanOwnerWhatsapp(){
   localStorage.setItem("evora_owner_whatsapp", ownerWhatsapp);
   if(el) el.value=ownerWhatsapp;
 
-  try{
-    await saveData();
+  const cloudSaved=await saveData();
+  if(cloudSaved){
     await customAlert(
       "No. WA Tersimpan",
       `No. WA Pemilik <b>${ownerWhatsapp}</b> berhasil disimpan dan sudah dapat digunakan untuk verifikasi Lupa Password.`,
       "success"
     );
-  }catch(err){
-    console.error("Gagal menyimpan No. WA ke cloud:",err);
+  }else{
     await customAlert(
       "No. WA Tersimpan di Perangkat",
       "No. WA sudah disimpan di perangkat ini untuk Lupa Password, tetapi sinkronisasi cloud belum berhasil. Coba sinkronkan kembali saat koneksi tersedia.",
@@ -2894,11 +2908,16 @@ async function gantiPasswordEvora(){
   if(baru!==ulang){await customAlert("Konfirmasi Tidak Sama","Password baru dan konfirmasi password tidak sama.","warning");return;}
   const ok=await customConfirm("Ganti Password","No. WA cocok. Ganti password login EVORA sekarang?","warning");
   if(!ok)return;
-  authPasswordHash=await evoraHashPassword(baru);
+  const newHash=await evoraHashPassword(baru);
+  persistEvoraPasswordLocal(newHash, Date.now());
   sessionStorage.setItem("evora_auth_unlocked",authPasswordHash);
-  await saveData();
+  const cloudSaved=await saveData();
   ["settingPwWaVerifikasi","settingPwBaru","settingPwKonfirmasi"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
-  await customAlert("Password Diperbarui","Password login berhasil diganti dan disimpan.","success");
+  if(cloudSaved){
+    await customAlert("Password Diperbarui","Password login berhasil diganti dan disimpan.","success");
+  }else{
+    await customAlert("Password Diubah di Perangkat","Password baru sudah aktif di perangkat ini, tetapi sinkronisasi cloud belum berhasil.","warning");
+  }
 }
 function logoutEvora(){
   sessionStorage.removeItem("evora_auth_unlocked");
@@ -3556,7 +3575,21 @@ async function loadDataFromCloud() {
       isAdsActive = dataUtama.isAdsActive || false;
       currentAdsCampaign = dataUtama.currentAdsCampaign || null;
       adsCampaignHistory = Array.isArray(dataUtama.adsCampaignHistory) ? dataUtama.adsCampaignHistory : [];
-      authPasswordHash = String(dataUtama.authPasswordHash || EVORA_DEFAULT_PASSWORD_HASH);
+      const cloudPasswordHash = String(dataUtama.authPasswordHash || EVORA_DEFAULT_PASSWORD_HASH);
+      const cloudPasswordUpdatedAt = Number(dataUtama.authPasswordUpdatedAt || 0);
+      const localPasswordHash = String(localStorage.getItem("evora_auth_password_hash") || "");
+      const localPasswordUpdatedAt = Number(localStorage.getItem("evora_auth_password_updated_at") || 0);
+      let authNeedsResync = false;
+      if(localPasswordHash && localPasswordUpdatedAt > cloudPasswordUpdatedAt){
+        authPasswordHash = localPasswordHash;
+        authPasswordUpdatedAt = localPasswordUpdatedAt;
+        authNeedsResync = true;
+      }else{
+        authPasswordHash = cloudPasswordHash;
+        authPasswordUpdatedAt = cloudPasswordUpdatedAt;
+        localStorage.setItem("evora_auth_password_hash", authPasswordHash);
+        localStorage.setItem("evora_auth_password_updated_at", String(authPasswordUpdatedAt));
+      }
       ownerWhatsapp = normalizeWhatsapp(dataUtama.ownerWhatsapp || localStorage.getItem("evora_owner_whatsapp") || "");
       if(ownerWhatsapp) localStorage.setItem("evora_owner_whatsapp", ownerWhatsapp);
       
@@ -3575,6 +3608,9 @@ async function loadDataFromCloud() {
     renderAdsCampaignUI();
     if(document.getElementById("evoraAICenter")?.style.display==="block") renderEvoraAI();
     checkLowStockAlert();
+    if(typeof authNeedsResync!=="undefined" && authNeedsResync){
+      await saveData();
+    }
   } catch (error) {
     console.error("Gagal load Supabase:", error);
     setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Offline");
@@ -3601,6 +3637,7 @@ async function saveData() {
     currentAdsCampaign: currentAdsCampaign,
     adsCampaignHistory: adsCampaignHistory,
     authPasswordHash: authPasswordHash,
+    authPasswordUpdatedAt: authPasswordUpdatedAt,
     ownerWhatsapp: ownerWhatsapp
   };
   try {
@@ -3609,9 +3646,11 @@ async function saveData() {
     
     setSyncStatus("<i class='fa-solid fa-circle-check'></i> Saved");
     render();
+    return true;
   } catch (error) {
     console.error("Gagal save Supabase:", error);
     setSyncStatus("<i class='fa-solid fa-circle-xmark'></i> Failed");
+    return false;
   }
 }
 
