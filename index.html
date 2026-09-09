@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v17.4.6 - Scroll & Tab Top Fixed</title>
+  <title>EVORA Tracker Pro v17.5 - Experience Upgrade</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -9534,5 +9534,286 @@ body.dark-theme .ev-attention{background:linear-gradient(145deg,#1e293b,#17212f)
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
+<style id="evora-v175-experience-style">
+/* =========================================================
+   EVORA v17.5 — EXPERIENCE UPGRADE
+   1 Morning Brief · 2 Premium Business Chart · 3 Status System
+   4 Global Search · 5 Quick Action · 6 Unified Timeline
+   7 Product Performance · 8 Micro Motion · 9 Native Bottom Nav
+   10 Focus Kasir · 11 Notification Center · 12 EVORA Insight
+   ========================================================= */
+:root{
+  --ev-ok:#0f9f8f;
+  --ev-info:#0f6f7a;
+  --ev-warn:#f59e0b;
+  --ev-danger:#e11d48;
+  --ev-soft:#f6f9fb;
+  --ev-line:#dbe5ea;
+  --ev-ink:#0f172a;
+}
+.ev-v175-card{background:var(--bg-card);border:1px solid var(--ev-line);border-radius:18px;box-shadow:0 8px 28px rgba(15,23,42,.05);animation:evV175Up .28s ease both}
+body.dark-theme .ev-v175-card{border-color:#334155;box-shadow:none}
+@keyframes evV175Up{from{opacity:.25;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes evV175Pulse{0%,100%{box-shadow:0 0 0 0 rgba(15,159,143,.0)}50%{box-shadow:0 0 0 6px rgba(15,159,143,.08)}}
+button,.quick-card,.item-barang,.ev-v175-click{transition:transform .14s ease,box-shadow .14s ease,background .14s ease}
+button:active,.quick-card:active,.ev-v175-click:active{transform:scale(.975)}
+
+/* 3. status language across app */
+.ev-status{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:900;letter-spacing:.2px}
+.ev-status.ok{background:#ecfdf5;color:#047857}.ev-status.info{background:#ecfeff;color:#0e7490}.ev-status.warn{background:#fff7ed;color:#c2410c}.ev-status.danger{background:#fff1f2;color:#be123c}
+.status-ready,.paylater-status.paid,.paylater-status.active{background:#ecfdf5!important;color:#047857!important}
+.status-warning,.paylater-status.due{background:#fff7ed!important;color:#c2410c!important}
+.status-critical,.paylater-status.overdue{background:#fff1f2!important;color:#be123c!important}
+
+/* header search + notifications */
+.ev-header-actions{display:flex;align-items:center;gap:7px;margin-left:auto;min-width:0}
+.ev-head-icon{position:relative;width:36px!important;height:36px!important;min-width:36px;padding:0!important;border-radius:12px!important;background:rgba(255,255,255,.12)!important;color:#fff!important;border:1px solid rgba(255,255,255,.16)!important;box-shadow:none!important;display:flex!important;align-items:center;justify-content:center}
+.ev-head-icon:hover{background:rgba(255,255,255,.18)!important}
+.ev-notif-badge{position:absolute;right:-4px;top:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#fb7185;color:#fff;font-size:8px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid #0f5862}
+.ev-header-actions #syncStatus{margin:0!important;white-space:nowrap}
+
+/* 1. Morning Brief */
+#evMorningBrief{margin:0 0 14px;padding:16px 17px;background:linear-gradient(135deg,#f7ffff 0%,#f8fafc 58%,#eef7f7 100%);overflow:hidden;position:relative}
+#evMorningBrief:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-72px;top:-78px;background:rgba(15,111,122,.07)}
+.ev-morning-kicker{font-size:9px;font-weight:900;letter-spacing:1px;color:var(--primary);text-transform:uppercase;margin-bottom:6px}
+.ev-morning-text{font-size:16px;font-weight:900;color:var(--text-main);line-height:1.4;max-width:870px;position:relative;z-index:1}
+.ev-morning-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;position:relative;z-index:1}
+.ev-morning-chip{font-size:9px;font-weight:800;padding:5px 8px;border-radius:999px;background:var(--bg-card);border:1px solid var(--ev-line);color:var(--text-muted)}
+body.dark-theme #evMorningBrief{background:linear-gradient(135deg,#182738,#152231)}
+
+/* 2. report chart */
+#evBusinessChartCard{padding:16px;margin-bottom:16px}
+.ev-chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ev-chart-title{font-size:12px;font-weight:900;letter-spacing:.4px;color:var(--text-main)}
+.ev-chart-sub{font-size:9px;color:var(--text-muted);margin-top:3px}
+.ev-segment{display:inline-flex;gap:3px;padding:3px;border-radius:11px;background:var(--bg-main);border:1px solid var(--ev-line)}
+.ev-segment button{width:auto!important;padding:6px 9px!important;border-radius:8px!important;background:transparent!important;color:var(--text-muted)!important;box-shadow:none!important;font-size:9px!important;font-weight:900!important}
+.ev-segment button.active{background:var(--bg-card)!important;color:var(--primary)!important;box-shadow:0 2px 8px rgba(15,23,42,.08)!important}
+.ev-chart-toolbar{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.ev-chart-trend{font-size:10px;font-weight:900;color:var(--text-main)}
+.ev-chart-wrap{height:245px;position:relative;width:100%}
+
+/* shared modal/sheet */
+.ev-v175-overlay{display:none;position:fixed;inset:0;z-index:120000;background:rgba(2,6,23,.52);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:7vh 14px 100px;overflow:auto}
+.ev-v175-overlay.show{display:flex}
+.ev-v175-modal{width:min(620px,100%);background:var(--bg-card);border:1px solid var(--ev-line);border-radius:22px;box-shadow:0 30px 90px rgba(2,6,23,.25);overflow:hidden;animation:evV175Up .2s ease both}
+.ev-v175-modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:15px 16px;border-bottom:1px solid var(--ev-line)}
+.ev-v175-modal-title{font-size:13px;font-weight:900;color:var(--text-main)}
+.ev-v175-close{width:34px!important;height:34px!important;padding:0!important;border-radius:11px!important;background:var(--bg-main)!important;color:var(--text-main)!important;box-shadow:none!important}
+.ev-v175-modal-body{padding:14px 16px 18px}
+body.dark-theme .ev-v175-modal{border-color:#334155}
+
+/* 4. Global Search */
+.ev-global-searchbox{position:relative;margin-bottom:12px}.ev-global-searchbox i{position:absolute;left:13px;top:15px;color:var(--text-muted)}
+.ev-global-searchbox input{margin:0!important;padding:12px 12px 12px 38px!important;font-size:13px!important;border-radius:13px!important}
+.ev-search-hint{font-size:9px;color:var(--text-muted);margin:0 0 10px}
+.ev-search-results{display:grid;gap:7px;max-height:58vh;overflow:auto;padding-right:2px}
+.ev-search-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--ev-line);border-radius:13px;background:var(--bg-main);cursor:pointer}
+.ev-search-icon{width:36px;height:36px;border-radius:11px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center}
+.ev-search-row b{display:block;font-size:11px;color:var(--text-main);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ev-search-row small{display:block;font-size:9px;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ev-search-type{font-size:8px;font-weight:900;color:var(--text-muted);text-transform:uppercase}
+
+/* 5. Quick action */
+#evQuickFab{position:fixed;left:18px;bottom:86px;z-index:9998;width:48px;height:48px;border-radius:16px;padding:0;background:var(--primary);color:#fff;box-shadow:0 12px 28px rgba(15,111,122,.28);font-size:19px}
+#evQuickFab.open{transform:rotate(45deg)}
+#evQuickActions{position:fixed;left:18px;bottom:143px;z-index:9998;width:210px;padding:8px;border-radius:16px;background:var(--bg-card);border:1px solid var(--ev-line);box-shadow:0 18px 45px rgba(15,23,42,.18);display:none;gap:4px}
+#evQuickActions.show{display:grid;animation:evV175Up .18s ease both}
+.ev-quick-action{display:grid!important;grid-template-columns:32px minmax(0,1fr)!important;align-items:center!important;gap:9px!important;width:100%!important;text-align:left!important;background:transparent!important;color:var(--text-main)!important;box-shadow:none!important;padding:8px!important;border-radius:11px!important;font-size:10px!important}
+.ev-quick-action:hover{background:var(--bg-main)!important}.ev-quick-action i{width:32px;height:32px;border-radius:10px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center}
+
+/* 6. Unified timeline */
+#evUnifiedTimelineCard{padding:16px;margin-bottom:16px}
+.ev-timeline-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.ev-timeline-filter{width:auto!important;padding:6px 9px!important;border-radius:999px!important;background:var(--bg-main)!important;color:var(--text-muted)!important;box-shadow:none!important;border:1px solid var(--ev-line)!important;font-size:9px!important;font-weight:900!important}.ev-timeline-filter.active{background:var(--primary)!important;color:#fff!important;border-color:var(--primary)!important}
+.ev-timeline{position:relative;padding-left:17px}.ev-timeline:before{content:"";position:absolute;left:6px;top:7px;bottom:7px;width:2px;background:var(--ev-line)}
+.ev-timeline-item{position:relative;padding:9px 10px 9px 12px;margin:0 0 8px;background:var(--bg-main);border:1px solid var(--ev-line);border-radius:12px}.ev-timeline-item:before{content:"";position:absolute;left:-16px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--primary);border:2px solid var(--bg-card)}.ev-timeline-item.expense:before{background:var(--danger)}.ev-timeline-item.paylater:before{background:var(--warning)}.ev-timeline-item.restock:before{background:#8b5cf6}.ev-timeline-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.ev-timeline-title{font-size:10px;font-weight:900;color:var(--text-main)}.ev-timeline-time{font-size:8px;color:var(--text-muted);white-space:nowrap}.ev-timeline-meta{font-size:9px;color:var(--text-muted);margin-top:3px;line-height:1.45}.ev-timeline-value{font-size:10px;font-weight:900;margin-top:5px}.ev-timeline-empty{text-align:center;padding:20px 10px;color:var(--text-muted);font-size:10px}
+
+/* 7. Product Performance */
+.item-barang{position:relative!important}.ev-prod-insight-btn{position:absolute!important;right:9px!important;top:9px!important;width:28px!important;height:28px!important;min-height:0!important;padding:0!important;border-radius:9px!important;background:var(--bg-main)!important;color:var(--primary)!important;border:1px solid var(--ev-line)!important;box-shadow:none!important;font-size:10px!important;z-index:2}.item-barang .item-info{padding-right:32px!important}
+.ev-prod-name{font-size:17px;font-weight:900;color:var(--text-main)}.ev-prod-sub{font-size:10px;color:var(--text-muted);margin-top:3px}.ev-prod-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:13px}.ev-prod-kpi{padding:11px;border-radius:13px;background:var(--bg-main);border:1px solid var(--ev-line)}.ev-prod-kpi span{font-size:8px;color:var(--text-muted);font-weight:900;display:block}.ev-prod-kpi b{display:block;font-size:15px;color:var(--text-main);margin-top:3px}.ev-prod-progress{margin-top:12px}.ev-prod-progress-bar{height:8px;border-radius:999px;background:var(--ev-line);overflow:hidden;margin-top:6px}.ev-prod-progress-bar span{display:block;height:100%;border-radius:999px;background:var(--primary)}
+
+/* 9. native-style bottom nav */
+.bottom-nav .nav-item{border-radius:17px!important}.bottom-nav .nav-item.active{background:linear-gradient(180deg,rgba(15,111,122,.08),rgba(15,111,122,.025))!important;color:var(--primary)!important}.bottom-nav .nav-item.active .nav-icon{transform:none!important;background:transparent!important}.bottom-nav .nav-item.active .nav-icon i{filter:drop-shadow(0 3px 7px rgba(15,111,122,.22))}.bottom-nav .nav-item:not(.active){opacity:.72}.bottom-nav .nav-item.active>div:last-child{font-weight:900}
+
+/* 10. Focus Kasir */
+#evKasirFocusBar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--bg-card);border:1px solid var(--ev-line)}
+.ev-focus-copy b{display:block;font-size:10px;color:var(--text-main)}.ev-focus-copy span{font-size:8px;color:var(--text-muted)}.ev-focus-toggle{width:auto!important;padding:7px 10px!important;border-radius:999px!important;font-size:9px!important;box-shadow:none!important;background:var(--bg-main)!important;color:var(--text-main)!important;border:1px solid var(--ev-line)!important}.ev-focus-toggle.active{background:var(--primary)!important;color:#fff!important;border-color:var(--primary)!important}
+#tab-kasir.ev-focus-active > .card:not(#panelKasir){display:none!important}#tab-kasir.ev-focus-active #panelMappingResi{display:none!important}#tab-kasir.ev-focus-active #evStockControl{display:none!important}
+
+/* 11. Notification Center */
+.ev-notif-list{display:grid;gap:8px}.ev-notif-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--ev-line);border-radius:13px;background:var(--bg-main);cursor:pointer}.ev-notif-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:#ecfeff;color:#0e7490}.ev-notif-row.warn .ev-notif-icon{background:#fff7ed;color:#c2410c}.ev-notif-row.danger .ev-notif-icon{background:#fff1f2;color:#be123c}.ev-notif-row.ok .ev-notif-icon{background:#ecfdf5;color:#047857}.ev-notif-row b{display:block;font-size:10px;color:var(--text-main)}.ev-notif-row small{display:block;font-size:9px;color:var(--text-muted);margin-top:2px}.ev-notif-go{font-size:8px;font-weight:900;color:var(--primary)}
+
+/* 12. EVORA Insight */
+#evAIInsight{padding:14px 15px;margin:0 0 14px;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;align-items:center;background:linear-gradient(135deg,#111827,#172033);border-color:#263449;color:#fff}
+.ev-ai-icon{width:42px;height:42px;border-radius:13px;background:rgba(56,189,248,.12);color:#38bdf8;display:flex;align-items:center;justify-content:center;font-size:17px}.ev-ai-copy b{display:block;font-size:10px;letter-spacing:.5px;color:#fff}.ev-ai-copy span{display:block;font-size:10px;line-height:1.5;color:#cbd5e1;margin-top:3px}.ev-ai-more{width:auto!important;padding:7px 9px!important;border-radius:10px!important;background:#fff!important;color:#111827!important;font-size:8px!important;font-weight:900!important;box-shadow:none!important}
+
+@media(max-width:700px){
+  .ev-header-actions{gap:5px}.ev-head-icon{width:32px!important;height:32px!important;min-width:32px}.ev-header-actions #syncStatus{font-size:8px!important;padding:7px 8px!important}
+  #evMorningBrief{padding:13px 14px}.ev-morning-text{font-size:13px}.ev-chart-wrap{height:210px}
+  #evQuickFab{left:12px;bottom:80px;width:44px;height:44px;border-radius:14px}#evQuickActions{left:12px;bottom:132px;width:190px}
+  #navEvoraAI{right:12px!important;bottom:80px!important;padding:9px 12px!important;font-size:10px!important}
+  #evAIInsight{grid-template-columns:36px minmax(0,1fr);padding:12px}.ev-ai-icon{width:36px;height:36px}.ev-ai-more{grid-column:2;justify-self:start;margin-top:-2px}
+  .ev-prod-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ev-v175-overlay{padding:4vh 10px 92px}.ev-v175-modal{border-radius:18px}
+  .ev-search-row,.ev-notif-row{grid-template-columns:32px minmax(0,1fr) auto}.ev-search-icon,.ev-notif-icon{width:32px;height:32px}
+}
+@media(max-width:380px){.ev-header-actions #syncStatus{display:none}.ev-chart-toolbar{align-items:flex-start}.ev-segment button{padding:5px 7px!important}.ev-morning-chip{font-size:8px}.ev-prod-kpis{gap:6px}.ev-prod-kpi{padding:9px}}
+</style>
+
+<script id="evora-v175-experience-script">
+(function(){
+  'use strict';
+  const V='17.5';
+  let timelineType='all';
+  let chartPeriod=7;
+  let chartMetric='omzet';
+  let businessChart=null;
+  let lastChartSig='';
+  let lastTimelineSig='';
+
+  const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
+  const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  const arr=name=>{
+    try{
+      if(name==='barang') return (typeof barang!=='undefined'&&Array.isArray(barang))?barang:[];
+      if(name==='penjualan') return (typeof penjualan!=='undefined'&&Array.isArray(penjualan))?penjualan:[];
+      if(name==='pengeluaran') return (typeof pengeluaran!=='undefined'&&Array.isArray(pengeluaran))?pengeluaran:[];
+      if(name==='pesanan') return (typeof pesanan!=='undefined'&&Array.isArray(pesanan))?pesanan:[];
+      if(name==='paylater') return (typeof logPaylater!=='undefined'&&Array.isArray(logPaylater))?logPaylater:[];
+      if(name==='serah') return (typeof serahEkspedisiLog!=='undefined'&&Array.isArray(serahEkspedisiLog))?serahEkspedisiLog:[];
+    }catch(e){}
+    return [];
+  };
+  const dkey=v=>{
+    try{if(typeof getDayKey==='function')return getDayKey(v)}catch(e){}
+    const d=v instanceof Date?v:new Date(v); if(Number.isNaN(d.getTime()))return '';
+    const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  };
+  const todayKey=()=>dkey(new Date());
+  function startDaysAgo(n){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-n);return d}
+  function pct(cur,prev){cur=Number(cur||0);prev=Number(prev||0);if(prev===0)return cur>0?100:0;return ((cur-prev)/prev)*100}
+  function topProduct(sales){const m={};sales.forEach(x=>{const k=String(x.barang||'').trim();if(!k||k==='OMZET MANUAL')return;m[k]=(m[k]||0)+Number(x.qty||0)});return Object.entries(m).sort((a,b)=>b[1]-a[1])[0]||null}
+  function stockData(){const p=arr('barang');const total=p.reduce((s,x)=>s+Math.max(0,Number(x.stok)||0),0);const bot=(typeof stokBotol!=='undefined')?Math.max(0,Number(stokBotol)||0):0;const box=(typeof stokBox!=='undefined')?Math.max(0,Number(stokBox)||0):0;return{p,total,bot,box,sell:Math.min(total,bot,box),critical:p.filter(x=>Number(x.stok||0)<5),thin:p.filter(x=>Number(x.stok||0)>=5&&Number(x.stok||0)<10)}}
+  function ledger(){try{return typeof evPaylaterLedger==='function'?evPaylaterLedger():[]}catch(e){return[]}}
+  function dueDays(v){try{return typeof evPaylaterDaysUntil==='function'?evPaylaterDaysUntil(v):null}catch(e){if(!v)return null;const d=new Date(v+'T23:59:59');return Math.ceil((d-new Date())/86400000)}}
+  function go(tab){if(typeof switchTab==='function')switchTab(tab);setTimeout(()=>{window.scrollTo({top:0,left:0,behavior:'auto'})},20)}
+
+  /* ----- Header: Search + Notifications ----- */
+  function ensureHeaderActions(){
+    const head=document.querySelector('.header-top'),sync=document.getElementById('syncStatus');
+    if(!head||document.getElementById('evHeaderActions'))return;
+    const group=document.createElement('div');group.id='evHeaderActions';group.className='ev-header-actions';
+    group.innerHTML=`<button type="button" class="ev-head-icon" onclick="evV175OpenSearch()" aria-label="Pencarian"><i class="fa-solid fa-magnifying-glass"></i></button><button type="button" class="ev-head-icon" onclick="evV175OpenNotifications()" aria-label="Notifikasi"><i class="fa-solid fa-bell"></i><span id="evNotifBadge" class="ev-notif-badge">0</span></button>`;
+    if(sync)group.appendChild(sync);head.appendChild(group);
+  }
+
+  /* ----- 1. Morning Brief ----- */
+  function ensureMorningBrief(){
+    const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evMorningBrief'))return;
+    const el=document.createElement('div');el.id='evMorningBrief';el.className='ev-v175-card';
+    el.innerHTML=`<div class="ev-morning-kicker"><i class="fa-solid fa-sun"></i> DAILY BUSINESS BRIEF</div><div id="evMorningText" class="ev-morning-text">Membaca kondisi bisnis hari ini...</div><div id="evMorningMeta" class="ev-morning-meta"></div>`;
+    const pro=document.getElementById('evoraProCommand');
+    if(pro&&pro.nextSibling)home.insertBefore(el,pro.nextSibling);else home.insertBefore(el,home.firstChild);
+  }
+  function renderMorningBrief(){
+    const s=arr('penjualan'),e=arr('pengeluaran'),key=todayKey();
+    const sales=s.filter(x=>dkey(x.tanggal)===key),exp=e.filter(x=>dkey(x.tanggal)===key);
+    const qty=sales.reduce((n,x)=>n+Number(x.qty||0),0),omzet=sales.reduce((n,x)=>n+Number(x.nominal||0),0),keluar=exp.reduce((n,x)=>n+Number(x.nominal||0),0);
+    const yd=new Date();yd.setDate(yd.getDate()-1);const ys=s.filter(x=>dkey(x.tanggal)===dkey(yd));const yomzet=ys.reduce((n,x)=>n+Number(x.nominal||0),0);const trend=pct(omzet,yomzet);
+    const st=stockData(),top=topProduct(sales);const t=document.getElementById('evMorningText'),m=document.getElementById('evMorningMeta');
+    if(t)t.innerHTML=`Hari ini <span style="color:var(--primary)">${qty} pcs</span> terjual · omzet <span style="color:var(--success)">${money(omzet)}</span>${st.critical.length?` · <span style="color:var(--danger)">${st.critical.length} varian perlu restock</span>`:' · stok utama aman'}.`;
+    if(m)m.innerHTML=`<span class="ev-morning-chip">${trend>=0?'↗':'↘'} ${trend>=0?'+':''}${trend.toFixed(1)}% vs kemarin</span><span class="ev-morning-chip">Laba hari ini ${money(omzet-keluar)}</span><span class="ev-morning-chip">Terlaris ${top?esc(top[0])+' · '+top[1]+' pcs':'Belum ada'}</span>`;
+  }
+
+  /* ----- 2. Premium Business Chart ----- */
+  function ensureBusinessChart(){
+    const tab=document.getElementById('tab-laporan');if(!tab||document.getElementById('evBusinessChartCard'))return;
+    const el=document.createElement('div');el.id='evBusinessChartCard';el.className='ev-v175-card';
+    el.innerHTML=`<div class="ev-chart-head"><div><div class="ev-chart-title"><i class="fa-solid fa-chart-line"></i> GRAFIK BISNIS</div><div class="ev-chart-sub">Bandingkan performa penjualan secara visual</div></div><div class="ev-segment" id="evChartPeriod"><button class="active" data-p="7" onclick="evV175SetChartPeriod(7,this)">7 Hari</button><button data-p="30" onclick="evV175SetChartPeriod(30,this)">30 Hari</button></div></div><div class="ev-chart-toolbar"><div class="ev-segment" id="evChartMetric"><button class="active" data-m="omzet" onclick="evV175SetChartMetric('omzet',this)">Omzet</button><button data-m="qty" onclick="evV175SetChartMetric('qty',this)">Pcs</button><button data-m="laba" onclick="evV175SetChartMetric('laba',this)">Laba</button></div><div id="evChartTrend" class="ev-chart-trend">Membaca tren...</div></div><div class="ev-chart-wrap"><canvas id="evBusinessChart"></canvas></div>`;
+    const cards=[...tab.children].filter(x=>x.classList&&x.classList.contains('card'));
+    const monthly=cards.find(c=>(c.querySelector('h3')?.textContent||'').includes('REKAPITULASI BULANAN'));
+    if(monthly)tab.insertBefore(el,monthly);else tab.appendChild(el);
+  }
+  function metricForRange(start,end,metric){
+    const s=arr('penjualan').filter(x=>{const d=new Date(x.tanggal);return d>=start&&d<end});
+    const e=arr('pengeluaran').filter(x=>{const d=new Date(x.tanggal);return d>=start&&d<end});
+    const omzet=s.reduce((n,x)=>n+Number(x.nominal||0),0),qty=s.reduce((n,x)=>n+Number(x.qty||0),0),exp=e.reduce((n,x)=>n+Number(x.nominal||0),0);
+    return metric==='qty'?qty:metric==='laba'?omzet-exp:omzet;
+  }
+  function chartSeries(days,metric){
+    const labels=[],values=[];const now=new Date();now.setHours(0,0,0,0);
+    for(let i=days-1;i>=0;i--){const st=new Date(now);st.setDate(st.getDate()-i);const en=new Date(st);en.setDate(en.getDate()+1);labels.push(st.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}));values.push(metricForRange(st,en,metric))}
+    return{labels,values};
+  }
+  function renderBusinessChart(force=false){
+    const canvas=document.getElementById('evBusinessChart');if(!canvas||typeof Chart==='undefined')return;
+    const series=chartSeries(chartPeriod,chartMetric);const end=new Date();end.setHours(0,0,0,0);end.setDate(end.getDate()+1);const curStart=new Date(end);curStart.setDate(curStart.getDate()-chartPeriod);const prevStart=new Date(curStart);prevStart.setDate(prevStart.getDate()-chartPeriod);
+    const cur=metricForRange(curStart,end,chartMetric),prev=metricForRange(prevStart,curStart,chartMetric),change=pct(cur,prev);
+    const sig=chartMetric+'|'+chartPeriod+'|'+series.values.join(',');if(!force&&sig===lastChartSig)return;lastChartSig=sig;
+    const trend=document.getElementById('evChartTrend');if(trend){trend.textContent=`${change>=0?'↑':'↓'} ${Math.abs(change).toFixed(1)}% dibanding ${chartPeriod} hari sebelumnya`;trend.style.color=change>=0?'var(--success)':'var(--danger)'}
+    if(businessChart){businessChart.destroy();businessChart=null}
+    const css=getComputedStyle(document.documentElement);const line=(css.getPropertyValue('--primary')||'#0f6f7a').trim();const text=(css.getPropertyValue('--text-muted')||'#64748b').trim();
+    businessChart=new Chart(canvas.getContext('2d'),{type:'line',data:{labels:series.labels,datasets:[{label:chartMetric==='qty'?'Pcs':chartMetric==='laba'?'Laba Bersih':'Omzet',data:series.values,borderColor:line,backgroundColor:'rgba(15,111,122,.10)',fill:true,tension:.35,borderWidth:2,pointRadius:chartPeriod===30?1:3,pointHoverRadius:4}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:450},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>chartMetric==='qty'?`${Number(c.raw||0).toLocaleString('id-ID')} pcs`:money(c.raw)}}},scales:{x:{grid:{display:false},ticks:{color:text,maxTicksLimit:chartPeriod===30?8:7,font:{size:9}}},y:{beginAtZero:true,grid:{color:'rgba(148,163,184,.16)'},ticks:{color:text,font:{size:9},callback:v=>chartMetric==='qty'?v:(Math.abs(v)>=1000000?(v/1000000).toFixed(1)+'jt':Math.abs(v)>=1000?(v/1000).toFixed(0)+'rb':v)}}}}});
+  }
+  window.evV175SetChartPeriod=function(n,btn){chartPeriod=Number(n)||7;document.querySelectorAll('#evChartPeriod button').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');renderBusinessChart(true)};
+  window.evV175SetChartMetric=function(m,btn){chartMetric=m;document.querySelectorAll('#evChartMetric button').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');renderBusinessChart(true)};
+
+  /* ----- 4. Global Search ----- */
+  function ensureSearchModal(){if(document.getElementById('evGlobalSearch'))return;const el=document.createElement('div');el.id='evGlobalSearch';el.className='ev-v175-overlay';el.innerHTML=`<div class="ev-v175-modal"><div class="ev-v175-modal-head"><div class="ev-v175-modal-title"><i class="fa-solid fa-magnifying-glass"></i> Pencarian EVORA</div><button class="ev-v175-close" onclick="evV175CloseSearch()">✕</button></div><div class="ev-v175-modal-body"><div class="ev-global-searchbox"><i class="fa-solid fa-magnifying-glass"></i><input id="evGlobalSearchInput" autocomplete="off" placeholder="Cari parfum, resi, transaksi, pengeluaran, PayLater..."></div><div class="ev-search-hint">Satu pencarian untuk seluruh data bisnis.</div><div id="evGlobalSearchResults" class="ev-search-results"></div></div></div>`;document.body.appendChild(el);el.addEventListener('click',e=>{if(e.target===el)window.evV175CloseSearch()});document.getElementById('evGlobalSearchInput').addEventListener('input',renderGlobalSearch)}
+  function renderGlobalSearch(){const q=String(document.getElementById('evGlobalSearchInput')?.value||'').trim().toLowerCase();const out=document.getElementById('evGlobalSearchResults');if(!out)return;if(q.length<2){out.innerHTML='<div class="ev-timeline-empty">Ketik minimal 2 karakter.</div>';return}let rows=[];
+    arr('barang').forEach((x,i)=>{if(String(x.nama||'').toLowerCase().includes(q))rows.push({type:'Produk',icon:'fa-box',title:x.nama,sub:`Stok ${Number(x.stok||0)} pcs`,action:`evV175SearchGoProduct(${JSON.stringify(String(x.nama||''))})`})});
+    [...arr('penjualan')].reverse().forEach((x,i)=>{const hay=[x.barang,x.resi,x.waybill,x.noResi,x.orderId,x.nomorPesanan,x.noPesanan].filter(Boolean).join(' ').toLowerCase();if(hay.includes(q))rows.push({type:'Penjualan',icon:'fa-receipt',title:x.resi||x.orderId||x.barang||'Penjualan',sub:`${x.barang||'-'} · ${Number(x.qty||0)} pcs · ${money(x.nominal)}`,action:`evV175SearchGoHistory(${JSON.stringify(String(x.resi||x.orderId||x.barang||''))})`})});
+    [...arr('pengeluaran')].reverse().forEach(x=>{if(String(x.keterangan||'').toLowerCase().includes(q))rows.push({type:'Pengeluaran',icon:'fa-wallet',title:x.keterangan||'Pengeluaran',sub:`${money(x.nominal)} · ${new Date(x.tanggal).toLocaleDateString('id-ID')}`,action:`evV175SearchGoHistory(${JSON.stringify(String(x.keterangan||''))})`})});
+    [...arr('paylater')].reverse().forEach(x=>{const hay=[x.keterangan,x.jenis,x.jatuhTempo].filter(Boolean).join(' ').toLowerCase();if(hay.includes(q))rows.push({type:'PayLater',icon:'fa-credit-card',title:x.keterangan||'PayLater',sub:`${String(x.jenis||'').toUpperCase()} · ${money(x.nominal)}`,action:`evV175SearchGoPaylater()`})});
+    [...arr('serah')].reverse().forEach(x=>{const hay=[x.resi,x.code,x.orderId].filter(Boolean).join(' ').toLowerCase();if(hay.includes(q))rows.push({type:'Scan Resi',icon:'fa-qrcode',title:x.resi||x.code||'Resi',sub:`${x.status||'-'}${x.orderId?' · Order '+x.orderId:''}`,action:`evV175SearchGoHistory(${JSON.stringify(String(x.resi||x.code||x.orderId||''))})`})});
+    rows=rows.slice(0,24);out.innerHTML=rows.length?rows.map(r=>`<div class="ev-search-row ev-v175-click" onclick='${r.action}'><div class="ev-search-icon"><i class="fa-solid ${r.icon}"></i></div><div><b>${esc(r.title)}</b><small>${esc(r.sub)}</small></div><span class="ev-search-type">${r.type}</span></div>`).join(''):'<div class="ev-timeline-empty">Tidak ada data yang cocok.</div>';
+  }
+  window.evV175OpenSearch=function(){ensureSearchModal();const el=document.getElementById('evGlobalSearch');el?.classList.add('show');setTimeout(()=>document.getElementById('evGlobalSearchInput')?.focus(),80);renderGlobalSearch()};
+  window.evV175CloseSearch=function(){document.getElementById('evGlobalSearch')?.classList.remove('show')};
+  window.evV175SearchGoProduct=function(name){window.evV175CloseSearch();go('kasir');setTimeout(()=>{const i=document.getElementById('cariBarangInput');if(i){i.value=name;try{renderKasirPanel()}catch(e){}i.focus()}},100)};
+  window.evV175SearchGoHistory=function(q){window.evV175CloseSearch();go('riwayat');setTimeout(()=>{const i=document.getElementById('cariRiwayatResi');if(i)i.value=q;try{renderRiwayat()}catch(e){}renderUnifiedTimeline(true)},120)};
+  window.evV175SearchGoPaylater=function(){window.evV175CloseSearch();go('laporan');setTimeout(()=>document.querySelector('#tab-laporan .paylater-mobile-fix')?.scrollIntoView({behavior:'smooth',block:'start'}),100)};
+
+  /* ----- 5. Quick Action ----- */
+  function ensureQuickAction(){if(document.getElementById('evQuickFab'))return;const fab=document.createElement('button');fab.id='evQuickFab';fab.type='button';fab.innerHTML='<i class="fa-solid fa-plus"></i>';fab.onclick=()=>{fab.classList.toggle('open');document.getElementById('evQuickActions')?.classList.toggle('show')};document.body.appendChild(fab);const menu=document.createElement('div');menu.id='evQuickActions';menu.innerHTML=`<button class="ev-quick-action" onclick="evV175Quick('sale')"><i class="fa-solid fa-cart-plus"></i><span>Penjualan</span></button><button class="ev-quick-action" onclick="evV175Quick('expense')"><i class="fa-solid fa-wallet"></i><span>Pengeluaran</span></button><button class="ev-quick-action" onclick="evV175Quick('restock')"><i class="fa-solid fa-boxes-stacked"></i><span>Restock</span></button><button class="ev-quick-action" onclick="evV175Quick('paylater')"><i class="fa-solid fa-credit-card"></i><span>PayLater</span></button><button class="ev-quick-action" onclick="evV175Quick('scan')"><i class="fa-solid fa-qrcode"></i><span>Scan Resi</span></button>`;document.body.appendChild(menu)}
+  function closeQuick(){document.getElementById('evQuickActions')?.classList.remove('show');document.getElementById('evQuickFab')?.classList.remove('open')}
+  window.evV175Quick=function(type){closeQuick();if(type==='sale'){go('kasir');setTimeout(()=>document.getElementById('cariBarangInput')?.focus(),120)}else if(type==='expense'){go('beranda');setTimeout(()=>{const e=document.getElementById('nominalKeluar');e?.scrollIntoView({behavior:'smooth',block:'center'});e?.focus()},120)}else if(type==='restock'){if(typeof shortcutRestock==='function')shortcutRestock()}else if(type==='paylater'){go('laporan');setTimeout(()=>document.querySelector('#tab-laporan .paylater-mobile-fix')?.scrollIntoView({behavior:'smooth',block:'start'}),120)}else if(type==='scan'){if(typeof openSerahEkspedisiScanner==='function')openSerahEkspedisiScanner()}};
+
+  /* ----- 6. Unified Timeline ----- */
+  function ensureUnifiedTimeline(){const tab=document.getElementById('tab-riwayat');if(!tab||document.getElementById('evUnifiedTimelineCard'))return;const el=document.createElement('div');el.id='evUnifiedTimelineCard';el.className='ev-v175-card';el.innerHTML=`<div class="ev-chart-title"><i class="fa-solid fa-timeline"></i> TIMELINE AKTIVITAS</div><div class="ev-chart-sub">Penjualan, pengeluaran, restock, dan PayLater dalam satu urutan waktu</div><div class="ev-timeline-toolbar"><button class="ev-timeline-filter active" data-t="all" onclick="evV175TimelineFilter('all',this)">Semua</button><button class="ev-timeline-filter" data-t="sale" onclick="evV175TimelineFilter('sale',this)">Penjualan</button><button class="ev-timeline-filter" data-t="expense" onclick="evV175TimelineFilter('expense',this)">Pengeluaran</button><button class="ev-timeline-filter" data-t="restock" onclick="evV175TimelineFilter('restock',this)">Restock</button><button class="ev-timeline-filter" data-t="paylater" onclick="evV175TimelineFilter('paylater',this)">PayLater</button></div><div id="evUnifiedTimeline" class="ev-timeline"></div>`;const first=tab.querySelector(':scope > .card');if(first&&first.nextSibling)tab.insertBefore(el,first.nextSibling);else tab.appendChild(el)}
+  window.evV175TimelineFilter=function(t,btn){timelineType=t;document.querySelectorAll('.ev-timeline-filter').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');renderUnifiedTimeline(true)};
+  function timelineEntries(){let rows=[];arr('penjualan').forEach(x=>rows.push({type:'sale',date:x.tanggal,title:x.barang||'Penjualan',meta:`${Number(x.qty||0)} pcs${x.resi?' · Resi '+x.resi:''}${x.orderId?' · Order '+x.orderId:''}`,value:money(x.nominal),cls:'sale'}));arr('pengeluaran').forEach(x=>rows.push({type:'expense',date:x.tanggal,title:x.keterangan||'Pengeluaran',meta:'Pengeluaran bisnis',value:'− '+money(x.nominal),cls:'expense'}));arr('paylater').forEach(x=>rows.push({type:'paylater',date:x.tanggal,title:x.keterangan||'PayLater',meta:String(x.jenis||'').toUpperCase()+(x.jatuhTempo?' · Jatuh tempo '+x.jatuhTempo:''),value:(x.jenis==='bayar'?'− ':'+ ')+money(x.nominal),cls:'paylater'}));arr('pesanan').forEach(x=>rows.push({type:'restock',date:x.tanggal,title:x.target==='LOGISTIK_BOTOL'?'Pesanan Botol':x.target==='LOGISTIK_BOX'?'Pesanan Box':'Restock '+x.target,meta:'Antrean pemesanan · '+Number(x.qty||0)+' pcs',value:Number(x.qty||0)+' pcs',cls:'restock'}));return rows.sort((a,b)=>new Date(b.date)-new Date(a.date))}
+  function renderUnifiedTimeline(force=false){const out=document.getElementById('evUnifiedTimeline');if(!out)return;const mode=document.getElementById('modeRiwayat')?.value||'harian',tgl=document.getElementById('tanggalRiwayat')?.value||todayKey(),month=String(tgl).slice(0,7),q=String(document.getElementById('cariRiwayatResi')?.value||'').toLowerCase().trim();let rows=timelineEntries().filter(x=>mode==='harian'?dkey(x.date)===tgl:dkey(x.date).slice(0,7)===month).filter(x=>timelineType==='all'||x.type===timelineType).filter(x=>!q||(x.title+' '+x.meta+' '+x.value).toLowerCase().includes(q)).slice(0,80);const sig=timelineType+'|'+mode+'|'+tgl+'|'+q+'|'+rows.map(x=>x.date+x.title+x.value).join('~');if(!force&&sig===lastTimelineSig)return;lastTimelineSig=sig;out.innerHTML=rows.length?rows.map(x=>`<div class="ev-timeline-item ${x.cls}"><div class="ev-timeline-top"><div class="ev-timeline-title">${esc(x.title)}</div><div class="ev-timeline-time">${new Date(x.date).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div><div class="ev-timeline-meta">${esc(x.meta)}</div><div class="ev-timeline-value" style="color:${x.type==='expense'?'var(--danger)':x.type==='paylater'?'var(--warning)':x.type==='restock'?'#8b5cf6':'var(--success)'}">${esc(x.value)}</div></div>`).join(''):'<div class="ev-timeline-empty">Belum ada aktivitas pada filter ini.</div>'}
+
+  /* ----- 7. Product Performance ----- */
+  function ensureProductModal(){if(document.getElementById('evProductPerformance'))return;const el=document.createElement('div');el.id='evProductPerformance';el.className='ev-v175-overlay';el.innerHTML=`<div class="ev-v175-modal"><div class="ev-v175-modal-head"><div class="ev-v175-modal-title"><i class="fa-solid fa-chart-simple"></i> Product Performance</div><button class="ev-v175-close" onclick="evV175CloseProduct()">✕</button></div><div id="evProductPerformanceBody" class="ev-v175-modal-body"></div></div>`;document.body.appendChild(el);el.addEventListener('click',e=>{if(e.target===el)window.evV175CloseProduct()})}
+  function decorateProducts(){document.querySelectorAll('#listBarang .item-barang').forEach(card=>{if(card.querySelector('.ev-prod-insight-btn'))return;const name=card.querySelector('.item-info>b')?.textContent?.trim();if(!name)return;const b=document.createElement('button');b.type='button';b.className='ev-prod-insight-btn';b.title='Lihat performa';b.innerHTML='<i class="fa-solid fa-chart-line"></i>';b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();window.evV175OpenProduct(name)});card.appendChild(b)})}
+  window.evV175OpenProduct=function(name){ensureProductModal();const product=arr('barang').find(x=>String(x.nama||'')===String(name));if(!product)return;const now=new Date(),start=new Date(now);start.setDate(start.getDate()-30);const sales=arr('penjualan').filter(x=>String(x.barang||'')===String(name)&&new Date(x.tanggal)>=start);const qty=sales.reduce((n,x)=>n+Number(x.qty||0),0),omzet=sales.reduce((n,x)=>n+Number(x.nominal||0),0),rate=qty/30,stok=Math.max(0,Number(product.stok)||0),days=rate>0?Math.ceil(stok/rate):null;const totalMonth=arr('penjualan').filter(x=>new Date(x.tanggal)>=start).reduce((n,x)=>n+Number(x.qty||0),0),share=totalMonth?qty/totalMonth*100:0;const body=document.getElementById('evProductPerformanceBody');if(body)body.innerHTML=`<div class="ev-prod-name">${esc(name)}</div><div class="ev-prod-sub">Analisis berdasarkan 30 hari terakhir</div><div class="ev-prod-kpis"><div class="ev-prod-kpi"><span>STOK SEKARANG</span><b>${stok} pcs</b></div><div class="ev-prod-kpi"><span>TERJUAL 30 HARI</span><b>${qty} pcs</b></div><div class="ev-prod-kpi"><span>OMZET PRODUK</span><b style="color:var(--success)">${money(omzet)}</b></div><div class="ev-prod-kpi"><span>RATA-RATA / HARI</span><b>${rate.toFixed(1)} pcs</b></div><div class="ev-prod-kpi"><span>ESTIMASI HABIS</span><b style="color:${days!==null&&days<=7?'var(--danger)':'var(--primary)'}">${days===null?'Belum terukur':days+' hari'}</b></div><div class="ev-prod-kpi"><span>SHARE PENJUALAN</span><b>${share.toFixed(1)}%</b></div></div><div class="ev-prod-progress"><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted)"><span>Kontribusi ke total pcs</span><b>${share.toFixed(1)}%</b></div><div class="ev-prod-progress-bar"><span style="width:${Math.min(100,share)}%"></span></div></div>`;document.getElementById('evProductPerformance')?.classList.add('show')};
+  window.evV175CloseProduct=function(){document.getElementById('evProductPerformance')?.classList.remove('show')};
+
+  /* ----- 10. Focus Kasir ----- */
+  function ensureFocusKasir(){const tab=document.getElementById('tab-kasir');if(!tab||document.getElementById('evKasirFocusBar'))return;const el=document.createElement('div');el.id='evKasirFocusBar';el.innerHTML=`<div class="ev-focus-copy"><b><i class="fa-solid fa-crosshairs"></i> Mode Fokus Kasir</b><span>Sembunyikan menu non-transaksi saat sedang jualan</span></div><button id="evFocusKasirBtn" class="ev-focus-toggle" onclick="evV175ToggleFocusKasir()">Aktifkan</button>`;const tools=document.getElementById('kasirToolsResi');if(tools&&tools.nextSibling)tab.insertBefore(el,tools.nextSibling);else tab.insertBefore(el,tab.firstChild);const saved=localStorage.getItem('evora_focus_kasir')==='true';if(saved){tab.classList.add('ev-focus-active');document.getElementById('evFocusKasirBtn')?.classList.add('active');document.getElementById('evFocusKasirBtn').textContent='Mode Fokus Aktif'}}
+  window.evV175ToggleFocusKasir=function(){const tab=document.getElementById('tab-kasir'),btn=document.getElementById('evFocusKasirBtn');if(!tab)return;const on=!tab.classList.contains('ev-focus-active');tab.classList.toggle('ev-focus-active',on);btn?.classList.toggle('active',on);if(btn)btn.textContent=on?'Mode Fokus Aktif':'Aktifkan';localStorage.setItem('evora_focus_kasir',String(on));window.scrollTo({top:0,left:0,behavior:'smooth'})};
+
+  /* ----- 11. Notification Center ----- */
+  function buildNotifications(){const st=stockData(),led=ledger(),active=led.filter(x=>Number(x.remaining||0)>0),late=active.filter(x=>{const d=dueDays(x.ref?.jatuhTempo);return typeof d==='number'&&d<0}),due=active.filter(x=>{const d=dueDays(x.ref?.jatuhTempo);return typeof d==='number'&&d>=0&&d<=3});let rows=[];if(st.critical.length)rows.push({lvl:'danger',icon:'fa-box-open',title:`${st.critical.length} stok kritis`,sub:st.critical.slice(0,4).map(x=>x.nama+' '+Number(x.stok||0)).join(' · '),action:'kasir'});if(st.bot<15||st.box<15)rows.push({lvl:'warn',icon:'fa-boxes-packing',title:'Logistik perlu perhatian',sub:`Botol ${st.bot} · Box ${st.box}`,action:'restock'});if(late.length)rows.push({lvl:'danger',icon:'fa-clock',title:`${late.length} PayLater terlambat`,sub:'Ada tagihan melewati jatuh tempo.',action:'paylater'});if(due.length)rows.push({lvl:'warn',icon:'fa-bell',title:`${due.length} PayLater segera jatuh tempo`,sub:'Jatuh tempo dalam ≤ 3 hari.',action:'paylater'});if(!rows.length)rows.push({lvl:'ok',icon:'fa-circle-check',title:'Semua operasional aman',sub:'Tidak ada notifikasi prioritas saat ini.',action:''});return rows}
+  function ensureNotificationModal(){if(document.getElementById('evNotificationCenter'))return;const el=document.createElement('div');el.id='evNotificationCenter';el.className='ev-v175-overlay';el.innerHTML=`<div class="ev-v175-modal"><div class="ev-v175-modal-head"><div class="ev-v175-modal-title"><i class="fa-solid fa-bell"></i> Notification Center</div><button class="ev-v175-close" onclick="evV175CloseNotifications()">✕</button></div><div class="ev-v175-modal-body"><div id="evNotificationList" class="ev-notif-list"></div></div></div>`;document.body.appendChild(el);el.addEventListener('click',e=>{if(e.target===el)window.evV175CloseNotifications()})}
+  function renderNotificationBadge(){const rows=buildNotifications(),count=rows.filter(x=>x.lvl!=='ok').length,b=document.getElementById('evNotifBadge');if(b){b.textContent=count>9?'9+':count;b.style.display=count?'flex':'none'}}
+  function renderNotificationList(){const out=document.getElementById('evNotificationList');if(!out)return;out.innerHTML=buildNotifications().map(r=>`<div class="ev-notif-row ${r.lvl} ev-v175-click" onclick="evV175NotifAction('${r.action}')"><div class="ev-notif-icon"><i class="fa-solid ${r.icon}"></i></div><div><b>${esc(r.title)}</b><small>${esc(r.sub)}</small></div><span class="ev-notif-go">${r.action?'BUKA':'AMAN'}</span></div>`).join('')}
+  window.evV175OpenNotifications=function(){ensureNotificationModal();renderNotificationList();document.getElementById('evNotificationCenter')?.classList.add('show')};window.evV175CloseNotifications=function(){document.getElementById('evNotificationCenter')?.classList.remove('show')};window.evV175NotifAction=function(a){window.evV175CloseNotifications();if(a==='kasir')go('kasir');else if(a==='restock'){if(typeof shortcutRestock==='function')shortcutRestock()}else if(a==='paylater'){go('laporan');setTimeout(()=>document.querySelector('#tab-laporan .paylater-mobile-fix')?.scrollIntoView({behavior:'smooth',block:'start'}),120)}};
+
+  /* ----- 12. EVORA Insight ----- */
+  function ensureAIInsight(){const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evAIInsight'))return;const el=document.createElement('div');el.id='evAIInsight';el.className='ev-v175-card';el.innerHTML=`<div class="ev-ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ev-ai-copy"><b>EVORA INSIGHT</b><span id="evAIInsightText">Menganalisis data bisnis...</span></div><button class="ev-ai-more" onclick="openEvoraAI()">Lihat Analisis</button>`;const att=document.getElementById('evAttentionCenter'),morning=document.getElementById('evMorningBrief');if(att&&att.nextSibling)home.insertBefore(el,att.nextSibling);else if(morning&&morning.nextSibling)home.insertBefore(el,morning.nextSibling);else home.insertBefore(el,home.firstChild)}
+  function renderAIInsight(){const s=arr('penjualan'),now=new Date();now.setHours(0,0,0,0);const s7=startDaysAgo(6),s14=startDaysAgo(13),last7=s.filter(x=>new Date(x.tanggal)>=s7),prev7=s.filter(x=>new Date(x.tanggal)>=s14&&new Date(x.tanggal)<s7),q7=last7.reduce((n,x)=>n+Number(x.qty||0),0),qp=prev7.reduce((n,x)=>n+Number(x.qty||0),0),tr=pct(q7,qp),top=topProduct(last7),st=stockData();let msg=`Penjualan 7 hari ${tr>=0?'naik':'turun'} ${Math.abs(tr).toFixed(1)}%. `;msg+=top?`${top[0]} paling laris dengan ${top[1]} pcs. `:'Belum ada produk dominan. ';msg+=st.critical.length?`${st.critical.length} varian perlu segera direstock.`:`Stok utama dalam kondisi aman.`;const e=document.getElementById('evAIInsightText');if(e)e.textContent=msg}
+
+  function refreshAll(){ensureHeaderActions();ensureMorningBrief();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderMorningBrief();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.5 PRO';document.title='EVORA Tracker Pro v17.5 - Experience Upgrade'}
+
+  function init(){refreshAll();setTimeout(refreshAll,450);setTimeout(refreshAll,1300);setInterval(refreshAll,2200);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.evV175OpenSearch()}if(e.key==='Escape'){window.evV175CloseSearch();window.evV175CloseNotifications();window.evV175CloseProduct();closeQuick()}});document.addEventListener('click',e=>{if(!e.target.closest('#evQuickFab')&&!e.target.closest('#evQuickActions'))closeQuick()});
+    const riwayat=document.getElementById('tab-riwayat');if(riwayat){riwayat.addEventListener('input',()=>setTimeout(()=>renderUnifiedTimeline(true),20));riwayat.addEventListener('change',()=>setTimeout(()=>renderUnifiedTimeline(true),20))}
+    const list=document.getElementById('listBarang');if(list){new MutationObserver(()=>decorateProducts()).observe(list,{childList:true,subtree:true})}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
 </body>
 </html>
