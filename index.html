@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v17.5 - Experience Upgrade</title>
+  <title>EVORA Tracker Pro v17.5.3 - Mobile Kasir 2 Column</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -1984,6 +1984,53 @@ html, body{
   }
 }
 </style>
+
+<style id="evora-v1752-timeline-header-polish">
+/* EVORA v17.5.2 — compact timeline + unclipped mobile header notification */
+.header-top,
+.ev-header-actions{overflow:visible!important}
+.ev-header-actions{flex:0 1 auto;position:relative;padding:3px 3px 3px 0}
+.ev-head-icon{overflow:visible!important;position:relative!important;isolation:isolate}
+.ev-notif-badge{
+  right:-5px!important;top:-6px!important;z-index:50!important;
+  min-width:19px!important;height:19px!important;padding:0 4px!important;
+  font-size:9px!important;line-height:15px!important;box-sizing:border-box!important;
+  border:2px solid #0f5862!important;box-shadow:0 3px 9px rgba(15,23,42,.28)!important;
+  pointer-events:none
+}
+.ev-header-actions #syncStatus{overflow:visible!important;text-overflow:clip!important;max-width:none!important}
+
+/* Timeline is a quick snapshot, not a second endlessly-long history list. */
+#evUnifiedTimelineCard{overflow:hidden}
+.ev-timeline{padding-left:16px}
+.ev-timeline-item{padding:9px 10px 9px 12px;margin-bottom:7px}
+.ev-timeline-top{align-items:center;gap:8px}
+.ev-timeline-title{font-size:10.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev-timeline-time{font-size:8px;flex:0 0 auto}
+.ev-timeline-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px;min-width:0}
+.ev-timeline-meta{font-size:9px;margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev-timeline-value{font-size:10px;margin:0;white-space:nowrap;flex:0 0 auto}
+.ev-timeline-foot{margin:10px 0 0 -16px;padding:9px 10px 0;border-top:1px dashed var(--ev-line);text-align:center;font-size:8.5px;line-height:1.4;color:var(--text-muted)}
+.ev-timeline-foot i{margin-right:4px;color:var(--primary)}
+
+@media(max-width:700px){
+  .header-top{align-items:center!important;gap:8px!important}
+  .ev-header-actions{gap:6px!important;padding-right:4px!important}
+  .ev-head-icon{width:36px!important;height:36px!important;min-width:36px!important;border-radius:12px!important}
+  .ev-notif-badge{right:-4px!important;top:-5px!important}
+  .ev-header-actions #syncStatus{font-size:8.5px!important;padding:7px 9px!important;white-space:nowrap!important}
+  .ev-timeline-toolbar{gap:5px;margin:9px 0}
+  .ev-timeline-filter{padding:6px 8px!important;font-size:8.5px!important}
+  .ev-timeline-item{padding:9px 9px 9px 11px}
+  .ev-timeline-title{font-size:10px}
+  .ev-timeline-meta{font-size:8.5px}
+  .ev-timeline-value{font-size:9.5px}
+}
+@media(max-width:380px){
+  .ev-header-actions #syncStatus{display:none!important}
+  .ev-head-icon{width:35px!important;height:35px!important;min-width:35px!important}
+}
+</style>
 </head>
 <body>
 <!-- EVORA v16.1 MATCHER FIX: scanner PDF -> match -> stock resolution -> confirmation. No scanner print step added. -->
@@ -2105,7 +2152,7 @@ html, body{
       </div>
     </div>
     
-    <div class="card" style="background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-card) 100%);">
+    <div class="card ev-legacy-today-performance" style="display:none!important; background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-card) 100%);">
       <h3><i class="fa-solid fa-bolt"></i> PERFORMA HARI INI</h3>
       
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:13px; margin-bottom:12px;">
@@ -3480,7 +3527,153 @@ ${replacementRows}
 <div class="line"></div>
 <div class="footer">~ REKAP SELESAI ~<br>EVORA Tracker Pro</div>
 
+<style id="evora-v1753-mobile-kasir-two-column">
+/* EVORA v17.5.3 — mobile cashier: 2 readable product cards side-by-side */
+@media (max-width:620px){
+  #listBarang.grid-barang{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    align-items:stretch!important;
+  }
 
+  #listBarang .item-barang{
+    min-width:0!important;
+    padding:10px!important;
+    gap:8px!important;
+    border-radius:14px!important;
+    overflow:hidden!important;
+  }
+
+  #listBarang .item-barang .item-info{
+    position:relative!important;
+    padding-right:32px!important;
+    gap:4px!important;
+    min-width:0!important;
+  }
+
+  #listBarang .item-barang .item-info > b{
+    font-size:12.5px!important;
+    line-height:1.22!important;
+    font-weight:900!important;
+    letter-spacing:0!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+    min-height:30px!important;
+  }
+
+  #listBarang .item-barang .stok-text{
+    font-size:9.5px!important;
+    line-height:1.25!important;
+    margin-top:1px!important;
+  }
+  #listBarang .item-barang .stok-text b{
+    font-size:16px!important;
+    line-height:1!important;
+  }
+
+  #listBarang .item-barang .item-info > div[style*="font-size:11px"]{
+    font-size:9px!important;
+    line-height:1.3!important;
+    margin-top:1px!important;
+    overflow-wrap:anywhere!important;
+  }
+
+  #listBarang .item-barang .badge-status{
+    width:max-content!important;
+    max-width:100%!important;
+    font-size:7.5px!important;
+    line-height:1!important;
+    padding:4px 6px!important;
+    margin-top:1px!important;
+    letter-spacing:.35px!important;
+  }
+
+  #listBarang .ev-prod-insight-btn{
+    right:8px!important;
+    top:8px!important;
+    width:29px!important;
+    height:29px!important;
+    min-width:29px!important;
+    min-height:29px!important;
+    padding:0!important;
+    font-size:11px!important;
+    border-radius:9px!important;
+  }
+
+  /* Keep the four cashier controls on one compact row on normal phones. */
+  #listBarang .item-barang > div:last-child{
+    display:grid!important;
+    grid-template-columns:38px minmax(52px,1fr) 31px 31px!important;
+    gap:4px!important;
+    align-items:center!important;
+    width:100%!important;
+    margin-top:auto!important;
+  }
+  #listBarang .item-barang > div:last-child select{
+    width:38px!important;
+    min-width:0!important;
+    height:36px!important;
+    min-height:36px!important;
+    padding:3px 1px!important;
+    margin:0!important;
+    font-size:11px!important;
+    border-radius:9px!important;
+  }
+  #listBarang .item-barang > div:last-child button{
+    width:100%!important;
+    min-width:0!important;
+    height:36px!important;
+    min-height:36px!important;
+    padding:5px 3px!important;
+    margin:0!important;
+    font-size:10px!important;
+    border-radius:9px!important;
+  }
+  #listBarang .item-barang > div:last-child button:first-of-type{
+    white-space:nowrap!important;
+    font-size:10.5px!important;
+  }
+  #listBarang .item-barang > div:last-child button[style*="width:40px"]{
+    width:31px!important;
+    min-width:31px!important;
+    padding:0!important;
+    font-size:11px!important;
+  }
+
+  /* Search/manual picker can also stay compact without becoming unreadable. */
+  #searchVariantList{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+    max-height:55vh!important;
+  }
+  #searchVariantList .search-variant-row{padding:9px!important}
+  #searchVariantList .search-variant-name{font-size:11px!important;line-height:1.25!important}
+  #searchVariantList .search-variant-stock{font-size:9px!important}
+  #searchVariantList .search-variant-qty,#searchVariantList .search-variant-buy{min-height:34px!important;font-size:10px!important}
+}
+
+/* Extra narrow phones: preserve 2 cards across, but put actions into a clean 2×2 control grid. */
+@media (max-width:355px){
+  #listBarang.grid-barang{gap:6px!important}
+  #listBarang .item-barang{padding:8px!important}
+  #listBarang .item-barang .item-info{padding-right:28px!important}
+  #listBarang .item-barang .item-info > b{font-size:11.5px!important}
+  #listBarang .ev-prod-insight-btn{width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;right:6px!important;top:6px!important}
+  #listBarang .item-barang > div:last-child{
+    grid-template-columns:38px minmax(0,1fr)!important;
+    grid-auto-rows:34px!important;
+  }
+  #listBarang .item-barang > div:last-child select,
+  #listBarang .item-barang > div:last-child button{
+    height:34px!important;min-height:34px!important;width:100%!important;min-width:0!important;
+  }
+  #listBarang .item-barang > div:last-child button[style*="width:40px"]{
+    width:100%!important;min-width:0!important;
+  }
+}
+</style>
 
 </body>
 </html>`);
@@ -9449,7 +9642,7 @@ document.addEventListener("visibilitychange",()=>{
       wrap.innerHTML=`<div class="ev-pro-hero"><div class="ev-pro-kicker">EVORA BUSINESS COMMAND CENTER</div><div class="ev-pro-title">Ringkasan bisnis hari ini</div><div class="ev-pro-sub">Angka utama dan tindakan penting dalam satu layar.</div><div class="ev-pro-metrics"><div class="ev-pro-metric"><span>Omzet</span><b id="proOmzet">Rp 0</b></div><div class="ev-pro-metric"><span>Terjual</span><b id="proQty">0 pcs</b></div><div class="ev-pro-metric"><span>Siap Jual</span><b id="proSellable">0 pcs</b></div></div><div style="margin-top:10px;font-size:9px;opacity:.7">Terlaris: <b id="proTop">Belum ada</b></div></div><div class="ev-pro-side"><div class="ev-pro-action" onclick="shortcutKasir()"><i class="fa-solid fa-cart-plus"></i><div><b>Buka Kasir</b><small>Transaksi & PDF resi</small></div></div><div class="ev-pro-action" onclick="openSerahEkspedisiScanner()"><i class="fa-solid fa-qrcode"></i><div><b>Scan Resi</b><small>Cek resi duplikat</small></div></div></div>`;
       home.insertBefore(wrap,home.firstChild);
     }
-    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.4.6 PRO';document.body.appendChild(v);}
+    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.5.3 PRO';document.body.appendChild(v);}
     document.title='EVORA Tracker Pro v17.4.6 - Scroll & Tab Top Fixed';
     syncPro();
     setInterval(syncPro,1200);
@@ -9530,10 +9723,11 @@ body.dark-theme .ev-attention{background:linear-gradient(145deg,#1e293b,#17212f)
    count.style.background=rows[0][0]==='ok'?'#ecfdf5':'#fff7ed';count.style.color=rows[0][0]==='ok'?'#047857':'#c2410c';
    list.innerHTML=rows.map(r=>'<div class="ev-attention-row '+r[0]+'"><div class="ev-attention-icon"><i class="fa-solid '+r[1]+'"></i></div><div class="ev-attention-main"><b>'+r[2]+'</b><span>'+r[3]+'</span></div>'+(r[5]?'<button class="ev-attention-go" onclick="'+r[5]+'">'+r[4]+'</button>':'<span style="font-size:9px;font-weight:900;color:var(--success)">AMAN</span>')+'</div>').join('');
  }
- function init(){document.title='EVORA Tracker Pro v17.4.6 - Scroll & Tab Top Fixed';const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.4.6 PRO';refresh();setInterval(refresh,1500)}
+ function init(){refresh();setInterval(refresh,1500)}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
 
 <style id="evora-v175-experience-style">
 /* =========================================================
@@ -9661,7 +9855,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 <script id="evora-v175-experience-script">
 (function(){
   'use strict';
-  const V='17.5';
+  const V='17.5.3';
   let timelineType='all';
   let chartPeriod=7;
   let chartMetric='omzet';
@@ -9706,23 +9900,9 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
     if(sync)group.appendChild(sync);head.appendChild(group);
   }
 
-  /* ----- 1. Morning Brief ----- */
-  function ensureMorningBrief(){
-    const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evMorningBrief'))return;
-    const el=document.createElement('div');el.id='evMorningBrief';el.className='ev-v175-card';
-    el.innerHTML=`<div class="ev-morning-kicker"><i class="fa-solid fa-sun"></i> DAILY BUSINESS BRIEF</div><div id="evMorningText" class="ev-morning-text">Membaca kondisi bisnis hari ini...</div><div id="evMorningMeta" class="ev-morning-meta"></div>`;
-    const pro=document.getElementById('evoraProCommand');
-    if(pro&&pro.nextSibling)home.insertBefore(el,pro.nextSibling);else home.insertBefore(el,home.firstChild);
-  }
-  function renderMorningBrief(){
-    const s=arr('penjualan'),e=arr('pengeluaran'),key=todayKey();
-    const sales=s.filter(x=>dkey(x.tanggal)===key),exp=e.filter(x=>dkey(x.tanggal)===key);
-    const qty=sales.reduce((n,x)=>n+Number(x.qty||0),0),omzet=sales.reduce((n,x)=>n+Number(x.nominal||0),0),keluar=exp.reduce((n,x)=>n+Number(x.nominal||0),0);
-    const yd=new Date();yd.setDate(yd.getDate()-1);const ys=s.filter(x=>dkey(x.tanggal)===dkey(yd));const yomzet=ys.reduce((n,x)=>n+Number(x.nominal||0),0);const trend=pct(omzet,yomzet);
-    const st=stockData(),top=topProduct(sales);const t=document.getElementById('evMorningText'),m=document.getElementById('evMorningMeta');
-    if(t)t.innerHTML=`Hari ini <span style="color:var(--primary)">${qty} pcs</span> terjual · omzet <span style="color:var(--success)">${money(omzet)}</span>${st.critical.length?` · <span style="color:var(--danger)">${st.critical.length} varian perlu restock</span>`:' · stok utama aman'}.`;
-    if(m)m.innerHTML=`<span class="ev-morning-chip">${trend>=0?'↗':'↘'} ${trend>=0?'+':''}${trend.toFixed(1)}% vs kemarin</span><span class="ev-morning-chip">Laba hari ini ${money(omzet-keluar)}</span><span class="ev-morning-chip">Terlaris ${top?esc(top[0])+' · '+top[1]+' pcs':'Belum ada'}</span>`;
-  }
+  /* ----- 1. Morning Brief removed in v17.5.1 ----- */
+  function ensureMorningBrief(){document.getElementById('evMorningBrief')?.remove()}
+  function renderMorningBrief(){}
 
   /* ----- 2. Premium Business Chart ----- */
   function ensureBusinessChart(){
@@ -9782,7 +9962,19 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function ensureUnifiedTimeline(){const tab=document.getElementById('tab-riwayat');if(!tab||document.getElementById('evUnifiedTimelineCard'))return;const el=document.createElement('div');el.id='evUnifiedTimelineCard';el.className='ev-v175-card';el.innerHTML=`<div class="ev-chart-title"><i class="fa-solid fa-timeline"></i> TIMELINE AKTIVITAS</div><div class="ev-chart-sub">Penjualan, pengeluaran, restock, dan PayLater dalam satu urutan waktu</div><div class="ev-timeline-toolbar"><button class="ev-timeline-filter active" data-t="all" onclick="evV175TimelineFilter('all',this)">Semua</button><button class="ev-timeline-filter" data-t="sale" onclick="evV175TimelineFilter('sale',this)">Penjualan</button><button class="ev-timeline-filter" data-t="expense" onclick="evV175TimelineFilter('expense',this)">Pengeluaran</button><button class="ev-timeline-filter" data-t="restock" onclick="evV175TimelineFilter('restock',this)">Restock</button><button class="ev-timeline-filter" data-t="paylater" onclick="evV175TimelineFilter('paylater',this)">PayLater</button></div><div id="evUnifiedTimeline" class="ev-timeline"></div>`;const first=tab.querySelector(':scope > .card');if(first&&first.nextSibling)tab.insertBefore(el,first.nextSibling);else tab.appendChild(el)}
   window.evV175TimelineFilter=function(t,btn){timelineType=t;document.querySelectorAll('.ev-timeline-filter').forEach(x=>x.classList.remove('active'));btn?.classList.add('active');renderUnifiedTimeline(true)};
   function timelineEntries(){let rows=[];arr('penjualan').forEach(x=>rows.push({type:'sale',date:x.tanggal,title:x.barang||'Penjualan',meta:`${Number(x.qty||0)} pcs${x.resi?' · Resi '+x.resi:''}${x.orderId?' · Order '+x.orderId:''}`,value:money(x.nominal),cls:'sale'}));arr('pengeluaran').forEach(x=>rows.push({type:'expense',date:x.tanggal,title:x.keterangan||'Pengeluaran',meta:'Pengeluaran bisnis',value:'− '+money(x.nominal),cls:'expense'}));arr('paylater').forEach(x=>rows.push({type:'paylater',date:x.tanggal,title:x.keterangan||'PayLater',meta:String(x.jenis||'').toUpperCase()+(x.jatuhTempo?' · Jatuh tempo '+x.jatuhTempo:''),value:(x.jenis==='bayar'?'− ':'+ ')+money(x.nominal),cls:'paylater'}));arr('pesanan').forEach(x=>rows.push({type:'restock',date:x.tanggal,title:x.target==='LOGISTIK_BOTOL'?'Pesanan Botol':x.target==='LOGISTIK_BOX'?'Pesanan Box':'Restock '+x.target,meta:'Antrean pemesanan · '+Number(x.qty||0)+' pcs',value:Number(x.qty||0)+' pcs',cls:'restock'}));return rows.sort((a,b)=>new Date(b.date)-new Date(a.date))}
-  function renderUnifiedTimeline(force=false){const out=document.getElementById('evUnifiedTimeline');if(!out)return;const mode=document.getElementById('modeRiwayat')?.value||'harian',tgl=document.getElementById('tanggalRiwayat')?.value||todayKey(),month=String(tgl).slice(0,7),q=String(document.getElementById('cariRiwayatResi')?.value||'').toLowerCase().trim();let rows=timelineEntries().filter(x=>mode==='harian'?dkey(x.date)===tgl:dkey(x.date).slice(0,7)===month).filter(x=>timelineType==='all'||x.type===timelineType).filter(x=>!q||(x.title+' '+x.meta+' '+x.value).toLowerCase().includes(q)).slice(0,80);const sig=timelineType+'|'+mode+'|'+tgl+'|'+q+'|'+rows.map(x=>x.date+x.title+x.value).join('~');if(!force&&sig===lastTimelineSig)return;lastTimelineSig=sig;out.innerHTML=rows.length?rows.map(x=>`<div class="ev-timeline-item ${x.cls}"><div class="ev-timeline-top"><div class="ev-timeline-title">${esc(x.title)}</div><div class="ev-timeline-time">${new Date(x.date).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div><div class="ev-timeline-meta">${esc(x.meta)}</div><div class="ev-timeline-value" style="color:${x.type==='expense'?'var(--danger)':x.type==='paylater'?'var(--warning)':x.type==='restock'?'#8b5cf6':'var(--success)'}">${esc(x.value)}</div></div>`).join(''):'<div class="ev-timeline-empty">Belum ada aktivitas pada filter ini.</div>'}
+  function renderUnifiedTimeline(force=false){
+    const out=document.getElementById('evUnifiedTimeline');if(!out)return;
+    const mode=document.getElementById('modeRiwayat')?.value||'harian',tgl=document.getElementById('tanggalRiwayat')?.value||todayKey(),month=String(tgl).slice(0,7),q=String(document.getElementById('cariRiwayatResi')?.value||'').toLowerCase().trim();
+    const allRows=timelineEntries().filter(x=>mode==='harian'?dkey(x.date)===tgl:dkey(x.date).slice(0,7)===month).filter(x=>timelineType==='all'||x.type===timelineType).filter(x=>!q||(x.title+' '+x.meta+' '+x.value).toLowerCase().includes(q));
+    const limit=window.matchMedia('(max-width:700px)').matches?6:10;
+    const rows=allRows.slice(0,limit);
+    const sig=timelineType+'|'+mode+'|'+tgl+'|'+q+'|'+limit+'|'+allRows.length+'|'+rows.map(x=>x.date+x.title+x.value).join('~');if(!force&&sig===lastTimelineSig)return;lastTimelineSig=sig;
+    if(!rows.length){out.innerHTML='<div class="ev-timeline-empty">Belum ada aktivitas pada filter ini.</div>';return;}
+    const items=rows.map(x=>`<div class="ev-timeline-item ${x.cls}"><div class="ev-timeline-top"><div class="ev-timeline-title">${esc(x.title)}</div><div class="ev-timeline-time">${new Date(x.date).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div><div class="ev-timeline-bottom"><div class="ev-timeline-meta">${esc(x.meta)}</div><div class="ev-timeline-value" style="color:${x.type==='expense'?'var(--danger)':x.type==='paylater'?'var(--warning)':x.type==='restock'?'#8b5cf6':'var(--success)'}">${esc(x.value)}</div></div></div>`).join('');
+    const more=Math.max(0,allRows.length-rows.length);
+    const foot=`<div class="ev-timeline-foot"><i class="fa-solid fa-clock-rotate-left"></i> ${rows.length} aktivitas terbaru${more?` · ${more} lainnya tetap tersedia di riwayat lengkap`:''}</div>`;
+    out.innerHTML=items+foot;
+  }
 
   /* ----- 7. Product Performance ----- */
   function ensureProductModal(){if(document.getElementById('evProductPerformance'))return;const el=document.createElement('div');el.id='evProductPerformance';el.className='ev-v175-overlay';el.innerHTML=`<div class="ev-v175-modal"><div class="ev-v175-modal-head"><div class="ev-v175-modal-title"><i class="fa-solid fa-chart-simple"></i> Product Performance</div><button class="ev-v175-close" onclick="evV175CloseProduct()">✕</button></div><div id="evProductPerformanceBody" class="ev-v175-modal-body"></div></div>`;document.body.appendChild(el);el.addEventListener('click',e=>{if(e.target===el)window.evV175CloseProduct()})}
@@ -9795,17 +9987,56 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   window.evV175ToggleFocusKasir=function(){const tab=document.getElementById('tab-kasir'),btn=document.getElementById('evFocusKasirBtn');if(!tab)return;const on=!tab.classList.contains('ev-focus-active');tab.classList.toggle('ev-focus-active',on);btn?.classList.toggle('active',on);if(btn)btn.textContent=on?'Mode Fokus Aktif':'Aktifkan';localStorage.setItem('evora_focus_kasir',String(on));window.scrollTo({top:0,left:0,behavior:'smooth'})};
 
   /* ----- 11. Notification Center ----- */
-  function buildNotifications(){const st=stockData(),led=ledger(),active=led.filter(x=>Number(x.remaining||0)>0),late=active.filter(x=>{const d=dueDays(x.ref?.jatuhTempo);return typeof d==='number'&&d<0}),due=active.filter(x=>{const d=dueDays(x.ref?.jatuhTempo);return typeof d==='number'&&d>=0&&d<=3});let rows=[];if(st.critical.length)rows.push({lvl:'danger',icon:'fa-box-open',title:`${st.critical.length} stok kritis`,sub:st.critical.slice(0,4).map(x=>x.nama+' '+Number(x.stok||0)).join(' · '),action:'kasir'});if(st.bot<15||st.box<15)rows.push({lvl:'warn',icon:'fa-boxes-packing',title:'Logistik perlu perhatian',sub:`Botol ${st.bot} · Box ${st.box}`,action:'restock'});if(late.length)rows.push({lvl:'danger',icon:'fa-clock',title:`${late.length} PayLater terlambat`,sub:'Ada tagihan melewati jatuh tempo.',action:'paylater'});if(due.length)rows.push({lvl:'warn',icon:'fa-bell',title:`${due.length} PayLater segera jatuh tempo`,sub:'Jatuh tempo dalam ≤ 3 hari.',action:'paylater'});if(!rows.length)rows.push({lvl:'ok',icon:'fa-circle-check',title:'Semua operasional aman',sub:'Tidak ada notifikasi prioritas saat ini.',action:''});return rows}
+  const EV_NOTIF_READ_KEY='evora_v1751_read_notifications';
+  function getReadNotifications(){
+    let data={};
+    try{data=JSON.parse(localStorage.getItem(EV_NOTIF_READ_KEY)||'{}')||{}}catch(e){data={}}
+    const cutoff=Date.now()-(14*86400000);
+    Object.keys(data).forEach(k=>{if(Number(data[k]||0)<cutoff)delete data[k]});
+    try{localStorage.setItem(EV_NOTIF_READ_KEY,JSON.stringify(data))}catch(e){}
+    return data;
+  }
+  function markNotificationRead(id){
+    if(!id||id==='safe'||id==='all-read')return;
+    const data=getReadNotifications();data[id]=Date.now();
+    try{localStorage.setItem(EV_NOTIF_READ_KEY,JSON.stringify(data))}catch(e){}
+  }
+  function rawNotifications(){
+    const st=stockData(),led=ledger(),active=led.filter(x=>Number(x.remaining||0)>0),late=active.filter(x=>{const d=dueDays(x.ref?.jatuhTempo);return typeof d==='number'&&d<0}),due=active.filter(x=>{const d=dueDays(x.ref?.jatuhTempo);return typeof d==='number'&&d>=0&&d<=3});
+    const day=todayKey();let rows=[];
+    if(st.critical.length){const sig=st.critical.map(x=>`${x.nama}:${Number(x.stok||0)}`).sort().join(',');rows.push({id:`${day}|stock|${sig}`,lvl:'danger',icon:'fa-box-open',title:`${st.critical.length} stok kritis`,sub:st.critical.slice(0,4).map(x=>x.nama+' '+Number(x.stok||0)).join(' · '),action:'kasir'})}
+    if(st.bot<15||st.box<15)rows.push({id:`${day}|logistics|${st.bot}|${st.box}`,lvl:'warn',icon:'fa-boxes-packing',title:'Logistik perlu perhatian',sub:`Botol ${st.bot} · Box ${st.box}`,action:'restock'});
+    if(late.length){const sig=late.map(x=>String(x.ref?.id||x.ref?.keterangan||'')+':'+Number(x.remaining||0)).sort().join(',');rows.push({id:`${day}|late|${sig}`,lvl:'danger',icon:'fa-clock',title:`${late.length} PayLater terlambat`,sub:'Ada tagihan melewati jatuh tempo.',action:'paylater'})}
+    if(due.length){const sig=due.map(x=>String(x.ref?.id||x.ref?.keterangan||'')+':'+Number(x.remaining||0)).sort().join(',');rows.push({id:`${day}|due|${sig}`,lvl:'warn',icon:'fa-bell',title:`${due.length} PayLater segera jatuh tempo`,sub:'Jatuh tempo dalam ≤ 3 hari.',action:'paylater'})}
+    return rows;
+  }
+  function buildNotifications(){
+    const all=rawNotifications();
+    if(!all.length)return[{id:'safe',lvl:'ok',icon:'fa-circle-check',title:'Semua operasional aman',sub:'Tidak ada notifikasi prioritas saat ini.',action:''}];
+    const read=getReadNotifications(),unread=all.filter(r=>!read[r.id]);
+    if(!unread.length)return[{id:'all-read',lvl:'ok',icon:'fa-check-double',title:'Semua notifikasi sudah dibaca',sub:'Tidak ada notifikasi baru yang perlu dibuka.',action:''}];
+    return unread;
+  }
   function ensureNotificationModal(){if(document.getElementById('evNotificationCenter'))return;const el=document.createElement('div');el.id='evNotificationCenter';el.className='ev-v175-overlay';el.innerHTML=`<div class="ev-v175-modal"><div class="ev-v175-modal-head"><div class="ev-v175-modal-title"><i class="fa-solid fa-bell"></i> Notification Center</div><button class="ev-v175-close" onclick="evV175CloseNotifications()">✕</button></div><div class="ev-v175-modal-body"><div id="evNotificationList" class="ev-notif-list"></div></div></div>`;document.body.appendChild(el);el.addEventListener('click',e=>{if(e.target===el)window.evV175CloseNotifications()})}
   function renderNotificationBadge(){const rows=buildNotifications(),count=rows.filter(x=>x.lvl!=='ok').length,b=document.getElementById('evNotifBadge');if(b){b.textContent=count>9?'9+':count;b.style.display=count?'flex':'none'}}
-  function renderNotificationList(){const out=document.getElementById('evNotificationList');if(!out)return;out.innerHTML=buildNotifications().map(r=>`<div class="ev-notif-row ${r.lvl} ev-v175-click" onclick="evV175NotifAction('${r.action}')"><div class="ev-notif-icon"><i class="fa-solid ${r.icon}"></i></div><div><b>${esc(r.title)}</b><small>${esc(r.sub)}</small></div><span class="ev-notif-go">${r.action?'BUKA':'AMAN'}</span></div>`).join('')}
-  window.evV175OpenNotifications=function(){ensureNotificationModal();renderNotificationList();document.getElementById('evNotificationCenter')?.classList.add('show')};window.evV175CloseNotifications=function(){document.getElementById('evNotificationCenter')?.classList.remove('show')};window.evV175NotifAction=function(a){window.evV175CloseNotifications();if(a==='kasir')go('kasir');else if(a==='restock'){if(typeof shortcutRestock==='function')shortcutRestock()}else if(a==='paylater'){go('laporan');setTimeout(()=>document.querySelector('#tab-laporan .paylater-mobile-fix')?.scrollIntoView({behavior:'smooth',block:'start'}),120)}};
+  function renderNotificationList(){const out=document.getElementById('evNotificationList');if(!out)return;const rows=buildNotifications();out.innerHTML=rows.map((r,i)=>`<div class="ev-notif-row ${r.lvl} ev-v175-click" onclick="evV175NotifAction(${i})"><div class="ev-notif-icon"><i class="fa-solid ${r.icon}"></i></div><div><b>${esc(r.title)}</b><small>${esc(r.sub)}</small></div><span class="ev-notif-go">${r.action?'BUKA':(r.id==='all-read'?'DIBACA':'AMAN')}</span></div>`).join('')}
+  window.evV175OpenNotifications=function(){ensureNotificationModal();renderNotificationList();renderNotificationBadge();document.getElementById('evNotificationCenter')?.classList.add('show')};
+  window.evV175CloseNotifications=function(){document.getElementById('evNotificationCenter')?.classList.remove('show')};
+  window.evV175NotifAction=function(index){
+    const rows=buildNotifications(),r=rows[Number(index)];if(!r)return;
+    markNotificationRead(r.id);renderNotificationList();renderNotificationBadge();
+    if(!r.action)return;
+    window.evV175CloseNotifications();
+    if(r.action==='kasir')go('kasir');
+    else if(r.action==='restock'){if(typeof shortcutRestock==='function')shortcutRestock()}
+    else if(r.action==='paylater'){go('laporan');setTimeout(()=>document.querySelector('#tab-laporan .paylater-mobile-fix')?.scrollIntoView({behavior:'smooth',block:'start'}),120)}
+  };
 
   /* ----- 12. EVORA Insight ----- */
   function ensureAIInsight(){const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evAIInsight'))return;const el=document.createElement('div');el.id='evAIInsight';el.className='ev-v175-card';el.innerHTML=`<div class="ev-ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ev-ai-copy"><b>EVORA INSIGHT</b><span id="evAIInsightText">Menganalisis data bisnis...</span></div><button class="ev-ai-more" onclick="openEvoraAI()">Lihat Analisis</button>`;const att=document.getElementById('evAttentionCenter'),morning=document.getElementById('evMorningBrief');if(att&&att.nextSibling)home.insertBefore(el,att.nextSibling);else if(morning&&morning.nextSibling)home.insertBefore(el,morning.nextSibling);else home.insertBefore(el,home.firstChild)}
   function renderAIInsight(){const s=arr('penjualan'),now=new Date();now.setHours(0,0,0,0);const s7=startDaysAgo(6),s14=startDaysAgo(13),last7=s.filter(x=>new Date(x.tanggal)>=s7),prev7=s.filter(x=>new Date(x.tanggal)>=s14&&new Date(x.tanggal)<s7),q7=last7.reduce((n,x)=>n+Number(x.qty||0),0),qp=prev7.reduce((n,x)=>n+Number(x.qty||0),0),tr=pct(q7,qp),top=topProduct(last7),st=stockData();let msg=`Penjualan 7 hari ${tr>=0?'naik':'turun'} ${Math.abs(tr).toFixed(1)}%. `;msg+=top?`${top[0]} paling laris dengan ${top[1]} pcs. `:'Belum ada produk dominan. ';msg+=st.critical.length?`${st.critical.length} varian perlu segera direstock.`:`Stok utama dalam kondisi aman.`;const e=document.getElementById('evAIInsightText');if(e)e.textContent=msg}
 
-  function refreshAll(){ensureHeaderActions();ensureMorningBrief();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderMorningBrief();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.5 PRO';document.title='EVORA Tracker Pro v17.5 - Experience Upgrade'}
+  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.5.3 PRO';document.title='EVORA Tracker Pro v17.5.3 - Mobile Kasir 2 Column'}
 
   function init(){refreshAll();setTimeout(refreshAll,450);setTimeout(refreshAll,1300);setInterval(refreshAll,2200);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.evV175OpenSearch()}if(e.key==='Escape'){window.evV175CloseSearch();window.evV175CloseNotifications();window.evV175CloseProduct();closeQuick()}});document.addEventListener('click',e=>{if(!e.target.closest('#evQuickFab')&&!e.target.closest('#evQuickActions'))closeQuick()});
     const riwayat=document.getElementById('tab-riwayat');if(riwayat){riwayat.addEventListener('input',()=>setTimeout(()=>renderUnifiedTimeline(true),20));riwayat.addEventListener('change',()=>setTimeout(()=>renderUnifiedTimeline(true),20))}
@@ -9814,6 +10045,106 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
+<style id="evora-v1751-kasir-readable-fix">
+/* EVORA v17.5.1 — Kasir readable on phone + desktop */
+.ev-legacy-today-performance{display:none!important}
+
+#tab-kasir #panelKasir{overflow:visible!important}
+#tab-kasir #panelKasir > h3{font-size:14px!important;letter-spacing:.2px!important;margin-bottom:12px!important}
+#panelKasir .search-container{margin-bottom:10px!important}
+#panelKasir .search-container input{
+  min-height:46px!important;font-size:14px!important;font-weight:700!important;
+  padding:11px 42px 11px 13px!important;border-radius:12px!important;
+}
+
+#listBarang.grid-barang{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(270px,1fr))!important;
+  gap:12px!important;
+  align-items:stretch!important;
+}
+#listBarang .item-barang{
+  min-width:0!important;padding:14px!important;border-radius:15px!important;
+  display:flex!important;flex-direction:column!important;justify-content:space-between!important;gap:12px!important;
+  overflow:visible!important;
+}
+#listBarang .item-barang .item-info{
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+  gap:5px!important;padding-right:42px!important;min-width:0!important;width:100%!important;
+}
+#listBarang .item-barang .item-info > b{
+  display:block!important;width:100%!important;font-size:14px!important;line-height:1.28!important;
+  font-weight:900!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  overflow-wrap:anywhere!important;color:var(--text-main)!important;
+}
+#listBarang .item-barang .stok-text{
+  display:block!important;font-size:12px!important;line-height:1.35!important;font-weight:700!important;
+  white-space:normal!important;color:var(--text-muted)!important;
+}
+#listBarang .item-barang .stok-text b{font-size:17px!important;color:var(--text-main)!important}
+#listBarang .item-barang .item-info > div[style*="font-size:11px"]{
+  display:block!important;width:100%!important;margin:2px 0 0!important;font-size:11px!important;
+  line-height:1.45!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+  overflow-wrap:anywhere!important;
+}
+#listBarang .item-barang .badge-status{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  margin-top:2px!important;font-size:9px!important;padding:5px 8px!important;line-height:1!important;
+  white-space:nowrap!important;border-radius:999px!important;
+}
+#listBarang .item-barang > div:last-child{
+  display:grid!important;grid-template-columns:60px minmax(100px,1fr) 42px 42px!important;
+  gap:7px!important;width:100%!important;margin:0!important;align-items:center!important;
+}
+#listBarang .item-barang > div:last-child select{
+  width:60px!important;height:42px!important;min-height:42px!important;margin:0!important;padding:6px 4px!important;
+  font-size:13px!important;font-weight:800!important;border-radius:10px!important;text-align:center!important;text-align-last:center!important;
+}
+#listBarang .item-barang > div:last-child button{
+  width:100%!important;height:42px!important;min-height:42px!important;margin:0!important;padding:7px!important;
+  font-size:13px!important;line-height:1!important;border-radius:10px!important;
+}
+#listBarang .item-barang > div:last-child button:first-of-type{font-weight:900!important;white-space:nowrap!important}
+#listBarang .item-barang > div:last-child button[style*="width:40px"]{width:42px!important;min-width:42px!important}
+#listBarang .ev-prod-insight-btn{
+  right:12px!important;top:12px!important;width:36px!important;height:36px!important;min-height:36px!important;
+  font-size:13px!important;border-radius:10px!important;
+}
+
+#searchVariantList{
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr))!important;gap:9px!important;
+}
+#searchVariantList .search-variant-row{padding:12px!important;border-radius:12px!important;min-width:0!important}
+#searchVariantList .search-variant-name{font-size:13px!important;line-height:1.35!important;white-space:normal!important;overflow-wrap:anywhere!important}
+#searchVariantList .search-variant-stock{font-size:11px!important;line-height:1.4!important}
+#searchVariantList .search-variant-qty,#searchVariantList .search-variant-buy{min-height:38px!important;font-size:12px!important}
+
+@media (max-width:620px){
+  #listBarang.grid-barang{grid-template-columns:1fr!important;gap:10px!important}
+  #listBarang .item-barang{padding:13px!important;gap:11px!important}
+  #listBarang .item-barang .item-info{padding-right:44px!important}
+  #listBarang .item-barang .item-info > b{font-size:15px!important;padding-right:2px!important}
+  #listBarang .item-barang .stok-text{font-size:12px!important}
+  #listBarang .item-barang .stok-text b{font-size:18px!important}
+  #listBarang .item-barang .item-info > div[style*="font-size:11px"]{font-size:11px!important;line-height:1.45!important}
+  #listBarang .item-barang .badge-status{font-size:9px!important;padding:5px 8px!important}
+  #listBarang .item-barang > div:last-child{grid-template-columns:58px minmax(0,1fr) 42px 42px!important;gap:6px!important}
+  #listBarang .item-barang > div:last-child select,
+  #listBarang .item-barang > div:last-child button{height:44px!important;min-height:44px!important;font-size:13px!important}
+  #listBarang .item-barang > div:last-child select{width:58px!important}
+  #listBarang .item-barang > div:last-child button[style*="width:40px"]{width:42px!important;min-width:42px!important}
+  #searchVariantList{grid-template-columns:1fr!important;max-height:55vh!important}
+  #panelKasir .scan-resi-title{font-size:12px!important}
+  #panelKasir .scan-resi-sub{font-size:10px!important;line-height:1.55!important}
+}
+
+@media (min-width:1100px){
+  #listBarang.grid-barang{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))!important;gap:14px!important}
+  #listBarang .item-barang{padding:15px!important}
+  #listBarang .item-barang .item-info > b{font-size:15px!important}
+}
+</style>
 
 </body>
 </html>
