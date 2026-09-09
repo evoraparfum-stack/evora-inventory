@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <title>EVORA Tracker Pro v17.2 - PDF Manual Top + Cancel Resi</title>
+  <title>EVORA Tracker Pro v17.2.1 - Login Numeric + WA Recovery Fix</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -1812,7 +1812,7 @@ body.dark-mode #evoraAICenter label,
 
     <div id="authLoginPanel" style="display:none;">
       <div class="evora-auth-title"><i class="fa-solid fa-lock"></i> Masuk ke EVORA Tracker</div>
-      <input id="authLoginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password" onkeydown="if(event.key==='Enter') loginEvora()">
+      <input id="authLoginPassword" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="current-password" placeholder="Masukkan password" onkeydown="if(event.key==='Enter') loginEvora()">
       <div id="authLoginError" class="evora-auth-error"></div>
       <div class="evora-auth-actions">
         <button type="button" onclick="loginEvora()"><i class="fa-solid fa-right-to-bracket"></i> Masuk</button>
@@ -1841,8 +1841,8 @@ body.dark-mode #evoraAICenter label,
         <div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:10px;">
           No. WA berhasil dikonfirmasi. Sekarang masukkan password baru untuk EVORA.
         </div>
-        <input id="authForgotNewPassword" type="password" autocomplete="new-password" placeholder="Password baru">
-        <input id="authForgotConfirmPassword" type="password" autocomplete="new-password" placeholder="Konfirmasi password baru" style="margin-top:8px;" onkeydown="if(event.key==='Enter') simpanPasswordBaruDariLupa()">
+        <input id="authForgotNewPassword" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" placeholder="Password baru">
+        <input id="authForgotConfirmPassword" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" placeholder="Konfirmasi password baru" style="margin-top:8px;" onkeydown="if(event.key==='Enter') simpanPasswordBaruDariLupa()">
         <div id="authForgotNewError" class="evora-auth-error"></div>
         <div class="evora-auth-actions" style="gap:8px;">
           <button type="button" onclick="simpanPasswordBaruDariLupa()" style="background:var(--success);"><i class="fa-solid fa-floppy-disk"></i> Simpan Password Baru</button>
@@ -2335,8 +2335,8 @@ body.dark-mode #evoraAICenter label,
         <button type="button" onclick="simpanOwnerWhatsapp()" style="margin-top:6px;background:var(--success);box-shadow:none;"><i class="fa-brands fa-whatsapp"></i> Simpan No. WA</button>
       </div>
       <input id="settingPwWaVerifikasi" type="tel" inputmode="numeric" autocomplete="tel" placeholder="Masukkan No. WA untuk verifikasi">
-      <input id="settingPwBaru" type="password" autocomplete="new-password" placeholder="Password baru (minimal 4 karakter)">
-      <input id="settingPwKonfirmasi" type="password" autocomplete="new-password" placeholder="Ulangi password baru">
+      <input id="settingPwBaru" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" placeholder="Password baru (minimal 4 karakter)">
+      <input id="settingPwKonfirmasi" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" placeholder="Ulangi password baru">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button type="button" onclick="gantiPasswordEvora()"><i class="fa-solid fa-key"></i> Ganti Password</button>
         <button type="button" onclick="logoutEvora()" style="background:var(--danger);box-shadow:none;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
@@ -2548,7 +2548,7 @@ let currentAdsCampaign = null;
 let adsCampaignHistory = [];
 const EVORA_DEFAULT_PASSWORD_HASH = "899b9a314067a23557b5db9b87d3e599e2f3200bd69b6cdc6dcf08f8b8e40e2e";
 let authPasswordHash = EVORA_DEFAULT_PASSWORD_HASH;
-let ownerWhatsapp = "";
+let ownerWhatsapp = normalizeWhatsapp(localStorage.getItem("evora_owner_whatsapp") || "");
 let evoraAuthReady = false;
 function getActiveCampaignId(){
   return (isAdsActive && currentAdsCampaign && currentAdsCampaign.id)
@@ -2710,15 +2710,24 @@ async function simpanOwnerWhatsapp(){
   }
 
   ownerWhatsapp=wa;
+  localStorage.setItem("evora_owner_whatsapp", ownerWhatsapp);
   if(el) el.value=ownerWhatsapp;
 
-  await saveData();
-
-  await customAlert(
-    "No. WA Tersimpan",
-    `No. WA Pemilik <b>${ownerWhatsapp}</b> berhasil disimpan. Nomor ini sekarang dapat digunakan untuk verifikasi Lupa Password.`,
-    "success"
-  );
+  try{
+    await saveData();
+    await customAlert(
+      "No. WA Tersimpan",
+      `No. WA Pemilik <b>${ownerWhatsapp}</b> berhasil disimpan dan sudah dapat digunakan untuk verifikasi Lupa Password.`,
+      "success"
+    );
+  }catch(err){
+    console.error("Gagal menyimpan No. WA ke cloud:",err);
+    await customAlert(
+      "No. WA Tersimpan di Perangkat",
+      "No. WA sudah disimpan di perangkat ini untuk Lupa Password, tetapi sinkronisasi cloud belum berhasil. Coba sinkronkan kembali saat koneksi tersedia.",
+      "warning"
+    );
+  }
 }
 
 async function gantiPasswordEvora(){
@@ -3392,7 +3401,8 @@ async function loadDataFromCloud() {
       currentAdsCampaign = dataUtama.currentAdsCampaign || null;
       adsCampaignHistory = Array.isArray(dataUtama.adsCampaignHistory) ? dataUtama.adsCampaignHistory : [];
       authPasswordHash = String(dataUtama.authPasswordHash || EVORA_DEFAULT_PASSWORD_HASH);
-      ownerWhatsapp = normalizeWhatsapp(dataUtama.ownerWhatsapp || "");
+      ownerWhatsapp = normalizeWhatsapp(dataUtama.ownerWhatsapp || localStorage.getItem("evora_owner_whatsapp") || "");
+      if(ownerWhatsapp) localStorage.setItem("evora_owner_whatsapp", ownerWhatsapp);
       
       document.getElementById("inputHargaGlobal").value = HARGA;
       document.getElementById("inputTargetBulanan").value = targetBulanan;
@@ -4031,7 +4041,8 @@ async function pasteDataTransfer() {
     currentAdsCampaign = dataBaru.currentAdsCampaign || null;
     adsCampaignHistory = Array.isArray(dataBaru.adsCampaignHistory) ? dataBaru.adsCampaignHistory : [];
     authPasswordHash = String(dataBaru.authPasswordHash || EVORA_DEFAULT_PASSWORD_HASH);
-    ownerWhatsapp = normalizeWhatsapp(dataBaru.ownerWhatsapp || ownerWhatsapp || "");
+    ownerWhatsapp = normalizeWhatsapp(dataBaru.ownerWhatsapp || ownerWhatsapp || localStorage.getItem("evora_owner_whatsapp") || "");
+    if(ownerWhatsapp) localStorage.setItem("evora_owner_whatsapp", ownerWhatsapp);
     
     document.getElementById("inputHargaGlobal").value = HARGA;
     document.getElementById("inputTargetBulanan").value = targetBulanan;
