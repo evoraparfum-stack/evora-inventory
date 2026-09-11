@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-  <title>EVORA Tracker Pro v17.6 - Premium Motion UI</title>
+  <title>EVORA Tracker Pro v17.6.1 - Multi Bundle PDF Fix</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -5009,28 +5009,43 @@ function extractBundleVariantNames(chunk){
   const raw=String(chunk||"").replace(/\s+/g," ").trim();
   if(!/bundling\s*2\s*botol|mix\s*variant/i.test(raw)) return [];
 
+  // Build a compact Seller-SKU signal and preserve the order in which
+  // each variant appears in the PDF row. This is important for orders
+  // containing more than one bundle on the same shipping-label page.
+  const signal=scanSellerSignalCompact(raw);
   const candidates=[];
 
-  const add=(source,score)=>{
+  const add=(source,score,posOverride)=>{
     const clean=String(source||"").replace(/\s+/g," ").trim();
     if(!clean) return;
     const mm=safeMatchResiVariantName(clean);
     if(mm.index<0) return;
-    if(candidates.some(x=>x.index===mm.index)) return;
-    candidates.push({name:clean,index:mm.index,score:Number(score||mm.score||0)});
+
+    const compact=scanCompactName(clean);
+    let pos=Number.isFinite(posOverride) ? posOverride : signal.indexOf(compact);
+    if(pos<0) pos=999999;
+
+    const existing=candidates.find(x=>x.index===mm.index);
+    const item={name:clean,index:mm.index,score:Number(score||mm.score||0),pos};
+    if(!existing){
+      candidates.push(item);
+    }else if(item.pos<existing.pos || (item.pos===existing.pos && item.score>existing.score)){
+      Object.assign(existing,item);
+    }
   };
 
-  // Detect all cashier names / slash aliases through compact signal.
-  const signal=scanSellerSignalCompact(raw);
+  // Detect cashier names / slash aliases directly from this bundle row only.
   barang.forEach((b,i)=>{
-    const variants=[String(b.nama||""),...String(b.nama||"").split("/")];
+    const variants=[String(b.nama||""),...String(b.nama||"").split("/")].filter(Boolean);
     variants.forEach(v=>{
       const vc=scanCompactName(v);
-      if(vc.length>=4 && signal.includes(vc)) add(v,1300+vc.length);
+      if(vc.length<4) return;
+      const pos=signal.indexOf(vc);
+      if(pos>=0) add(v,1300+vc.length,pos);
     });
   });
 
-  // Proven marketplace abbreviations.
+  // Proven marketplace abbreviations, also ordered by their PDF position.
   [
     ["9pmrbl","9PM RBL"],
     ["sotb","S.O.T.B"],
@@ -5038,10 +5053,11 @@ function extractBundleVariantNames(chunk){
     ["darksec","DARKSEC"],
     ["cremevanille","CREME VANILLE"]
   ].forEach(([needle,source])=>{
-    if(signal.includes(needle)) add(source,1450+needle.length);
+    const pos=signal.indexOf(needle);
+    if(pos>=0) add(source,1450+needle.length,pos);
   });
 
-  candidates.sort((a,b)=>b.score-a.score);
+  candidates.sort((a,b)=>a.pos-b.pos || b.score-a.score);
   return candidates.slice(0,2).map(x=>x.name);
 }
 
@@ -5236,6 +5252,7 @@ function extractResiInfo(lines,pageNo){
   region.forEach((x,i)=>{if(/^evora\b/i.test(x.trim())) rowStarts.push(i);});
   const rows=[];
   const chunks=rowStarts.length ? rowStarts.map((st,k)=>region.slice(st,rowStarts[k+1]??region.length)) : [];
+  const bundleChunkCount=chunks.filter(c=>/bundling\s*2\s*botol|mix\s*variant/i.test(c.join(" "))).length;
   for(const chunkLines of chunks){
     const chunk=chunkLines.join(" ").replace(/\s+/g," ").trim();
     if(!chunk) continue;
@@ -5268,7 +5285,22 @@ function extractResiInfo(lines,pageNo){
       // Sumber paling stabil adalah ringkasan label "Barang: A, B".
       // Seller SKU tetap menjadi fallback jika ringkasan tidak tersedia.
       const summaryNames=extractBundleNamesFromShippingSummary(text);
-      const variantNames=summaryNames.length>=2 ? summaryNames : extractBundleVariantNames(chunk);
+      const chunkVariantNames=extractBundleVariantNames(chunk);
+
+      // CRITICAL: the shipping summary ("Barang: A, B") describes only one
+      // bundle choice on some Tokopedia/J&T labels. If the order contains
+      // multiple bundle product rows, reusing that summary for every row
+      // duplicates the same two variants. Parse each Seller-SKU row instead.
+      let variantNames;
+      if(bundleChunkCount>1){
+        variantNames=chunkVariantNames;
+      }else if(chunkVariantNames.length>=2){
+        variantNames=chunkVariantNames;
+      }else if(summaryNames.length>=2){
+        variantNames=summaryNames;
+      }else{
+        variantNames=chunkVariantNames;
+      }
 
       variantNames.slice(0,2).forEach(vName=>{
         const vm=safeMatchResiVariantName(vName);
@@ -9527,7 +9559,7 @@ document.addEventListener("visibilitychange",()=>{
       home.insertBefore(wrap,home.firstChild);
     }
     if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.6 PRO';document.body.appendChild(v);}
-    document.title='EVORA Tracker Pro v17.6 - Premium Motion UI';
+    document.title='EVORA Tracker Pro v17.6.1 - Multi Bundle PDF Fix';
     syncPro();
     setInterval(syncPro,1200);
   }
@@ -9920,7 +9952,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function ensureAIInsight(){const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evAIInsight'))return;const el=document.createElement('div');el.id='evAIInsight';el.className='ev-v175-card';el.innerHTML=`<div class="ev-ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ev-ai-copy"><b>EVORA INSIGHT</b><span id="evAIInsightText">Menganalisis data bisnis...</span></div><button class="ev-ai-more" onclick="openEvoraAI()">Lihat Analisis</button>`;const att=document.getElementById('evAttentionCenter'),morning=document.getElementById('evMorningBrief');if(att&&att.nextSibling)home.insertBefore(el,att.nextSibling);else if(morning&&morning.nextSibling)home.insertBefore(el,morning.nextSibling);else home.insertBefore(el,home.firstChild)}
   function renderAIInsight(){const s=arr('penjualan'),now=new Date();now.setHours(0,0,0,0);const s7=startDaysAgo(6),s14=startDaysAgo(13),last7=s.filter(x=>new Date(x.tanggal)>=s7),prev7=s.filter(x=>new Date(x.tanggal)>=s14&&new Date(x.tanggal)<s7),q7=last7.reduce((n,x)=>n+Number(x.qty||0),0),qp=prev7.reduce((n,x)=>n+Number(x.qty||0),0),tr=pct(q7,qp),top=topProduct(last7),st=stockData();let msg=`Penjualan 7 hari ${tr>=0?'naik':'turun'} ${Math.abs(tr).toFixed(1)}%. `;msg+=top?`${top[0]} paling laris dengan ${top[1]} pcs. `:'Belum ada produk dominan. ';msg+=st.critical.length?`${st.critical.length} varian perlu segera direstock.`:`Stok utama dalam kondisi aman.`;const e=document.getElementById('evAIInsightText');if(e)e.textContent=msg}
 
-  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.6 PRO';document.title='EVORA Tracker Pro v17.6 - Premium Motion UI'}
+  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.6.1 PRO';document.title='EVORA Tracker Pro v17.6 - Premium Motion UI'}
 
   function init(){refreshAll();setTimeout(refreshAll,450);setTimeout(refreshAll,1300);setInterval(refreshAll,2200);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.evV175OpenSearch()}if(e.key==='Escape'){window.evV175CloseSearch();window.evV175CloseNotifications();window.evV175CloseProduct();closeQuick()}});document.addEventListener('click',e=>{if(!e.target.closest('#evQuickFab')&&!e.target.closest('#evQuickActions'))closeQuick()});
     const riwayat=document.getElementById('tab-riwayat');if(riwayat){riwayat.addEventListener('input',()=>setTimeout(()=>renderUnifiedTimeline(true),20));riwayat.addEventListener('change',()=>setTimeout(()=>renderUnifiedTimeline(true),20))}
@@ -10276,7 +10308,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function applyV1755(){
     const v=document.getElementById('evoraProVersion');
     if(v) v.textContent='v17.6 PRO';
-    document.title='EVORA Tracker Pro v17.6 - Premium Motion UI';
+    document.title='EVORA Tracker Pro v17.6.1 - Multi Bundle PDF Fix';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1755);
   else applyV1755();
@@ -10505,7 +10537,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function applyV1756(){
     const v=document.getElementById('evoraProVersion');
     if(v) v.textContent='v17.6 PRO';
-    document.title='EVORA Tracker Pro v17.6 - Premium Motion UI';
+    document.title='EVORA Tracker Pro v17.6.1 - Multi Bundle PDF Fix';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1756);
   else applyV1756();
@@ -10951,8 +10983,8 @@ input:focus,select:focus,textarea:focus{transition:box-shadow 190ms ease,border-
   }
 
   function enforceVersion(){
-    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.6 PRO';
-    document.title='EVORA Tracker Pro v17.6 - Premium Motion UI';
+    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.6.1 PRO';
+    document.title='EVORA Tracker Pro v17.6.1 - Multi Bundle PDF Fix';
   }
 
   function init(){
@@ -10969,5 +11001,9 @@ input:focus,select:focus,textarea:focus{transition:box-shadow 190ms ease,border-
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
+
+<!-- EVORA v17.6.1: Tokopedia/J&T multi-bundle parser fix.
+     Multiple bundle rows on one order are parsed from each row's Seller SKU,
+     preventing the shipping-summary variants from being duplicated. -->
 </body>
 </html>
