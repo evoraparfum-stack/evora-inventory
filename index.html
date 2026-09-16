@@ -11005,5 +11005,241 @@ input:focus,select:focus,textarea:focus{transition:box-shadow 190ms ease,border-
 <!-- EVORA v17.6.1: Tokopedia/J&T multi-bundle parser fix.
      Multiple bundle rows on one order are parsed from each row's Seller SKU,
      preventing the shipping-summary variants from being duplicated. -->
+<style id="evora-ai-v177-redesign-style">
+/* =========================================================
+   EVORA v17.7 — AI BUSINESS INTELLIGENCE REDESIGN
+   Visual + information architecture only. Core business logic untouched.
+   ========================================================= */
+#evoraAICenter{
+  --ai-bg:#f4f7f9;--ai-card:#ffffff;--ai-line:#dfe8ed;--ai-ink:#0f172a;--ai-muted:#64748b;
+  --ai-primary:#0f6f7a;--ai-primary2:#073e46;--ai-success:#0f9f8f;--ai-warning:#f59e0b;--ai-danger:#e11d48;
+  background:var(--ai-bg)!important;color:var(--ai-ink)!important;overflow:auto!important;
+}
+body.dark-theme #evoraAICenter{--ai-bg:#0b1220;--ai-card:#111827;--ai-line:#263449;--ai-ink:#f8fafc;--ai-muted:#94a3b8}
+#evoraAICenter .eai2-shell{width:min(1280px,100%);margin:0 auto;padding:18px 18px 110px;box-sizing:border-box}
+#evoraAICenter .eai2-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+#evoraAICenter .eai2-brand{display:flex;align-items:center;gap:11px;min-width:0}
+#evoraAICenter .eai2-logo{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#073e46,#0f7580);color:#fff;font-size:18px;box-shadow:0 10px 24px rgba(7,62,70,.2);flex:0 0 44px}
+#evoraAICenter .eai2-title{font-size:22px;line-height:1;font-weight:950;letter-spacing:-.4px;color:var(--ai-ink)}
+#evoraAICenter .eai2-title span{font-size:9px;letter-spacing:1.1px;color:var(--ai-primary);display:block;margin-top:7px;text-transform:uppercase}
+#evoraAICenter .eai2-head-actions{display:flex;gap:7px;align-items:center}
+#evoraAICenter .eai2-icon-btn{width:38px!important;height:38px!important;min-height:38px!important;padding:0!important;border-radius:12px!important;background:var(--ai-card)!important;color:var(--ai-ink)!important;border:1px solid var(--ai-line)!important;box-shadow:none!important}
+#evoraAICenter .eai2-close{width:auto!important;height:38px!important;min-height:38px!important;padding:0 12px!important;border-radius:12px!important;background:#111827!important;color:#fff!important;box-shadow:none!important;font-size:10px!important}
+#evoraAICenter .eai2-hero{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(135deg,#062f35 0%,#0c5d67 55%,#117f87 100%);color:#fff;padding:22px;box-shadow:0 18px 42px rgba(7,62,70,.18);margin-bottom:13px}
+#evoraAICenter .eai2-hero:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-75px;top:-110px;background:rgba(255,255,255,.07)}
+#evoraAICenter .eai2-hero:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:80px;bottom:-115px;background:rgba(255,255,255,.04)}
+#evoraAICenter .eai2-kicker{position:relative;z-index:1;font-size:9px;font-weight:900;letter-spacing:1.5px;opacity:.72;text-transform:uppercase}
+#evoraAICenter .eai2-hero-title{position:relative;z-index:1;font-size:23px;font-weight:950;letter-spacing:-.5px;margin-top:5px;max-width:760px}
+#evoraAICenter .eai2-summary{position:relative;z-index:1;font-size:11px;line-height:1.65;color:#d9f3f4;max-width:860px;margin-top:7px}
+#evoraAICenter .eai2-live{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:8px;font-weight:900;letter-spacing:.4px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12)}
+#evoraAICenter .eai2-live i{font-size:6px;color:#5eead4;animation:eai2Live 1.8s ease-in-out infinite}
+@keyframes eai2Live{0%,100%{opacity:.5;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+#evoraAICenter .eai2-kpis{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:17px}
+#evoraAICenter .eai2-kpi{padding:11px 12px;border-radius:14px;background:rgba(255,255,255,.105);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(6px);min-width:0}
+#evoraAICenter .eai2-kpi span{display:block;font-size:7.5px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#bde5e7}
+#evoraAICenter .eai2-kpi b{display:block;margin-top:4px;font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#evoraAICenter .eai2-kpi small{display:block;margin-top:3px;font-size:8px;color:#bde5e7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#evoraAICenter .eai2-ask{background:var(--ai-card);border:1px solid var(--ai-line);border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 8px 25px rgba(15,23,42,.045)}
+#evoraAICenter .eai2-ask-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:8px;align-items:center}
+#evoraAICenter .eai2-ask-icon{width:38px;height:38px;border-radius:12px;background:#e8f6f6;color:var(--ai-primary);display:flex;align-items:center;justify-content:center}
+body.dark-theme #evoraAICenter .eai2-ask-icon{background:#12333a}
+#evoraAICenter .eai2-ask input{margin:0!important;height:40px!important;min-height:40px!important;text-align:left!important;text-align-last:left!important;background:var(--ai-bg)!important;color:var(--ai-ink)!important;border:1px solid var(--ai-line)!important;border-radius:12px!important;padding:0 12px!important;font-size:11px!important}
+#evoraAICenter .eai2-ask button{width:auto!important;height:40px!important;min-height:40px!important;margin:0!important;padding:0 14px!important;border-radius:12px!important;background:var(--ai-primary)!important;font-size:10px!important;box-shadow:none!important}
+#evoraAICenter .eai2-chips{display:flex;gap:6px;overflow:auto;margin-top:8px;padding-bottom:1px;scrollbar-width:none}
+#evoraAICenter .eai2-chips::-webkit-scrollbar{display:none}
+#evoraAICenter .eai2-chip{width:auto!important;min-width:max-content!important;padding:6px 9px!important;border-radius:999px!important;background:var(--ai-bg)!important;color:var(--ai-muted)!important;border:1px solid var(--ai-line)!important;box-shadow:none!important;font-size:8.5px!important}
+#evoraAICenter .eai2-answer{display:none;margin-top:10px;padding:11px 12px;border-radius:13px;background:linear-gradient(135deg,#ecfeff,#f0fdfa);border:1px solid #b8eaeb;color:#164e63;font-size:10px;line-height:1.65}
+body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4f57;color:#cffafe}
+#evoraAICenter .eai2-answer.show{display:block;animation:eai2Up .2s ease both}
+#evoraAICenter .eai2-nav{display:flex;gap:7px;overflow:auto;position:sticky;top:0;z-index:5;padding:7px 0 9px;background:linear-gradient(var(--ai-bg) 72%,transparent);scrollbar-width:none}
+#evoraAICenter .eai2-nav::-webkit-scrollbar{display:none}
+#evoraAICenter .eai2-nav-btn{width:auto!important;min-width:max-content!important;padding:8px 11px!important;border-radius:11px!important;background:var(--ai-card)!important;color:var(--ai-muted)!important;border:1px solid var(--ai-line)!important;box-shadow:none!important;font-size:9px!important}
+#evoraAICenter .eai2-nav-btn.active{background:#111827!important;color:#fff!important;border-color:#111827!important}
+#evoraAICenter .eai2-panel{display:none}
+#evoraAICenter .eai2-panel.active{display:block;animation:eai2Up .24s ease both}
+@keyframes eai2Up{from{opacity:.2;transform:translateY(7px)}to{opacity:1;transform:none}}
+#evoraAICenter .eai2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#evoraAICenter .eai2-card{background:var(--ai-card);border:1px solid var(--ai-line);border-radius:18px;padding:14px;box-shadow:0 8px 25px rgba(15,23,42,.045);min-width:0}
+#evoraAICenter .eai2-card.full{grid-column:1/-1}
+#evoraAICenter .eai2-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+#evoraAICenter .eai2-card-title{font-size:11px;font-weight:950;color:var(--ai-ink);letter-spacing:.15px}
+#evoraAICenter .eai2-card-sub{font-size:8.5px;color:var(--ai-muted);margin-top:3px;line-height:1.4}
+#evoraAICenter .eai2-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border-radius:999px;font-size:7.5px;font-weight:950;white-space:nowrap}
+#evoraAICenter .eai2-badge.ok{background:#ecfdf5;color:#047857}#evoraAICenter .eai2-badge.warn{background:#fff7ed;color:#c2410c}#evoraAICenter .eai2-badge.danger{background:#fff1f2;color:#be123c}#evoraAICenter .eai2-badge.info{background:#ecfeff;color:#0e7490}
+#evoraAICenter .eai2-priority-list{display:grid;gap:7px}
+#evoraAICenter .eai2-priority{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:9px;align-items:center;padding:9px;border-radius:13px;background:var(--ai-bg);border:1px solid var(--ai-line)}
+#evoraAICenter .eai2-priority-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#e8f6f6;color:var(--ai-primary)}
+#evoraAICenter .eai2-priority.warn .eai2-priority-icon{background:#fff7ed;color:#c2410c}#evoraAICenter .eai2-priority.danger .eai2-priority-icon{background:#fff1f2;color:#be123c}
+#evoraAICenter .eai2-priority b{font-size:9.5px;color:var(--ai-ink);display:block}.eai2-priority small{font-size:8.5px;color:var(--ai-muted);display:block;margin-top:2px;line-height:1.35}
+#evoraAICenter .eai2-priority strong{font-size:8px;color:var(--ai-primary);white-space:nowrap}
+#evoraAICenter .eai2-bars{display:flex;align-items:flex-end;gap:6px;height:120px;padding:8px 2px 0;border-bottom:1px solid var(--ai-line)}
+#evoraAICenter .eai2-bar-wrap{flex:1;min-width:0;height:100%;display:flex;align-items:flex-end;justify-content:flex-end;flex-direction:column;gap:5px}
+#evoraAICenter .eai2-bar-value{font-size:7px;color:var(--ai-muted);width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#evoraAICenter .eai2-bar{width:100%;min-height:3px;border-radius:7px 7px 2px 2px;background:linear-gradient(180deg,#23a7ae,#0f6f7a);transition:height .35s ease}
+#evoraAICenter .eai2-bar-label{font-size:7.5px;color:var(--ai-muted);text-align:center;width:100%}
+#evoraAICenter .eai2-target{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;padding:10px 0;border-bottom:1px solid var(--ai-line)}
+#evoraAICenter .eai2-target:last-child{border-bottom:0}.eai2-target span{font-size:9px;color:var(--ai-muted)}.eai2-target b{font-size:10px;color:var(--ai-ink)}
+#evoraAICenter .eai2-progress{height:8px;background:var(--ai-bg);border:1px solid var(--ai-line);border-radius:999px;overflow:hidden;margin-top:8px}.eai2-progress>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#0f6f7a,#14b8a6);transition:width .45s ease}
+#evoraAICenter .eai2-rank{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--ai-line)}
+#evoraAICenter .eai2-rank:last-child{border-bottom:0}.eai2-rank-num{width:24px;height:24px;border-radius:8px;background:var(--ai-bg);color:var(--ai-primary);font-size:8px;font-weight:950;display:flex;align-items:center;justify-content:center}.eai2-rank b{font-size:9.5px;color:var(--ai-ink);display:block}.eai2-rank small{font-size:8px;color:var(--ai-muted);display:block;margin-top:2px}.eai2-rank strong{font-size:9px;color:var(--ai-primary);white-space:nowrap}
+#evoraAICenter .eai2-stock-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--ai-line)}
+#evoraAICenter .eai2-stock-row:last-child{border-bottom:0}.eai2-stock-row b{font-size:9.5px;color:var(--ai-ink);display:block}.eai2-stock-row small{font-size:8px;color:var(--ai-muted);display:block;margin-top:2px}.eai2-stock-right{text-align:right}.eai2-stock-right strong{display:block;font-size:10px}.eai2-stock-right span{display:block;font-size:7.5px;color:var(--ai-muted);margin-top:2px}
+#evoraAICenter .eai2-logistics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.eai2-logi{padding:10px;border-radius:13px;background:var(--ai-bg);border:1px solid var(--ai-line)}.eai2-logi span{display:block;font-size:7.5px;font-weight:900;color:var(--ai-muted);text-transform:uppercase}.eai2-logi b{display:block;font-size:15px;color:var(--ai-ink);margin-top:4px}
+#evoraAICenter .eai2-ad-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.eai2-admetric{padding:10px;border-radius:13px;background:var(--ai-bg);border:1px solid var(--ai-line)}.eai2-admetric span{font-size:7.5px;color:var(--ai-muted);font-weight:900;display:block}.eai2-admetric b{font-size:13px;color:var(--ai-ink);display:block;margin-top:4px}
+#evoraAICenter .eai2-history-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,auto);gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--ai-line)}.eai2-history-row:last-child{border-bottom:0}.eai2-history-row b{font-size:9px;color:var(--ai-ink);display:block}.eai2-history-row small{font-size:8px;color:var(--ai-muted);display:block;margin-top:2px}.eai2-history-row strong{font-size:8.5px;color:var(--ai-primary);white-space:nowrap}
+#navEvoraAI{background:linear-gradient(135deg,#111827,#0f6f7a)!important;border:1px solid rgba(255,255,255,.08)!important;box-shadow:0 12px 30px rgba(15,23,42,.22)!important}
+@media(hover:hover) and (pointer:fine){#evoraAICenter .eai2-card{transition:transform .16s ease,box-shadow .16s ease}.eai2-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(15,23,42,.075)!important}}
+@media(max-width:760px){
+  #evoraAICenter .eai2-shell{padding:12px 10px 110px}
+  #evoraAICenter .eai2-header{align-items:flex-start}.eai2-logo{width:40px!important;height:40px!important;flex-basis:40px!important}.eai2-title{font-size:19px!important}.eai2-close{font-size:0!important;width:38px!important;padding:0!important}.eai2-close:after{content:"✕";font-size:13px}
+  #evoraAICenter .eai2-hero{padding:17px 14px;border-radius:20px}.eai2-hero-title{font-size:19px!important}.eai2-summary{font-size:10px!important}
+  #evoraAICenter .eai2-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.eai2-kpi{padding:9px!important}.eai2-kpi b{font-size:14px!important}
+  #evoraAICenter .eai2-ask-row{grid-template-columns:34px minmax(0,1fr) 40px;gap:6px}.eai2-ask-icon{width:34px!important;height:34px!important}.eai2-ask button{width:40px!important;padding:0!important;font-size:0!important}.eai2-ask button i{font-size:12px}
+  #evoraAICenter .eai2-grid{grid-template-columns:1fr}.eai2-card.full{grid-column:1}.eai2-logistics,.eai2-ad-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #evoraAICenter .eai2-nav{top:0}.eai2-history-row{grid-template-columns:minmax(0,1fr) auto!important}.eai2-history-row strong:nth-of-type(2),.eai2-history-row strong:nth-of-type(3){display:none}
+}
+@media(max-width:390px){#evoraAICenter .eai2-kpi b{font-size:12px!important}.eai2-kpi small{font-size:7px!important}.eai2-priority{grid-template-columns:31px minmax(0,1fr)!important}.eai2-priority-icon{width:31px!important;height:31px!important}.eai2-priority strong{display:none}.eai2-bars{gap:4px!important}.eai2-bar-value{font-size:6.5px!important}}
+@media(prefers-reduced-motion:reduce){#evoraAICenter *,#evoraAICenter *:before,#evoraAICenter *:after{animation:none!important;transition:none!important}}
+</style>
+<script id="evora-ai-v177-redesign-logic">
+(function(){
+  const V='v17.7 PRO';
+  const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
+  const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const arr=v=>Array.isArray(v)?v:[];
+  const safeDate=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?null:d};
+  const localDay=d=>{if(!d)return'';return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+  const startDay=(daysAgo=0)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-daysAgo);return d};
+  const endToday=()=>{const d=new Date();d.setHours(23,59,59,999);return d};
+  const pct=(a,b)=>b?((a-b)/b*100):(a?100:0);
+  const txDate=x=>safeDate(x?.tanggal||x?.createdAt||x?.waktu||x?.date);
+  const expenseDate=x=>safeDate(x?.tanggal||x?.createdAt||x?.waktu||x?.date);
+
+  function state(){
+    const sales=typeof penjualan!=='undefined'&&Array.isArray(penjualan)?penjualan:arr(window.penjualan);
+    const products=typeof barang!=='undefined'&&Array.isArray(barang)?barang:arr(window.barang);
+    const expenses=typeof pengeluaran!=='undefined'&&Array.isArray(pengeluaran)?pengeluaran:[];
+    const now=new Date(), todayKey=localDay(now), month=now.getMonth(), year=now.getFullYear();
+    const todaySales=sales.filter(x=>localDay(txDate(x))===todayKey);
+    const monthSales=sales.filter(x=>{const d=txDate(x);return d&&d.getMonth()===month&&d.getFullYear()===year});
+    const monthExpenses=expenses.filter(x=>{const d=expenseDate(x);return d&&d.getMonth()===month&&d.getFullYear()===year});
+    const inRange=(x,a,b)=>{const d=txDate(x);return d&&d>=a&&d<=b};
+    const cur7Start=startDay(6), prev7Start=startDay(13), prev7End=new Date(cur7Start.getTime()-1), nowEnd=endToday();
+    const cur7=sales.filter(x=>inRange(x,cur7Start,nowEnd)), prev7=sales.filter(x=>inRange(x,prev7Start,prev7End));
+    const start30=startDay(29), sales30=sales.filter(x=>inRange(x,start30,nowEnd));
+    const sum=(xs,k)=>xs.reduce((s,x)=>s+Number(x?.[k]||0),0);
+    const revenueToday=sum(todaySales,'nominal'), qtyToday=sum(todaySales,'qty');
+    const revenueMonth=sum(monthSales,'nominal'), qtyMonth=sum(monthSales,'qty');
+    const expenseMonth=sum(monthExpenses,'nominal'), profitMonth=revenueMonth-expenseMonth;
+    const revenue7=sum(cur7,'nominal'), qty7=sum(cur7,'qty'), prevQty7=sum(prev7,'qty'), prevRevenue7=sum(prev7,'nominal');
+    const trendQty=pct(qty7,prevQty7), trendRevenue=pct(revenue7,prevRevenue7);
+    const rank30={};sales30.forEach(x=>{const n=String(x.barang||'Tidak diketahui');rank30[n]=(rank30[n]||0)+Number(x.qty||0)});
+    const top30=Object.entries(rank30).sort((a,b)=>b[1]-a[1]);
+    const total30=Object.values(rank30).reduce((a,b)=>a+b,0);
+    const stockRows=products.map(p=>{const sold30=Number(rank30[p.nama]||0),rate=sold30/30,stock=Math.max(0,Number(p.stok||0)),days=rate>0?stock/rate:null;return{name:String(p.nama||'-'),stock,sold30,rate,days}}).sort((a,b)=>{if(a.stock===0&&b.stock!==0)return-1;if(b.stock===0&&a.stock!==0)return 1;if(a.days!=null&&b.days!=null)return a.days-b.days;if(a.days!=null)return-1;if(b.days!=null)return 1;return a.stock-b.stock});
+    const totalVariantStock=products.reduce((s,p)=>s+Math.max(0,Number(p.stok||0)),0);
+    const bottles=typeof stokBotol!=='undefined'?Math.max(0,Number(stokBotol||0)):0;
+    const boxes=typeof stokBox!=='undefined'?Math.max(0,Number(stokBox||0)):0;
+    const sellable=Math.min(totalVariantStock,bottles,boxes);
+    const target=typeof targetBulanan!=='undefined'?Math.max(0,Number(targetBulanan||0)):0;
+    const targetPct=target?Math.min(100,qtyMonth/target*100):0;
+    const daysInMonth=new Date(year,month+1,0).getDate(), expectedPct=target?Math.min(100,now.getDate()/daysInMonth*100):0;
+    const adHistory=typeof adsCampaignHistory!=='undefined'&&Array.isArray(adsCampaignHistory)?adsCampaignHistory:[];
+    const active=typeof currentAdsCampaign!=='undefined'?currentAdsCampaign:null;
+    const isActive=typeof isAdsActive!=='undefined'?!!isAdsActive:!!active;
+    const adSales=sales.filter(x=>x.iklan===true), adRevenue=adSales.reduce((s,x)=>s+Number(x.nominal||0),0);
+    const activeSpend=active?Number(active.spend||active.budget||0):0;
+    const activeRevenue=active?Number(active.revenue||0):0;
+    const activeRoas=activeSpend?activeRevenue/activeSpend:0;
+    const histSpend=adHistory.reduce((s,c)=>s+Number(c.spend||c.budget||0),0), histRevenue=adHistory.reduce((s,c)=>s+Number(c.revenue||0),0), histRoas=histSpend?histRevenue/histSpend:0;
+    const days7=[];for(let i=6;i>=0;i--){const d=startDay(i),key=localDay(d),items=sales.filter(x=>localDay(txDate(x))===key);days7.push({label:d.toLocaleDateString('id-ID',{weekday:'short'}),qty:sum(items,'qty'),revenue:sum(items,'nominal')})}
+    return {sales,products,expenses,now,revenueToday,qtyToday,revenueMonth,qtyMonth,expenseMonth,profitMonth,revenue7,qty7,prevQty7,trendQty,trendRevenue,top30,total30,stockRows,totalVariantStock,bottles,boxes,sellable,target,targetPct,expectedPct,adHistory,active,isActive,adRevenue,activeSpend,activeRevenue,activeRoas,histSpend,histRevenue,histRoas,days7};
+  }
+
+  function trendText(v){if(!Number.isFinite(v))return'—';return `${v>=0?'↑':'↓'} ${Math.abs(v).toFixed(1)}%`}
+  function riskBadge(r){if(r.stock===0)return'<span class="eai2-badge danger">HABIS</span>';if(r.stock<5||r.days!=null&&r.days<=7)return'<span class="eai2-badge danger">KRITIS</span>';if(r.stock<=10||r.days!=null&&r.days<=14)return'<span class="eai2-badge warn">MENIPIS</span>';return'<span class="eai2-badge ok">AMAN</span>'}
+  function summary(d){
+    const parts=[];
+    parts.push(d.qtyToday?`Hari ini ${d.qtyToday} pcs terjual dengan omzet ${money(d.revenueToday)}.`:'Belum ada penjualan tercatat hari ini.');
+    if(d.prevQty7||d.qty7)parts.push(`Volume 7 hari ${d.trendQty>=0?'naik':'turun'} ${Math.abs(d.trendQty).toFixed(1)}% dibanding 7 hari sebelumnya.`);
+    if(d.stockRows[0]){const r=d.stockRows[0];parts.push(r.stock===0?`${r.name} sedang habis.`:`Risiko stok terdekat: ${r.name} (${r.stock} pcs${r.days!=null?', ~'+Math.max(1,Math.round(r.days))+' hari':''}).`)}
+    return parts.join(' ');
+  }
+  function priorities(d){
+    const rows=[];
+    const critical=d.stockRows.filter(r=>r.stock===0||r.stock<5||r.days!=null&&r.days<=7);
+    if(critical.length)rows.push({lvl:'danger',icon:'fa-box-open',title:`${critical.length} varian perlu tindakan stok`,sub:critical.slice(0,3).map(r=>`${r.name} ${r.stock} pcs`).join(' • '),right:'CEK STOK'});
+    const bottleneck=Math.min(d.bottles,d.boxes);if(bottleneck<=30)rows.push({lvl:'warn',icon:'fa-boxes-stacked',title:'Logistik mulai menipis',sub:`Botol ${d.bottles} • Box ${d.boxes} • Siap jual ${d.sellable}`,right:'LOGISTIK'});
+    if(d.qty7||d.prevQty7){rows.push({lvl:d.trendQty<-10?'warn':'',icon:d.trendQty>=0?'fa-arrow-trend-up':'fa-arrow-trend-down',title:`Penjualan 7 hari ${d.trendQty>=0?'bertumbuh':'melemah'}`,sub:`${d.qty7} pcs • ${trendText(d.trendQty)} vs periode sebelumnya`,right:'7 HARI'})}
+    if(d.target&&d.targetPct+8<d.expectedPct)rows.push({lvl:'warn',icon:'fa-bullseye',title:'Progress target di bawah ritme bulan',sub:`Tercapai ${d.targetPct.toFixed(0)}% • ritme kalender ${d.expectedPct.toFixed(0)}%`,right:'TARGET'});
+    if(d.isActive&&d.active)rows.push({lvl:d.activeSpend&&d.activeRoas<1?'warn':'',icon:'fa-bullhorn',title:'Campaign iklan sedang aktif',sub:`Spend ${money(d.activeSpend)} • ROAS ${d.activeSpend?d.activeRoas.toFixed(2)+'x':'-'}`,right:'IKLAN'});
+    if(!rows.length)rows.push({lvl:'',icon:'fa-circle-check',title:'Tidak ada prioritas mendesak',sub:'Stok, penjualan, dan operasional utama tidak menunjukkan peringatan.',right:'AMAN'});
+    return rows.slice(0,5);
+  }
+
+  function bars(d){const max=Math.max(1,...d.days7.map(x=>x.qty));return d.days7.map(x=>`<div class="eai2-bar-wrap"><div class="eai2-bar-value">${x.qty}</div><div class="eai2-bar" style="height:${Math.max(4,x.qty/max*86)}px"></div><div class="eai2-bar-label">${esc(x.label)}</div></div>`).join('')}
+  function topRows(d,n=6){return d.top30.slice(0,n).map((x,i)=>{const p=d.products.find(p=>String(p.nama)===String(x[0]));const stock=Number(p?.stok||0),share=d.total30?x[1]/d.total30*100:0;return `<div class="eai2-rank"><div class="eai2-rank-num">${i+1}</div><div><b>${esc(x[0])}</b><small>${share.toFixed(1)}% dari penjualan 30 hari • stok ${stock}</small></div><strong>${x[1]} pcs</strong></div>`}).join('')||'<div class="eai2-card-sub">Belum ada data penjualan 30 hari.</div>'}
+  function stockRows(d,n=7){return d.stockRows.slice(0,n).map(r=>`<div class="eai2-stock-row"><div><b>${esc(r.name)}</b><small>Terjual 30 hari ${r.sold30} pcs • ${r.rate.toFixed(1)} pcs/hari</small></div><div class="eai2-stock-right"><strong>${r.stock} pcs</strong><span>${r.days!=null?'~'+Math.max(1,Math.round(r.days))+' hari':'belum terukur'}</span>${riskBadge(r)}</div></div>`).join('')||'<div class="eai2-card-sub">Belum ada data stok.</div>'}
+  function restockRows(d){const rows=d.stockRows.filter(r=>r.stock===0||r.stock<=10||r.days!=null&&r.days<=14).slice(0,8);return rows.map(r=>{const need=r.rate>0?Math.max(0,Math.ceil(r.rate*21-r.stock)):Math.max(0,10-r.stock);return `<div class="eai2-stock-row"><div><b>${esc(r.name)}</b><small>${r.stock} pcs sekarang • ${r.rate.toFixed(1)} pcs/hari</small></div><div class="eai2-stock-right"><strong>+${need} pcs</strong><span>estimasi buffer 21 hari</span></div></div>`}).join('')||'<div class="eai2-card-sub">Belum ada kandidat restock mendesak berdasarkan data 30 hari.</div>'}
+  function adHistory(d){const h=[...d.adHistory].slice(0,5);return h.map(c=>{const spend=Number(c.spend||c.budget||0),rev=Number(c.revenue||0),roas=spend?rev/spend:0;return `<div class="eai2-history-row"><div><b>${esc(c.name||'Campaign')}</b><small>${c.startedAt?new Date(c.startedAt).toLocaleDateString('id-ID'):'Tanggal tidak tersedia'} • ${esc(c.status||'Selesai')}</small></div><strong>${money(spend)}</strong><strong>${money(rev)}</strong><strong>${spend?roas.toFixed(2)+'x':'-'}</strong></div>`}).join('')||'<div class="eai2-card-sub">Belum ada riwayat campaign iklan.</div>'}
+
+  function shell(){
+    return `<div class="eai2-shell">
+      <div class="eai2-header"><div class="eai2-brand"><div class="eai2-logo"><i class="fa-solid fa-robot"></i></div><div class="eai2-title">EVORA AI<span>Business Intelligence</span></div></div><div class="eai2-head-actions"><button class="eai2-icon-btn" onclick="evAI2Refresh()" title="Refresh"><i class="fa-solid fa-rotate"></i></button><button class="eai2-close" onclick="closeEvoraAI()"><i class="fa-solid fa-xmark"></i> Tutup</button></div></div>
+      <div class="eai2-hero"><div class="eai2-kicker">EXECUTIVE SUMMARY</div><div class="eai2-hero-title">Apa yang perlu kamu tahu sekarang</div><div id="eai2Summary" class="eai2-summary"></div><div class="eai2-live"><i class="fa-solid fa-circle"></i> LIVE DARI DATA EVORA</div><div class="eai2-kpis"><div class="eai2-kpi"><span>Omzet Hari Ini</span><b id="eai2TodayRevenue">Rp 0</b><small id="eai2TodayQty">0 pcs</small></div><div class="eai2-kpi"><span>7 Hari</span><b id="eai2SevenQty">0 pcs</b><small id="eai2Trend">—</small></div><div class="eai2-kpi"><span>Laba Bulan Ini</span><b id="eai2Profit">Rp 0</b><small>Omzet − pengeluaran</small></div><div class="eai2-kpi"><span>Stok Siap Jual</span><b id="eai2Sellable">0 pcs</b><small id="eai2Bottleneck">—</small></div></div></div>
+      <div class="eai2-ask"><div class="eai2-ask-row"><div class="eai2-ask-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><input id="eai2Question" placeholder="Tanya data bisnis... contoh: stok apa yang harus direstock?" onkeydown="if(event.key==='Enter') askEvoraAI()"><button onclick="askEvoraAI()"><i class="fa-solid fa-paper-plane"></i><span> Tanya</span></button></div><div class="eai2-chips"><button class="eai2-chip" onclick="evAI2AskChip('Ringkas kondisi bisnis hari ini')">Kondisi hari ini</button><button class="eai2-chip" onclick="evAI2AskChip('Produk mana paling laku?')">Produk terlaris</button><button class="eai2-chip" onclick="evAI2AskChip('Stok apa yang harus direstock?')">Prioritas restock</button><button class="eai2-chip" onclick="evAI2AskChip('Bagaimana performa 7 hari?')">Performa 7 hari</button><button class="eai2-chip" onclick="evAI2AskChip('Berapa laba bulan ini?')">Laba bulan ini</button></div><div id="eai2Answer" class="eai2-answer"></div></div>
+      <div class="eai2-nav"><button class="eai2-nav-btn active" onclick="evAI2Switch('overview',this)"><i class="fa-solid fa-gauge-high"></i> Ringkasan</button><button class="eai2-nav-btn" onclick="evAI2Switch('sales',this)"><i class="fa-solid fa-chart-line"></i> Penjualan</button><button class="eai2-nav-btn" onclick="evAI2Switch('stock',this)"><i class="fa-solid fa-boxes-stacked"></i> Stok</button><button class="eai2-nav-btn" onclick="evAI2Switch('ads',this)"><i class="fa-solid fa-bullhorn"></i> Iklan</button></div>
+      <div id="eai2-overview" class="eai2-panel active"></div><div id="eai2-sales" class="eai2-panel"></div><div id="eai2-stock" class="eai2-panel"></div><div id="eai2-ads" class="eai2-panel"></div>
+    </div>`;
+  }
+
+  function render(){
+    const root=document.getElementById('evoraAICenter');if(!root)return;
+    if(!root.querySelector('.eai2-shell'))root.innerHTML=shell();
+    const d=state();
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+    set('eai2Summary',summary(d));set('eai2TodayRevenue',money(d.revenueToday));set('eai2TodayQty',`${d.qtyToday} pcs terjual`);set('eai2SevenQty',`${d.qty7} pcs`);set('eai2Trend',`${trendText(d.trendQty)} vs 7 hari lalu`);set('eai2Profit',money(d.profitMonth));set('eai2Sellable',`${d.sellable} pcs`);
+    const bottleneck=d.sellable===d.bottles?'dibatasi botol':d.sellable===d.boxes?'dibatasi box':d.sellable===d.totalVariantStock?'dibatasi stok varian':'siap operasional';set('eai2Bottleneck',bottleneck);
+    const p=priorities(d);
+    document.getElementById('eai2-overview').innerHTML=`<div class="eai2-grid"><div class="eai2-card full"><div class="eai2-card-head"><div><div class="eai2-card-title">Prioritas Bisnis</div><div class="eai2-card-sub">Yang paling perlu dilihat lebih dulu dari data saat ini.</div></div><span class="eai2-badge ${p.some(x=>x.lvl==='danger')?'danger':p.some(x=>x.lvl==='warn')?'warn':'ok'}">${p.some(x=>x.lvl==='danger')?'PERLU TINDAKAN':p.some(x=>x.lvl==='warn')?'PERLU DIPANTAU':'TERKENDALI'}</span></div><div class="eai2-priority-list">${p.map(x=>`<div class="eai2-priority ${x.lvl}"><div class="eai2-priority-icon"><i class="fa-solid ${x.icon}"></i></div><div><b>${esc(x.title)}</b><small>${esc(x.sub)}</small></div><strong>${esc(x.right)}</strong></div>`).join('')}</div></div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Business Pulse · 7 Hari</div><div class="eai2-card-sub">Jumlah pcs terjual per hari.</div></div><span class="eai2-badge ${d.trendQty>=0?'ok':'warn'}">${trendText(d.trendQty)}</span></div><div class="eai2-bars">${bars(d)}</div></div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Progress Bulan Ini</div><div class="eai2-card-sub">Penjualan, omzet, pengeluaran, dan target.</div></div></div><div class="eai2-target"><span>Terjual bulan ini</span><b>${d.qtyMonth} pcs</b></div><div class="eai2-target"><span>Omzet bulan ini</span><b>${money(d.revenueMonth)}</b></div><div class="eai2-target"><span>Pengeluaran bulan ini</span><b style="color:var(--ai-danger)">${money(d.expenseMonth)}</b></div>${d.target?`<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;font-size:8px;color:var(--ai-muted)"><span>Target ${d.target} pcs</span><b>${d.targetPct.toFixed(0)}%</b></div><div class="eai2-progress"><span style="width:${d.targetPct}%"></span></div></div>`:''}</div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Top Produk · 30 Hari</div><div class="eai2-card-sub">Ranking berdasarkan jumlah pcs terjual.</div></div></div>${topRows(d,5)}</div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Risiko Stok</div><div class="eai2-card-sub">Diprioritaskan dari stok dan kecepatan jual 30 hari.</div></div></div>${stockRows(d,5)}</div></div>`;
+    document.getElementById('eai2-sales').innerHTML=`<div class="eai2-grid"><div class="eai2-card full"><div class="eai2-card-head"><div><div class="eai2-card-title">Performa Penjualan 7 Hari</div><div class="eai2-card-sub">${d.qty7} pcs • ${money(d.revenue7)} • ${trendText(d.trendQty)} volume.</div></div><span class="eai2-badge ${d.trendQty>=0?'ok':'warn'}">${d.trendQty>=0?'NAIK':'TURUN'}</span></div><div class="eai2-bars">${bars(d)}</div></div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Ranking Produk · 30 Hari</div><div class="eai2-card-sub">Produk yang paling banyak menghasilkan volume penjualan.</div></div></div>${topRows(d,10)}</div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Produk Slow Moving</div><div class="eai2-card-sub">Stok tersedia tetapi tidak/kurang bergerak dalam 30 hari.</div></div></div>${d.stockRows.filter(r=>r.stock>0&&r.sold30<=1).sort((a,b)=>b.stock-a.stock).slice(0,10).map(r=>`<div class="eai2-stock-row"><div><b>${esc(r.name)}</b><small>${r.sold30} pcs terjual 30 hari</small></div><div class="eai2-stock-right"><strong>${r.stock} stok</strong><span>perlu dipantau</span></div></div>`).join('')||'<div class="eai2-card-sub">Tidak ada kandidat slow moving yang menonjol.</div>'}</div></div>`;
+    document.getElementById('eai2-stock').innerHTML=`<div class="eai2-grid"><div class="eai2-card full"><div class="eai2-card-head"><div><div class="eai2-card-title">Kapasitas Stok Nyata</div><div class="eai2-card-sub">Siap jual mengikuti batas terendah antara varian, botol, dan box.</div></div><span class="eai2-badge info">${d.sellable} SIAP JUAL</span></div><div class="eai2-logistics"><div class="eai2-logi"><span>Total Varian</span><b>${d.totalVariantStock}</b></div><div class="eai2-logi"><span>Botol</span><b>${d.bottles}</b></div><div class="eai2-logi"><span>Box</span><b>${d.boxes}</b></div><div class="eai2-logi"><span>Siap Jual</span><b>${d.sellable}</b></div></div></div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Urutan Risiko Stok</div><div class="eai2-card-sub">Yang berpotensi habis paling cepat berada di atas.</div></div></div>${stockRows(d,12)}</div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Saran Jumlah Restock</div><div class="eai2-card-sub">Estimasi buffer ±21 hari berdasarkan penjualan 30 hari; gunakan sebagai referensi.</div></div></div>${restockRows(d)}</div></div>`;
+    const active=d.active;
+    document.getElementById('eai2-ads').innerHTML=`<div class="eai2-grid"><div class="eai2-card full"><div class="eai2-card-head"><div><div class="eai2-card-title">Status Iklan</div><div class="eai2-card-sub">Ringkasan campaign aktif dan histori yang tercatat di EVORA.</div></div><span class="eai2-badge ${d.isActive?'ok':'info'}">${d.isActive?'AKTIF':'TIDAK AKTIF'}</span></div>${active?`<div class="eai2-ad-metrics"><div class="eai2-admetric"><span>Campaign</span><b>${esc(active.name||'Aktif')}</b></div><div class="eai2-admetric"><span>Biaya</span><b>${money(d.activeSpend)}</b></div><div class="eai2-admetric"><span>Omzet</span><b>${money(d.activeRevenue)}</b></div><div class="eai2-admetric"><span>ROAS</span><b>${d.activeSpend?d.activeRoas.toFixed(2)+'x':'-'}</b></div></div>`:'<div class="eai2-card-sub">Tidak ada campaign aktif. Data histori tetap tersedia di bawah.</div>'}</div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Ringkasan Histori</div><div class="eai2-card-sub">Gabungan campaign yang tersimpan.</div></div></div><div class="eai2-target"><span>Total campaign</span><b>${d.adHistory.length}</b></div><div class="eai2-target"><span>Total biaya</span><b>${money(d.histSpend)}</b></div><div class="eai2-target"><span>Total omzet iklan</span><b>${money(d.histRevenue)}</b></div><div class="eai2-target"><span>ROAS gabungan</span><b>${d.histSpend?d.histRoas.toFixed(2)+'x':'-'}</b></div></div><div class="eai2-card"><div class="eai2-card-head"><div><div class="eai2-card-title">Riwayat Terbaru</div><div class="eai2-card-sub">Biaya • omzet • ROAS per campaign.</div></div></div>${adHistory(d)}</div></div>`;
+  }
+
+  window.evAI2Switch=function(id,btn){document.querySelectorAll('#evoraAICenter .eai2-panel').forEach(x=>x.classList.remove('active'));document.querySelectorAll('#evoraAICenter .eai2-nav-btn').forEach(x=>x.classList.remove('active'));document.getElementById('eai2-'+id)?.classList.add('active');btn?.classList.add('active')};
+  window.evAI2Refresh=function(){render();const b=document.querySelector('#evoraAICenter .eai2-icon-btn i');if(b){b.classList.add('fa-spin');setTimeout(()=>b.classList.remove('fa-spin'),550)}};
+  window.evAI2AskChip=function(q){const i=document.getElementById('eai2Question');if(i)i.value=q;window.askEvoraAI()};
+
+  window.askEvoraAI=function(){
+    const input=document.getElementById('eai2Question')||document.getElementById('eaiQuestion');const out=document.getElementById('eai2Answer')||document.getElementById('eaiChat');if(!input||!out)return;
+    const q=String(input.value||'').trim().toLowerCase(),d=state();if(!q){out.innerHTML='<b>Tulis pertanyaan terlebih dahulu.</b>';out.classList?.add('show');return}
+    const top=d.top30[0], risk=d.stockRows[0], critical=d.stockRows.filter(r=>r.stock===0||r.stock<5||r.days!=null&&r.days<=7);
+    let ans='';
+    if(/(ringkas|kondisi|hari ini|summary)/.test(q)&&!/(omzet|laba|terjual)/.test(q))ans=`<b>Kondisi bisnis saat ini:</b><br>${esc(summary(d))}<br><br>${critical.length?`Ada <b>${critical.length} varian</b> yang perlu perhatian stok.`:'Tidak ada varian yang masuk kondisi sangat kritis berdasarkan aturan saat ini.'}`;
+    else if(/(omzet.*hari|pendapatan.*hari|hari ini.*omzet)/.test(q))ans=`Omzet hari ini <b>${money(d.revenueToday)}</b> dari <b>${d.qtyToday} pcs</b> terjual.`;
+    else if(/(laba|profit)/.test(q))ans=`Laba bersih bulan ini <b>${money(d.profitMonth)}</b>, dihitung dari omzet <b>${money(d.revenueMonth)}</b> dikurangi pengeluaran <b>${money(d.expenseMonth)}</b>.`;
+    else if(/(7 hari|minggu|performa)/.test(q))ans=`Dalam 7 hari terakhir terjual <b>${d.qty7} pcs</b> dengan omzet <b>${money(d.revenue7)}</b>. Volume penjualan ${d.trendQty>=0?'naik':'turun'} <b>${Math.abs(d.trendQty).toFixed(1)}%</b> dibanding 7 hari sebelumnya.`;
+    else if(/(terlaris|paling laku|produk.*laku|top produk)/.test(q))ans=top?`Produk terlaris 30 hari adalah <b>${esc(top[0])}</b> dengan <b>${top[1]} pcs</b>. ${d.top30.slice(1,3).length?'Berikutnya '+d.top30.slice(1,3).map(x=>`${esc(x[0])} (${x[1]} pcs)`).join(' dan ')+'.':''}`:'Belum ada data penjualan 30 hari.';
+    else if(/(restock|stok.*prioritas|harus.*stok|stok.*habis|hampir habis)/.test(q)){const rows=d.stockRows.filter(r=>r.stock===0||r.stock<=10||r.days!=null&&r.days<=14).slice(0,5);ans=rows.length?`<b>Prioritas restock:</b><br>${rows.map((r,i)=>`${i+1}. ${esc(r.name)} — stok ${r.stock} pcs${r.days!=null?`, estimasi ~${Math.max(1,Math.round(r.days))} hari`:''}`).join('<br>')}`:'Belum ada kandidat restock mendesak berdasarkan stok dan penjualan 30 hari.'}
+    else if(/(stok|botol|box|siap jual)/.test(q))ans=`Stok siap jual saat ini <b>${d.sellable} pcs</b>. Total stok varian ${d.totalVariantStock}, botol ${d.bottles}, dan box ${d.boxes}. Batas penjualan mengikuti angka yang paling rendah.`;
+    else if(/(slow|lambat|tidak laku)/.test(q)){const slow=d.stockRows.filter(r=>r.stock>0&&r.sold30<=1).sort((a,b)=>b.stock-a.stock).slice(0,5);ans=slow.length?`Produk yang paling lambat bergerak 30 hari:<br>${slow.map(r=>`• ${esc(r.name)} — ${r.sold30} pcs terjual, stok ${r.stock}`).join('<br>')}`:'Tidak ada kandidat slow moving yang menonjol.'}
+    else if(/(roas|iklan|campaign|ads)/.test(q)){ans=d.active?`Campaign aktif <b>${esc(d.active.name||'Iklan aktif')}</b>: biaya ${money(d.activeSpend)}, omzet tercatat ${money(d.activeRevenue)}, ROAS <b>${d.activeSpend?d.activeRoas.toFixed(2)+'x':'-'}</b>.`:(d.adHistory.length?`Ada <b>${d.adHistory.length}</b> histori campaign. Total biaya ${money(d.histSpend)}, omzet ${money(d.histRevenue)}, ROAS gabungan <b>${d.histSpend?d.histRoas.toFixed(2)+'x':'-'}</b>.`:'Belum ada data campaign iklan.')}
+    else if(/(target|proyeksi bulan)/.test(q))ans=d.target?`Target bulan ini <b>${d.target} pcs</b>. Saat ini tercapai <b>${d.qtyMonth} pcs (${d.targetPct.toFixed(1)}%)</b>. Ritme kalender bulan saat ini sekitar ${d.expectedPct.toFixed(1)}%.`:'Target bulanan belum diset.';
+    else ans=`Saya bisa membaca data EVORA yang sudah tercatat. Coba tanyakan <b>“kondisi bisnis hari ini”</b>, <b>“produk mana paling laku?”</b>, <b>“stok apa yang harus direstock?”</b>, <b>“bagaimana performa 7 hari?”</b>, <b>“berapa laba bulan ini?”</b>, atau <b>“berapa ROAS iklan?”</b>.`;
+    out.innerHTML=`<i class="fa-solid fa-robot" style="margin-right:6px"></i>${ans}`;out.classList?.add('show');
+  };
+
+  window.renderEvoraAI=render;
+  window.openEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(!root)return;root.style.display='block';document.body.style.overflow='hidden';render();root.scrollTo({top:0,left:0,behavior:'auto'})};
+  window.closeEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(root)root.style.display='none';document.body.style.overflow=''};
+
+  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v17.7 - EVORA AI Intelligence Redesign'}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{version();setTimeout(version,900)});else{version();setTimeout(version,900)}
+  setInterval(version,2500);
+})();
+</script>
+
 </body>
 </html>
