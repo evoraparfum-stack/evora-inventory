@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-  <title>EVORA Tracker Pro v17.7.2 - EVORA AI iPhone Header Fix</title>
+  <title>EVORA Tracker Pro v17.7.3 - AI iPhone Stable Fix</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -9558,8 +9558,8 @@ document.addEventListener("visibilitychange",()=>{
       wrap.innerHTML=`<div class="ev-pro-hero"><div class="ev-pro-kicker">EVORA BUSINESS COMMAND CENTER</div><div class="ev-pro-title">Ringkasan bisnis hari ini</div><div class="ev-pro-sub">Angka utama dan tindakan penting dalam satu layar.</div><div class="ev-pro-metrics"><div class="ev-pro-metric"><span>Omzet</span><b id="proOmzet">Rp 0</b></div><div class="ev-pro-metric"><span>Terjual</span><b id="proQty">0 pcs</b></div><div class="ev-pro-metric"><span>Siap Jual</span><b id="proSellable">0 pcs</b></div></div><div style="margin-top:10px;font-size:9px;opacity:.7">Terlaris: <b id="proTop">Belum ada</b></div></div><div class="ev-pro-side"><div class="ev-pro-action" onclick="shortcutKasir()"><i class="fa-solid fa-cart-plus"></i><div><b>Buka Kasir</b><small>Transaksi & PDF resi</small></div></div><div class="ev-pro-action" onclick="openSerahEkspedisiScanner()"><i class="fa-solid fa-qrcode"></i><div><b>Scan Resi</b><small>Cek resi duplikat</small></div></div></div>`;
       home.insertBefore(wrap,home.firstChild);
     }
-    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.7.2 PRO';document.body.appendChild(v);}
-    document.title='EVORA Tracker Pro v17.7.2 - EVORA AI iPhone Header Fix';
+    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.7.3 PRO';document.body.appendChild(v);}
+    document.title='EVORA Tracker Pro v17.7.3 - AI iPhone Stable Fix';
     syncPro();
     setInterval(syncPro,1200);
   }
@@ -9952,7 +9952,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function ensureAIInsight(){const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evAIInsight'))return;const el=document.createElement('div');el.id='evAIInsight';el.className='ev-v175-card';el.innerHTML=`<div class="ev-ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ev-ai-copy"><b>EVORA INSIGHT</b><span id="evAIInsightText">Menganalisis data bisnis...</span></div><button class="ev-ai-more" onclick="openEvoraAI()">Lihat Analisis</button>`;const att=document.getElementById('evAttentionCenter'),morning=document.getElementById('evMorningBrief');if(att&&att.nextSibling)home.insertBefore(el,att.nextSibling);else if(morning&&morning.nextSibling)home.insertBefore(el,morning.nextSibling);else home.insertBefore(el,home.firstChild)}
   function renderAIInsight(){const s=arr('penjualan'),now=new Date();now.setHours(0,0,0,0);const s7=startDaysAgo(6),s14=startDaysAgo(13),last7=s.filter(x=>new Date(x.tanggal)>=s7),prev7=s.filter(x=>new Date(x.tanggal)>=s14&&new Date(x.tanggal)<s7),q7=last7.reduce((n,x)=>n+Number(x.qty||0),0),qp=prev7.reduce((n,x)=>n+Number(x.qty||0),0),tr=pct(q7,qp),top=topProduct(last7),st=stockData();let msg=`Penjualan 7 hari ${tr>=0?'naik':'turun'} ${Math.abs(tr).toFixed(1)}%. `;msg+=top?`${top[0]} paling laris dengan ${top[1]} pcs. `:'Belum ada produk dominan. ';msg+=st.critical.length?`${st.critical.length} varian perlu segera direstock.`:`Stok utama dalam kondisi aman.`;const e=document.getElementById('evAIInsightText');if(e)e.textContent=msg}
 
-  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.7.2 PRO';document.title='EVORA Tracker Pro v17.7.2 - EVORA AI iPhone Header Fix'}
+  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.7.3 PRO';document.title='EVORA Tracker Pro v17.7.3 - AI iPhone Stable Fix'}
 
   function init(){refreshAll();setTimeout(refreshAll,450);setTimeout(refreshAll,1300);setInterval(refreshAll,2200);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.evV175OpenSearch()}if(e.key==='Escape'){window.evV175CloseSearch();window.evV175CloseNotifications();window.evV175CloseProduct();closeQuick()}});document.addEventListener('click',e=>{if(!e.target.closest('#evQuickFab')&&!e.target.closest('#evQuickActions'))closeQuick()});
     const riwayat=document.getElementById('tab-riwayat');if(riwayat){riwayat.addEventListener('input',()=>setTimeout(()=>renderUnifiedTimeline(true),20));riwayat.addEventListener('change',()=>setTimeout(()=>renderUnifiedTimeline(true),20))}
@@ -10307,8 +10307,8 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 (function(){
   function applyV1755(){
     const v=document.getElementById('evoraProVersion');
-    if(v) v.textContent='v17.7.2 PRO';
-    document.title='EVORA Tracker Pro v17.7.2 - EVORA AI iPhone Header Fix';
+    if(v) v.textContent='v17.7.3 PRO';
+    document.title='EVORA Tracker Pro v17.7.3 - AI iPhone Stable Fix';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1755);
   else applyV1755();
@@ -10536,8 +10536,8 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 (function(){
   function applyV1756(){
     const v=document.getElementById('evoraProVersion');
-    if(v) v.textContent='v17.7.2 PRO';
-    document.title='EVORA Tracker Pro v17.7.2 - EVORA AI iPhone Header Fix';
+    if(v) v.textContent='v17.7.3 PRO';
+    document.title='EVORA Tracker Pro v17.7.3 - AI iPhone Stable Fix';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1756);
   else applyV1756();
@@ -10983,8 +10983,8 @@ input:focus,select:focus,textarea:focus{transition:box-shadow 190ms ease,border-
   }
 
   function enforceVersion(){
-    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.7.2 PRO';
-    document.title='EVORA Tracker Pro v17.7.2 - EVORA AI iPhone Header Fix';
+    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.7.3 PRO';
+    document.title='EVORA Tracker Pro v17.7.3 - AI iPhone Stable Fix';
   }
 
   function init(){
@@ -11109,7 +11109,7 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
 </style>
 <script id="evora-ai-v177-redesign-logic">
 (function(){
-  const V='v17.7.2 PRO';
+  const V='v17.7.3 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const arr=v=>Array.isArray(v)?v:[];
@@ -11241,7 +11241,7 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
   window.openEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(!root)return;root.style.display='block';document.body.style.overflow='hidden';render();root.scrollTo({top:0,left:0,behavior:'auto'})};
   window.closeEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(root)root.style.display='none';document.body.style.overflow=''};
 
-  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v17.7.2 - EVORA AI iPhone Header Fix'}
+  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v17.7.3 - AI iPhone Stable Fix'}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{version();setTimeout(version,900)});else{version();setTimeout(version,900)}
   setInterval(version,2500);
 })();
@@ -11249,18 +11249,21 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
 
 
 
-<!-- EVORA v17.7.2 — iPhone AI header / safe-area polish -->
-<style id="evora-ai-v1772-iphone-header-fix">
-/* Keep the main app's floating badges out of the dedicated AI workspace. */
+<!-- EVORA v17.7.3 — stable iPhone AI safe-area fix (rebuilt from v17.7.1) -->
+<style id="evora-ai-v1773-stable-safearea">
 body.ev-ai-open #evoraProVersion,
-body.ev-ai-open #navEvoraAI{display:none!important;visibility:hidden!important;pointer-events:none!important}
-
-/* AI is a full-screen workspace. On iPhones with Dynamic Island/notch,
-   its controls must start below the real system status-bar safe area. */
-#evoraAICenter{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+body.ev-ai-open #navEvoraAI{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#evoraAICenter{
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
 @media(max-width:760px){
   #evoraAICenter .eai2-shell{
-    padding-top:calc(12px + env(safe-area-inset-top, 0px))!important;
+    padding-top:calc(14px + env(safe-area-inset-top, 0px))!important;
     padding-bottom:calc(110px + env(safe-area-inset-bottom, 0px))!important;
   }
   #evoraAICenter .eai2-header{
@@ -11268,54 +11271,53 @@ body.ev-ai-open #navEvoraAI{display:none!important;visibility:hidden!important;p
     min-height:44px!important;
     margin-bottom:14px!important;
   }
-  #evoraAICenter .eai2-brand{min-width:0!important;overflow:hidden}
-  #evoraAICenter .eai2-title{min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-  #evoraAICenter .eai2-head-actions{flex:0 0 auto!important}
-  /* When the section selector becomes sticky, keep it below the Dynamic Island too. */
+  #evoraAICenter .eai2-brand{
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  #evoraAICenter .eai2-title{
+    min-width:0!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  #evoraAICenter .eai2-head-actions{
+    flex:0 0 auto!important;
+  }
   #evoraAICenter .eai2-nav{
     top:calc(env(safe-area-inset-top, 0px) + 2px)!important;
-    padding-top:7px!important;
   }
 }
 </style>
-<script id="evora-ai-v1772-iphone-header-logic">
+<script id="evora-ai-v1773-stable-safearea-logic">
 (function(){
-  const V='v17.7.2 PRO';
-  function setVersion(){
-    const v=document.getElementById('evoraProVersion');
-    if(v && v.textContent!==V) v.textContent=V;
-    document.title='EVORA Tracker Pro v17.7.2 - EVORA AI iPhone Header Fix';
-  }
-  function syncAIState(){
-    const root=document.getElementById('evoraAICenter');
-    const open=!!root && getComputedStyle(root).display!=='none';
-    document.body.classList.toggle('ev-ai-open',open);
-  }
+  function applyOpenState(){document.body.classList.add('ev-ai-open');}
+  function clearOpenState(){document.body.classList.remove('ev-ai-open');}
   function install(){
-    setVersion();
-    const root=document.getElementById('evoraAICenter');
-    if(root){
-      new MutationObserver(syncAIState).observe(root,{attributes:true,attributeFilter:['style','class']});
+    var openBase=window.openEvoraAI;
+    if(typeof openBase==='function' && !openBase.__ev1773){
+      var openWrapped=function(){
+        applyOpenState();
+        try{return openBase.apply(this,arguments)}catch(err){clearOpenState();throw err}
+      };
+      openWrapped.__ev1773=true;
+      window.openEvoraAI=openWrapped;
     }
-    const openBase=window.openEvoraAI;
-    if(typeof openBase==='function' && !openBase.__ev1772){
-      const wrapped=function(){document.body.classList.add('ev-ai-open');const r=openBase.apply(this,arguments);setTimeout(syncAIState,0);return r};
-      wrapped.__ev1772=true;window.openEvoraAI=wrapped;
+    var closeBase=window.closeEvoraAI;
+    if(typeof closeBase==='function' && !closeBase.__ev1773){
+      var closeWrapped=function(){
+        try{return closeBase.apply(this,arguments)}finally{clearOpenState();}
+      };
+      closeWrapped.__ev1773=true;
+      window.closeEvoraAI=closeWrapped;
     }
-    const closeBase=window.closeEvoraAI;
-    if(typeof closeBase==='function' && !closeBase.__ev1772){
-      const wrapped=function(){const r=closeBase.apply(this,arguments);document.body.classList.remove('ev-ai-open');setTimeout(syncAIState,0);return r};
-      wrapped.__ev1772=true;window.closeEvoraAI=wrapped;
-    }
-    syncAIState();
-    /* Older compatibility blocks still update the old version periodically.
-       Keep the visible build marker consistent without touching business logic. */
-    new MutationObserver(setVersion).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
-    setInterval(setVersion,2400);
+    /* Recover safely if page is reloaded while the AI workspace is not open. */
+    var root=document.getElementById('evoraAICenter');
+    if(!root || getComputedStyle(root).display==='none') clearOpenState();
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install,{once:true});
+  else install();
 })();
 </script>
-
 </body>
 </html>
