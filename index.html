@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-  <title>EVORA Tracker Pro v17.9.1 - Belanja Bahan</title>
+  <title>EVORA Tracker Pro v17.9.2 - Belanja Bahan</title>
   <link class="apple-touch-icon" href="./icon-192.png.PNG">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#063e46">
@@ -8604,6 +8604,16 @@ function evEsc(v){ return String(v??"").replace(/[&<>\"']/g,m=>({"&":"&amp;","<"
 function evMoney(v){ return "Rp "+Number(v||0).toLocaleString("id-ID"); }
 function evNormalizeReceipt(v){ return String(v||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,""); }
 
+function evBelanjaMergeLists(localList,remoteList){
+  const norm=v=>String(v||'').toUpperCase().replace(/^BIBIT\s+/,'').replace(/[^A-Z0-9]+/g,' ').trim();
+  const tm=x=>Math.max(Number(x?.updatedAt||0)||0,new Date(x?.updatedAt||0).getTime()||0,new Date(x?.lastBoughtAt||0).getTime()||0,new Date(x?.createdAt||0).getTime()||0);
+  const itemKey=i=>String(i?.id||'').trim()||('P:'+norm(i?.linkedProduct||i?.nama));
+  const mergeLinks=(a,b)=>{const m=new Map();[...(Array.isArray(a)?a:[]),...(Array.isArray(b)?b:[])].forEach(l=>{if(!l)return;const k=String(l.id||'').trim()||('URL:'+String(l.url||'').trim());if(!k)return;const p=m.get(k);if(!p)m.set(k,{...l});else{const n=tm(l)>=tm(p)?l:p,o=n===l?p:l;m.set(k,{...o,...n})}});return [...m.values()]};
+  const m=new Map();
+  const put=i=>{if(!i)return;const k=itemKey(i);if(!k)return;const p=m.get(k);if(!p){m.set(k,{...i,links:Array.isArray(i.links)?i.links.map(x=>({...x})):[]});return}const n=tm(i)>=tm(p)?i:p,o=n===i?p:i;m.set(k,{...o,...n,links:mergeLinks(p.links,i.links)})};
+  (Array.isArray(remoteList)?remoteList:[]).forEach(put);(Array.isArray(localList)?localList:[]).forEach(put);return [...m.values()];
+}
+
 function evBuildDataPackage(revisionOverride=null){
   return {
     schemaVersion:EVORA_SCHEMA_VERSION,
@@ -8622,7 +8632,13 @@ function evBuildDataPackage(revisionOverride=null){
     targetBulanan:Number(targetBulanan||0),
     isAdsActive:!!isAdsActive,
     currentAdsCampaign:currentAdsCampaign||null,
-    adsCampaignHistory:Array.isArray(adsCampaignHistory)?adsCampaignHistory:[]
+    adsCampaignHistory:Array.isArray(adsCampaignHistory)?adsCampaignHistory:[],
+    serahEkspedisiLog:(typeof serahEkspedisiLog!=="undefined"&&Array.isArray(serahEkspedisiLog))?serahEkspedisiLog:[],
+    belanjaBahan:(typeof belanjaBahan!=="undefined"&&Array.isArray(belanjaBahan))?belanjaBahan:[],
+    belanjaBahanUpdatedAt:(typeof belanjaBahanUpdatedAt!=="undefined")?Number(belanjaBahanUpdatedAt||0):0,
+    authPasswordHash:(typeof authPasswordHash!=="undefined")?authPasswordHash:undefined,
+    authPasswordUpdatedAt:(typeof authPasswordUpdatedAt!=="undefined")?Number(authPasswordUpdatedAt||0):0,
+    ownerWhatsapp:(typeof ownerWhatsapp!=="undefined")?ownerWhatsapp:""
   };
 }
 
@@ -8648,9 +8664,19 @@ saveData = async function(){
       evSavePending=false;
       setSyncStatus("<i class='fa-solid fa-bolt'></i> Saving...");
       let remoteRevision=cloudRevision;
+      let remoteKonten=null;
       try{
         const check=await supabaseApp.from('pos_data').select('konten').eq('id',1).single();
-        if(!check.error && check.data?.konten) remoteRevision=Number(check.data.konten.revision||0);
+        if(!check.error && check.data?.konten){
+          remoteKonten=check.data.konten;
+          remoteRevision=Number(remoteKonten.revision||0);
+          if(typeof belanjaBahan!=="undefined"){
+            const mergedBelanja=evBelanjaMergeLists(belanjaBahan,Array.isArray(remoteKonten.belanjaBahan)?remoteKonten.belanjaBahan:[]);
+            belanjaBahan=mergedBelanja;
+            if(typeof belanjaBahanUpdatedAt!=="undefined") belanjaBahanUpdatedAt=Math.max(Number(belanjaBahanUpdatedAt||0),Number(remoteKonten.belanjaBahanUpdatedAt||0));
+            try{localStorage.setItem("evora_belanja_bahan",JSON.stringify(belanjaBahan));localStorage.setItem("evora_belanja_bahan_updated_at",String(belanjaBahanUpdatedAt||0));}catch(_e2){}
+          }
+        }
       }catch(_e){}
       if(cloudRevision>0 && remoteRevision>cloudRevision){
         setSyncStatus("<i class='fa-solid fa-triangle-exclamation'></i> Conflict");
@@ -9785,8 +9811,8 @@ document.addEventListener("visibilitychange",()=>{
       wrap.innerHTML=`<div class="ev-pro-hero"><div class="ev-pro-kicker">EVORA BUSINESS COMMAND CENTER</div><div class="ev-pro-title">Ringkasan bisnis hari ini</div><div class="ev-pro-sub">Angka utama dan tindakan penting dalam satu layar.</div><div class="ev-pro-metrics"><div class="ev-pro-metric"><span>Omzet</span><b id="proOmzet">Rp 0</b></div><div class="ev-pro-metric"><span>Terjual</span><b id="proQty">0 pcs</b></div><div class="ev-pro-metric"><span>Siap Jual</span><b id="proSellable">0 pcs</b></div></div><div style="margin-top:10px;font-size:9px;opacity:.7">Terlaris: <b id="proTop">Belum ada</b></div></div><div class="ev-pro-side"><div class="ev-pro-action" onclick="shortcutKasir()"><i class="fa-solid fa-cart-plus"></i><div><b>Buka Kasir</b><small>Transaksi & PDF resi</small></div></div><div class="ev-pro-action" onclick="openSerahEkspedisiScanner()"><i class="fa-solid fa-qrcode"></i><div><b>Scan Resi</b><small>Cek resi duplikat</small></div></div></div>`;
       home.insertBefore(wrap,home.firstChild);
     }
-    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.9.1 PRO';document.body.appendChild(v);}
-    document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan';
+    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v17.9.2 PRO';document.body.appendChild(v);}
+    document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan';
     syncPro();
     setInterval(syncPro,1200);
   }
@@ -10179,7 +10205,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function ensureAIInsight(){const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evAIInsight'))return;const el=document.createElement('div');el.id='evAIInsight';el.className='ev-v175-card';el.innerHTML=`<div class="ev-ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ev-ai-copy"><b>EVORA INSIGHT</b><span id="evAIInsightText">Menganalisis data bisnis...</span></div><button class="ev-ai-more" onclick="openEvoraAI()">Lihat Analisis</button>`;const att=document.getElementById('evAttentionCenter'),morning=document.getElementById('evMorningBrief');if(att&&att.nextSibling)home.insertBefore(el,att.nextSibling);else if(morning&&morning.nextSibling)home.insertBefore(el,morning.nextSibling);else home.insertBefore(el,home.firstChild)}
   function renderAIInsight(){const s=arr('penjualan'),now=new Date();now.setHours(0,0,0,0);const s7=startDaysAgo(6),s14=startDaysAgo(13),last7=s.filter(x=>new Date(x.tanggal)>=s7),prev7=s.filter(x=>new Date(x.tanggal)>=s14&&new Date(x.tanggal)<s7),q7=last7.reduce((n,x)=>n+Number(x.qty||0),0),qp=prev7.reduce((n,x)=>n+Number(x.qty||0),0),tr=pct(q7,qp),top=topProduct(last7),st=stockData();let msg=`Penjualan 7 hari ${tr>=0?'naik':'turun'} ${Math.abs(tr).toFixed(1)}%. `;msg+=top?`${top[0]} paling laris dengan ${top[1]} pcs. `:'Belum ada produk dominan. ';msg+=st.critical.length?`${st.critical.length} varian perlu segera direstock.`:`Stok utama dalam kondisi aman.`;const e=document.getElementById('evAIInsightText');if(e)e.textContent=msg}
 
-  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.9.1 PRO';document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan'}
+  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.9.2 PRO';document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan'}
 
   function init(){refreshAll();setTimeout(refreshAll,450);setTimeout(refreshAll,1300);setInterval(refreshAll,2200);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.evV175OpenSearch()}if(e.key==='Escape'){window.evV175CloseSearch();window.evV175CloseNotifications();window.evV175CloseProduct();closeQuick()}});document.addEventListener('click',e=>{if(!e.target.closest('#evQuickFab')&&!e.target.closest('#evQuickActions'))closeQuick()});
     const riwayat=document.getElementById('tab-riwayat');if(riwayat){riwayat.addEventListener('input',()=>setTimeout(()=>renderUnifiedTimeline(true),20));riwayat.addEventListener('change',()=>setTimeout(()=>renderUnifiedTimeline(true),20))}
@@ -10534,8 +10560,8 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 (function(){
   function applyV1755(){
     const v=document.getElementById('evoraProVersion');
-    if(v) v.textContent='v17.9.1 PRO';
-    document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan';
+    if(v) v.textContent='v17.9.2 PRO';
+    document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1755);
   else applyV1755();
@@ -10763,8 +10789,8 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 (function(){
   function applyV1756(){
     const v=document.getElementById('evoraProVersion');
-    if(v) v.textContent='v17.9.1 PRO';
-    document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan';
+    if(v) v.textContent='v17.9.2 PRO';
+    document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1756);
   else applyV1756();
@@ -11210,8 +11236,8 @@ input:focus,select:focus,textarea:focus{transition:box-shadow 190ms ease,border-
   }
 
   function enforceVersion(){
-    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.9.1 PRO';
-    document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan';
+    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.9.2 PRO';
+    document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan';
   }
 
   function init(){
@@ -11336,7 +11362,7 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
 </style>
 <script id="evora-ai-v177-redesign-logic">
 (function(){
-  const V='v17.9.1 PRO';
+  const V='v17.9.2 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const arr=v=>Array.isArray(v)?v:[];
@@ -11468,7 +11494,7 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
   window.openEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(!root)return;root.style.display='block';document.body.style.overflow='hidden';render();root.scrollTo({top:0,left:0,behavior:'auto'})};
   window.closeEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(root)root.style.display='none';document.body.style.overflow=''};
 
-  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan'}
+  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan'}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{version();setTimeout(version,900)});else{version();setTimeout(version,900)}
   setInterval(version,2500);
 })();
@@ -11610,7 +11636,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 <script id="evora-ai-v178-change-intelligence-logic">
 (function(){
   'use strict';
-  const VERSION='v17.9.1 PRO';
+  const VERSION='v17.9.2 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const pct=(a,b)=>b?((a-b)/b*100):(a?100:0);
@@ -11875,7 +11901,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
       const sw=function(){const r=oldSwitch.apply(this,arguments);setTimeout(enhance,0);return r};sw.__ev178=true;window.evAI2Switch=sw;
     }
     const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;
-    document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan - AI Historical Intelligence Stable';
+    document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan - AI Historical Intelligence Stable';
     setTimeout(()=>{const root=document.getElementById('evoraAICenter');if(root&&getComputedStyle(root).display!=='none')enhance()},300);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
@@ -11937,7 +11963,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 (function(){
   'use strict';
   if(window.__EVORA_AI_1782__)return;window.__EVORA_AI_1782__=true;
-  const VERSION='v17.9.1 PRO';
+  const VERSION='v17.9.2 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const safeDate=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?null:d};
@@ -12100,7 +12126,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
     };
   }
   function wrap(name){const fn=window[name];if(typeof fn!=='function'||fn.__ev1781)return;const w=function(){const r=fn.apply(this,arguments);setTimeout(enhance,0);return r};w.__ev1781=true;window[name]=w}
-  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan - AI Historical Intelligence Stable'}
+  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan - AI Historical Intelligence Stable'}
   function install(){wrap('openEvoraAI');wrap('evAI2Refresh');wrap('renderEvoraAI');const sw=window.evAI2Switch;if(typeof sw==='function'&&!sw.__ev1781){const w=function(){const r=sw.apply(this,arguments);setTimeout(enhance,0);return r};w.__ev1781=true;window.evAI2Switch=w}version();setTimeout(()=>{version();enhance()},500);setInterval(version,2400)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
@@ -12110,8 +12136,8 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 (function(){
   function apply(){
     var v=document.getElementById('evoraProVersion');
-    if(v)v.textContent='v17.9.1 PRO';
-    document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan - AI Historical Intelligence Stable';
+    if(v)v.textContent='v17.9.2 PRO';
+    document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan - AI Historical Intelligence Stable';
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   setTimeout(apply,700);
@@ -12137,7 +12163,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 #evBuyHomeCard{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;align-items:center;padding:13px 14px;margin-bottom:14px;background:var(--bg-card);border:1px solid #dfe7ea;border-radius:16px}.ev-buy-home-icon{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:#e8f6f6;color:var(--primary);font-size:16px}.ev-buy-home-copy b{display:block;font-size:10px;color:var(--text-main)}.ev-buy-home-copy span{display:block;font-size:9px;color:var(--text-muted);margin-top:3px}.ev-buy-home-btn{width:auto!important;margin:0!important;padding:7px 9px!important;border-radius:10px!important;background:var(--primary)!important;font-size:8px!important;box-shadow:none!important}
 @media(max-width:700px){.ev-buy-list{grid-template-columns:1fr}.ev-buy-hero{padding:16px!important;border-radius:18px!important}.ev-buy-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ev-buy-toolbar{grid-template-columns:minmax(0,1fr) auto}.ev-buy-add{font-size:0!important;width:42px!important;padding:0!important}.ev-buy-add i{font-size:12px}.ev-buy-form-grid{grid-template-columns:1fr}.ev-buy-field.full{grid-column:1}.ev-buy-dialog{border-radius:22px 22px 12px 12px;max-height:84dvh}.ev-buy-modal{align-items:flex-end;padding:max(8px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom))}.ev-buy-link{grid-template-columns:32px minmax(0,1fr)}.ev-buy-market{width:32px;height:32px}.ev-buy-link-right{grid-column:2;align-items:flex-start;text-align:left}.ev-buy-price{font-size:8.5px}#evBuyHomeCard{grid-template-columns:36px minmax(0,1fr)}.ev-buy-home-icon{width:36px;height:36px}.ev-buy-home-btn{grid-column:2;justify-self:start}}
 
-/* v17.9.1 — Belanja Bahan mobile/layout + live stock */
+/* v17.9.2 — Belanja Bahan mobile/layout + live stock */
 .ev-buy-stock{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;padding:8px 9px;border-radius:10px;border:1px solid #cfe8e5;background:#f0fdfa;color:#0f766e}
 .ev-buy-stock span{font-size:8px;font-weight:850;display:flex;align-items:center;gap:5px}.ev-buy-stock b{font-size:11px;white-space:nowrap}.ev-buy-stock.low{background:#fff7ed;border-color:#fed7aa;color:#c2410c}.ev-buy-stock.out{background:#fff1f2;border-color:#fecdd3;color:#be123c}
 body.dark-theme .ev-buy-stock{background:#0d2b2c;border-color:#235353}.ev-buy-sync-note{font-size:8px;color:var(--text-muted)}
@@ -12162,7 +12188,7 @@ body.dark-theme .ev-buy-stock{background:#0d2b2c;border-color:#235353}.ev-buy-sy
 <script id="evora-v179-buy-again-logic">
 (function(){
 'use strict';
-const V='v17.9.1 PRO';
+const V='v17.9.2 PRO';
 let buyCategory='SEMUA',buyMarket='SEMUA',buyExpanded=new Set(),editingItemId='',editingLinkItemId='',editingLinkId='';
 const E=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const M=n=>Number(n||0)>0?'Rp '+Number(n||0).toLocaleString('id-ID'):'Harga belum dicatat';
@@ -12172,7 +12198,73 @@ const mclass=m=>m==='SHOPEE'?'shopee':m==='TOKOPEDIA'?'tokopedia':'other';
 const micon=m=>m==='SHOPEE'?'S':m==='TOKOPEDIA'?'T':'↗';
 const cleanUrl=url=>{let u=String(url||'').trim();if(u&&!/^https?:\/\//i.test(u))u='https://'+u;return u};
 function persistLocal(){try{localStorage.setItem('evora_belanja_bahan',JSON.stringify(belanjaBahan));localStorage.setItem('evora_belanja_bahan_updated_at',String(Number(belanjaBahanUpdatedAt||0)))}catch(e){}}
-async function persist(){belanjaBahanUpdatedAt=Date.now();persistLocal();if(typeof saveData==='function')return await saveData();return true}
+function buyNormKey(v){return String(v||'').toUpperCase().replace(/^BIBIT\s+/,'').replace(/[^A-Z0-9]+/g,' ').trim()}
+function buyItemKey(i){const id=String(i?.id||'').trim();if(id)return 'ID:'+id;const p=buyNormKey(i?.linkedProduct);if(p)return 'P:'+p;return 'N:'+buyNormKey(i?.nama)}
+function buyTime(v){const n=Number(v||0);if(n>0)return n;const d=new Date(v||0).getTime();return Number.isFinite(d)?d:0}
+function buyObjTime(x){return Math.max(buyTime(x?.updatedAt),buyTime(x?.lastBoughtAt),buyTime(x?.createdAt))}
+function buyMergeLinks(a,b){
+  const map=new Map();
+  [...(Array.isArray(a)?a:[]),...(Array.isArray(b)?b:[])].forEach(l=>{
+    if(!l)return;const key=String(l.id||'').trim()||('URL:'+String(l.url||'').trim());if(!key)return;
+    const prev=map.get(key);if(!prev){map.set(key,{...l});return}
+    const newer=buyObjTime(l)>=buyObjTime(prev)?l:prev,older=newer===l?prev:l;
+    map.set(key,{...older,...newer});
+  });
+  return [...map.values()];
+}
+function buyMergeLists(localList,cloudList){
+  const map=new Map();
+  function put(item){
+    if(!item)return;const key=buyItemKey(item);if(!key)return;const prev=map.get(key);
+    if(!prev){map.set(key,{...item,links:Array.isArray(item.links)?item.links.map(x=>({...x})):[]});return}
+    const newer=buyObjTime(item)>=buyObjTime(prev)?item:prev,older=newer===item?prev:item;
+    map.set(key,{...older,...newer,links:buyMergeLinks(prev.links,item.links)});
+  }
+  (Array.isArray(cloudList)?cloudList:[]).forEach(put);
+  (Array.isArray(localList)?localList:[]).forEach(put);
+  return [...map.values()];
+}
+function buyStableJSON(v){try{return JSON.stringify(v)}catch(e){return ''}}
+async function evBuyCloudMergeSync(opts={}){
+  const silent=!!opts.silent;
+  if(!window.navigator.onLine)throw new Error('Perangkat sedang offline');
+  const read=await supabaseApp.from('pos_data').select('konten').eq('id',1).single();
+  if(read.error&&read.error.code!=='PGRST116')throw read.error;
+  const cloud=read.data?.konten||{};
+  const remote=Array.isArray(cloud.belanjaBahan)?cloud.belanjaBahan:[];
+  const merged=buyMergeLists(belanjaBahan,remote);
+  const remoteTs=Number(cloud.belanjaBahanUpdatedAt||0);
+  const localTs=Number(belanjaBahanUpdatedAt||0);
+  const contentChanged=buyStableJSON(merged)!==buyStableJSON(remote);
+  const localChanged=buyStableJSON(merged)!==buyStableJSON(belanjaBahan);
+  const stamp=Math.max(Date.now(),remoteTs,localTs);
+  belanjaBahan=merged;
+  belanjaBahanUpdatedAt=stamp;
+  persistLocal();
+  if(contentChanged||!cloud.belanjaBahanUpdatedAt){
+    const remoteRevision=Number(cloud.revision||0);
+    const nextRevision=Math.max(remoteRevision,(typeof cloudRevision!=='undefined'?Number(cloudRevision||0):0))+1;
+    const next={...cloud,belanjaBahan:merged,belanjaBahanUpdatedAt:stamp,revision:nextRevision,updatedAt:new Date().toISOString()};
+    const wr=await supabaseApp.from('pos_data').upsert({id:1,konten:next});
+    if(wr.error)throw wr.error;
+    if(typeof cloudRevision!=='undefined')cloudRevision=nextRevision;
+  }else if(typeof cloudRevision!=='undefined'){
+    cloudRevision=Math.max(Number(cloudRevision||0),Number(cloud.revision||0));
+  }
+  window.evoraBuyCloudReady=true;window.evoraBuyCloudOnline=true;
+  if(localChanged&&typeof render==='function')render();
+  if(!silent&&typeof setSyncStatus==='function')setSyncStatus("<i class='fa-solid fa-circle-check'></i> Belanja Sync");
+  return true;
+}
+async function persist(){
+  belanjaBahanUpdatedAt=Date.now();persistLocal();
+  try{return await evBuyCloudMergeSync({silent:true})}
+  catch(err){
+    console.warn('Belanja Bahan dedicated sync:',err);window.evoraBuyCloudOnline=false;
+    if(typeof setSyncStatus==='function')setSyncStatus("<i class='fa-solid fa-cloud-arrow-up'></i> Belanja Local");
+    return false;
+  }
+}
 function findItem(id){return belanjaBahan.find(x=>String(x.id)===String(id))}
 function catKey(v){return String(v||'Lainnya').trim().toUpperCase()}
 function statusClass(s){return s==='JANGAN BELI'?'bad':s==='STOK HABIS'?'warn':''}
@@ -12216,11 +12308,33 @@ window.evBuyVisit=function(itemId,linkId){const i=findItem(itemId),l=(i?.links||
 window.evBuyBought=async function(itemId,linkId){const i=findItem(itemId),l=(i?.links||[]).find(x=>String(x.id)===String(linkId));if(!i||!l)return;let p=window.prompt('Harga pembelian terbaru (Rp):',String(Number(l.harga||0)||''));if(p===null)return;p=Number(String(p).replace(/[^0-9]/g,''));if(!Number.isFinite(p)||p<0)p=Number(l.harga||0);if(!(await customConfirm('Catat Pembelian',`Tandai bahwa kamu membeli <b>${E(i.nama)}</b> dari <b>${E(l.toko||market(l.url))}</b>${p?` seharga <b>${M(p)}</b>`:''}?`,'success')))return;const now=new Date().toISOString();if(p>0)l.harga=p;l.lastBoughtPrice=p||Number(l.harga||0);l.lastBoughtAt=now;l.status='AKTIF';l.updatedAt=now;i.lastBoughtAt=now;i.lastBoughtPrice=l.lastBoughtPrice;i.updatedAt=now;persistLocal();render();await persist();await customAlert('Pembelian Dicatat',`Riwayat terakhir beli <b>${E(i.nama)}</b> sudah diperbarui.`,'success')};
 function syncPerfumeCatalog(){const ps=(typeof barang!=='undefined'&&Array.isArray(barang))?barang:[];const norm=v=>String(v||'').toUpperCase().replace(/^BIBIT\s+/,'').replace(/[^A-Z0-9]+/g,' ').trim();let changed=false;ps.forEach((p,idx)=>{const n=String(p?.nama||'').trim();if(!n)return;const k=norm(n);let i=belanjaBahan.find(x=>norm(x?.linkedProduct)===k&&k);if(!i)i=belanjaBahan.find(x=>norm(x?.nama)===k||norm(x?.nama)===norm('Bibit '+n));if(!i){const t=new Date().toISOString();belanjaBahan.push({id:'AUTO_BIBIT_'+idx+'_'+k.replace(/\s+/g,'_'),nama:'Bibit '+n,kategori:'Bibit Parfum',linkedProduct:n,unit:'100ml',pinned:false,catatan:'',links:[],autoProduct:true,createdAt:t,updatedAt:t});changed=true}else if(!String(i.linkedProduct||'').trim()){i.linkedProduct=n;i.updatedAt=new Date().toISOString();changed=true}});return changed}
 function fixBelanjaPlacement(){const tab=document.getElementById('tab-belanja'),host=document.getElementById('tab-setting')?.parentElement||document.querySelector('.main-sheet');if(tab&&host&&tab.parentElement!==host)host.appendChild(tab)}
-window.evBuySyncNow=async function(){const b=document.querySelector('.ev-buy-sync');b?.classList.add('ev-syncing');try{if(typeof loadDataFromCloud==='function')await loadDataFromCloud();const changed=syncPerfumeCatalog();render();if(changed)await persist();if(typeof customAlert==='function')await customAlert('Belanja Bahan Tersinkron','Data link supplier dan daftar parfum sudah diperbarui dari cloud.','success')}finally{b?.classList.remove('ev-syncing')}};
+window.evBuySyncNow=async function(){
+  const b=document.querySelector('.ev-buy-sync');b?.classList.add('ev-syncing');
+  try{
+    const changed=syncPerfumeCatalog();if(changed){belanjaBahanUpdatedAt=Date.now();persistLocal()}
+    await evBuyCloudMergeSync({silent:false});render();
+    if(typeof customAlert==='function')await customAlert('Belanja Bahan Tersinkron','Link supplier sudah disatukan dari cloud. Data HP dan PC sekarang memakai daftar Belanja Bahan yang sama.','success');
+  }catch(err){
+    console.error('Belanja Bahan sync:',err);window.evoraBuyCloudOnline=false;
+    if(typeof customAlert==='function')await customAlert('Sinkron Gagal','Belanja Bahan belum bisa terhubung ke cloud. Periksa internet lalu tekan Sinkron lagi.','danger');
+  }finally{b?.classList.remove('ev-syncing')}
+};
+let evBuyAutoSyncBusy=false;
+async function evBuyAutoSync(){
+  if(evBuyAutoSyncBusy||document.hidden||!navigator.onLine)return;
+  evBuyAutoSyncBusy=true;
+  try{await evBuyCloudMergeSync({silent:true});if(document.getElementById('tab-belanja')?.classList.contains('active'))render()}
+  catch(e){window.evoraBuyCloudOnline=false}
+  finally{evBuyAutoSyncBusy=false}
+}
 async function seedAfterCloud(attempt=0){fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(window.evoraBuyCloudReady){const changed=syncPerfumeCatalog();render();if(changed)await persist();return}if(attempt<12)setTimeout(()=>seedAfterCloud(attempt+1),500)}
-function install(){ensureUI();fixBelanjaPlacement();ensureHomeCard();ensureQuick();render();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.9.1 PRO';document.title='EVORA Tracker Pro v17.9.1 - Belanja Bahan Sync + Stock';setTimeout(()=>seedAfterCloud(0),350);setTimeout(()=>{fixBelanjaPlacement();syncPerfumeCatalog();render()},3500);setInterval(()=>{fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(document.getElementById('tab-belanja')?.classList.contains('active'))render()},3000);document.addEventListener('keydown',e=>{if(e.key==='Escape'){evBuyCloseItem();evBuyCloseLink()}})}
+function install(){ensureUI();fixBelanjaPlacement();ensureHomeCard();ensureQuick();render();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v17.9.2 PRO';document.title='EVORA Tracker Pro v17.9.2 - Belanja Bahan True Cloud Sync';setTimeout(()=>seedAfterCloud(0),350);setTimeout(()=>{fixBelanjaPlacement();syncPerfumeCatalog();render();evBuyAutoSync()},1800);setInterval(()=>{fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(document.getElementById('tab-belanja')?.classList.contains('active'))render()},3000);setInterval(evBuyAutoSync,10000);window.addEventListener('focus',()=>setTimeout(evBuyAutoSync,150));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(evBuyAutoSync,150)});document.addEventListener('keydown',e=>{if(e.key==='Escape'){evBuyCloseItem();evBuyCloseLink()}})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
 </script>
+
+<!-- EVORA v17.9.2 — TRUE BELANJA CLOUD SYNC
+     Fixes the active v2 save pipeline so belanjaBahan is retained in Supabase.
+     Belanja changes use dedicated read-merge-write sync, preserving remote core business data. -->
 </body>
 </html>
