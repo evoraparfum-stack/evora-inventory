@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-  <title>EVORA Tracker Pro v19.0 - Belanja Bahan</title>
+  <title>EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable</title>
   <meta name="theme-color" content="#1687ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2392,7 +2392,7 @@ body{
 
   <div id="tab-kasir" class="tab-content">
 <div id="kasirToolsResi" class="kasir-tools-resi">
-  <button type="button" class="kasir-resi-tool" onclick="openScannerResi && openScannerResi()">
+  <button type="button" class="kasir-resi-tool" onclick="openSerahEkspedisiScanner()">
     <i class="fa-solid fa-qrcode"></i><span>Scanner Resi</span>
   </button>
   <button type="button" class="kasir-resi-tool primary" onclick="openCetakResi()">
@@ -9817,8 +9817,8 @@ document.addEventListener("visibilitychange",()=>{
       wrap.innerHTML=`<div class="ev-pro-hero"><div class="ev-pro-kicker">EVORA BUSINESS COMMAND CENTER</div><div class="ev-pro-title">Ringkasan bisnis hari ini</div><div class="ev-pro-sub">Angka utama dan tindakan penting dalam satu layar.</div><div class="ev-pro-metrics"><div class="ev-pro-metric"><span>Omzet</span><b id="proOmzet">Rp 0</b></div><div class="ev-pro-metric"><span>Terjual</span><b id="proQty">0 pcs</b></div><div class="ev-pro-metric"><span>Siap Jual</span><b id="proSellable">0 pcs</b></div></div><div style="margin-top:10px;font-size:9px;opacity:.7">Terlaris: <b id="proTop">Belum ada</b></div></div><div class="ev-pro-side"><div class="ev-pro-action" onclick="shortcutKasir()"><i class="fa-solid fa-cart-plus"></i><div><b>Buka Kasir</b><small>Transaksi & PDF resi</small></div></div><div class="ev-pro-action" onclick="openSerahEkspedisiScanner()"><i class="fa-solid fa-qrcode"></i><div><b>Scan Resi</b><small>Cek resi duplikat</small></div></div></div>`;
       home.insertBefore(wrap,home.firstChild);
     }
-    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v19.0 PRO';document.body.appendChild(v);}
-    document.title='EVORA Tracker Pro v19.0 - Belanja Bahan';
+    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v19.0.1 PRO';document.body.appendChild(v);}
+    document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';
     syncPro();
     setInterval(syncPro,1200);
   }
@@ -10211,7 +10211,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function ensureAIInsight(){const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evAIInsight'))return;const el=document.createElement('div');el.id='evAIInsight';el.className='ev-v175-card';el.innerHTML=`<div class="ev-ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ev-ai-copy"><b>EVORA INSIGHT</b><span id="evAIInsightText">Menganalisis data bisnis...</span></div><button class="ev-ai-more" onclick="openEvoraAI()">Lihat Analisis</button>`;const att=document.getElementById('evAttentionCenter'),morning=document.getElementById('evMorningBrief');if(att&&att.nextSibling)home.insertBefore(el,att.nextSibling);else if(morning&&morning.nextSibling)home.insertBefore(el,morning.nextSibling);else home.insertBefore(el,home.firstChild)}
   function renderAIInsight(){const s=arr('penjualan'),now=new Date();now.setHours(0,0,0,0);const s7=startDaysAgo(6),s14=startDaysAgo(13),last7=s.filter(x=>new Date(x.tanggal)>=s7),prev7=s.filter(x=>new Date(x.tanggal)>=s14&&new Date(x.tanggal)<s7),q7=last7.reduce((n,x)=>n+Number(x.qty||0),0),qp=prev7.reduce((n,x)=>n+Number(x.qty||0),0),tr=pct(q7,qp),top=topProduct(last7),st=stockData();let msg=`Penjualan 7 hari ${tr>=0?'naik':'turun'} ${Math.abs(tr).toFixed(1)}%. `;msg+=top?`${top[0]} paling laris dengan ${top[1]} pcs. `:'Belum ada produk dominan. ';msg+=st.critical.length?`${st.critical.length} varian perlu segera direstock.`:`Stok utama dalam kondisi aman.`;const e=document.getElementById('evAIInsightText');if(e)e.textContent=msg}
 
-  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v19.0 PRO';document.title='EVORA Tracker Pro v19.0 - Belanja Bahan'}
+  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v19.0.1 PRO';document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable'}
 
   function init(){refreshAll();setTimeout(refreshAll,450);setTimeout(refreshAll,1300);setInterval(refreshAll,2200);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.evV175OpenSearch()}if(e.key==='Escape'){window.evV175CloseSearch();window.evV175CloseNotifications();window.evV175CloseProduct();closeQuick()}});document.addEventListener('click',e=>{if(!e.target.closest('#evQuickFab')&&!e.target.closest('#evQuickActions'))closeQuick()});
     const riwayat=document.getElementById('tab-riwayat');if(riwayat){riwayat.addEventListener('input',()=>setTimeout(()=>renderUnifiedTimeline(true),20));riwayat.addEventListener('change',()=>setTimeout(()=>renderUnifiedTimeline(true),20))}
@@ -10566,8 +10566,8 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 (function(){
   function applyV1755(){
     const v=document.getElementById('evoraProVersion');
-    if(v) v.textContent='v19.0 PRO';
-    document.title='EVORA Tracker Pro v19.0 - Belanja Bahan';
+    if(v) v.textContent='v19.0.1 PRO';
+    document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1755);
   else applyV1755();
@@ -10795,8 +10795,8 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 (function(){
   function applyV1756(){
     const v=document.getElementById('evoraProVersion');
-    if(v) v.textContent='v19.0 PRO';
-    document.title='EVORA Tracker Pro v19.0 - Belanja Bahan';
+    if(v) v.textContent='v19.0.1 PRO';
+    document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1756);
   else applyV1756();
@@ -11242,8 +11242,8 @@ input:focus,select:focus,textarea:focus{transition:box-shadow 190ms ease,border-
   }
 
   function enforceVersion(){
-    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v19.0 PRO';
-    document.title='EVORA Tracker Pro v19.0 - Belanja Bahan';
+    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v19.0.1 PRO';
+    document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';
   }
 
   function init(){
@@ -11368,7 +11368,7 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
 </style>
 <script id="evora-ai-v177-redesign-logic">
 (function(){
-  const V='v19.0 PRO';
+  const V='v19.0.1 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const arr=v=>Array.isArray(v)?v:[];
@@ -11500,7 +11500,7 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
   window.openEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(!root)return;root.style.display='block';document.body.style.overflow='hidden';render();root.scrollTo({top:0,left:0,behavior:'auto'})};
   window.closeEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(root)root.style.display='none';document.body.style.overflow=''};
 
-  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v19.0 - Belanja Bahan'}
+  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable'}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{version();setTimeout(version,900)});else{version();setTimeout(version,900)}
   setInterval(version,2500);
 })();
@@ -11642,7 +11642,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 <script id="evora-ai-v178-change-intelligence-logic">
 (function(){
   'use strict';
-  const VERSION='v19.0 PRO';
+  const VERSION='v19.0.1 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const pct=(a,b)=>b?((a-b)/b*100):(a?100:0);
@@ -11907,7 +11907,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
       const sw=function(){const r=oldSwitch.apply(this,arguments);setTimeout(enhance,0);return r};sw.__ev178=true;window.evAI2Switch=sw;
     }
     const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;
-    document.title='EVORA Tracker Pro v19.0 - Belanja Bahan - AI Historical Intelligence Stable';
+    document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';
     setTimeout(()=>{const root=document.getElementById('evoraAICenter');if(root&&getComputedStyle(root).display!=='none')enhance()},300);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
@@ -11969,7 +11969,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 (function(){
   'use strict';
   if(window.__EVORA_AI_1782__)return;window.__EVORA_AI_1782__=true;
-  const VERSION='v19.0 PRO';
+  const VERSION='v19.0.1 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const safeDate=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?null:d};
@@ -12132,7 +12132,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
     };
   }
   function wrap(name){const fn=window[name];if(typeof fn!=='function'||fn.__ev1781)return;const w=function(){const r=fn.apply(this,arguments);setTimeout(enhance,0);return r};w.__ev1781=true;window[name]=w}
-  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v19.0 - Belanja Bahan - AI Historical Intelligence Stable'}
+  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable'}
   function install(){wrap('openEvoraAI');wrap('evAI2Refresh');wrap('renderEvoraAI');const sw=window.evAI2Switch;if(typeof sw==='function'&&!sw.__ev1781){const w=function(){const r=sw.apply(this,arguments);setTimeout(enhance,0);return r};w.__ev1781=true;window.evAI2Switch=w}version();setTimeout(()=>{version();enhance()},500);setInterval(version,2400)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
@@ -12142,8 +12142,8 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 (function(){
   function apply(){
     var v=document.getElementById('evoraProVersion');
-    if(v)v.textContent='v19.0 PRO';
-    document.title='EVORA Tracker Pro v19.0 - Belanja Bahan - AI Historical Intelligence Stable';
+    if(v)v.textContent='v19.0.1 PRO';
+    document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   setTimeout(apply,700);
@@ -12194,7 +12194,7 @@ body.dark-theme .ev-buy-stock{background:#0d2b2c;border-color:#235353}.ev-buy-sy
 <script id="evora-v179-buy-again-logic">
 (function(){
 'use strict';
-const V='v19.0 PRO';
+const V='v19.0.1 PRO';
 let buyCategory='SEMUA',buyMarket='SEMUA',buyExpanded=new Set(),editingItemId='',editingLinkItemId='',editingLinkId='';
 const E=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const M=n=>Number(n||0)>0?'Rp '+Number(n||0).toLocaleString('id-ID'):'Harga belum dicatat';
@@ -12334,7 +12334,7 @@ async function evBuyAutoSync(){
   finally{evBuyAutoSyncBusy=false}
 }
 async function seedAfterCloud(attempt=0){fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(window.evoraBuyCloudReady){const changed=syncPerfumeCatalog();render();if(changed)await persist();return}if(attempt<12)setTimeout(()=>seedAfterCloud(attempt+1),500)}
-function install(){ensureUI();fixBelanjaPlacement();ensureHomeCard();ensureQuick();render();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v19.0 PRO';document.title='EVORA Tracker Pro v19.0 - Belanja Bahan True Cloud Sync';setTimeout(()=>seedAfterCloud(0),350);setTimeout(()=>{fixBelanjaPlacement();syncPerfumeCatalog();render();evBuyAutoSync()},1800);setInterval(()=>{fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(document.getElementById('tab-belanja')?.classList.contains('active'))render()},3000);setInterval(evBuyAutoSync,10000);window.addEventListener('focus',()=>setTimeout(evBuyAutoSync,150));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(evBuyAutoSync,150)});document.addEventListener('keydown',e=>{if(e.key==='Escape'){evBuyCloseItem();evBuyCloseLink()}})}
+function install(){ensureUI();fixBelanjaPlacement();ensureHomeCard();ensureQuick();render();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v19.0.1 PRO';document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';setTimeout(()=>seedAfterCloud(0),350);setTimeout(()=>{fixBelanjaPlacement();syncPerfumeCatalog();render();evBuyAutoSync()},1800);setInterval(()=>{fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(document.getElementById('tab-belanja')?.classList.contains('active'))render()},3000);setInterval(evBuyAutoSync,10000);window.addEventListener('focus',()=>setTimeout(evBuyAutoSync,150));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(evBuyAutoSync,150)});document.addEventListener('keydown',e=>{if(e.key==='Escape'){evBuyCloseItem();evBuyCloseLink()}})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
 </script>
@@ -12380,7 +12380,7 @@ const FACE_ID_KEY='evora_faceid_credential_id_v1';
 const FACE_USER_KEY='evora_faceid_user_id_v1';
 const FACE_HASH_KEY='evora_faceid_password_hash_v1';
 const FACE_CREATED_KEY='evora_faceid_created_at_v1';
-const VERSION='v19.0 PRO';
+const VERSION='v19.0.1 PRO';
 
 function isIOS(){return /iPhone|iPad|iPod/i.test(navigator.userAgent||'')}
 function randomBytes(n=32){const a=new Uint8Array(n);crypto.getRandomValues(a);return a}
@@ -12523,7 +12523,7 @@ function wrapPasswordChange(name){
   const base=window[name];if(typeof base!=='function'||base.__evFace)return;
   const w=async function(){const before=String(window.authPasswordHash||authPasswordHash||'');const r=await base.apply(this,arguments);const after=String(window.authPasswordHash||authPasswordHash||'');if(after&&after!==before&&savedCredential()){localStorage.removeItem(FACE_HASH_KEY);await refreshUI()}return r};w.__evFace=true;window[name]=w;
 }
-function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v19.0 - Face ID / Passkey'}
+function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable'}
 function install(){
   wrapGate();wrapPasswordChange('gantiPasswordEvora');wrapPasswordChange('simpanPasswordBaruDariLupa');
   ensureLoginUI();ensureSettingUI();refreshUI();enforceVersion();
@@ -12555,7 +12555,7 @@ body.dark-theme{--v18-ink:#e5edf3;--v18-muted:#94a3b8;--v18-line:#334155;--v18-b
 <script id="evora-v180-business-os-logic">
 (function(){
 'use strict';
-const VERSION='v19.0 PRO';
+const VERSION='v19.0.1 PRO';
 const BI_KEY='evora_business_intel_v18';
 const BI_BACKUP_KEY='evora_auto_backups_v18';
 let centerTab='overview',installPrompt=null,materialEditId='';
@@ -12648,7 +12648,7 @@ function wrapAI(){const base=window.askEvoraAI;if(typeof base!=='function'||base
 function registerPWA(){if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./evora-sw.js').catch(e=>console.warn('EVORA SW',e));window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;renderSystemCard()});window.addEventListener('appinstalled',()=>{installPrompt=null;renderSystemCard()})}
 function wrapCloudLoad(){const base=window.loadDataFromCloud;if(typeof base!=='function'||base.__ev18)return;const w=async function(){const r=await base.apply(this,arguments);try{localStorage.setItem('evora_last_cloud_ok_v18',new Date().toISOString())}catch(e){}await loadBICloud();renderHome();renderCenter();renderSystemCard();return r};w.__ev18=true;window.loadDataFromCloud=w}
 function refreshAll(){ensureHome();ensureMaterialUI();ensureSystemCard();ensureAIEntry();renderHome();renderMaterial();decorateBuyCards();renderSystemCard();if(document.getElementById('evoraBusinessCenter')?.classList.contains('show'))renderCenter()}
-function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v19.0 - Business OS'}
+function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable'}
 function install(){patchDataPackage();wrapCloudLoad();wrapBelanjaRender();wrapBought();wrapAI();ensureCenter();ensureHome();ensureMaterialModal();ensurePriceModal();ensureMaterialUI();ensureSystemCard();ensureAIEntry();mergeBI(loadLocalBI());autoBackup();registerPWA();if(window.evoraBuyCloudOnline){try{localStorage.setItem('evora_last_cloud_ok_v18',new Date().toISOString())}catch(e){}}refreshAll();enforceVersion();setTimeout(async()=>{await loadBICloud();await autoClosingBackfill();refreshAll();checkNotifications()},1200);setInterval(()=>{enforceVersion();refreshAll()},5000);setInterval(checkNotifications,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshAll();checkNotifications()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){evV18CloseCenter();evV18CloseMaterial();document.getElementById('evV18PriceModal')?.classList.remove('show')}})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
@@ -12678,7 +12678,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script id="evora-v1801-text-fix-logic">
 (function(){
 'use strict';
-const V1801='v19.0 PRO';
+const V1801='v19.0.1 PRO';
 const MOJI=[
   ['\u00e2\u2020\u2018','Naik'],['\u00e2\u2020\u201c','Turun'],
   ['\u00e2\u02c6\u2019','-'],['\u00e2\u20ac\u201d','-'],['\u00e2\u20ac\u201c','-'],
@@ -12716,7 +12716,7 @@ function normalizeAI(){
 }
 function normalizeVersion(){
   const v=document.getElementById('evoraProVersion');if(v)v.textContent=V1801;
-  document.title='EVORA Tracker Pro v19.0 - Business OS';
+  document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';
 }
 function run(){repair(document.body);normalizeAI();normalizeVersion()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
@@ -12725,7 +12725,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout
 window.addEventListener('pageshow',()=>setTimeout(run,80));
 })();
 </script>
-\n\n<!-- EVORA v19.0 - DESKTOP BLUE WORKSPACE REDESIGN -->
+<!-- EVORA v19.0 - DESKTOP BLUE WORKSPACE REDESIGN -->
 <style id="evora-v190-desktop-blue-workspace">
 /* Bright-blue EVORA identity. Layout changes are desktop-only. */
 :root{
@@ -12880,7 +12880,7 @@ body.dark-theme #evoraAICenter{--ai-bg:#0b1424!important;--ai-card:#121f33!impor
 <script id="evora-v190-desktop-blue-logic">
 (function(){
 'use strict';
-const VERSION='v19.0 PRO';
+const VERSION='v19.0.1 PRO';
 const isDesktop=()=>window.matchMedia&&window.matchMedia('(min-width:1024px)').matches;
 function E(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function heading(el){return String(el?.querySelector?.('h3')?.textContent||'').replace(/\s+/g,' ').trim().toUpperCase()}
@@ -12960,8 +12960,113 @@ window.ev19OpenPaylater=function(){if(typeof window.switchTab==='function')windo
 window.ev19OpenAds=function(){if(typeof window.switchTab==='function')window.switchTab('beranda');setTimeout(()=>{const hs=[...document.querySelectorAll('#tab-beranda h3')];const h=hs.find(x=>/IKLAN/i.test(x.textContent||''));(h?.closest('.card')||h)?.scrollIntoView({behavior:'smooth',block:'start'})},80)};
 function topbarTick(){const c=document.getElementById('ev19Clock');if(c)c.textContent=new Date().toLocaleString('id-ID',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});const cloud=document.getElementById('ev19Cloud'),ct=document.getElementById('ev19CloudText'),src=document.getElementById('syncStatus');const online=navigator.onLine;if(cloud)cloud.classList.toggle('offline',!online);if(ct)ct.textContent=online?(String(src?.textContent||'Cloud').replace(/\s+/g,' ').trim()||'Connected'):'Offline'}
 function wrapTabs(){const base=window.switchTab;if(typeof base!=='function'||base.__ev19)return;const w=function(name){const r=base.apply(this,arguments);setTimeout(()=>{decorate();updatePage(name)},0);return r};w.__ev19=true;window.switchTab=w}
-function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v19.0 - Desktop Blue Workspace'}
+function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable'}
 function install(){ensureChrome();decorate();wrapTabs();updatePage();topbarTick();version();setTimeout(()=>{decorate();updatePage();version()},700);setInterval(()=>{topbarTick();version()},2000);window.addEventListener('online',topbarTick);window.addEventListener('offline',topbarTick);window.addEventListener('resize',()=>{if(isDesktop())decorate()})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+})();
+</script>
+
+
+<!-- EVORA v19.0.1 - DESKTOP STABILITY / LAYOUT AUDIT FIX -->
+<style id="evora-v1901-desktop-stability-fix">
+@media (min-width:1024px){
+  /* Desktop top chrome already contains sync + version context. Avoid duplicated floating controls. */
+  #evoraProVersion{display:none!important}
+  #premiumHeaderWrapper .btn-sync-icon{display:none!important}
+
+  /* Every direct child gets a safe width first. Specific cards can then share columns. */
+  #tab-beranda.active>*,
+  #tab-kasir.active>*,
+  #tab-laporan.active>*,
+  #tab-riwayat.active>*{
+    grid-column:1/-1!important;
+    min-width:0!important;
+  }
+
+  /* HOME: stable 12-column command center. */
+  #tab-beranda #evoraProCommand{grid-column:1/-1!important}
+  #tab-beranda #evAttentionCenter{grid-column:1/span 6!important}
+  #tab-beranda #evAIInsight{grid-column:7/-1!important}
+  #tab-beranda #evV18HomeAdvisor{grid-column:1/-1!important}
+  #tab-beranda #evBuyHomeCard{grid-column:1/-1!important}
+  #tab-beranda .ev19-home-quick{grid-column:1/-1!important}
+  #tab-beranda .ev19-home-advisor{grid-column:1/span 8!important}
+  #tab-beranda .ev19-home-top{grid-column:9/-1!important}
+  #tab-beranda .ev19-home-insights{grid-column:1/-1!important}
+  #tab-beranda .ev19-home-month{grid-column:1/span 6!important}
+  #tab-beranda .ai-marketing-card{grid-column:7/-1!important}
+  #tab-beranda .ev19-home-chart{grid-column:1/span 8!important}
+  #tab-beranda .ev19-home-topvariant{grid-column:9/-1!important}
+  #tab-beranda .ev19-home-actions{grid-column:1/-1!important}
+  #tab-beranda .ev19-home-target{grid-column:1/span 5!important}
+  #tab-beranda .ev19-home-monthly{grid-column:6/-1!important}
+  #tab-beranda>.card:not(.ev19-home-quick):not(.ev19-home-advisor):not(.ev19-home-top):not(.ev19-home-month):not(.ai-marketing-card):not(.ev19-home-chart):not(.ev19-home-topvariant):not(.ev19-home-target):not(.ev19-home-monthly):not(.ev-legacy-today-performance){grid-column:1/-1!important}
+
+  /* CASHIER: tools + focus bar, then POS left / operational controls right, restock full width. */
+  #tab-kasir #kasirToolsResi{grid-column:1/-1!important;grid-row:1!important}
+  #tab-kasir #evKasirFocusBar{grid-column:1/-1!important;grid-row:2!important}
+  #tab-kasir #panelKasir{grid-column:1/span 8!important;grid-row:3/span 3!important}
+  #tab-kasir .ev19-kasir-price{grid-column:9/-1!important;grid-row:3!important}
+  #tab-kasir .ev19-kasir-wholesale{grid-column:9/-1!important;grid-row:4!important}
+  #tab-kasir .ev19-kasir-add{grid-column:9/-1!important;grid-row:5!important}
+  #tab-kasir #panelRestock{grid-column:1/-1!important;grid-row:6!important}
+
+  /* REPORTS: no 1-column squeezed widgets. */
+  #tab-laporan .ev19-report-paylater{grid-column:1/span 5!important;grid-row:1!important}
+  #tab-laporan .ev19-report-daily{grid-column:6/-1!important;grid-row:1!important}
+  #tab-laporan .ev19-report-monthly{grid-column:1/-1!important;grid-row:2!important}
+  #tab-laporan #evBusinessChartCard{grid-column:1/-1!important;grid-row:3!important;width:auto!important}
+  #tab-laporan>.card:not(.ev19-report-paylater):not(.ev19-report-daily):not(.ev19-report-monthly){grid-column:1/-1!important;grid-row:auto!important}
+
+  /* HISTORY: filter + timeline full width, two logs side by side. */
+  #tab-riwayat .ev19-history-filter{grid-column:1/-1!important;grid-row:1!important}
+  #tab-riwayat #evUnifiedTimelineCard{grid-column:1/-1!important;grid-row:2!important;width:auto!important}
+  #tab-riwayat .ev19-history-sales{grid-column:1/span 6!important;grid-row:3!important}
+  #tab-riwayat .ev19-history-expense{grid-column:7/-1!important;grid-row:3!important}
+
+  /* SETTINGS: old category labels were consuming an entire grid column and pushing cards right. */
+  #tab-setting.active>.ev-setting-label{display:none!important}
+  #tab-setting.active>.card{grid-column:auto!important;min-width:0!important;margin:0!important}
+  #tab-setting.active>.ev19-setting-security,
+  #tab-setting.active>#evV18SystemCard{grid-column:1/-1!important}
+
+  /* AI is a side workspace on desktop; opening it must not freeze scrolling behind it. */
+  body.ev-ai-open{overflow:auto!important}
+  #evoraAICenter{max-width:470px!important}
+
+  /* Make the top bar resilient at smaller desktop widths. */
+  @media (max-width:1180px){
+    #ev19DesktopTopbar{padding-left:18px;padding-right:18px}
+    .ev19-top-title span,.ev19-time,#ev19CloudText{display:none!important}
+    .ev19-top-search{width:220px!important}
+    .ev19-cloud{width:38px!important;padding:0!important;justify-content:center!important}
+  }
+}
+</style>
+<script id="evora-v1901-desktop-stability-logic">
+(function(){
+'use strict';
+const V='v19.0.1 PRO';
+const TITLE='EVORA Tracker Pro v19.0.1 - Desktop Blue Workspace Stable';
+const desktop=()=>window.matchMedia&&window.matchMedia('(min-width:1024px)').matches;
+function fixChrome(){
+  const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;
+  document.title=TITLE;
+  const homeBtn=[...document.querySelectorAll('#ev19DesktopSidebar .ev19-side-item')].find(b=>/Beranda/i.test(b.textContent||''));
+  if(homeBtn){const icon=homeBtn.querySelector('i');if(icon){icon.classList.remove('fa-grid-2');icon.classList.add('fa-house')}}
+  document.querySelector('#tab-beranda>.ai-marketing-card')?.classList.add('ev19-home-prediction');
+}
+function wrapAI(){
+  const open=window.openEvoraAI;
+  if(typeof open==='function'&&!open.__ev1901){
+    const w=function(){const r=open.apply(this,arguments);if(desktop())document.body.style.overflow='';return r};w.__ev1901=true;window.openEvoraAI=w;
+  }
+  const close=window.closeEvoraAI;
+  if(typeof close==='function'&&!close.__ev1901){
+    const w=function(){const r=close.apply(this,arguments);if(desktop())document.body.style.overflow='';return r};w.__ev1901=true;window.closeEvoraAI=w;
+  }
+}
+function install(){fixChrome();wrapAI();setTimeout(fixChrome,500);setTimeout(fixChrome,1600)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
 </script>
