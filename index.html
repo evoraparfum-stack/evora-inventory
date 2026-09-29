@@ -12725,5 +12725,400 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout
 window.addEventListener('pageshow',()=>setTimeout(run,80));
 })();
 </script>
+
+<!-- EVORA v18.2 - FULL FRESH ALL MENU REDESIGN (UI ONLY, FEATURES PRESERVED) -->
+<style id="evora-v182-fresh-skin">
+:root{
+  --bg-main:#eef5ff;
+  --bg-card:#ffffff;
+  --text-main:#10213d;
+  --text-muted:#6880a6;
+  --primary:#1f78ff;
+  --primary-deep:#0f5fe8;
+  --primary-soft:#e8f1ff;
+  --success:#16a34a;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --accent:#7c3aed;
+  --premium-gradient:linear-gradient(135deg,#0f66ff 0%,#2d8cff 38%,#66b4ff 100%);
+  --shadow-sm:0 8px 18px rgba(15,97,232,.08);
+  --shadow-md:0 20px 44px rgba(27,76,149,.12);
+  --radius-sm:12px;
+  --radius-md:20px;
+  --radius-lg:28px;
+}
+body{
+  background:linear-gradient(180deg,#eaf3ff 0%,#f7fbff 38%,#eef6ff 100%)!important;
+  color:var(--text-main)!important;
+}
+body.dark-theme{
+  --bg-main:#091528;
+  --bg-card:#10213b;
+  --text-main:#f5f8ff;
+  --text-muted:#9eb1d1;
+  --primary:#5aa4ff;
+  --primary-deep:#2d8cff;
+  --primary-soft:rgba(90,164,255,.14);
+  --shadow-sm:0 8px 18px rgba(0,0,0,.16);
+  --shadow-md:0 20px 44px rgba(0,0,0,.24);
+  background:linear-gradient(180deg,#091528 0%,#0d1e37 100%)!important;
+}
+body.evora-fresh-ui .premium-header{
+  background:var(--premium-gradient)!important;
+  padding:28px 18px 84px!important;
+  border-radius:0 0 36px 36px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(31,120,255,.28), inset 0 -26px 50px rgba(8,49,125,.22);
+  position:relative;
+}
+body.evora-fresh-ui .premium-header:before,
+body.evora-fresh-ui .premium-header:after{
+  content:"";position:absolute;border-radius:999px;pointer-events:none;
+  background:radial-gradient(circle at center,rgba(255,255,255,.22),rgba(255,255,255,0) 72%);
+}
+body.evora-fresh-ui .premium-header:before{width:290px;height:290px;right:-70px;top:-110px;}
+body.evora-fresh-ui .premium-header:after{width:240px;height:240px;left:-120px;bottom:-140px;opacity:.9;}
+body.evora-fresh-ui .header-top{
+  display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;margin-bottom:10px!important;
+}
+body.evora-fresh-ui .evora-brand-block{display:flex;flex-direction:column;gap:4px;min-width:0;}
+body.evora-fresh-ui .brand-title{
+  font-size:26px!important;letter-spacing:2px!important;font-weight:900!important;
+  color:#fff!important;background:none!important;-webkit-text-fill-color:unset!important;
+}
+body.evora-fresh-ui .evora-brand-sub{
+  font-size:11px;font-weight:500;line-height:1.25;color:rgba(255,255,255,.92);max-width:145px;
+}
+body.evora-fresh-ui .evora-utility-cluster{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+body.evora-fresh-ui .header-util-btn,
+body.evora-fresh-ui .sync-badge,
+body.evora-fresh-ui .btn-sync-icon{
+  min-height:52px;border-radius:18px!important;border:1px solid rgba(255,255,255,.18)!important;
+  background:rgba(255,255,255,.16)!important;color:#fff!important;backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;
+  box-shadow:0 12px 25px rgba(7,35,85,.16)!important;
+}
+body.evora-fresh-ui .header-util-btn{width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;}
+body.evora-fresh-ui .header-util-btn i{pointer-events:none;}
+body.evora-fresh-ui .sync-badge{padding:0 16px!important;display:flex!important;align-items:center!important;gap:8px!important;font-size:11px!important;font-weight:800!important;min-width:132px;justify-content:center;}
+body.evora-fresh-ui .sync-badge i{color:#7cf29f!important;}
+body.evora-fresh-ui .user-greeting{font-size:14px!important;font-weight:500!important;color:rgba(255,255,255,.88)!important;margin-top:10px!important;}
+body.evora-fresh-ui .bank-divider{border-top:1px solid rgba(255,255,255,.18)!important;margin:18px 0 20px!important;}
+body.evora-fresh-ui .balance-section{
+  align-items:flex-start!important;gap:16px;position:relative;z-index:1;
+}
+body.evora-fresh-ui .balance-label{font-size:12px!important;color:rgba(255,255,255,.84)!important;}
+body.evora-fresh-ui .balance-value{font-size:34px!important;line-height:1.08!important;letter-spacing:-1.3px!important;}
+body.evora-fresh-ui .trend-badge{margin-top:10px!important;padding:8px 14px!important;font-size:13px!important;border-radius:999px!important;box-shadow:none!important;}
+body.evora-fresh-ui .trend-badge.up{background:rgba(22,163,74,.18)!important;color:#b4ffca!important;border-color:rgba(180,255,202,.25)!important;}
+body.evora-fresh-ui .trend-badge.down{background:rgba(239,68,68,.18)!important;color:#ffd0d5!important;border-color:rgba(255,208,213,.18)!important;}
+body.evora-fresh-ui .pills-container{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin-top:22px!important;
+}
+body.evora-fresh-ui .premium-pill{
+  min-height:72px;padding:14px 12px!important;background:rgba(255,255,255,.12)!important;border-radius:20px!important;
+  justify-content:flex-start!important;align-items:flex-start!important;flex-direction:column!important;gap:6px!important;
+  font-size:11px!important;text-transform:none!important;letter-spacing:0!important;color:rgba(255,255,255,.86)!important;text-align:left!important;
+}
+body.evora-fresh-ui .premium-pill span{font-size:17px;font-weight:900;color:#fff;}
+body.evora-fresh-ui .main-sheet{
+  background:transparent!important;
+  margin-top:-54px!important;
+  border-radius:34px 34px 0 0!important;
+  padding:18px 14px 160px!important;
+}
+body.evora-fresh-ui .tab-content{display:none;}
+body.evora-fresh-ui .tab-content.active{display:block;}
+body.evora-fresh-ui .card,
+body.evora-fresh-ui .action-card,
+body.evora-fresh-ui .item-barang,
+body.evora-fresh-ui .product-badge-card,
+body.evora-fresh-ui .modal-content,
+body.evora-fresh-ui .quick-card,
+body.evora-fresh-ui .riwayat-item,
+body.evora-fresh-ui .item-barang-belanja,
+body.evora-fresh-ui .paylater-item,
+body.evora-fresh-ui .ev-attention,
+body.evora-fresh-ui .ev-stock-control,
+body.evora-fresh-ui .ev-pay-kpis,
+body.evora-fresh-ui #evoraProCommand{
+  background:rgba(255,255,255,.94)!important;
+  border:1px solid rgba(183,205,242,.78)!important;
+  border-radius:26px!important;
+  box-shadow:var(--shadow-md)!important;
+}
+body.dark-theme.evora-fresh-ui .card,
+body.dark-theme.evora-fresh-ui .action-card,
+body.dark-theme.evora-fresh-ui .item-barang,
+body.dark-theme.evora-fresh-ui .product-badge-card,
+body.dark-theme.evora-fresh-ui .modal-content,
+body.dark-theme.evora-fresh-ui .quick-card,
+body.dark-theme.evora-fresh-ui .riwayat-item,
+body.dark-theme.evora-fresh-ui .item-barang-belanja,
+body.dark-theme.evora-fresh-ui .paylater-item,
+body.dark-theme.evora-fresh-ui .ev-attention,
+body.dark-theme.evora-fresh-ui .ev-stock-control,
+body.dark-theme.evora-fresh-ui .ev-pay-kpis,
+body.dark-theme.evora-fresh-ui #evoraProCommand{background:rgba(16,33,59,.95)!important;border-color:rgba(79,115,170,.45)!important;}
+body.evora-fresh-ui .card{padding:22px 18px!important;margin-bottom:18px!important;}
+body.evora-fresh-ui .card h3,
+body.evora-fresh-ui h3{
+  margin-bottom:16px!important;font-size:11px!important;letter-spacing:1.9px!important;font-weight:900!important;color:#4f72aa!important;
+}
+body.evora-fresh-ui .card h3 i,
+body.evora-fresh-ui h3 i{color:var(--primary)!important;}
+body.evora-fresh-ui .evora-section-note{font-size:11px;color:var(--text-muted);margin-top:-8px;margin-bottom:14px;line-height:1.5;}
+body.evora-fresh-ui button{
+  background:linear-gradient(135deg,var(--primary),var(--primary-deep))!important;
+  color:#fff!important;border:none!important;border-radius:16px!important;padding:13px 16px!important;
+  box-shadow:0 12px 20px rgba(31,120,255,.18)!important;font-weight:800!important;
+}
+body.evora-fresh-ui button[style*="background:#ef4444"],
+body.evora-fresh-ui .btn-danger,
+body.evora-fresh-ui .hapus-btn{background:linear-gradient(135deg,#ff5d5d,#ef4444)!important;}
+body.evora-fresh-ui button[style*="background:var(--success)"],
+body.evora-fresh-ui .btn-success{background:linear-gradient(135deg,#14b872,#0f9e61)!important;}
+body.evora-fresh-ui input,
+body.evora-fresh-ui select,
+body.evora-fresh-ui textarea{
+  background:#f8fbff!important;border:1.5px solid #d7e6fb!important;border-radius:16px!important;color:var(--text-main)!important;
+  text-align:left!important;text-align-last:left!important;padding:13px 16px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+}
+body.dark-theme.evora-fresh-ui input,
+body.dark-theme.evora-fresh-ui select,
+body.dark-theme.evora-fresh-ui textarea{background:#0a1930!important;border-color:#2a4d80!important;color:#f5f8ff!important;}
+body.evora-fresh-ui input:focus,
+body.evora-fresh-ui select:focus,
+body.evora-fresh-ui textarea:focus{box-shadow:0 0 0 4px rgba(31,120,255,.12)!important;border-color:#8ab8ff!important;background:#fff!important;}
+body.evora-fresh-ui .action-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;}
+body.evora-fresh-ui .quick-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;}
+body.evora-fresh-ui .quick-card{
+  padding:16px 12px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-start!important;gap:10px!important;
+  min-height:104px;box-shadow:var(--shadow-sm)!important;
+}
+body.evora-fresh-ui .quick-card i{
+  width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:20px;
+  background:linear-gradient(135deg,#eff6ff,#dbeafe);color:var(--primary);
+}
+body.evora-fresh-ui .quick-card span{font-size:13px;font-weight:800;color:var(--text-main);line-height:1.35;}
+body.evora-fresh-ui .product-badge-card{min-width:146px!important;}
+body.evora-fresh-ui .product-badge-rank{background:#edf4ff!important;color:var(--primary)!important;border-radius:999px!important;padding:5px 10px!important;font-size:10px!important;}
+body.evora-fresh-ui .product-badge-name{font-size:14px!important;font-weight:800!important;}
+body.evora-fresh-ui .badge-status{border-radius:999px!important;padding:6px 12px!important;font-size:10px!important;letter-spacing:.4px!important;}
+body.evora-fresh-ui .status-critical{background:#fff0f2!important;color:#df3459!important;border-color:#ffd1dc!important;}
+body.evora-fresh-ui .status-warning{background:#fff5e6!important;color:#d97706!important;border-color:#ffd7a2!important;}
+body.evora-fresh-ui .status-ready{background:#ebfff5!important;color:#109f62!important;border-color:#bdf3d8!important;}
+body.evora-fresh-ui .grid-barang{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;}
+body.evora-fresh-ui .item-barang{padding:16px!important;border-radius:24px!important;overflow:hidden;position:relative;}
+body.evora-fresh-ui .item-barang:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,var(--primary),#60a5fa);opacity:.92;}
+body.evora-fresh-ui .item-barang .item-info> b{font-size:15px!important;white-space:normal!important;overflow:visible!important;line-height:1.32!important;}
+body.evora-fresh-ui .item-barang .stok-text{font-size:12px!important;color:#5d7398!important;font-weight:700!important;}
+body.evora-fresh-ui .item-barang .item-info > div[style*="font-size:11px"]{white-space:normal!important;overflow:visible!important;font-size:11px!important;line-height:1.45!important;color:#1d9a8b!important;font-weight:800!important;}
+body.evora-fresh-ui .item-barang > div:last-child{gap:8px!important;}
+body.evora-fresh-ui .item-barang > div:last-child select{height:42px!important;border-radius:14px!important;padding:0 10px!important;}
+body.evora-fresh-ui .item-barang > div:last-child button{min-height:42px!important;border-radius:14px!important;padding:0 14px!important;font-size:13px!important;}
+body.evora-fresh-ui .search-container input{padding-left:48px!important;}
+body.evora-fresh-ui .search-container:before{content:"\f002";font-family:"Font Awesome 6 Free";font-weight:900;position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#8ea6c8;z-index:2;}
+body.evora-fresh-ui .search-variant-list{border-radius:18px!important;border:1px solid #d8e6fa!important;box-shadow:0 14px 32px rgba(31,120,255,.14)!important;}
+body.evora-fresh-ui table{width:100%;border-collapse:separate!important;border-spacing:0 10px!important;}
+body.evora-fresh-ui table th{font-size:11px;color:#5d7398;font-weight:900;text-transform:uppercase;letter-spacing:.8px;padding:0 10px 8px;}
+body.evora-fresh-ui table td{background:#f8fbff;padding:12px 10px;border-top:1px solid #e4eefb;border-bottom:1px solid #e4eefb;}
+body.evora-fresh-ui table td:first-child{border-left:1px solid #e4eefb;border-radius:14px 0 0 14px;}
+body.evora-fresh-ui table td:last-child{border-right:1px solid #e4eefb;border-radius:0 14px 14px 0;}
+body.dark-theme.evora-fresh-ui table td{background:#0a1930;border-color:#1f3554;}
+body.evora-fresh-ui .bottom-nav{
+  height:84px!important;bottom:12px!important;width:calc(100% - 20px)!important;max-width:760px!important;padding:8px!important;
+  border-radius:28px!important;background:rgba(255,255,255,.94)!important;border:1px solid rgba(195,214,241,.95)!important;box-shadow:0 24px 48px rgba(34,87,165,.18)!important;
+}
+body.dark-theme.evora-fresh-ui .bottom-nav{background:rgba(16,33,59,.92)!important;border-color:rgba(79,115,170,.42)!important;}
+body.evora-fresh-ui .bottom-nav .nav-item{
+  width:auto!important;min-width:0!important;flex:1 1 0!important;height:100%!important;border-radius:22px!important;padding:6px 4px!important;gap:4px!important;
+}
+body.evora-fresh-ui .bottom-nav .nav-item.active{background:linear-gradient(180deg,#f4f9ff,#e3efff)!important;color:var(--primary)!important;box-shadow:inset 0 0 0 1px rgba(124,176,255,.28)!important;}
+body.dark-theme.evora-fresh-ui .bottom-nav .nav-item.active{background:linear-gradient(180deg,#163253,#0f2340)!important;}
+body.evora-fresh-ui .nav-icon{font-size:19px!important;margin-bottom:3px!important;padding:0!important;background:none!important;}
+body.evora-fresh-ui .nav-item>div:last-child{font-size:11px!important;font-weight:800!important;}
+body.evora-fresh-ui .nav-indicator{display:none!important;}
+body.evora-fresh-ui .modal-content{padding:22px!important;border-radius:26px!important;}
+body.evora-fresh-ui #topNotification{border-radius:20px!important;}
+body.evora-fresh-ui .search-container input::placeholder,
+body.evora-fresh-ui input::placeholder,
+body.evora-fresh-ui textarea::placeholder{color:#9ab0cf!important;}
+body.evora-fresh-ui .evora-soft-card{background:linear-gradient(180deg,#ffffff 0%,#f5f9ff 100%)!important;}
+body.dark-theme.evora-fresh-ui .evora-soft-card{background:linear-gradient(180deg,#10213b 0%,#0a1930 100%)!important;}
+body.evora-fresh-ui .evora-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}
+body.evora-fresh-ui .evora-split-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;align-items:stretch;}
+body.evora-fresh-ui .evora-blue-chip{display:inline-flex;align-items:center;gap:8px;background:#eef5ff;color:var(--primary);padding:8px 12px;border-radius:999px;font-size:11px;font-weight:800;}
+body.dark-theme.evora-fresh-ui .evora-blue-chip{background:rgba(90,164,255,.12);color:#9ac4ff;}
+body.evora-fresh-ui #evoraAIOpen{box-shadow:0 18px 34px rgba(12,45,112,.25)!important;border-radius:999px!important;overflow:hidden;}
+body.evora-fresh-ui #evoraAIOpen .eai-open-card,
+body.evora-fresh-ui #evoraAIOpen{background:linear-gradient(135deg,#0d4dcd 0%,#1f78ff 45%,#57b3ff 100%)!important;color:#fff!important;}
+body.evora-fresh-ui #tab-setting .card,
+body.evora-fresh-ui #tab-belanja .card,
+body.evora-fresh-ui #tab-laporan .card,
+body.evora-fresh-ui #tab-riwayat .card,
+body.evora-fresh-ui #tab-kasir .card{position:relative;overflow:hidden;}
+body.evora-fresh-ui .evora-card-actions{display:flex;gap:10px;flex-wrap:wrap;}
+body.evora-fresh-ui .evora-sticky-tools{position:sticky;top:10px;z-index:25;}
+@media (min-width:900px){
+  body.evora-fresh-ui .premium-header{padding:30px 28px 92px!important;}
+  body.evora-fresh-ui .main-sheet{padding-left:24px!important;padding-right:24px!important;}
+  body.evora-fresh-ui .balance-value{font-size:56px!important;}
+  body.evora-fresh-ui .brand-title{font-size:42px!important;letter-spacing:3px!important;}
+  body.evora-fresh-ui .evora-brand-sub{font-size:15px;max-width:260px;}
+  body.evora-fresh-ui .user-greeting{font-size:19px!important;}
+  body.evora-fresh-ui .pills-container{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+  body.evora-fresh-ui .card{padding:24px!important;}
+  body.evora-fresh-ui .quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+  body.evora-fresh-ui .grid-barang{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+}
+@media (max-width:760px){
+  body.evora-fresh-ui .action-grid{grid-template-columns:1fr!important;}
+  body.evora-fresh-ui .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  body.evora-fresh-ui .pills-container{grid-template-columns:1fr 1fr!important;}
+  body.evora-fresh-ui .pills-container > :last-child{grid-column:1 / -1;}
+}
+@media (max-width:560px){
+  body.evora-fresh-ui .premium-header{padding:26px 14px 80px!important;border-radius:0 0 30px 30px!important;}
+  body.evora-fresh-ui .main-sheet{margin-top:-48px!important;padding:16px 10px 152px!important;}
+  body.evora-fresh-ui .brand-title{font-size:22px!important;}
+  body.evora-fresh-ui .balance-value{font-size:32px!important;}
+  body.evora-fresh-ui .header-util-btn,.sync-badge,.btn-sync-icon{min-height:46px!important;border-radius:16px!important;}
+  body.evora-fresh-ui .header-util-btn{width:46px;height:46px;font-size:19px;}
+  body.evora-fresh-ui .sync-badge{min-width:112px!important;padding:0 12px!important;}
+  body.evora-fresh-ui .card{padding:18px 14px!important;border-radius:24px!important;}
+  body.evora-fresh-ui .grid-barang{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
+  body.evora-fresh-ui .item-barang{padding:14px 12px!important;border-radius:20px!important;}
+  body.evora-fresh-ui .item-barang .item-info> b{font-size:13px!important;}
+  body.evora-fresh-ui .item-barang > div:last-child{justify-content:space-between!important;}
+  body.evora-fresh-ui .item-barang > div:last-child button{padding:0 12px!important;font-size:12px!important;}
+  body.evora-fresh-ui .bottom-nav{height:78px!important;bottom:8px!important;width:calc(100% - 12px)!important;border-radius:24px!important;}
+  body.evora-fresh-ui .nav-item>div:last-child{font-size:9.5px!important;}
+}
+@media (max-width:390px){
+  body.evora-fresh-ui .grid-barang{grid-template-columns:1fr!important;}
+  body.evora-fresh-ui .header-top{gap:8px!important;}
+  body.evora-fresh-ui .evora-utility-cluster{gap:8px!important;}
+  body.evora-fresh-ui .sync-badge{min-width:104px!important;font-size:10px!important;}
+}
+</style>
+<script id="evora-v182-fresh-skin-logic">
+(function(){
+'use strict';
+const VERSION='v18.2 PRO';
+function ensureFreshClass(){document.body.classList.add('evora-fresh-ui');}
+function slugify(t){return String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+function decorateHeader(){
+  const top=document.querySelector('.header-top');
+  const brand=document.querySelector('.brand-title');
+  const sync=document.getElementById('syncStatus');
+  if(!top||!brand||!sync) return;
+  if(!top.querySelector('.evora-brand-block')){
+    const block=document.createElement('div');
+    block.className='evora-brand-block';
+    brand.parentNode.insertBefore(block,brand);
+    block.appendChild(brand);
+    const sub=document.createElement('div');
+    sub.className='evora-brand-sub';
+    sub.innerHTML='Solusi Bisnis Anda<br>Setiap Hari';
+    block.appendChild(sub);
+  }
+  let cluster=top.querySelector('.evora-utility-cluster');
+  if(!cluster){
+    cluster=document.createElement('div');
+    cluster.className='evora-utility-cluster';
+    top.appendChild(cluster);
+  }
+  if(!cluster.querySelector('.evora-search-btn')){
+    const search=document.createElement('button');
+    search.type='button';
+    search.className='header-util-btn evora-search-btn';
+    search.setAttribute('aria-label','Cari dan buka kasir');
+    search.innerHTML='<i class="fa-solid fa-magnifying-glass"></i>';
+    search.onclick=function(){
+      try{ if(typeof switchTab==='function') switchTab('kasir'); }catch(e){}
+      setTimeout(function(){
+        const input=document.querySelector('#panelKasir .search-container input,#panelKasir input[type="search"],#panelKasir input[placeholder*="Cari"]');
+        if(input){input.focus(); if(input.select) input.select();}
+        window.scrollTo({top:0,behavior:'smooth'});
+      },120);
+    };
+    cluster.appendChild(search);
+  }
+  if(!cluster.querySelector('.evora-bell-btn')){
+    const bell=document.createElement('button');
+    bell.type='button';
+    bell.className='header-util-btn evora-bell-btn';
+    bell.setAttribute('aria-label','Buka perhatian penting');
+    bell.innerHTML='<i class="fa-solid fa-bell"></i>';
+    bell.onclick=function(){
+      const target=[...document.querySelectorAll('.card h3,.card h2,.card h4')].find(el=>/perlu restock|pusat perhatian|kondisi bisnis hari ini/i.test(el.textContent||''));
+      if(target){target.closest('.card')?.scrollIntoView({behavior:'smooth',block:'start'});}else if(typeof checkNotifications==='function'){checkNotifications();}
+    };
+    cluster.appendChild(bell);
+  }
+  if(sync.parentElement!==cluster) cluster.appendChild(sync);
+  if(!sync.dataset.evoraFreshLabel){
+    sync.dataset.evoraFreshLabel='1';
+    const upd=function(){
+      const text=(sync.textContent||'').trim();
+      if(/loading/i.test(text)) return;
+      if(!/terkoneksi|connected/i.test(text)) sync.innerHTML='<i class="fa-solid fa-circle"></i> Terkoneksi';
+    };
+    upd();
+    setTimeout(upd,500);
+    setTimeout(upd,1800);
+  }
+}
+function addSectionNotes(){
+  const map={
+    'akses-cepat':'Jalankan fitur inti lebih cepat tanpa mengubah alur kerja Anda.',
+    'kondisi-bisnis-hari-ini':'Ringkasan inti untuk memantau omzet, performa, dan anomali utama.',
+    'konfigurasi-harga-global':'Satu pusat kontrol untuk harga default yang dipakai pada semua transaksi.',
+    'panel-kasir-instan':'Layout kasir dirapikan agar input cepat, jelas, dan nyaman di HP maupun PC.',
+    'mapping-nama-resi':'Pastikan nama produk dari resi selalu diarahkan ke varian yang benar.',
+    'rekapitulasi-bulanan-detail':'Semua ringkasan bulanan dibuat lebih fokus dan mudah dibaca.',
+    'pengaturan-profil':'Atur identitas, preferensi, dan sinkronisasi tanpa mengubah data utama.',
+    'eksport-copy-data':'Semua kontrol ekspor dan salin data dibuat lebih rapi dan mudah dijangkau.',
+    'scan-resi-duplikat':'Area scanner dipoles ulang agar tetap familiar tetapi tampil lebih modern.'
+  };
+  document.querySelectorAll('.card').forEach(card=>{
+    const h=card.querySelector('h3');
+    if(!h) return;
+    const slug=slugify(h.textContent);
+    card.classList.add('section-'+slug);
+    if(map[slug] && !card.querySelector('.evora-section-note')){
+      const note=document.createElement('div');
+      note.className='evora-section-note';
+      note.textContent=map[slug];
+      h.insertAdjacentElement('afterend',note);
+    }
+  });
+}
+function decorateCards(){
+  document.querySelectorAll('.card').forEach(card=>card.classList.add('evora-soft-card'));
+  document.querySelectorAll('.quick-card').forEach((card,idx)=>{
+    const icons=card.querySelector('i');
+    if(!icons) return;
+    const bg=[
+      'linear-gradient(135deg,#e0f2fe,#dbeafe)',
+      'linear-gradient(135deg,#dcfce7,#d1fae5)',
+      'linear-gradient(135deg,#f5e8ff,#ede9fe)',
+      'linear-gradient(135deg,#fff7ed,#ffedd5)',
+      'linear-gradient(135deg,#dbeafe,#eff6ff)'
+    ];
+    icons.style.background=bg[idx%bg.length];
+  });
+}
+function repairTitle(){
+  document.title='EVORA Tracker Pro v18.2 - Fresh All Menu UI';
+  const v=document.getElementById('evoraProVersion');
+  if(v) v.textContent=VERSION;
+}
+function run(){ensureFreshClass();decorateHeader();addSectionNotes();decorateCards();repairTitle();}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true}); else run();
+setTimeout(run,600);setTimeout(run,1800);setTimeout(run,4200);
+window.addEventListener('pageshow',function(){setTimeout(run,80)});
+})();
+</script>
 </body>
 </html>
