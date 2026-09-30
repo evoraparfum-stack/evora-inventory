@@ -4904,7 +4904,20 @@ function getBuiltinSafeResiAliases(){
     "CREMEVANILLE":"VANILLE CREME",
     "ALPHA BY HMNS":"ALPHA",
     "INVICTIUS":"CALIFORNIA BLUE/INVICTUS",
-    "INVICTUS":"CALIFORNIA BLUE/INVICTUS"
+    "INVICTUS":"CALIFORNIA BLUE/INVICTUS",
+
+    // Seller-SKU abbreviations proven by EVORA marketplace labels.
+    // These are matched only as explicit product/SKU text, never from addresses.
+    "CL":"CALIFORNIA",
+    "INCEP":"INCEPTION",
+    "INCEPT":"INCEPTION",
+    "KONGKE":"KONGKER",
+    "KONGKE R":"KONGKER",
+    "KONGKER":"KONGKER",
+    "PENHOSE":"PENTHOUSE",
+    "PENHOUSE":"PENTHOUSE",
+    "PENTHOSE":"PENTHOUSE",
+    "PENTHOU SE":"PENTHOUSE"
   };
 }
 
@@ -4915,6 +4928,15 @@ function resolveBuiltinSafeAlias(rawName){
   const aliases=getBuiltinSafeResiAliases();
   const target=aliases[q] || aliases[qc];
   if(!target) return -1;
+
+  // CL is the real EVORA marketplace SKU for California. Support both
+  // cashier labels that have existed in the app without ever confusing it
+  // with CALIFORNIA BLUE/INVICTUS.
+  if(q==="CL" || qc==="CL"){
+    let ci=barang.findIndex(b=>normScan(b.nama)==="california");
+    if(ci<0) ci=barang.findIndex(b=>normScan(b.nama)==="california scent");
+    if(ci>=0) return ci;
+  }
 
   // Exact cashier target.
   let idx=barang.findIndex(b=>normScan(b.nama)===normScan(target));
@@ -5348,6 +5370,33 @@ function matchGenericSellerSkuFromChunk(chunk){
   return {index:best.index,score:best.score,method:"seller-sku-safe",matchedText:best.source};
 }
 
+function matchSellerSkuSuffixFromChunk(chunk){
+  const raw=String(chunk||"").replace(/\s+/g," ").trim();
+  if(!raw || !/\bEVORA\b/i.test(raw)) return null;
+  if(/bundling\s*2\s*botol|mix\s*variant/i.test(raw)) return null;
+
+  // Remove the trailing Qty when PDF text puts it at the end of the row.
+  const base=raw.replace(/\s+\d{1,3}\s*$/," ").replace(/\s+/g," ").trim();
+  if(!base) return null;
+
+  // Try only short suffixes from the product row. This captures explicit
+  // Seller-SKU values such as CL, INCEP, KONGKE R, PENHOSE and HAWAS ICE
+  // without fuzzy-scanning the shipping address or the rest of the page.
+  const tokens=base.split(/\s+/).filter(Boolean);
+  const maxLen=Math.min(4,tokens.length);
+  for(let len=maxLen;len>=1;len--){
+    const candidate=tokens.slice(tokens.length-len).join(" ")
+      .replace(/^[,;|:\-]+|[,;|:\-]+$/g,"")
+      .trim();
+    if(!candidate || /^default$/i.test(candidate)) continue;
+    const mm=safeMatchResiVariantName(candidate);
+    if(mm && mm.index>=0){
+      return {...mm,method:"seller-sku-suffix-safe",matchedText:candidate};
+    }
+  }
+  return null;
+}
+
 function bestScanMatch(chunk){
   if(!barang.length) return {index:-1,score:0};
 
@@ -5355,7 +5404,12 @@ function bestScanMatch(chunk){
   const canonical=matchCanonicalResiProductName(chunk);
   if(canonical && canonical.index>=0) return canonical;
 
-  // 2) Judul marketplace generik: varian ada di SKU/Seller SKU.
+  // 2) Seller-SKU eksplisit di ujung row. Sangat penting untuk listing MYKS
+  // generik yang judulnya tidak memuat nama varian.
+  const suffixSku=matchSellerSkuSuffixFromChunk(chunk);
+  if(suffixSku && suffixSku.index>=0) return suffixSku;
+
+  // 3) Judul marketplace generik: varian ada di SKU/Seller SKU.
   const sellerSku=matchGenericSellerSkuFromChunk(chunk);
   if(sellerSku && sellerSku.index>=0) return sellerSku;
 
@@ -5442,67 +5496,69 @@ function reconstructPdfLines(items){
 }
 function extractResiInfo(lines,pageNo){
   const text=lines.join("\n");
-  const start=lines.findIndex(x=>/product\s*name\s+sku\s+seller\s*sku\s+qty/i.test(x) || /product\s*name/i.test(x));
-  const endCandidates=[];
-  lines.forEach((x,i)=>{if(i>Math.max(0,start) && /qty\s*total|order\s*id|nickname/i.test(x)) endCandidates.push(i);});
-  const end=endCandidates.length?Math.min(...endCandidates):lines.length;
-  const region=lines.slice(start>=0?start+1:0,end);
+
+  // Do not depend on the Product Name header being above the rows. Some
+  // marketplace PDFs split one order across two pages and put the remaining
+  // product rows on the next page BEFORE the repeated table header.
+  // Any line beginning with EVORA is treated as a product-row start, then the
+  // row stops at the next EVORA row or at a table terminator.
   const rowStarts=[];
-  region.forEach((x,i)=>{if(/^evora\b/i.test(x.trim())) rowStarts.push(i);});
+  lines.forEach((x,i)=>{
+    const s=String(x||"").trim();
+    if(/^EVORA\b/i.test(s) && !/^EVORA\.PARFUM\b/i.test(s)) rowStarts.push(i);
+  });
+
+  const terminator=/^(?:Qty\s*Total\b|Order\s*ID\b|Order\s*Id\b|In\s*transit\b|Product\s*Name\b|Nickname\b)/i;
+  const chunks=rowStarts.map((st,k)=>{
+    const hardEnd=rowStarts[k+1]??lines.length;
+    let end=hardEnd;
+    for(let i=st+1;i<hardEnd;i++){
+      if(terminator.test(String(lines[i]||"").trim())){end=i;break;}
+    }
+    return lines.slice(st,end);
+  }).filter(c=>c.length);
+
   const rows=[];
-  const chunks=rowStarts.length ? rowStarts.map((st,k)=>region.slice(st,rowStarts[k+1]??region.length)) : [];
   const bundleChunkCount=chunks.filter(c=>/bundling\s*2\s*botol|mix\s*variant/i.test(c.join(" "))).length;
+  const orderId=(text.match(/Order\s*Id\s*:?\s*([0-9]{10,25})/i)||[])[1] || (text.match(/\b(58\d{10,20})\b/)||[])[1] || "";
+  const waybill=(text.match(/\b(JY\d{8,20})\b/i)||[])[1] || "";
+
   for(const chunkLines of chunks){
     const chunk=chunkLines.join(" ").replace(/\s+/g," ").trim();
     if(!chunk) continue;
+
     let qty=1;
     for(let i=chunkLines.length-1;i>=0;i--){
-      const m=chunkLines[i].match(/^([0-9]{1,3})$/);
+      const m=String(chunkLines[i]||"").trim().match(/^([0-9]{1,3})$/);
       if(m){qty=Math.max(1,Number(m[1]));break;}
     }
-    const orderId=(text.match(/Order\s*Id\s*:?\s*([0-9]{10,25})/i)||[])[1] || (text.match(/\b(58\d{10,20})\b/)||[])[1] || "";
-    const waybill=(text.match(/\b(JY\d{8,20})\b/i)||[])[1] || "";
+
     let match=bestScanMatch(chunk);
 
-    // EVORA DUO Siang & Malam adalah 1 listing berisi 2 botol fisik.
-    // Tokopedia dapat memberi Seller SKU = "Default", sementara dua varian
-    // tertulis langsung di judul produk. Pecah judul tersebut menjadi 2 item stok.
+    // Fixed-pair DUO: read both physical perfume variants from the title even
+    // when Seller SKU is Default.
     if(isDuoSiangMalamChunk(chunk)){
       const duoVariantNames=extractDuoVariantNames(chunk);
       duoVariantNames.slice(0,2).forEach(vName=>{
         const vm=safeMatchResiVariantName(vName);
         rows.push({
-          page:pageNo,
-          raw:chunk,
-          qty:1,
-          matchIndex:vm.index,
+          page:pageNo,raw:chunk,qty:1,matchIndex:vm.index,
           matchName:vm.index>=0 && barang[vm.index] ? barang[vm.index].nama : "",
-          score:vm.score,
-          matchMethod:vm.method||"duo-title",
-          resiName:vName,
-          orderId,
-          waybill,
-          bundle:true,
-          duo:true
-        });
-      });
-
-      // DUO harus selalu menghasilkan 2 item fisik. Jika salah satu nama tidak
-      // dikenali, tampilkan sebagai manual daripada menebak varian yang salah.
-      while(rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.duo && r.raw===chunk).length<2){
-        const no=rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.duo && r.raw===chunk).length+1;
-        rows.push({
-          page:pageNo,raw:chunk,qty:1,matchIndex:-1,matchName:"",score:0,
-          matchMethod:"duo-unresolved",resiName:`VARIAN DUO #${no} BELUM TERBACA`,
+          score:vm.score,matchMethod:vm.method||"duo-title",resiName:vName,
           orderId,waybill,bundle:true,duo:true
         });
+      });
+      while(rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.duo && r.raw===chunk).length<2){
+        const no=rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.duo && r.raw===chunk).length+1;
+        rows.push({page:pageNo,raw:chunk,qty:1,matchIndex:-1,matchName:"",score:0,
+          matchMethod:"duo-unresolved",resiName:`VARIAN DUO #${no} BELUM TERBACA`,
+          orderId,waybill,bundle:true,duo:true});
       }
       continue;
     }
 
-    // Shipping summary is a second independent signal when it contains a real
-    // variant instead of "Default". This helps generic listings such as
-    // ELIXIR / ON ROCK / HAWAS ICE without guessing from address text.
+    // Shipping summary is an independent signal for generic single-variant
+    // listings where the title itself does not contain the variant.
     if((!match || match.index<0) && chunks.length===1){
       const summaryNames=extractBundleNamesFromShippingSummary(text);
       if(summaryNames.length===1){
@@ -5511,63 +5567,44 @@ function extractResiInfo(lines,pageNo){
       }
     }
 
-    // Resi "Bundling 2 Botol / Mix Variant" menyimpan dua varian di kolom SKU/Seller SKU.
-    // Satu bundle harus masuk sebagai 2 item varian, bukan 1 item bundle.
-    if(/bundling\s*2\s*botol|mix\s*variant/i.test(chunk)) {
-      // Baca nama varian LANGSUNG dari Seller SKU satu per satu.
-      // Jangan mencari kandidat dari seluruh teks halaman karena bisa membuat
-      // produk "hantu" yang sebenarnya tidak ada di PDF.
-      // Sumber paling stabil adalah ringkasan label "Barang: A, B".
-      // Seller SKU tetap menjadi fallback jika ringkasan tidak tersedia.
+    // Mix-variant bundle = two physical perfume bottles.
+    if(/bundling\s*2\s*botol|mix\s*variant/i.test(chunk)){
       const summaryNames=extractBundleNamesFromShippingSummary(text);
       const chunkVariantNames=extractBundleVariantNames(chunk);
-
-      // CRITICAL: the shipping summary ("Barang: A, B") describes only one
-      // bundle choice on some Tokopedia/J&T labels. If the order contains
-      // multiple bundle product rows, reusing that summary for every row
-      // duplicates the same two variants. Parse each Seller-SKU row instead.
       let variantNames;
-      if(bundleChunkCount>1){
-        variantNames=chunkVariantNames;
-      }else if(chunkVariantNames.length>=2){
-        variantNames=chunkVariantNames;
-      }else if(summaryNames.length>=2){
-        variantNames=summaryNames;
-      }else{
-        variantNames=chunkVariantNames;
-      }
+      if(bundleChunkCount>1) variantNames=chunkVariantNames;
+      else if(chunkVariantNames.length>=2) variantNames=chunkVariantNames;
+      else if(summaryNames.length>=2) variantNames=summaryNames;
+      else variantNames=chunkVariantNames;
 
       variantNames.slice(0,2).forEach(vName=>{
         const vm=safeMatchResiVariantName(vName);
         rows.push({
-          page:pageNo,
-          raw:chunk,
-          qty:1,
-          matchIndex:vm.index,
+          page:pageNo,raw:chunk,qty:1,matchIndex:vm.index,
           matchName:vm.index>=0 && barang[vm.index] ? barang[vm.index].nama : "",
-          score:vm.score,
-          matchMethod:vm.method||"bundle-name",
-          resiName:vName,
-          orderId,
-          waybill,
-          bundle:true
-        });
-      });
-
-      // Bundling 2 Botol harus selalu menjadi 2 item fisik.
-      while(rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.bundle).length<2){
-        const no=rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.bundle).length+1;
-        rows.push({
-          page:pageNo,raw:chunk,qty:1,matchIndex:-1,matchName:"",score:0,
-          matchMethod:"bundle-unresolved",resiName:`VARIAN BUNDLE #${no} BELUM TERBACA`,
+          score:vm.score,matchMethod:vm.method||"bundle-name",resiName:vName,
           orderId,waybill,bundle:true
         });
+      });
+      while(rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.bundle && r.raw===chunk).length<2){
+        const no=rows.filter(r=>r.page===pageNo && r.orderId===orderId && r.bundle && r.raw===chunk).length+1;
+        rows.push({page:pageNo,raw:chunk,qty:1,matchIndex:-1,matchName:"",score:0,
+          matchMethod:"bundle-unresolved",resiName:`VARIAN BUNDLE #${no} BELUM TERBACA`,
+          orderId,waybill,bundle:true});
       }
       continue;
     }
-    rows.push({page:pageNo,raw:chunk,qty,matchIndex:match.index,matchName:(match.index>=0&&barang[match.index]?barang[match.index].nama:""),score:match.score,matchMethod:match.method||"",resiName:match.matchedText||"",orderId,waybill,bundle:false});
+
+    rows.push({
+      page:pageNo,raw:chunk,qty,
+      matchIndex:match?.index??-1,
+      matchName:(match?.index>=0&&barang[match.index]?barang[match.index].nama:""),
+      score:match?.score||0,matchMethod:match?.method||"",
+      resiName:match?.matchedText||"",orderId,waybill,bundle:false
+    });
   }
-  return {page:pageNo,lines,text,orderId:(text.match(/Order\s*Id\s*:?\s*([0-9]{10,25})/i)||[])[1]||"",waybill:(text.match(/\b(JY\d{8,20})\b/i)||[])[1]||"",rows};
+
+  return {page:pageNo,lines,text,orderId,waybill,rows};
 }
 async function extractPdfTextPages(file){
   if(!window.pdfjsLib) throw new Error("PDF.js belum termuat. Pastikan internet aktif.");
@@ -12653,6 +12690,18 @@ function refreshAll(){ensureHome();ensureMaterialUI();ensureSystemCard();ensureA
 function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v18.0 - Business OS'}
 function install(){patchDataPackage();wrapCloudLoad();wrapBelanjaRender();wrapBought();wrapAI();ensureCenter();ensureHome();ensureMaterialModal();ensurePriceModal();ensureMaterialUI();ensureSystemCard();ensureAIEntry();mergeBI(loadLocalBI());autoBackup();registerPWA();if(window.evoraBuyCloudOnline){try{localStorage.setItem('evora_last_cloud_ok_v18',new Date().toISOString())}catch(e){}}refreshAll();enforceVersion();setTimeout(async()=>{await loadBICloud();await autoClosingBackfill();refreshAll();checkNotifications()},1200);setInterval(()=>{enforceVersion();refreshAll()},5000);setInterval(checkNotifications,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshAll();checkNotifications()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){evV18CloseCenter();evV18CloseMaterial();document.getElementById('evV18PriceModal')?.classList.remove('show')}})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+})();
+</script>
+
+<script id="evora-resi-reader-fix-finalizer">
+(function(){
+  function apply(){
+    var v=document.getElementById('evoraProVersion');
+    if(v)v.textContent='v18.0.2 PRO';
+    document.title='EVORA Tracker Pro v18.0.2 - Resi Reader Fixed';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
+  setTimeout(apply,700);setTimeout(apply,1900);setTimeout(apply,5200);
 })();
 </script>
 </body>
