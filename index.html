@@ -4855,6 +4855,9 @@ function extractCanonicalResiProductName(chunk){
 
   const name=String(m[1]||"").replace(/\s+/g," ").trim();
   if(!name || /^parfum\b/i.test(name)) return "";
+  // MYKS SERIES adalah nama listing marketplace, bukan nama varian parfum.
+  // Varian sebenarnya dibaca dari kolom SKU/Seller SKU (CL, INCEP, KONGKE R, PENHOSE, dst).
+  if(/^MYKS\s+SERIES$/i.test(name)) return "";
   return name;
 }
 
@@ -5370,6 +5373,38 @@ function matchGenericSellerSkuFromChunk(chunk){
   return {index:best.index,score:best.score,method:"seller-sku-safe",matchedText:best.source};
 }
 
+function matchMyksSeriesSellerSkuFromChunk(chunk){
+  const raw=String(chunk||"").replace(/\s+/g," ").trim();
+  if(!raw || !/\bEVORA\s+MYKS\s+SERIES\b/i.test(raw)) return null;
+
+  // Setelah boilerplate listing MYKS dibuang, sisa signal seharusnya HANYA SKU varian.
+  // Exact signal dipakai supaya alias pendek seperti CL aman dan tidak salah membaca alamat/teks lain.
+  const signal=String(scanSellerSignalCompact(raw)||"").toUpperCase();
+  const exactSkuSignals={
+    "CL":"CL",
+    "INCEP":"INCEP",
+    "INCEPT":"INCEPT",
+    "INCEPTION":"INCEPTION",
+    "KONGKE":"KONGKE",
+    "KONGKER":"KONGKE R",
+    "PENHOSE":"PENHOSE",
+    "PENHOUSE":"PENHOUSE",
+    "PENTHOSE":"PENTHOSE",
+    "PENTHOUSE":"PENTHOUSE"
+  };
+  const sku=exactSkuSignals[signal];
+  if(!sku) return null;
+
+  const mm=safeMatchResiVariantName(sku);
+  if(!mm || mm.index<0) return null;
+  return {
+    ...mm,
+    score:Math.max(Number(mm.score||0),1475),
+    method:"myks-seller-sku-exact",
+    matchedText:sku
+  };
+}
+
 function matchSellerSkuSuffixFromChunk(chunk){
   const raw=String(chunk||"").replace(/\s+/g," ").trim();
   if(!raw || !/\bEVORA\b/i.test(raw)) return null;
@@ -5404,12 +5439,16 @@ function bestScanMatch(chunk){
   const canonical=matchCanonicalResiProductName(chunk);
   if(canonical && canonical.index>=0) return canonical;
 
-  // 2) Seller-SKU eksplisit di ujung row. Sangat penting untuk listing MYKS
-  // generik yang judulnya tidak memuat nama varian.
+  // 2) Listing MYKS generik: nama varian ada di kolom SKU/Seller SKU.
+  // Ini menangani alias pendek CL secara aman karena hanya diterima bila signal SKU exact.
+  const myksSku=matchMyksSeriesSellerSkuFromChunk(chunk);
+  if(myksSku && myksSku.index>=0) return myksSku;
+
+  // 3) Seller-SKU eksplisit di ujung row.
   const suffixSku=matchSellerSkuSuffixFromChunk(chunk);
   if(suffixSku && suffixSku.index>=0) return suffixSku;
 
-  // 3) Judul marketplace generik: varian ada di SKU/Seller SKU.
+  // 4) Judul marketplace generik: varian ada di SKU/Seller SKU.
   const sellerSku=matchGenericSellerSkuFromChunk(chunk);
   if(sellerSku && sellerSku.index>=0) return sellerSku;
 
@@ -12702,6 +12741,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   setTimeout(apply,700);setTimeout(apply,1900);setTimeout(apply,5200);
+})();
+</script>
+
+<script id="evora-resi-reader-v2-finalizer">
+(function(){
+  function apply(){
+    const v=document.getElementById('evoraProVersion');
+    if(v && /RESTORED|v18/i.test(v.textContent||'')) v.textContent='v18.0 RESI FIX 2';
+    document.title='EVORA Tracker Pro - Resi Reader Fix 2';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
+  setTimeout(apply,700);setTimeout(apply,1800);
 })();
 </script>
 </body>
