@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-  <title>EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix</title>
-  <link class="apple-touch-icon" href="./icon-192.png.PNG">
-  <link rel="manifest" href="./manifest.json">
+  <title>EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix</title>
   <meta name="theme-color" content="#063e46">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -9895,8 +9893,8 @@ document.addEventListener("visibilitychange",()=>{
       wrap.innerHTML=`<div class="ev-pro-hero"><div class="ev-pro-kicker">EVORA BUSINESS COMMAND CENTER</div><div class="ev-pro-title">Ringkasan bisnis hari ini</div><div class="ev-pro-sub">Angka utama dan tindakan penting dalam satu layar.</div><div class="ev-pro-metrics"><div class="ev-pro-metric"><span>Omzet</span><b id="proOmzet">Rp 0</b></div><div class="ev-pro-metric"><span>Terjual</span><b id="proQty">0 pcs</b></div><div class="ev-pro-metric"><span>Siap Jual</span><b id="proSellable">0 pcs</b></div></div><div style="margin-top:10px;font-size:9px;opacity:.7">Terlaris: <b id="proTop">Belum ada</b></div></div><div class="ev-pro-side"><div class="ev-pro-action" onclick="shortcutKasir()"><i class="fa-solid fa-cart-plus"></i><div><b>Buka Kasir</b><small>Transaksi & PDF resi</small></div></div><div class="ev-pro-action" onclick="openSerahEkspedisiScanner()"><i class="fa-solid fa-qrcode"></i><div><b>Scan Resi</b><small>Cek resi duplikat</small></div></div></div>`;
       home.insertBefore(wrap,home.firstChild);
     }
-    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v18.0.3 PRO';document.body.appendChild(v);}
-    document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+    if(!document.getElementById('evoraProVersion')){const v=document.createElement('div');v.id='evoraProVersion';v.textContent='v18.0.4 PRO';document.body.appendChild(v);}
+    document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
     syncPro();
     setInterval(syncPro,1200);
   }
@@ -10289,7 +10287,7 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
   function ensureAIInsight(){const home=document.getElementById('tab-beranda');if(!home||document.getElementById('evAIInsight'))return;const el=document.createElement('div');el.id='evAIInsight';el.className='ev-v175-card';el.innerHTML=`<div class="ev-ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ev-ai-copy"><b>EVORA INSIGHT</b><span id="evAIInsightText">Menganalisis data bisnis...</span></div><button class="ev-ai-more" onclick="openEvoraAI()">Lihat Analisis</button>`;const att=document.getElementById('evAttentionCenter'),morning=document.getElementById('evMorningBrief');if(att&&att.nextSibling)home.insertBefore(el,att.nextSibling);else if(morning&&morning.nextSibling)home.insertBefore(el,morning.nextSibling);else home.insertBefore(el,home.firstChild)}
   function renderAIInsight(){const s=arr('penjualan'),now=new Date();now.setHours(0,0,0,0);const s7=startDaysAgo(6),s14=startDaysAgo(13),last7=s.filter(x=>new Date(x.tanggal)>=s7),prev7=s.filter(x=>new Date(x.tanggal)>=s14&&new Date(x.tanggal)<s7),q7=last7.reduce((n,x)=>n+Number(x.qty||0),0),qp=prev7.reduce((n,x)=>n+Number(x.qty||0),0),tr=pct(q7,qp),top=topProduct(last7),st=stockData();let msg=`Penjualan 7 hari ${tr>=0?'naik':'turun'} ${Math.abs(tr).toFixed(1)}%. `;msg+=top?`${top[0]} paling laris dengan ${top[1]} pcs. `:'Belum ada produk dominan. ';msg+=st.critical.length?`${st.critical.length} varian perlu segera direstock.`:`Stok utama dalam kondisi aman.`;const e=document.getElementById('evAIInsightText');if(e)e.textContent=msg}
 
-  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v18.0.3 PRO';document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix'}
+  function refreshAll(){ensureHeaderActions();document.getElementById('evMorningBrief')?.remove();ensureBusinessChart();ensureSearchModal();ensureQuickAction();ensureUnifiedTimeline();ensureProductModal();ensureFocusKasir();ensureNotificationModal();ensureAIInsight();renderBusinessChart();renderUnifiedTimeline();decorateProducts();renderNotificationBadge();renderAIInsight();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v18.0.4 PRO';document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix'}
 
   function init(){refreshAll();setTimeout(refreshAll,450);setTimeout(refreshAll,1300);setInterval(refreshAll,2200);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.evV175OpenSearch()}if(e.key==='Escape'){window.evV175CloseSearch();window.evV175CloseNotifications();window.evV175CloseProduct();closeQuick()}});document.addEventListener('click',e=>{if(!e.target.closest('#evQuickFab')&&!e.target.closest('#evQuickActions'))closeQuick()});
     const riwayat=document.getElementById('tab-riwayat');if(riwayat){riwayat.addEventListener('input',()=>setTimeout(()=>renderUnifiedTimeline(true),20));riwayat.addEventListener('change',()=>setTimeout(()=>renderUnifiedTimeline(true),20))}
@@ -10644,8 +10642,8 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 (function(){
   function applyV1755(){
     const v=document.getElementById('evoraProVersion');
-    if(v) v.textContent='v18.0.3 PRO';
-    document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+    if(v) v.textContent='v18.0.4 PRO';
+    document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1755);
   else applyV1755();
@@ -10873,8 +10871,8 @@ body.dark-theme .ev-v175-modal{border-color:#334155}
 (function(){
   function applyV1756(){
     const v=document.getElementById('evoraProVersion');
-    if(v) v.textContent='v18.0.3 PRO';
-    document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+    if(v) v.textContent='v18.0.4 PRO';
+    document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyV1756);
   else applyV1756();
@@ -11320,8 +11318,8 @@ input:focus,select:focus,textarea:focus{transition:box-shadow 190ms ease,border-
   }
 
   function enforceVersion(){
-    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v18.0.3 PRO';
-    document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+    const v=document.getElementById('evoraProVersion');if(v)v.textContent='v18.0.4 PRO';
+    document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
   }
 
   function init(){
@@ -11446,7 +11444,7 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
 </style>
 <script id="evora-ai-v177-redesign-logic">
 (function(){
-  const V='v18.0.3 PRO';
+  const V='v18.0.4 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const arr=v=>Array.isArray(v)?v:[];
@@ -11578,7 +11576,7 @@ body.dark-theme #evoraAICenter .eai2-answer{background:#0d2b32;border-color:#1d4
   window.openEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(!root)return;root.style.display='block';document.body.style.overflow='hidden';render();root.scrollTo({top:0,left:0,behavior:'auto'})};
   window.closeEvoraAI=function(){const root=document.getElementById('evoraAICenter');if(root)root.style.display='none';document.body.style.overflow=''};
 
-  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix'}
+  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=V;document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix'}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{version();setTimeout(version,900)});else{version();setTimeout(version,900)}
   setInterval(version,2500);
 })();
@@ -11720,7 +11718,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 <script id="evora-ai-v178-change-intelligence-logic">
 (function(){
   'use strict';
-  const VERSION='v18.0.3 PRO';
+  const VERSION='v18.0.4 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const pct=(a,b)=>b?((a-b)/b*100):(a?100:0);
@@ -11985,7 +11983,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
       const sw=function(){const r=oldSwitch.apply(this,arguments);setTimeout(enhance,0);return r};sw.__ev178=true;window.evAI2Switch=sw;
     }
     const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;
-    document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+    document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
     setTimeout(()=>{const root=document.getElementById('evoraAICenter');if(root&&getComputedStyle(root).display!=='none')enhance()},300);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
@@ -12047,7 +12045,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 (function(){
   'use strict';
   if(window.__EVORA_AI_1782__)return;window.__EVORA_AI_1782__=true;
-  const VERSION='v18.0.3 PRO';
+  const VERSION='v18.0.4 PRO';
   const money=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
   const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const safeDate=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?null:d};
@@ -12210,7 +12208,7 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
     };
   }
   function wrap(name){const fn=window[name];if(typeof fn!=='function'||fn.__ev1781)return;const w=function(){const r=fn.apply(this,arguments);setTimeout(enhance,0);return r};w.__ev1781=true;window[name]=w}
-  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix'}
+  function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix'}
   function install(){wrap('openEvoraAI');wrap('evAI2Refresh');wrap('renderEvoraAI');const sw=window.evAI2Switch;if(typeof sw==='function'&&!sw.__ev1781){const w=function(){const r=sw.apply(this,arguments);setTimeout(enhance,0);return r};w.__ev1781=true;window.evAI2Switch=w}version();setTimeout(()=>{version();enhance()},500);setInterval(version,2400)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
@@ -12220,8 +12218,8 @@ body.dark-theme #evoraAICenter .eai3-why-chip{background:#0d2b32!important;borde
 (function(){
   function apply(){
     var v=document.getElementById('evoraProVersion');
-    if(v)v.textContent='v18.0.3 PRO';
-    document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+    if(v)v.textContent='v18.0.4 PRO';
+    document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   setTimeout(apply,700);
@@ -12272,7 +12270,7 @@ body.dark-theme .ev-buy-stock{background:#0d2b2c;border-color:#235353}.ev-buy-sy
 <script id="evora-v179-buy-again-logic">
 (function(){
 'use strict';
-const V='v18.0.3 PRO';
+const V='v18.0.4 PRO';
 let buyCategory='SEMUA',buyMarket='SEMUA',buyExpanded=new Set(),editingItemId='',editingLinkItemId='',editingLinkId='';
 const E=s=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const M=n=>Number(n||0)>0?'Rp '+Number(n||0).toLocaleString('id-ID'):'Harga belum dicatat';
@@ -12412,7 +12410,7 @@ async function evBuyAutoSync(){
   finally{evBuyAutoSyncBusy=false}
 }
 async function seedAfterCloud(attempt=0){fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(window.evoraBuyCloudReady){const changed=syncPerfumeCatalog();render();if(changed)await persist();return}if(attempt<12)setTimeout(()=>seedAfterCloud(attempt+1),500)}
-function install(){ensureUI();fixBelanjaPlacement();ensureHomeCard();ensureQuick();render();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v18.0.3 PRO';document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';setTimeout(()=>seedAfterCloud(0),350);setTimeout(()=>{fixBelanjaPlacement();syncPerfumeCatalog();render();evBuyAutoSync()},1800);setInterval(()=>{fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(document.getElementById('tab-belanja')?.classList.contains('active'))render()},3000);setInterval(evBuyAutoSync,10000);window.addEventListener('focus',()=>setTimeout(evBuyAutoSync,150));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(evBuyAutoSync,150)});document.addEventListener('keydown',e=>{if(e.key==='Escape'){evBuyCloseItem();evBuyCloseLink()}})}
+function install(){ensureUI();fixBelanjaPlacement();ensureHomeCard();ensureQuick();render();const v=document.getElementById('evoraProVersion');if(v)v.textContent='v18.0.4 PRO';document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';setTimeout(()=>seedAfterCloud(0),350);setTimeout(()=>{fixBelanjaPlacement();syncPerfumeCatalog();render();evBuyAutoSync()},1800);setInterval(()=>{fixBelanjaPlacement();ensureQuick();ensureHomeCard();if(document.getElementById('tab-belanja')?.classList.contains('active'))render()},3000);setInterval(evBuyAutoSync,10000);window.addEventListener('focus',()=>setTimeout(evBuyAutoSync,150));document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(evBuyAutoSync,150)});document.addEventListener('keydown',e=>{if(e.key==='Escape'){evBuyCloseItem();evBuyCloseLink()}})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
 </script>
@@ -12458,7 +12456,7 @@ const FACE_ID_KEY='evora_faceid_credential_id_v1';
 const FACE_USER_KEY='evora_faceid_user_id_v1';
 const FACE_HASH_KEY='evora_faceid_password_hash_v1';
 const FACE_CREATED_KEY='evora_faceid_created_at_v1';
-const VERSION='v18.0.3 PRO';
+const VERSION='v18.0.4 PRO';
 
 function isIOS(){return /iPhone|iPad|iPod/i.test(navigator.userAgent||'')}
 function randomBytes(n=32){const a=new Uint8Array(n);crypto.getRandomValues(a);return a}
@@ -12601,7 +12599,7 @@ function wrapPasswordChange(name){
   const base=window[name];if(typeof base!=='function'||base.__evFace)return;
   const w=async function(){const before=String(window.authPasswordHash||authPasswordHash||'');const r=await base.apply(this,arguments);const after=String(window.authPasswordHash||authPasswordHash||'');if(after&&after!==before&&savedCredential()){localStorage.removeItem(FACE_HASH_KEY);await refreshUI()}return r};w.__evFace=true;window[name]=w;
 }
-function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix'}
+function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix'}
 function install(){
   wrapGate();wrapPasswordChange('gantiPasswordEvora');wrapPasswordChange('simpanPasswordBaruDariLupa');
   ensureLoginUI();ensureSettingUI();refreshUI();enforceVersion();
@@ -12633,7 +12631,7 @@ body.dark-theme{--v18-ink:#e5edf3;--v18-muted:#94a3b8;--v18-line:#334155;--v18-b
 <script id="evora-v180-business-os-logic">
 (function(){
 'use strict';
-const VERSION='v18.0.3 PRO';
+const VERSION='v18.0.4 PRO';
 const BI_KEY='evora_business_intel_v18';
 const BI_BACKUP_KEY='evora_auto_backups_v18';
 let centerTab='overview',installPrompt=null,materialEditId='';
@@ -12726,7 +12724,7 @@ function wrapAI(){const base=window.askEvoraAI;if(typeof base!=='function'||base
 function registerPWA(){if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./evora-sw.js').catch(e=>console.warn('EVORA SW',e));window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;renderSystemCard()});window.addEventListener('appinstalled',()=>{installPrompt=null;renderSystemCard()})}
 function wrapCloudLoad(){const base=window.loadDataFromCloud;if(typeof base!=='function'||base.__ev18)return;const w=async function(){const r=await base.apply(this,arguments);try{localStorage.setItem('evora_last_cloud_ok_v18',new Date().toISOString())}catch(e){}await loadBICloud();renderHome();renderCenter();renderSystemCard();return r};w.__ev18=true;window.loadDataFromCloud=w}
 function refreshAll(){ensureHome();ensureMaterialUI();ensureSystemCard();ensureAIEntry();renderHome();renderMaterial();decorateBuyCards();renderSystemCard();if(document.getElementById('evoraBusinessCenter')?.classList.contains('show'))renderCenter()}
-function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix'}
+function enforceVersion(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix'}
 function install(){patchDataPackage();wrapCloudLoad();wrapBelanjaRender();wrapBought();wrapAI();ensureCenter();ensureHome();ensureMaterialModal();ensurePriceModal();ensureMaterialUI();ensureSystemCard();ensureAIEntry();mergeBI(loadLocalBI());autoBackup();registerPWA();if(window.evoraBuyCloudOnline){try{localStorage.setItem('evora_last_cloud_ok_v18',new Date().toISOString())}catch(e){}}refreshAll();enforceVersion();setTimeout(async()=>{await loadBICloud();await autoClosingBackfill();refreshAll();checkNotifications()},1200);setInterval(()=>{enforceVersion();refreshAll()},5000);setInterval(checkNotifications,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshAll();checkNotifications()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'){evV18CloseCenter();evV18CloseMaterial();document.getElementById('evV18PriceModal')?.classList.remove('show')}})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
@@ -12736,8 +12734,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 (function(){
   function apply(){
     var v=document.getElementById('evoraProVersion');
-    if(v)v.textContent='v18.0.3 PRO';
-    document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+    if(v)v.textContent='v18.0.4 PRO';
+    document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   setTimeout(apply,700);setTimeout(apply,1900);setTimeout(apply,5200);
@@ -12748,8 +12746,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 (function(){
   function apply(){
     const v=document.getElementById('evoraProVersion');
-    if(v && /RESTORED|v18/i.test(v.textContent||'')) v.textContent='v18.0.3 PRO';
-    document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+    if(v && /RESTORED|v18/i.test(v.textContent||'')) v.textContent='v18.0.4 PRO';
+    document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   setTimeout(apply,700);setTimeout(apply,1800);
@@ -12883,7 +12881,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script id="evora-v1803-pc-stability-logic">
 (function(){
 'use strict';
-const VERSION='v18.0.3 PRO';
+const VERSION='v18.0.4 PRO';
 
 /* Fix the broken PC Kasir toolbar handler without changing scanner behavior.
    Scanner remains duplicate-resi scanner only, as in the existing workflow. */
@@ -12938,7 +12936,7 @@ function patchSwitchTab(){
 function applyVersion(){
   const v=document.getElementById('evoraProVersion');
   if(v)v.textContent=VERSION;
-  document.title='EVORA Tracker Pro v18.0.3 - PC Stable + Resi Fix';
+  document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
 }
 
 function run(){
@@ -12950,6 +12948,256 @@ function run(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
 setTimeout(run,500);setTimeout(run,1600);setTimeout(run,4200);
 window.addEventListener('resize',()=>requestAnimationFrame(normalizeDesktopDock));
+window.addEventListener('pageshow',()=>setTimeout(run,80));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(run,80)});
+})();
+</script>
+
+
+<!-- EVORA v18.0.4 - SETTING PC + MOBILE REPORT PRINT FIX -->
+<style id="evora-v1804-setting-print-style">
+/* Setting desktop: structured 2-column workspace on wide PC, one column on smaller PC. */
+@media (min-width:1200px){
+  #tab-setting.active{
+    display:grid!important;
+    grid-template-columns:repeat(12,minmax(0,1fr))!important;
+    gap:18px!important;
+    align-items:start!important;
+    width:100%!important;
+  }
+  #tab-setting.active > .card{
+    grid-column:span 6!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:auto!important;
+    align-self:start!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  #tab-setting.active > .card.ev-setting-wide,
+  #tab-setting.active > #evV18SystemCard{
+    grid-column:1 / -1!important;
+  }
+}
+@media (min-width:901px) and (max-width:1199px){
+  #tab-setting.active{display:block!important;width:100%!important;}
+  #tab-setting.active > .card{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:auto!important;
+    margin-bottom:16px!important;
+    overflow:hidden!important;
+  }
+}
+@media (min-width:901px){
+  #tab-setting .card,
+  #tab-setting .card *{box-sizing:border-box;min-width:0;}
+  #tab-setting .card input,
+  #tab-setting .card select,
+  #tab-setting .card textarea{width:100%!important;max-width:100%!important;}
+  #tab-setting .card p{max-width:82ch;line-height:1.55;}
+  #tab-setting .card > div[style*="display:grid"]{max-width:100%!important;}
+  #tab-setting .ev-face-setting{width:100%!important;max-width:100%!important;}
+  #tab-setting .ev18-system-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+  #tab-setting .ev18-system-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important;}
+  #tab-setting .ev18-system-actions button{flex:0 1 auto!important;max-width:100%!important;}
+}
+
+/* Popup-free report printing. This intentionally overrides the old resi print-only rule. */
+#evMobileReportPrintRoot{display:none;}
+@media print{
+  body.ev-report-printing > *{display:none!important;}
+  body.ev-report-printing > #evMobileReportPrintRoot{
+    display:block!important;
+    position:static!important;
+    inset:auto!important;
+    width:80mm!important;
+    min-width:80mm!important;
+    max-width:80mm!important;
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+    color:#111!important;
+    overflow:visible!important;
+  }
+  body.ev-report-printing > #evoraCetakResi{display:none!important;}
+  body.ev-report-printing{
+    width:80mm!important;
+    min-width:80mm!important;
+    max-width:80mm!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+    background:#fff!important;
+  }
+  html:has(body.ev-report-printing){
+    width:80mm!important;
+    min-width:80mm!important;
+    max-width:80mm!important;
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+  }
+  #evMobileReportPrintRoot .ev-rpt-paper{
+    display:block!important;
+    width:80mm!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:5mm 4mm!important;
+    background:#fff!important;
+    color:#111!important;
+    font-family:Arial,Helvetica,sans-serif!important;
+    font-size:11px!important;
+  }
+}
+</style>
+<script id="evora-v1804-setting-print-logic">
+(function(){
+'use strict';
+const VERSION='v18.0.4 PRO';
+
+function tagSettingCards(){
+  const root=document.getElementById('tab-setting');
+  if(!root)return;
+  [...root.children].forEach(card=>{
+    if(!card.classList?.contains('card'))return;
+    card.classList.remove('ev-setting-wide');
+    const title=String(card.querySelector('h3')?.textContent||'').replace(/\s+/g,' ').trim();
+    if(/KEAMANAN\s*&\s*PASSWORD|APLIKASI,?\s*NOTIFIKASI\s*&\s*BACKUP/i.test(title)){
+      card.classList.add('ev-setting-wide');
+    }
+  });
+  const sys=document.getElementById('evV18SystemCard');
+  if(sys)sys.classList.add('ev-setting-wide');
+}
+
+function escapeHtml(value){
+  return String(value??'').replace(/[&<>"']/g,s=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[s]));
+}
+function safeNorm(v){
+  try{if(typeof normScan==='function')return normScan(v)}catch(e){}
+  return String(v||'').trim().toUpperCase().replace(/\s+/g,' ');
+}
+function safeDay(v){
+  try{if(typeof getDayKey==='function')return getDayKey(v)}catch(e){}
+  const d=v instanceof Date?v:new Date(v);
+  if(isNaN(d))return '';
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function buildDailyReport(){
+  let tglPilih=document.getElementById('hariSelect')?.value;
+  if(!tglPilih)tglPilih=safeDay(new Date());
+  const hariKey=safeDay(tglPilih);
+  const sales=(typeof penjualan!=='undefined'&&Array.isArray(penjualan))?penjualan:[];
+  const jual=sales.filter(x=>safeDay(x.tanggal)===hariKey);
+  const omzet=jual.reduce((a,b)=>a+Number(b.nominal||0),0);
+  const qty=jual.reduce((a,b)=>a+Number(b.qty||0),0);
+  const map={};
+  jual.forEach(x=>{const q=Number(x.qty||0);if(q>0){const n=String(x.barang||'-');map[n]=(map[n]||0)+q;}});
+  const entries=Object.entries(map).sort((a,b)=>Number(b[1])-Number(a[1])||String(a[0]).localeCompare(String(b[0])));
+  const rows=entries.length?entries.map(([n,q])=>`<div class="ev-rpt-item"><span>${escapeHtml(n)}</span><b>${q} Pcs</b></div>`).join(''):'<div class="ev-rpt-empty">Belum ada item terjual</div>';
+  const replacements=new Map();
+  jual.forEach(x=>{
+    if(!x.penggantianVarian||!x.varianDigantiDari)return;
+    const order=String(x.orderId||x.noPesanan||x.nomorPesanan||'').trim();
+    const from=String(x.varianDigantiDari||'').trim();
+    const to=String(x.barang||'').trim();
+    if(!from||!to||safeNorm(from)===safeNorm(to))return;
+    const k=`${order}|${safeNorm(from)}|${safeNorm(to)}`;
+    if(!replacements.has(k))replacements.set(k,{order,from,to});
+  });
+  const rep=[...replacements.values()];
+  const replacementRows=rep.length?`<div class="ev-rpt-line"></div><div class="ev-rpt-section">Catatan Varian Diganti</div><div class="ev-rpt-replacements">${rep.map(x=>`<div class="ev-rpt-replacement"><div class="ev-rpt-order">No. Pesanan: ${escapeHtml(x.order||'-')}</div><div class="ev-rpt-change">${escapeHtml(x.from)} &rarr; ${escapeHtml(x.to)}</div></div>`).join('')}</div>`:'';
+  let fmt=tglPilih;
+  try{fmt=new Date(String(tglPilih)+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}catch(e){}
+  const toko=escapeHtml(typeof namaToko!=='undefined'?(namaToko||'EVORA'):'EVORA');
+  const kasir=escapeHtml(typeof namaUser!=='undefined'?(namaUser||'-'):'-');
+  const waktu=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  return `<div class="ev-rpt-paper">
+    <div class="ev-rpt-title">LAPORAN HARIAN</div>
+    <div class="ev-rpt-store">${toko}</div>
+    <div class="ev-rpt-line"></div>
+    <div class="ev-rpt-meta"><div><b>Tanggal:</b> ${escapeHtml(fmt)}</div><div><b>Waktu Cetak:</b> ${escapeHtml(waktu)}</div><div><b>Kasir:</b> ${kasir}</div></div>
+    <div class="ev-rpt-line"></div>
+    <div class="ev-rpt-summary"><span>Total Terjual</span><b>${qty} Pcs</b></div>
+    <div class="ev-rpt-summary"><span>Omzet Masuk</span><b>Rp ${Number(omzet).toLocaleString('id-ID')}</b></div>
+    <div class="ev-rpt-line"></div>
+    <div class="ev-rpt-section">Rincian Item Terjual</div>
+    ${rows}${replacementRows}
+    <div class="ev-rpt-line"></div>
+    <div class="ev-rpt-footer">~ REKAP SELESAI ~<br>EVORA Tracker Pro</div>
+  </div>`;
+}
+function ensurePrintRoot(){
+  document.getElementById('evMobileReportPrintRoot')?.remove();
+  const root=document.createElement('section');
+  root.id='evMobileReportPrintRoot';
+  root.setAttribute('aria-hidden','true');
+  root.innerHTML=`<style>
+    @page{size:80mm auto;margin:0}
+    #evMobileReportPrintRoot .ev-rpt-title{font-size:16px;font-weight:900;letter-spacing:.5px;text-align:center}
+    #evMobileReportPrintRoot .ev-rpt-store{text-align:center;font-size:12px;font-weight:800;margin-top:2px}
+    #evMobileReportPrintRoot .ev-rpt-line{border-top:1px dashed #111;margin:7px 0}
+    #evMobileReportPrintRoot .ev-rpt-meta{line-height:1.65}
+    #evMobileReportPrintRoot .ev-rpt-summary,#evMobileReportPrintRoot .ev-rpt-item{display:flex;justify-content:space-between;gap:8px;padding:4px 0}
+    #evMobileReportPrintRoot .ev-rpt-summary b{font-size:12px}
+    #evMobileReportPrintRoot .ev-rpt-section{font-weight:900;margin:7px 0 4px;text-transform:uppercase}
+    #evMobileReportPrintRoot .ev-rpt-item{border-bottom:1px dotted #aaa}
+    #evMobileReportPrintRoot .ev-rpt-item span{min-width:0;overflow-wrap:anywhere}
+    #evMobileReportPrintRoot .ev-rpt-item b{white-space:nowrap}
+    #evMobileReportPrintRoot .ev-rpt-empty{text-align:center;padding:8px 0}
+    #evMobileReportPrintRoot .ev-rpt-replacements{border:1px dashed #111;border-radius:4px;padding:5px 6px;margin-top:3px}
+    #evMobileReportPrintRoot .ev-rpt-replacement{padding:4px 0;border-bottom:1px dotted #aaa}
+    #evMobileReportPrintRoot .ev-rpt-replacement:last-child{border-bottom:none}
+    #evMobileReportPrintRoot .ev-rpt-order{font-size:9px;font-weight:800;line-height:1.35}
+    #evMobileReportPrintRoot .ev-rpt-change{font-size:10px;font-weight:900;line-height:1.4;overflow-wrap:anywhere}
+    #evMobileReportPrintRoot .ev-rpt-footer{text-align:center;margin-top:10px;line-height:1.5;font-size:9px}
+  </style>${buildDailyReport()}`;
+  document.body.appendChild(root);
+  return root;
+}
+
+/* Replace popup-based printing. iPhone/Safari/PWA now prints the current document directly,
+   keeping the call inside the user's tap/click gesture and avoiding popup blockers. */
+window.cetakLaporanHarian=function(){
+  const root=ensurePrintRoot();
+  document.body.classList.add('ev-report-printing');
+  const oldTitle=document.title;
+  document.title='Laporan Harian - EVORA';
+  let cleaned=false;
+  const cleanup=()=>{
+    if(cleaned)return; cleaned=true;
+    document.body.classList.remove('ev-report-printing');
+    document.title=oldTitle;
+    root?.remove();
+    window.removeEventListener('afterprint',cleanup);
+  };
+  window.addEventListener('afterprint',cleanup,{once:true});
+  try{
+    void root.offsetHeight;
+    if(typeof window.print!=='function')throw new Error('Print API tidak tersedia');
+    window.print();
+  }catch(err){
+    cleanup();
+    console.error('Print laporan:',err);
+    if(typeof customAlert==='function')customAlert('Print Tidak Tersedia','Browser ini tidak dapat membuka dialog print. Coba buka EVORA melalui Safari/Chrome terbaru lalu tekan Print kembali.','warning');
+    else alert('Browser ini tidak dapat membuka dialog print.');
+  }
+};
+
+function applyVersion(){
+  const v=document.getElementById('evoraProVersion');
+  if(v)v.textContent=VERSION;
+  document.title='EVORA Tracker Pro v18.0.4 - Setting PC + Mobile Print Fix';
+}
+function run(){tagSettingCards();applyVersion();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+setTimeout(run,500);setTimeout(run,1600);setTimeout(run,4200);
 window.addEventListener('pageshow',()=>setTimeout(run,80));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(run,80)});
 })();
