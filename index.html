@@ -13378,5 +13378,182 @@ setTimeout(run,500);setTimeout(run,1600);setTimeout(run,4200);window.addEventLis
 })();
 </script>
 
+
+
+<!-- EVORA v18.0.6 - iOS REPORT PRINT / SHARE SHEET FIX -->
+<style id="evora-v1806-ios-print-share-style">
+#evPrintPreviewHint{
+  padding:9px 14px 0;color:#64748b;font-size:10px;line-height:1.45;background:#fff;
+}
+#evPrintPreviewHint b{color:#0f172a}
+#evPrintPreviewActions #evPrintNowBtn{background:#0f766e!important;}
+#evPrintPreviewActions #evPrintDirectBtn{background:#2563eb!important;}
+@media(max-width:520px){
+  #evPrintPreviewHead{align-items:flex-start!important;flex-direction:column!important;}
+  #evPrintPreviewActions{width:100%!important;display:grid!important;grid-template-columns:1fr auto!important;}
+  #evPrintPreviewActions #evPrintNowBtn{width:100%!important;}
+}
+</style>
+<script id="evora-v1806-ios-print-share-logic">
+(function(){
+'use strict';
+const VERSION='v18.0.6 PRO';
+const previousPrint=window.cetakLaporanHarian;
+
+function isIOSLike(){
+  return /iPad|iPhone|iPod/i.test(navigator.userAgent)||(/Macintosh/i.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+}
+function esc(v){return String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));}
+function ascii(v){
+  return String(v??'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[–—−]/g,'-').replace(/→/g,'->').replace(/•/g,'-')
+    .replace(/[^\x20-\x7E]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+function pdfEsc(v){return ascii(v).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');}
+function dayKey(v){
+  try{if(typeof getDayKey==='function')return getDayKey(v);}catch(e){}
+  const d=v instanceof Date?v:new Date(v); if(isNaN(d))return '';
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function buildData(){
+  let picked=document.getElementById('hariSelect')?.value||dayKey(new Date());
+  const key=dayKey(picked);
+  const sales=(typeof penjualan!=='undefined'&&Array.isArray(penjualan))?penjualan:[];
+  const list=sales.filter(x=>dayKey(x.tanggal)===key);
+  const omzet=list.reduce((a,b)=>a+Number(b.nominal||0),0);
+  const qty=list.reduce((a,b)=>a+Number(b.qty||0),0);
+  const map={};
+  list.forEach(x=>{const q=Number(x.qty||0); if(q>0){const n=String(x.barang||'-');map[n]=(map[n]||0)+q;}});
+  const items=Object.entries(map).sort((a,b)=>Number(b[1])-Number(a[1])||String(a[0]).localeCompare(String(b[0]))).map(([name,qty])=>({name,qty:Number(qty)}));
+  const reps=new Map();
+  list.forEach(x=>{
+    if(!x.penggantianVarian||!x.varianDigantiDari)return;
+    const order=String(x.orderId||x.noPesanan||x.nomorPesanan||'').trim();
+    const from=String(x.varianDigantiDari||'').trim();
+    const to=String(x.barang||'').trim();
+    if(!from||!to||from.toUpperCase()===to.toUpperCase())return;
+    const k=`${order}|${from.toUpperCase()}|${to.toUpperCase()}`;
+    if(!reps.has(k))reps.set(k,{order,from,to});
+  });
+  let dateText=picked;
+  try{dateText=new Date(String(picked)+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch(e){}
+  return {
+    picked,dateText,
+    time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}),
+    store:(typeof namaToko!=='undefined'&&namaToko)?String(namaToko):'EVORA',
+    cashier:(typeof namaUser!=='undefined'&&namaUser)?String(namaUser):'-',
+    qty,omzet,items,replacements:[...reps.values()]
+  };
+}
+function rupiah(n){return 'Rp '+Number(n||0).toLocaleString('id-ID');}
+function reportHtml(data){
+  const rows=data.items.length?data.items.map(x=>`<div class="ev-rpt-item"><span>${esc(x.name)}</span><b>${x.qty} Pcs</b></div>`).join(''):'<div class="ev-rpt-empty">Belum ada item terjual</div>';
+  const rep=data.replacements.length?`<div class="ev-rpt-line"></div><div class="ev-rpt-section">Catatan Varian Diganti</div><div class="ev-rpt-replacements">${data.replacements.map(x=>`<div class="ev-rpt-replacement"><div class="ev-rpt-order">No. Pesanan: ${esc(x.order||'-')}</div><div class="ev-rpt-change">${esc(x.from)} &rarr; ${esc(x.to)}</div></div>`).join('')}</div>`:'';
+  return `<div class="ev-rpt-paper"><div class="ev-rpt-title">LAPORAN HARIAN</div><div class="ev-rpt-store">${esc(data.store)}</div><div class="ev-rpt-line"></div><div class="ev-rpt-meta"><div><b>Tanggal:</b> ${esc(data.dateText)}</div><div><b>Waktu Cetak:</b> ${esc(data.time)}</div><div><b>Kasir:</b> ${esc(data.cashier)}</div></div><div class="ev-rpt-line"></div><div class="ev-rpt-summary"><span>Total Terjual</span><b>${data.qty} Pcs</b></div><div class="ev-rpt-summary"><span>Omzet Masuk</span><b>${esc(rupiah(data.omzet))}</b></div><div class="ev-rpt-line"></div><div class="ev-rpt-section">Rincian Item Terjual</div>${rows}${rep}<div class="ev-rpt-line"></div><div class="ev-rpt-footer">~ REKAP SELESAI ~<br>EVORA Tracker Pro</div></div>`;
+}
+function wrapWords(str,max){
+  const words=ascii(str).split(/\s+/).filter(Boolean); const out=[]; let line='';
+  words.forEach(w=>{const next=line?line+' '+w:w;if(next.length<=max)line=next;else{if(line)out.push(line);line=w;}});
+  if(line)out.push(line); return out.length?out:['-'];
+}
+function makePdf(data){
+  const W=226.77, margin=12, right=W-margin;
+  const ops=[]; let y=0;
+  const approx=(txt,size,bold)=>ascii(txt).length*size*(bold?.56:.52);
+  const text=(txt,x,yy,size=9,bold=false)=>{ops.push(`BT /${bold?'F2':'F1'} ${size} Tf 1 0 0 1 ${x.toFixed(2)} ${yy.toFixed(2)} Tm (${pdfEsc(txt)}) Tj ET`);};
+  const center=(txt,yy,size=9,bold=false)=>{text(txt,Math.max(margin,(W-approx(txt,size,bold))/2),yy,size,bold);};
+  const pair=(l,r,yy,size=9,boldR=true)=>{text(l,margin,yy,size,false);text(r,Math.max(margin+60,right-approx(r,size,boldR)),yy,size,boldR);};
+  const line=(yy)=>ops.push(`${margin} ${yy.toFixed(2)} m ${right} ${yy.toFixed(2)} l S`);
+  const dotted=(yy)=>ops.push(`[2 2] 0 d ${margin} ${yy.toFixed(2)} m ${right} ${yy.toFixed(2)} l S [] 0 d`);
+  let logical=[];
+  logical.push({t:'center',s:'LAPORAN HARIAN',z:14,b:1},{t:'center',s:data.store,z:11,b:1},{t:'rule'});
+  logical.push({t:'text',s:'Tanggal: '+data.dateText,b:0},{t:'text',s:'Waktu Cetak: '+data.time,b:0},{t:'text',s:'Kasir: '+data.cashier,b:0},{t:'rule'});
+  logical.push({t:'pair',l:'Total Terjual',r:`${data.qty} Pcs`},{t:'pair',l:'Omzet Masuk',r:rupiah(data.omzet)},{t:'rule'},{t:'text',s:'RINCIAN ITEM TERJUAL',b:1});
+  data.items.forEach(it=>{const lines=wrapWords(it.name,26); lines.forEach((ln,i)=>logical.push(i===0?{t:'pair',l:ln,r:`${it.qty} Pcs`}:{t:'text',s:ln})); logical.push({t:'dot'});});
+  if(!data.items.length)logical.push({t:'center',s:'Belum ada item terjual'});
+  if(data.replacements.length){logical.push({t:'rule'},{t:'text',s:'CATATAN VARIAN DIGANTI',b:1});data.replacements.forEach(r=>{logical.push({t:'text',s:'No. Pesanan: '+(r.order||'-'),z:8,b:1});wrapWords(`${r.from} -> ${r.to}`,30).forEach(x=>logical.push({t:'text',s:x,z:8,b:1}));logical.push({t:'dot'});});}
+  logical.push({t:'rule'},{t:'center',s:'~ REKAP SELESAI ~',z:9},{t:'center',s:'EVORA Tracker Pro',z:9});
+  const height=Math.max(420, 28+logical.length*13+26); y=height-24;
+  ops.push('0 G 0.55 w');
+  logical.forEach(o=>{
+    const size=o.z||9;
+    if(o.t==='center')center(o.s,y,size,!!o.b);
+    else if(o.t==='text')text(o.s,margin,y,size,!!o.b);
+    else if(o.t==='pair')pair(o.l,o.r,y,size,true);
+    else if(o.t==='rule')line(y+3);
+    else if(o.t==='dot')dotted(y+3);
+    y-=13;
+  });
+  const stream=ops.join('\n');
+  const objs=[];
+  objs[1]='<< /Type /Catalog /Pages 2 0 R >>';
+  objs[2]='<< /Type /Pages /Kids [3 0 R] /Count 1 >>';
+  objs[3]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W.toFixed(2)} ${height.toFixed(2)}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>`;
+  objs[4]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
+  objs[5]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>';
+  objs[6]=`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`;
+  let pdf='%PDF-1.4\n%EVORA\n', offsets=[0];
+  for(let i=1;i<=6;i++){offsets[i]=pdf.length;pdf+=`${i} 0 obj\n${objs[i]}\nendobj\n`;}
+  const xref=pdf.length; pdf+='xref\n0 7\n0000000000 65535 f \n';
+  for(let i=1;i<=6;i++)pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
+  pdf+=`trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return new Blob([new TextEncoder().encode(pdf)],{type:'application/pdf'});
+}
+async function sharePdf(data){
+  const blob=makePdf(data);
+  const safeDate=String(data.picked||dayKey(new Date())).replace(/[^0-9-]/g,'');
+  const file=new File([blob],`EVORA-Laporan-${safeDate||'harian'}.pdf`,{type:'application/pdf'});
+  try{
+    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+      await navigator.share({files:[file],title:'Laporan Harian EVORA',text:'Laporan Harian EVORA'});
+      return true;
+    }
+  }catch(err){
+    if(err && err.name==='AbortError')return true;
+    console.warn('Web Share PDF gagal:',err);
+  }
+  const url=URL.createObjectURL(blob);
+  const opened=window.open(url,'_blank');
+  if(!opened){
+    const a=document.createElement('a');a.href=url;a.download=file.name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove();
+    if(typeof customAlert==='function')customAlert('PDF Dibuat','Laporan PDF sudah dibuat. Buka file tersebut lalu pilih Share/Print atau aplikasi printer yang kamu gunakan.','success');
+  }
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  return true;
+}
+function directAirPrint(data){
+  document.getElementById('evNativePrintRoot')?.remove();
+  const root=document.createElement('section');root.id='evNativePrintRoot';root.innerHTML=reportHtml(data);document.body.appendChild(root);
+  document.body.classList.add('ev-report-native-print');
+  const old=document.title;document.title='Laporan Harian - EVORA';
+  const cleanup=()=>{document.body.classList.remove('ev-report-native-print');document.title=old;root.remove();window.removeEventListener('afterprint',cleanup);};
+  window.addEventListener('afterprint',cleanup,{once:true});
+  try{window.print();}catch(e){cleanup();sharePdf(data);}
+  setTimeout(()=>{if(document.body.classList.contains('ev-report-native-print'))cleanup();},30000);
+}
+function closePreview(){document.getElementById('evPrintPreviewModal')?.remove();}
+function showPreview(){
+  closePreview();
+  const data=buildData();
+  const modal=document.createElement('div');modal.id='evPrintPreviewModal';modal.className='show';
+  modal.innerHTML=`<div id="evPrintPreviewDialog"><div id="evPrintPreviewHead"><b>Preview Laporan 80mm</b><div id="evPrintPreviewActions"><button type="button" id="evPrintNowBtn"><i class="fa-solid fa-share-nodes"></i> Cetak / Bagikan</button><button type="button" id="evPrintCloseBtn" style="background:#64748b!important"><i class="fa-solid fa-xmark"></i></button></div></div><div id="evPrintPreviewHint"><b>iPhone:</b> tombol Cetak / Bagikan membuka menu sistem. Dari sana pilih <b>Print</b>, AirPrint, atau aplikasi printer pihak ketiga.</div><div id="evPrintPreviewBody"><div id="evPrintPreviewPaper">${reportHtml(data)}</div></div></div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('#evPrintNowBtn').onclick=()=>sharePdf(data);
+  modal.querySelector('#evPrintCloseBtn').onclick=closePreview;
+  modal.addEventListener('click',e=>{if(e.target===modal)closePreview();});
+}
+window.cetakLaporanHarian=function(){
+  if(isIOSLike())showPreview();
+  else if(typeof previousPrint==='function')previousPrint();
+  else directAirPrint(buildData());
+};
+function version(){const v=document.getElementById('evoraProVersion');if(v)v.textContent=VERSION;document.title='EVORA Tracker Pro v18.0.6 - iOS Print Share Fix';}
+function run(){version();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+setTimeout(run,600);setTimeout(run,1800);window.addEventListener('pageshow',()=>setTimeout(run,80));
+})();
+</script>
 </body>
 </html>
