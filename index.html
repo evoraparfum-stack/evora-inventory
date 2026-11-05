@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-  <title>EVORA Tracker Pro v18.0.7 - PDF Quantity Fix</title>
+  <title>EVORA Tracker Pro v18.1 - PC & Dark Mode Fix</title>
   <meta name="theme-color" content="#063e46">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3069,11 +3069,15 @@ function initEnterpriseSettings() {
   const waSetting=document.getElementById("settingOwnerWhatsapp");
   if(waSetting) waSetting.value=ownerWhatsapp||"";
   let btnDark = document.getElementById("btnDarkMode");
-  if (isDarkMode) {
-    document.body.classList.add("dark-theme");
-    btnDark.innerText = "Nonaktifkan";
-    btnDark.style.background = "var(--danger)";
+  document.body.classList.toggle("dark-theme", !!isDarkMode);
+  document.documentElement.style.colorScheme = isDarkMode ? "dark" : "light";
+  if (btnDark) {
+    btnDark.innerText = isDarkMode ? "Nonaktifkan" : "Aktifkan";
+    btnDark.style.background = isDarkMode ? "var(--danger)" : "#64748b";
+    btnDark.setAttribute("aria-pressed", String(!!isDarkMode));
+    btnDark.setAttribute("aria-label", isDarkMode ? "Nonaktifkan mode gelap" : "Aktifkan mode gelap");
   }
+  if (typeof applyEvoraChartTheme === "function") applyEvoraChartTheme();
 }
 initEnterpriseSettings();
 
@@ -3297,19 +3301,46 @@ function parsePremiumGreeting() {
 }
 parsePremiumGreeting();
 
+function applyEvoraChartTheme() {
+  if (!window.Chart) return;
+  const dark = !!isDarkMode;
+  const textColor = dark ? "#d9e5eb" : "#526575";
+  const gridColor = dark ? "rgba(173, 193, 204, 0.16)" : "rgba(82, 101, 117, 0.14)";
+  try {
+    Chart.defaults.color = textColor;
+    Chart.defaults.borderColor = gridColor;
+    const charts = Object.values(Chart.instances || {});
+    charts.forEach(chart => {
+      if (chart?.options?.scales) {
+        Object.values(chart.options.scales).forEach(axis => {
+          axis.ticks = axis.ticks || {};
+          axis.ticks.color = textColor;
+          axis.grid = axis.grid || {};
+          axis.grid.color = gridColor;
+          if (axis.title) axis.title.color = textColor;
+        });
+      }
+      if (typeof chart?.update === "function") chart.update("none");
+    });
+  } catch (err) {
+    console.warn("EVORA theme chart update:", err);
+  }
+}
+
 function toggleDarkMode() {
   isDarkMode = !isDarkMode;
-  localStorage.setItem("evora_darkmode", isDarkMode);
-  let btnDark = document.getElementById("btnDarkMode");
-  if(isDarkMode) {
-    document.body.classList.add("dark-theme");
-    btnDark.innerText = "Nonaktifkan";
-    btnDark.style.background = "var(--danger)";
-  } else {
-    document.body.classList.remove("dark-theme");
-    btnDark.innerText = "Aktifkan";
-    btnDark.style.background = "#94a3b8";
+  localStorage.setItem("evora_darkmode", String(isDarkMode));
+  document.body.classList.toggle("dark-theme", isDarkMode);
+  document.documentElement.style.colorScheme = isDarkMode ? "dark" : "light";
+
+  const btnDark = document.getElementById("btnDarkMode");
+  if (btnDark) {
+    btnDark.innerText = isDarkMode ? "Nonaktifkan" : "Aktifkan";
+    btnDark.style.background = isDarkMode ? "var(--danger)" : "#64748b";
+    btnDark.setAttribute("aria-pressed", String(isDarkMode));
+    btnDark.setAttribute("aria-label", isDarkMode ? "Nonaktifkan mode gelap" : "Aktifkan mode gelap");
   }
+  applyEvoraChartTheme();
 }
 
 function updatePrinterUIStatus(isConnected, deviceName = "") {
@@ -3613,58 +3644,23 @@ async function testPrint() {
   customAlert("Sukses", "Struk test berhasil dicetak ke printer!", "success");
 }
 
+// Efek confetti dinonaktifkan agar transaksi tidak memicu animasi dekoratif yang berat.
 let isConfettiFired = false;
 function fireConfetti() {
-  if (isConfettiFired || document.getElementById('evora-confetti')) return;
-  isConfettiFired = true;
-  let c = document.createElement('div');
-  c.id = 'evora-confetti';
-  c.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;overflow:hidden;';
-  document.body.appendChild(c);
-  for(let i=0; i<40; i++){
-    let d = document.createElement('div');
-    d.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="color: #fcd34d;"></i>';
-    d.style.cssText = `position:absolute;left:${Math.random()*100}%;top:-10%;font-size:${Math.random()*15+15}px;animation:confetti-drop ${Math.random()*2+2}s linear infinite;`;
-    c.appendChild(d);
-  }
-  let style = document.createElement('style');
-  style.innerHTML = `@keyframes confetti-drop { to { transform: translateY(120vh) rotate(360deg); } }`;
-  document.head.appendChild(style);
-  setTimeout(()=> { c.remove(); style.remove(); }, 6000);
+  const oldConfetti = document.getElementById("evora-confetti");
+  if (oldConfetti) oldConfetti.remove();
+  isConfettiFired = false;
 }
 
 function runCountUp(elementId, targetValue, isCurrency = true, suffix = "") {
   const el = document.getElementById(elementId);
   if (!el) return;
-  
-  let startValue = currentValuesRegistry[elementId] || 0;
-  if (startValue === targetValue) {
-    el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
-    return;
-  }
-  
-  currentValuesRegistry[elementId] = targetValue;
-  const duration = 750;
-  const startTime = performance.now();
-  
-  function step(now) {
-    const elapsed = now - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const easeQuadOut = progress * (2 - progress);
-    const currentFrameVal = Math.floor(startValue + (targetValue - startValue) * easeQuadOut);
-    if (isCurrency) {
-      el.innerText = "Rp " + currentFrameVal.toLocaleString("id-ID");
-    } else {
-      el.innerText = currentFrameVal.toLocaleString("id-ID") + suffix;
-    }
-    
-    if (progress < 1) {
-      requestAnimationFrame(step);
-    } else {
-      el.innerText = isCurrency ? "Rp " + targetValue.toLocaleString("id-ID") : targetValue.toLocaleString("id-ID") + suffix;
-    }
-  }
-  requestAnimationFrame(step);
+
+  const value = Number(targetValue) || 0;
+  currentValuesRegistry[elementId] = value;
+  el.textContent = isCurrency
+    ? "Rp " + value.toLocaleString("id-ID")
+    : value.toLocaleString("id-ID") + suffix;
 }
 
 function switchTab(tabName) {
@@ -14023,6 +14019,450 @@ input:checked+.slider{background:var(--v19-ok)!important}
     setInterval(()=>{dateChip();watchList()},60000);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+})();
+</script>
+
+
+<style id="evora-v181-pc-dark-cleanup">
+/* EVORA v18.1 — PC settings, readable dark theme, calm interface.
+   Visual-only patch: does not alter sales, stock, reports, sync, or stored data. */
+
+/* 1) Desktop settings workspace */
+@media (min-width: 1200px) {
+  #tab-setting.active {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    gap: 18px !important;
+    width: 100% !important;
+  }
+  /* Section captions repeat the card titles; hide them on wide screens
+     so they do not force every card onto its own grid row. */
+  #tab-setting.active > .ev-setting-label {
+    display: none !important;
+  }
+  #tab-setting.active > .card {
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 22px !important;
+    overflow: visible !important;
+    align-self: stretch !important;
+  }
+  #tab-setting.active > .card.ev-setting-wide,
+  #tab-setting.active > #evV18SystemCard {
+    grid-column: 1 / -1 !important;
+  }
+}
+@media (min-width: 701px) and (max-width: 1199px) {
+  #tab-setting.active {
+    display: block !important;
+    width: 100% !important;
+  }
+  #tab-setting.active > .card {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 0 16px !important;
+    padding: 20px !important;
+    overflow: visible !important;
+  }
+}
+@media (min-width: 701px) {
+  #tab-setting,
+  #tab-setting .card,
+  #tab-setting .card > div {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  #tab-setting .card h3 {
+    line-height: 1.4 !important;
+    overflow-wrap: anywhere !important;
+    margin-bottom: 12px !important;
+  }
+  #tab-setting .card p {
+    max-width: 72ch !important;
+    line-height: 1.6 !important;
+  }
+  #tab-setting .card input,
+  #tab-setting .card select,
+  #tab-setting .card textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 42px !important;
+    text-align: left !important;
+    text-align-last: left !important;
+  }
+  #tab-setting .card textarea {
+    min-height: 112px !important;
+    resize: vertical !important;
+  }
+  #tab-setting .card button {
+    min-height: 42px !important;
+    white-space: normal !important;
+    line-height: 1.35 !important;
+  }
+  #tab-setting .card > div[style*="display:grid"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  #tab-setting .card > div[style*="display:flex"] {
+    min-width: 0 !important;
+    flex-wrap: wrap !important;
+  }
+  #tab-setting .card > div[style*="display:flex"] > * {
+    min-width: 0 !important;
+  }
+}
+@media (min-width: 701px) and (max-width: 900px) {
+  #tab-setting .card > div[style*="display:grid"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* 2) Stronger, consistent theme tokens */
+:root {
+  --v19-bg: #f3f7f8;
+  --v19-surface: #ffffff;
+  --v19-surface-2: #f7fafb;
+  --v19-line: #dce6ea;
+  --v19-ink: #13252d;
+  --v19-muted: #526b78;
+  --v19-brand: #0e6b75;
+  --v19-brand-2: #168995;
+  --v19-tint: #e8f4f5;
+}
+body.dark-theme {
+  --v19-deep: #071219;
+  --v19-bg: #0b151d;
+  --v19-surface: #14232e;
+  --v19-surface-2: #1b2d39;
+  --v19-line: #354b58;
+  --v19-ink: #edf4f7;
+  --v19-muted: #b0c0c9;
+  --v19-brand: #61cbd4;
+  --v19-brand-2: #83dce2;
+  --v19-tint: rgba(97, 203, 212, .15);
+  --v19-ok: #4bd0ad;
+  --v19-warn: #ffc36b;
+  --v19-bad: #ff8295;
+
+  --bg-main: var(--v19-bg);
+  --bg-card: var(--v19-surface);
+  --text-main: var(--v19-ink);
+  --text-muted: var(--v19-muted);
+  --primary: var(--v19-brand);
+  --primary-light: var(--v19-tint);
+  --success: var(--v19-ok);
+  --danger: var(--v19-bad);
+  --warning: var(--v19-warn);
+  color-scheme: dark;
+}
+
+/* 3) Dark mode surfaces: normalize cards and nested panels */
+body.dark-theme .main-sheet,
+body.dark-theme #tab-beranda,
+body.dark-theme #tab-kasir,
+body.dark-theme #tab-barang,
+body.dark-theme #tab-pengeluaran,
+body.dark-theme #tab-paylater,
+body.dark-theme #tab-laporan,
+body.dark-theme #tab-riwayat,
+body.dark-theme #tab-setting {
+  background: var(--v19-bg) !important;
+  color: var(--v19-ink) !important;
+}
+body.dark-theme :is(
+  .card, .action-card, .item-barang, .report-item, .expense-detail-item,
+  .report-summary-box, .insight-card, .insight-row, .business-status,
+  .riwayat-item, .ev-upgrade-box, .paylater-debt-card, .ev-pay-kpi,
+  .ev-stock-control, .ev-stock-kpi, .ev-attention, .ev-attention-row,
+  .ev-search-row, .ev-notif-row, .ev-timeline-item, .ev-v175-card,
+  .ev-v175-modal, .ev-buy-card, .ev-buy-dialog, .ev18-card, .ev18-dialog,
+  .ev-reconcile-card, .quick-card, .product-badge-card, .search-variant-list,
+  .search-variant-row, .serah-result, .serah-stats > div, .ev-ledger-row,
+  .ev-pro-action, .scan-resi-card
+) {
+  background: var(--v19-surface) !important;
+  border-color: var(--v19-line) !important;
+  color: var(--v19-ink) !important;
+  box-shadow: none !important;
+}
+body.dark-theme :is(
+  .insight-row, .business-status, .riwayat-item, .ev-upgrade-box,
+  .ev-stock-kpi, .ev-search-row, .ev-notif-row, .ev-timeline-item,
+  .serah-result, .ev-ledger-row
+) {
+  background: var(--v19-surface-2) !important;
+}
+body.dark-theme .card h3,
+body.dark-theme #tab-setting .card h3 {
+  color: var(--v19-muted) !important;
+}
+body.dark-theme .card h3 > i,
+body.dark-theme #tab-setting .card h3 > i {
+  color: var(--v19-brand) !important;
+}
+body.dark-theme .card p,
+body.dark-theme #tab-setting .card p,
+body.dark-theme .report-item-meta,
+body.dark-theme .expense-detail-date,
+body.dark-theme .insight-sub,
+body.dark-theme .insight-meta,
+body.dark-theme .business-status-sub,
+body.dark-theme .ev-setting-label {
+  color: var(--v19-muted) !important;
+}
+body.dark-theme .ev-setting-label:after {
+  background: var(--v19-line) !important;
+}
+body.dark-theme .bottom-nav {
+  background: rgba(20, 35, 46, .97) !important;
+  border-color: var(--v19-line) !important;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, .28) !important;
+}
+body.dark-theme .nav-item { color: var(--v19-muted) !important; }
+body.dark-theme .nav-item.active { color: var(--v19-brand) !important; }
+body.dark-theme .nav-icon { color: inherit !important; }
+body.dark-theme .modal-overlay,
+body.dark-theme .ev-v175-overlay,
+body.dark-theme .ev-buy-modal,
+body.dark-theme .ev18-modal {
+  background: rgba(1, 8, 13, .78) !important;
+}
+body.dark-theme .ev-v175-modal-head,
+body.dark-theme .ev-v175-modal-body,
+body.dark-theme .ev-v175-close {
+  background: var(--v19-surface) !important;
+  border-color: var(--v19-line) !important;
+  color: var(--v19-ink) !important;
+}
+
+/* 4) Inputs, dropdowns, placeholders and native controls */
+body.dark-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+body.dark-theme select,
+body.dark-theme textarea {
+  background: var(--v19-surface-2) !important;
+  color: var(--v19-ink) !important;
+  border-color: var(--v19-line) !important;
+  caret-color: var(--v19-brand) !important;
+}
+body.dark-theme input::placeholder,
+body.dark-theme textarea::placeholder {
+  color: #9fb2bd !important;
+  opacity: 1 !important;
+}
+body.dark-theme select option {
+  background: var(--v19-surface) !important;
+  color: var(--v19-ink) !important;
+}
+body.dark-theme input[type="checkbox"],
+body.dark-theme input[type="radio"] {
+  accent-color: var(--v19-brand) !important;
+}
+body.dark-theme input:focus,
+body.dark-theme select:focus,
+body.dark-theme textarea:focus {
+  border-color: var(--v19-brand) !important;
+  box-shadow: 0 0 0 3px rgba(97, 203, 212, .18) !important;
+}
+
+/* 5) Repair legacy inline light colors that escaped the theme variables */
+body.dark-theme [style*="background:#fff" i],
+body.dark-theme [style*="background: #fff" i],
+body.dark-theme [style*="background:#ffffff" i],
+body.dark-theme [style*="background: #ffffff" i],
+body.dark-theme [style*="background:#f8fafc" i],
+body.dark-theme [style*="background: #f8fafc" i],
+body.dark-theme [style*="background:#f1f5f9" i],
+body.dark-theme [style*="background: #f1f5f9" i],
+body.dark-theme [style*="background:#e2e8f0" i],
+body.dark-theme [style*="background: #e2e8f0" i] {
+  background: var(--v19-surface-2) !important;
+  border-color: var(--v19-line) !important;
+}
+body.dark-theme [style*="color:#0f172a" i],
+body.dark-theme [style*="color: #0f172a" i],
+body.dark-theme [style*="color:#172033" i],
+body.dark-theme [style*="color: #172033" i],
+body.dark-theme [style*="color:#111827" i],
+body.dark-theme [style*="color: #111827" i],
+body.dark-theme [style*="color:#334155" i],
+body.dark-theme [style*="color: #334155" i],
+body.dark-theme [style*="color:#475569" i],
+body.dark-theme [style*="color: #475569" i] {
+  color: var(--v19-ink) !important;
+}
+body.dark-theme [style*="color:#64748b" i],
+body.dark-theme [style*="color: #64748b" i],
+body.dark-theme [style*="color:#687386" i],
+body.dark-theme [style*="color: #687386" i] {
+  color: var(--v19-muted) !important;
+}
+
+/* 6) Readable semantic badges and status indicators */
+body.dark-theme .status-ready,
+body.dark-theme .paylater-status.paid,
+body.dark-theme .paylater-status.active,
+body.dark-theme .ev-status.ok {
+  background: rgba(75, 208, 173, .16) !important;
+  color: #83e5c7 !important;
+  border-color: rgba(75, 208, 173, .28) !important;
+}
+body.dark-theme .status-warning,
+body.dark-theme .paylater-status.due,
+body.dark-theme .ev-status.warn {
+  background: rgba(255, 195, 107, .16) !important;
+  color: #ffd18b !important;
+  border-color: rgba(255, 195, 107, .28) !important;
+}
+body.dark-theme .status-critical,
+body.dark-theme .paylater-status.overdue,
+body.dark-theme .ev-status.danger {
+  background: rgba(255, 130, 149, .16) !important;
+  color: #ffabb8 !important;
+  border-color: rgba(255, 130, 149, .28) !important;
+}
+body.dark-theme .ev-attention-count {
+  background: var(--v19-tint) !important;
+  color: var(--v19-brand) !important;
+  border-color: var(--v19-line) !important;
+}
+body.dark-theme .business-status-icon,
+body.dark-theme .ev-notif-icon,
+body.dark-theme .ev-attention-icon {
+  background: var(--v19-tint) !important;
+  color: var(--v19-brand) !important;
+}
+body.dark-theme .serah-result.success { background: rgba(75,208,173,.10) !important; }
+body.dark-theme .serah-result.fail { background: rgba(255,130,149,.10) !important; }
+body.dark-theme .serah-result.duplicate { background: rgba(255,195,107,.10) !important; }
+body.dark-theme .paylater-progress { background: var(--v19-line) !important; }
+body.dark-theme .ev-timeline:before { background: var(--v19-line) !important; }
+body.dark-theme table,
+body.dark-theme th,
+body.dark-theme td {
+  border-color: var(--v19-line) !important;
+}
+body.dark-theme th {
+  background: var(--v19-surface-2) !important;
+  color: var(--v19-ink) !important;
+}
+
+/* 7) Dark-mode control in Settings */
+#btnDarkMode {
+  min-width: 112px !important;
+  min-height: 40px !important;
+  border-radius: 10px !important;
+  font-weight: 800 !important;
+}
+#btnDarkMode[aria-pressed="true"] {
+  background: #b83e50 !important;
+  color: #ffffff !important;
+}
+#btnDarkMode[aria-pressed="false"] {
+  background: #526575 !important;
+  color: #ffffff !important;
+}
+body.dark-theme #tab-setting .card {
+  background: var(--v19-surface) !important;
+  border-color: var(--v19-line) !important;
+  color: var(--v19-ink) !important;
+}
+body.dark-theme #tab-setting .card > div[style*="background:var(--bg-main)"],
+body.dark-theme #tab-setting .card > div[style*="background: var(--bg-main)"] {
+  background: var(--v19-surface-2) !important;
+  border-color: var(--v19-line) !important;
+}
+body.dark-theme #tab-setting .card button:disabled {
+  background: #354653 !important;
+  color: #b4c2ca !important;
+  opacity: 1 !important;
+}
+
+/* 8) Quiet interface: remove decorative motion and heavy transitions */
+html, body { scroll-behavior: auto !important; }
+body *, body *::before, body *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+button:active,
+.quick-card:active,
+.ev-v175-click:active,
+.bottom-nav .nav-item.active .nav-icon {
+  transform: none !important;
+}
+#evora-confetti,
+.ripple-span { display: none !important; }
+.skeleton-loading .shimmer-text {
+  animation: none !important;
+  background: var(--v19-surface-2) !important;
+  background-image: none !important;
+  color: var(--v19-muted) !important;
+}
+#ev19MiniBar { transition: none !important; }
+</style>
+
+
+<script id="evora-v181-pc-dark-cleanup-script">
+(function () {
+  "use strict";
+
+  function syncThemeButton() {
+    const button = document.getElementById("btnDarkMode");
+    if (!button) return;
+    const dark = document.body.classList.contains("dark-theme");
+    button.textContent = dark ? "Nonaktifkan" : "Aktifkan";
+    button.setAttribute("aria-pressed", String(dark));
+    button.setAttribute("aria-label", dark ? "Nonaktifkan mode gelap" : "Aktifkan mode gelap");
+  }
+
+  function syncCharts() {
+    if (!window.Chart) return;
+    const dark = document.body.classList.contains("dark-theme");
+    const textColor = dark ? "#d9e5eb" : "#526575";
+    const gridColor = dark ? "rgba(173,193,204,.16)" : "rgba(82,101,117,.14)";
+    try {
+      Chart.defaults.color = textColor;
+      Chart.defaults.borderColor = gridColor;
+      Object.values(Chart.instances || {}).forEach(function (chart) {
+        if (chart && chart.options && chart.options.scales) {
+          Object.values(chart.options.scales).forEach(function (axis) {
+            axis.ticks = axis.ticks || {};
+            axis.ticks.color = textColor;
+            axis.grid = axis.grid || {};
+            axis.grid.color = gridColor;
+          });
+        }
+        if (chart && typeof chart.update === "function") chart.update("none");
+      });
+    } catch (error) {
+      console.warn("EVORA chart theme:", error);
+    }
+  }
+
+  function apply() {
+    syncThemeButton();
+    syncCharts();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", apply, { once: true });
+  } else {
+    apply();
+  }
+
+  const observer = new MutationObserver(function () {
+    syncThemeButton();
+    syncCharts();
+  });
+  observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
 })();
 </script>
 
