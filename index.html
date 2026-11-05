@@ -13607,5 +13607,424 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 setTimeout(run,600);setTimeout(run,1800);window.addEventListener('pageshow',()=>setTimeout(run,80));
 })();
 </script>
+
+<!-- =====================================================================
+  EVORA v19 — MODERN PRO UI LAYER
+  Visual-only. Tidak mengubah fungsi, ID, data, maupun alur fitur.
+  CARA PASANG: tempel seluruh isi file ini TEPAT SEBELUM tag penutup </body>
+  paling akhir di file EVORA Anda (setelah semua script lain).
+  CARA COPOT: hapus blok ini -> tampilan kembali seperti v18.
+===================================================================== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+
+<style id="evora-v19-design-system">
+/* =========================================================
+   1. DESIGN TOKENS — satu sumber warna/ukuran untuk seluruh app
+   ========================================================= */
+:root{
+  --v19-font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --v19-bg:#f2f6f8;
+  --v19-surface:#ffffff;
+  --v19-surface-2:#f7fafb;
+  --v19-line:#e3ebef;
+  --v19-ink:#0b1b22;
+  --v19-muted:#5b7080;
+  --v19-brand:#0e6b75;
+  --v19-brand-2:#14909a;
+  --v19-deep:#05262c;
+  --v19-tint:#e6f4f5;
+  --v19-ok:#10a38f;
+  --v19-warn:#f0a020;
+  --v19-bad:#e5484d;
+  --v19-r-sm:10px; --v19-r-md:14px; --v19-r-lg:20px; --v19-r-xl:26px;
+  --v19-sh-1:0 1px 2px rgba(11,27,34,.04),0 2px 8px rgba(11,27,34,.04);
+  --v19-sh-2:0 2px 4px rgba(11,27,34,.04),0 12px 28px -8px rgba(11,27,34,.10);
+  --v19-sh-3:0 8px 16px rgba(11,27,34,.06),0 28px 60px -12px rgba(11,27,34,.22);
+  --v19-ring:0 0 0 4px rgba(20,144,154,.18);
+
+  /* petakan ke variabel lama agar SEMUA komponen existing ikut berubah */
+  --bg-main:var(--v19-bg);
+  --bg-card:var(--v19-surface);
+  --text-main:var(--v19-ink);
+  --text-muted:var(--v19-muted);
+  --primary:var(--v19-brand);
+  --primary-light:var(--v19-tint);
+  --success:var(--v19-ok);
+  --danger:var(--v19-bad);
+  --warning:var(--v19-warn);
+  --radius-sm:var(--v19-r-sm);
+  --radius-md:var(--v19-r-md);
+  --radius-lg:var(--v19-r-lg);
+  --shadow-sm:var(--v19-sh-1);
+  --shadow-md:var(--v19-sh-2);
+  --pro-line:var(--v19-line);
+  --ev-line:var(--v19-line);
+}
+body.dark-theme{
+  --v19-bg:#091219;
+  --v19-surface:#111c26;
+  --v19-surface-2:#16232f;
+  --v19-line:#22343f;
+  --v19-ink:#e8f1f5;
+  --v19-muted:#8da3b2;
+  --v19-brand:#2bb8c4;
+  --v19-brand-2:#4fd1db;
+  --v19-tint:rgba(43,184,196,.14);
+  --v19-sh-1:none;
+  --v19-sh-2:0 12px 30px -10px rgba(0,0,0,.6);
+  --v19-sh-3:0 28px 70px -12px rgba(0,0,0,.75);
+  --v19-ring:0 0 0 4px rgba(79,209,219,.22);
+  color-scheme:dark;
+}
+
+/* =========================================================
+   2. TIPOGRAFI & DASAR
+   ========================================================= */
+html{background:var(--v19-deep)!important;-webkit-text-size-adjust:100%}
+html body{background:var(--v19-bg)!important;color:var(--v19-ink)!important;letter-spacing:-.005em;font-feature-settings:'cv11','ss01'}
+html body *:not(.fa-solid):not(.fa-brands):not(.fa-regular):not(i){font-family:var(--v19-font)}
+html body ::selection{background:rgba(20,144,154,.25)}
+html body :focus-visible{outline:none;box-shadow:var(--v19-ring)!important;border-radius:inherit}
+.balance-value,.insight-value,.report-kpi-value,.ev-pro-metric b,.ev-stock-kpi b,.ev-pay-kpi b,
+.eai2-kpi b,.ev18-hero-kpi b,.ev-buy-stat b,#hariIniOmzetText,#omzet,#pengeluaran,#laba{
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+html body ::-webkit-scrollbar{width:8px;height:8px}
+html body ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--v19-muted) 35%,transparent);border-radius:8px}
+html body ::-webkit-scrollbar-track{background:transparent}
+
+/* =========================================================
+   3. HEADER — mesh gradient + glass chips
+   ========================================================= */
+.premium-header{
+  background:
+    radial-gradient(900px 380px at 88% -20%,rgba(79,209,219,.30),transparent 60%),
+    radial-gradient(600px 300px at -10% 110%,rgba(20,144,154,.35),transparent 60%),
+    linear-gradient(145deg,#04222a 0%,#07414a 52%,#0e6b75 100%)!important;
+  box-shadow:none!important;
+  border-bottom:0!important;
+  overflow:hidden;
+}
+.premium-header:before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:36px 36px;
+  -webkit-mask-image:radial-gradient(circle at 80% 0%,#000,transparent 70%);mask-image:radial-gradient(circle at 80% 0%,#000,transparent 70%);
+}
+.premium-header>*{position:relative;z-index:1}
+.brand-title{font-weight:800!important;letter-spacing:.34em!important;font-size:15px!important}
+.user-greeting{font-size:15px!important;font-weight:600!important;letter-spacing:-.01em!important}
+.bank-divider{border-top:1px solid rgba(255,255,255,.12)!important}
+.balance-label{font-size:10px!important;font-weight:700!important;letter-spacing:.16em!important;opacity:.7!important}
+.balance-value{font-size:clamp(32px,8vw,46px)!important;font-weight:800!important;margin:6px 0 8px!important}
+.trend-badge{border-radius:999px!important;font-weight:700!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sync-badge,.btn-sync-icon,.premium-pill,.ev-head-icon{
+  background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.16)!important;
+  backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);box-shadow:none!important}
+.premium-pill{border-radius:14px!important;font-weight:600!important;font-size:11px!important}
+.premium-pill span{font-weight:800!important}
+#ev19DateChip{
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;font-weight:600;color:#cfe9ec;
+  padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+#ev19DateChip i{font-size:10px;color:#7fe3ea}
+
+.main-sheet{background:var(--v19-bg)!important;border-radius:var(--v19-r-xl) var(--v19-r-xl) 0 0!important;margin-top:-34px!important;box-shadow:0 -12px 40px rgba(0,0,0,.10)}
+
+/* mini bar muncul saat scroll */
+#ev19MiniBar{
+  position:fixed;left:0;right:0;top:0;z-index:990;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(9px + env(safe-area-inset-top,0px)) 16px 9px;
+  background:color-mix(in srgb,var(--v19-surface) 82%,transparent);
+  backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--v19-line);box-shadow:0 6px 24px rgba(11,27,34,.07);
+  transform:translateY(-110%);transition:transform .34s cubic-bezier(.22,.8,.24,1);cursor:pointer}
+#ev19MiniBar.show{transform:translateY(0)}
+#ev19MiniBar .l{display:flex;align-items:center;gap:9px;min-width:0}
+#ev19MiniBar .dot{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--v19-brand),var(--v19-brand-2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex:0 0 28px}
+#ev19MiniBar small{display:block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--v19-muted)}
+#ev19MiniBar b{display:block;font-size:15px;font-weight:800;color:var(--v19-ink);font-variant-numeric:tabular-nums}
+#ev19MiniBar .r{font-size:11px;font-weight:700;color:var(--v19-muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+body.ev-ai-open #ev19MiniBar,body.ev18-center-open #ev19MiniBar{display:none}
+
+/* =========================================================
+   4. CARD & JUDUL SEKSI
+   ========================================================= */
+.card,.action-card,.insight-card,.ev-v175-card,.ev-attention,.ev-stock-control,.ev18-card,.eai2-card,
+.report-kpi,.ev-upgrade-box,.ev-buy-card{
+  background:var(--v19-surface)!important;border:1px solid var(--v19-line)!important;
+  border-radius:var(--v19-r-lg)!important;box-shadow:var(--v19-sh-1)!important}
+.card{padding:20px!important;margin-bottom:16px!important}
+@media(hover:hover) and (pointer:fine){
+  .card:hover,.ev-buy-card:hover,.ev18-card:hover,.eai2-card:hover{box-shadow:var(--v19-sh-2)!important;border-color:color-mix(in srgb,var(--v19-brand) 22%,var(--v19-line))!important;transform:none!important}
+}
+h3{font-size:11px!important;font-weight:800!important;letter-spacing:.12em!important;color:var(--v19-muted)!important;display:flex!important;align-items:center!important;gap:9px!important;margin-bottom:16px!important}
+h3>i:first-child{
+  display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9px;flex:0 0 28px;
+  font-size:12px;color:var(--v19-brand);background:var(--v19-tint)}
+h4{letter-spacing:.02em}
+
+/* hero command center */
+#evoraProCommand .ev-pro-hero{
+  background:
+    radial-gradient(520px 240px at 100% 0%,rgba(79,209,219,.28),transparent 60%),
+    linear-gradient(135deg,#05303a,#0b5560 60%,#12808a)!important;
+  border-radius:var(--v19-r-xl)!important;box-shadow:var(--v19-sh-3)!important;border:0!important}
+.ev-pro-title{font-weight:800!important;letter-spacing:-.03em!important}
+.ev-pro-metric{border-radius:14px!important;background:rgba(255,255,255,.09)!important;border:1px solid rgba(255,255,255,.14)!important}
+.ev-pro-action{border:1px solid var(--v19-line)!important;border-radius:var(--v19-r-lg)!important;background:var(--v19-surface)!important;box-shadow:var(--v19-sh-1)!important}
+.ev-pro-action i,.quick-card i,.ev-attention-icon,.ev-search-icon{background:var(--v19-tint)!important;color:var(--v19-brand)!important}
+.ev-pro-action i{border-radius:12px!important}
+.ev-pro-action:hover{border-color:var(--v19-brand)!important}
+
+/* akses cepat */
+.quick-card{background:var(--v19-surface)!important;border:1px solid var(--v19-line)!important;border-radius:var(--v19-r-md)!important;box-shadow:var(--v19-sh-1)!important}
+.quick-card i{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:11px;margin-bottom:6px!important;font-size:15px!important}
+.quick-card span{font-weight:700!important;color:var(--v19-ink)!important}
+.quick-card:hover{border-color:var(--v19-brand)!important;transform:translateY(-2px)}
+
+/* KPI & insight */
+.insight-card{padding:14px!important}
+.insight-label,.report-kpi-label,.ev-stock-kpi span,.ev-pay-kpi span{font-weight:800!important;letter-spacing:.1em!important;color:var(--v19-muted)!important}
+.insight-value,.report-kpi-value{font-weight:800!important;color:var(--v19-ink)!important}
+.insight-row,.ev-attention-row,.riwayat-item,.report-item{
+  background:var(--v19-surface-2)!important;border:1px solid var(--v19-line)!important;border-radius:var(--v19-r-md)!important}
+.insight-rank,.report-pro-rank{background:var(--v19-tint)!important;color:var(--v19-brand)!important;border-radius:9px!important;font-weight:800!important}
+.business-status{border-radius:var(--v19-r-md)!important;background:var(--v19-surface-2)!important;border:1px solid var(--v19-line)!important}
+.report-kpi.primary{border-left:3px solid var(--v19-brand)!important}
+.report-kpi.success{border-left:3px solid var(--v19-ok)!important}
+.report-kpi.danger{border-left:3px solid var(--v19-bad)!important}
+.report-kpi.warning{border-left:3px solid var(--v19-warn)!important}
+.report-pro-count,.ev-attention-count{border-radius:999px!important;font-weight:800!important}
+
+/* kartu prediksi gelap */
+.ai-marketing-card{
+  background:radial-gradient(520px 260px at 100% 0%,rgba(56,189,248,.16),transparent 60%),linear-gradient(145deg,#0c1822,#101f2c)!important;
+  border:1px solid #1d3140!important;color:#eaf4f8!important}
+
+/* =========================================================
+   5. INPUT, SELECT, TOMBOL
+   ========================================================= */
+html body input:not([type=checkbox]):not([type=radio]):not(#inputHargaGlobal):not(#inputTargetBulanan),
+html body select:not(.search-variant-qty),html body textarea{
+  background:var(--v19-surface-2)!important;color:var(--v19-ink)!important;border:1px solid var(--v19-line)!important;
+  border-radius:12px!important;min-height:44px;padding:11px 14px!important;font-size:14px!important;font-weight:500;
+  text-align:left!important;text-align-last:left!important;transition:border-color .18s,box-shadow .18s,background .18s}
+html body input::placeholder,html body textarea::placeholder{color:color-mix(in srgb,var(--v19-muted) 75%,transparent)!important;font-weight:400}
+html body input:focus,html body select:focus,html body textarea:focus{
+  background:var(--v19-surface)!important;border-color:var(--v19-brand-2)!important;box-shadow:var(--v19-ring)!important}
+html body select:not(.search-variant-qty){
+  padding-right:38px!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%235b7080' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;background-position:right 14px center!important}
+#listBarang select,.item-barang select{background-image:none!important;padding:5px!important;text-align:center!important;text-align-last:center!important;min-height:0}
+#inputHargaGlobal,#inputTargetBulanan{border-radius:14px!important;border-width:1.5px!important;background:var(--v19-surface-2)!important;font-weight:800!important}
+
+html body button{
+  border-radius:12px;font-weight:700;letter-spacing:-.005em;
+  transition:transform .15s cubic-bezier(.22,.8,.24,1),box-shadow .2s,filter .2s}
+html body button:not([style*="background"]):not(.nav-item):not(.ev-head-icon):not(.toast-close){
+  background:linear-gradient(180deg,var(--v19-brand-2),var(--v19-brand))!important;
+  box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 6px 14px -6px rgba(14,107,117,.55)!important}
+html body button:hover{filter:brightness(1.06)}
+html body button:active{transform:scale(.97)}
+.btn-sync-icon{border-radius:14px!important}
+
+/* =========================================================
+   6. KASIR — tile produk dengan indikator stok
+   ========================================================= */
+#listBarang .item-barang{
+  background:var(--v19-surface)!important;border:1px solid var(--v19-line)!important;
+  border-radius:var(--v19-r-lg)!important;box-shadow:var(--v19-sh-1)!important;
+  transition:transform .2s cubic-bezier(.22,.8,.24,1),box-shadow .2s,border-color .2s}
+#listBarang .item-barang:before{
+  content:"";position:absolute;left:0;top:0;height:3px;width:var(--stk,100%);
+  background:var(--stkc,var(--v19-ok));border-radius:var(--v19-r-lg) 3px 3px 0;
+  transition:width .5s cubic-bezier(.22,.8,.24,1);pointer-events:none}
+#listBarang .item-barang[data-lvl="low"]{--stkc:var(--v19-warn)}
+#listBarang .item-barang[data-lvl="crit"]{--stkc:var(--v19-bad)}
+@media(hover:hover) and (pointer:fine){
+  #listBarang .item-barang:hover{transform:translateY(-3px);box-shadow:var(--v19-sh-2)!important;border-color:color-mix(in srgb,var(--v19-brand) 30%,var(--v19-line))!important}
+}
+.item-barang .item-info>b{font-weight:800!important;letter-spacing:-.015em!important;color:var(--v19-ink)!important}
+.badge-status{border-radius:999px!important;font-weight:800!important;letter-spacing:.06em!important;border:0!important}
+.status-ready{background:color-mix(in srgb,var(--v19-ok) 14%,transparent)!important;color:var(--v19-ok)!important}
+.status-warning{background:color-mix(in srgb,var(--v19-warn) 16%,transparent)!important;color:#b86e00!important}
+.status-critical{background:color-mix(in srgb,var(--v19-bad) 13%,transparent)!important;color:var(--v19-bad)!important}
+body.dark-theme .status-warning{color:#ffc15e!important}
+.search-variant-list{border-radius:var(--v19-r-lg)!important;border:1px solid var(--v19-line)!important;box-shadow:var(--v19-sh-2)!important}
+.search-variant-row{border-radius:var(--v19-r-md)!important}
+.scan-resi-card{border-radius:var(--v19-r-lg)!important;background:linear-gradient(135deg,var(--v19-tint),var(--v19-surface))!important;border:1px solid color-mix(in srgb,var(--v19-brand) 20%,var(--v19-line))!important}
+#kasirToolsResi{border-radius:var(--v19-r-lg)!important;border:1px solid var(--v19-line)!important;background:color-mix(in srgb,var(--v19-surface) 85%,transparent)!important;backdrop-filter:blur(14px)}
+.kasir-resi-tool{border-radius:12px!important;border:1px solid var(--v19-line)!important}
+.kasir-resi-tool.primary{background:linear-gradient(135deg,#0a2c34,#0e6b75)!important;border-color:transparent!important;color:#fff!important}
+
+/* =========================================================
+   7. BOTTOM NAV — floating glass dock
+   ========================================================= */
+.bottom-nav{
+  background:color-mix(in srgb,var(--v19-surface) 78%,transparent)!important;
+  backdrop-filter:blur(22px) saturate(180%)!important;-webkit-backdrop-filter:blur(22px) saturate(180%)!important;
+  border:1px solid color-mix(in srgb,var(--v19-line) 80%,transparent)!important;
+  border-radius:26px!important;
+  box-shadow:0 10px 30px -6px rgba(11,27,34,.22),0 0 0 1px rgba(255,255,255,.4) inset!important}
+body.dark-theme .bottom-nav{box-shadow:0 14px 36px -6px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.04) inset!important}
+.nav-item{color:var(--v19-muted)!important;font-weight:700!important;letter-spacing:.01em}
+.nav-item.active{color:var(--v19-brand)!important;background:transparent!important}
+.nav-item.active .nav-icon{background:transparent!important}
+.nav-item.active .nav-icon i{filter:none!important;transform:translateY(-1px) scale(1.12);transition:transform .25s cubic-bezier(.22,.8,.24,1)}
+#evMotionNavIndicator{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--v19-brand) 16%,transparent),color-mix(in srgb,var(--v19-brand) 7%,transparent))!important;
+  border:1px solid color-mix(in srgb,var(--v19-brand) 18%,transparent)!important;border-radius:20px!important;box-shadow:none!important}
+
+/* tombol melayang */
+#navEvoraAI{background:linear-gradient(135deg,#0b1e27,#0e6b75)!important;border-radius:999px!important;font-weight:700!important;letter-spacing:.01em}
+#evQuickFab{background:linear-gradient(135deg,var(--v19-brand-2),var(--v19-brand))!important;box-shadow:0 12px 28px -6px rgba(14,107,117,.55)!important}
+#evQuickActions{border-radius:var(--v19-r-lg)!important;border:1px solid var(--v19-line)!important;box-shadow:var(--v19-sh-3)!important;background:color-mix(in srgb,var(--v19-surface) 92%,transparent)!important;backdrop-filter:blur(16px)}
+#evoraProVersion{background:rgba(5,38,44,.82)!important;backdrop-filter:blur(8px);font-weight:700!important;letter-spacing:.08em!important}
+
+/* =========================================================
+   8. MODAL, DIALOG, TOAST
+   ========================================================= */
+.modal-overlay,.ev-v175-overlay,.ev-buy-modal,.ev18-modal{background:rgba(5,18,24,.55)!important;backdrop-filter:blur(8px) saturate(120%)!important;-webkit-backdrop-filter:blur(8px) saturate(120%)!important}
+.modal-content,.ev-v175-modal,.ev-buy-dialog,.ev18-dialog,.ev-reconcile-card{
+  background:var(--v19-surface)!important;border:1px solid var(--v19-line)!important;
+  border-radius:var(--v19-r-xl)!important;box-shadow:var(--v19-sh-3)!important}
+.top-toast-alert{border-radius:18px!important;background:linear-gradient(135deg,#e5484d,#c83a3f)!important;box-shadow:0 18px 40px -10px rgba(229,72,77,.55)!important;border:0!important}
+#evoraAuthGate{background:radial-gradient(700px 400px at 80% -10%,rgba(79,209,219,.28),transparent 60%),linear-gradient(145deg,#04222a,#07414a 55%,#0e6b75)!important}
+.evora-auth-card{border-radius:28px!important;border:1px solid rgba(255,255,255,.14)!important;box-shadow:0 40px 90px -20px rgba(0,0,0,.55)!important}
+.evora-auth-brand{letter-spacing:.38em!important;font-weight:800!important}
+
+/* =========================================================
+   9. LAPORAN, RIWAYAT, SETTING, BELANJA, AI
+   ========================================================= */
+.report-pro-row,.report-pro-expense{border-color:var(--v19-line)!important}
+.report-pro-head{border-color:var(--v19-line)!important}
+.paylater-debt-card{border:1px solid var(--v19-line)!important;border-radius:var(--v19-r-md)!important;background:var(--v19-surface)!important}
+.paylater-progress>span{background:linear-gradient(90deg,var(--v19-brand),var(--v19-ok))!important}
+.riwayat-resi-card,.scan-resi-receipt-card{border-radius:var(--v19-r-lg)!important;border:1px solid var(--v19-line)!important;box-shadow:var(--v19-sh-1)}
+.riwayat-resi-head,.scan-resi-receipt-head{background:var(--v19-tint)!important}
+.ev-timeline:before{background:var(--v19-line)!important}
+.ev-timeline-item{border-radius:var(--v19-r-md)!important}
+.ev-setting-label{color:var(--v19-muted)!important;letter-spacing:.14em!important}
+#tab-setting .card{border-radius:var(--v19-r-lg)!important}
+.toggle-switch .slider{background:color-mix(in srgb,var(--v19-muted) 35%,transparent)}
+input:checked+.slider{background:var(--v19-ok)!important}
+.ev-buy-hero,.ev18-hero,#evoraAICenter .eai2-hero{
+  background:radial-gradient(520px 260px at 100% 0%,rgba(79,209,219,.26),transparent 60%),linear-gradient(135deg,#05303a,#0b5560 60%,#12808a)!important;
+  border:0!important;box-shadow:var(--v19-sh-3)!important}
+.ev-segment,.ev18-nav button,.ev-buy-filter,.eai2-nav-btn{border-radius:999px!important}
+.ev-segment button.active,.ev-buy-filter.active,.ev18-nav button.active,.eai2-nav-btn.active{background:var(--v19-ink)!important;color:var(--v19-surface)!important;border-color:var(--v19-ink)!important}
+#evoraAICenter,#evoraBusinessCenter{background:var(--v19-bg)!important}
+
+/* =========================================================
+   10. MOBILE FINE-TUNING (tidak menyentuh grid kasir 2 kolom)
+   ========================================================= */
+@media(max-width:700px){
+  .card{padding:16px!important;border-radius:18px!important}
+  .main-sheet{margin-top:-30px!important}
+  h3>i:first-child{width:26px;height:26px;flex-basis:26px}
+  .bottom-nav{border-radius:24px!important}
+}
+@media(min-width:901px){
+  .main-sheet{box-shadow:0 -16px 50px rgba(0,0,0,.08)}
+  .balance-value{font-size:52px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #ev19MiniBar,#listBarang .item-barang,#listBarang .item-barang:before{transition:none!important}
+}
+</style>
+
+<script id="evora-v19-design-logic">
+/* Visual-only helpers: tidak membaca/menulis data bisnis, tidak memanggil fungsi aplikasi. */
+(function(){
+  'use strict';
+
+  /* 1) Chip tanggal di bawah sapaan */
+  function dateChip(){
+    const g=document.getElementById('greetingText');
+    if(!g) return;
+    let c=document.getElementById('ev19DateChip');
+    if(!c){
+      c=document.createElement('div');c.id='ev19DateChip';
+      g.insertAdjacentElement('afterend',c);
+    }
+    const t=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const html='<i class="fa-regular fa-calendar"></i> '+t;
+    if(c.innerHTML!==html) c.innerHTML=html;
+  }
+
+  /* 2) Mini bar omzet saat scroll */
+  function miniBar(){
+    if(document.getElementById('ev19MiniBar')) return;
+    const bar=document.createElement('div');
+    bar.id='ev19MiniBar';
+    bar.innerHTML='<div class="l"><div class="dot"><i class="fa-solid fa-chart-line"></i></div><div><small>Omzet Hari Ini</small><b id="ev19MiniOmzet">Rp 0</b></div></div><div class="r" id="ev19MiniTrend"></div>';
+    bar.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+    document.body.appendChild(bar);
+
+    const src=document.getElementById('omzetHariIni');
+    const trend=document.getElementById('trendBadge');
+    const sync=()=>{
+      const o=document.getElementById('ev19MiniOmzet'),t=document.getElementById('ev19MiniTrend');
+      if(o&&src) o.textContent=src.textContent.trim()||'Rp 0';
+      if(t&&trend) t.textContent=(trend.textContent||'').replace(/\s+/g,' ').trim();
+    };
+    sync();
+    if(src) new MutationObserver(sync).observe(src,{childList:true,characterData:true,subtree:true});
+    if(trend) new MutationObserver(sync).observe(trend,{childList:true,characterData:true,subtree:true});
+
+    let ticking=false;
+    const onScroll=()=>{
+      if(ticking) return; ticking=true;
+      requestAnimationFrame(()=>{
+        bar.classList.toggle('show',window.scrollY>260);
+        ticking=false;
+      });
+    };
+    window.addEventListener('scroll',onScroll,{passive:true});
+    onScroll();
+  }
+
+  /* 3) Indikator stok di atas kartu produk Kasir (hanya CSS variable) */
+  function stockMeters(){
+    document.querySelectorAll('#listBarang .item-barang').forEach(card=>{
+      const n=parseInt(card.querySelector('.stok-text b')?.textContent||'',10);
+      if(!Number.isFinite(n)) return;
+      const lvl=n<5?'crit':n<10?'low':'ok';
+      const pct=Math.max(6,Math.min(100,(n/30)*100));
+      if(card.dataset.lvl!==lvl) card.dataset.lvl=lvl;
+      const w=pct.toFixed(0)+'%';
+      if(card.style.getPropertyValue('--stk')!==w) card.style.setProperty('--stk',w);
+    });
+  }
+  function watchList(){
+    const list=document.getElementById('listBarang');
+    if(!list||list.dataset.v19) return;
+    list.dataset.v19='1';
+    new MutationObserver(()=>stockMeters()).observe(list,{childList:true,subtree:true,characterData:true});
+    stockMeters();
+  }
+
+  /* 4) Warna address-bar mengikuti tema */
+  function themeColor(){
+    const dark=document.body.classList.contains('dark-theme');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',dark?'#091219':'#05262c'));
+  }
+  function watchTheme(){
+    new MutationObserver(themeColor).observe(document.body,{attributes:true,attributeFilter:['class']});
+    themeColor();
+  }
+
+  function init(){
+    document.body.setAttribute('data-ui','v19');
+    dateChip();miniBar();watchList();watchTheme();
+    setTimeout(()=>{dateChip();watchList();stockMeters()},900);
+    setInterval(()=>{dateChip();watchList()},60000);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+})();
+</script>
+
 </body>
 </html>
