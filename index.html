@@ -13607,5 +13607,430 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 setTimeout(run,600);setTimeout(run,1800);window.addEventListener('pageshow',()=>setTimeout(run,80));
 })();
 </script>
+
+<!-- EVORA v18.0.7 — PREMIUM EMERALD WORKSPACE REDESIGN
+     Visual-only layer. Existing business logic, data keys, IDs, and handlers are preserved. -->
+<style id="evora-premium-emerald-redesign">
+:root{
+  --evp-forest:#073f3d;
+  --evp-forest-2:#0b5651;
+  --evp-teal:#0f766e;
+  --evp-mint:#e9f4f0;
+  --evp-gold:#c4a46b;
+  --evp-canvas:#f3f7f5;
+  --evp-line:#e2ebe7;
+  --evp-ink:#172b29;
+  --evp-muted:#71817d;
+  --evp-shadow:0 8px 24px rgba(15,55,48,.055);
+}
+html,body{background:var(--evp-canvas)}
+body{color:var(--evp-ink)}
+
+/* Shared visual language */
+.card{
+  background:var(--bg-card,#fff)!important;
+  border:1px solid var(--evp-line)!important;
+  border-radius:18px!important;
+  box-shadow:var(--evp-shadow)!important;
+  padding:20px!important;
+  margin-bottom:18px!important;
+}
+.card h3{
+  color:#526762!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  letter-spacing:1.05px!important;
+  line-height:1.4!important;
+  margin-bottom:14px!important;
+}
+.card h3 i{color:var(--evp-teal)!important}
+.card p{line-height:1.6}
+.insight-card,.report-kpi,.ev-stock-kpi,.ev-pay-kpi{
+  border:1px solid var(--evp-line)!important;
+  border-radius:14px!important;
+  box-shadow:none!important;
+}
+button{
+  border-radius:11px;
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease;
+}
+button:hover{filter:brightness(1.025)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid rgba(15,118,110,.18)!important;
+  outline-offset:2px!important;
+}
+input,select,textarea{
+  border-color:#dce7e2!important;
+  border-radius:11px!important;
+  background:#fbfdfc!important;
+  color:var(--evp-ink)!important;
+  text-align:left!important;
+  text-align-last:left!important;
+}
+input::placeholder,textarea::placeholder{color:#9aa9a4}
+input:focus,select:focus,textarea:focus{
+  border-color:#6aa79a!important;
+  box-shadow:0 0 0 4px rgba(15,118,110,.09)!important;
+}
+.badge-status{border-radius:999px!important;padding:5px 9px!important}
+.search-variant-list{border-color:var(--evp-line)!important;border-radius:14px!important;box-shadow:0 16px 36px rgba(13,45,39,.12)!important}
+
+/* Premium desktop workspace */
+#evoraPremiumSidebar{display:none}
+#evoraWorkspaceHeading{display:none}
+@media(min-width:901px){
+  body{background:var(--evp-canvas)!important;overflow-x:hidden!important}
+  #evoraPremiumSidebar{
+    display:flex!important;
+    position:fixed!important;
+    inset:0 auto 0 0!important;
+    width:254px!important;
+    z-index:1500!important;
+    flex-direction:column!important;
+    padding:26px 17px 18px!important;
+    color:#e8f3ef!important;
+    background:linear-gradient(165deg,#062f30 0%,#073f3d 48%,#092d2e 100%)!important;
+    border-right:1px solid rgba(255,255,255,.07)!important;
+    box-shadow:12px 0 34px rgba(6,35,34,.08)!important;
+  }
+  .ev-side-brand{display:flex;align-items:center;gap:11px;padding:2px 9px 28px}
+  .ev-side-logo{
+    width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+    border-radius:14px;color:#f5ead5;font-size:15px;font-weight:950;letter-spacing:-1px;
+    background:linear-gradient(145deg,#c9ad78,#92764a);box-shadow:0 8px 18px rgba(0,0,0,.18)
+  }
+  .ev-side-brand-copy b{display:block;font-size:17px;letter-spacing:2.2px;font-weight:950;color:#fff}
+  .ev-side-brand-copy span{display:block;margin-top:3px;font-size:8px;letter-spacing:1.7px;font-weight:800;color:#9ebdb4}
+  .ev-side-section{padding:0 11px 10px;color:#83a59b;font-size:8px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}
+  #evSideNavList{display:grid;gap:5px}
+  .ev-side-link{
+    display:flex!important;align-items:center!important;gap:12px!important;width:100%!important;
+    min-height:46px!important;padding:0 12px!important;border:1px solid transparent!important;
+    border-radius:12px!important;background:transparent!important;color:#b7cbc4!important;
+    text-align:left!important;font-size:11px!important;font-weight:750!important;box-shadow:none!important;
+  }
+  .ev-side-link .ev-side-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:9px;color:#91b8ac;font-size:13px;background:rgba(255,255,255,.045);flex:0 0 28px}
+  .ev-side-link:hover{background:rgba(255,255,255,.065)!important;color:#fff!important}
+  .ev-side-link.active{
+    color:#fff!important;
+    background:linear-gradient(100deg,rgba(205,178,126,.2),rgba(255,255,255,.065))!important;
+    border-color:rgba(214,190,146,.2)!important;
+    box-shadow:inset 3px 0 0 #c8a66d!important;
+  }
+  .ev-side-link.active .ev-side-icon{background:rgba(201,173,120,.18);color:#e4c995}
+  .ev-side-spacer{flex:1;min-height:20px}
+  .ev-side-tools{display:grid;gap:7px;padding:14px 0;border-top:1px solid rgba(255,255,255,.09)}
+  .ev-side-tool{
+    display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;
+    min-height:40px!important;padding:0 11px!important;border-radius:11px!important;
+    background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.075)!important;
+    color:#d4e3dd!important;text-align:left!important;font-size:10px!important;font-weight:750!important;box-shadow:none!important
+  }
+  .ev-side-tool i{width:18px;text-align:center;color:#d5b77f}
+  .ev-side-tool:hover{background:rgba(255,255,255,.1)!important}
+  .ev-side-footer{display:flex;align-items:center;gap:9px;padding:13px 10px 2px;border-top:1px solid rgba(255,255,255,.09)}
+  .ev-side-live{width:8px;height:8px;border-radius:50%;background:#5ac5a3;box-shadow:0 0 0 4px rgba(90,197,163,.12);flex:0 0 8px}
+  .ev-side-footer-copy{min-width:0;flex:1}
+  .ev-side-footer-copy b{display:block;font-size:8px;letter-spacing:.8px;color:#e7f1ed}
+  .ev-side-footer-copy span{display:block;font-size:8px;color:#86a69c;margin-top:3px}
+  .ev-side-footer-version{font-size:7px;color:#7e9b91;font-weight:800}
+
+  #premiumHeaderWrapper.premium-header{
+    width:calc(100% - 254px)!important;
+    margin:0 0 0 254px!important;
+    padding:18px 32px 0!important;
+    background:transparent!important;
+    color:var(--evp-ink)!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+    min-height:0!important;
+  }
+  #premiumHeaderWrapper .header-top{justify-content:flex-end!important;margin:0 0 10px!important;min-height:26px}
+  #premiumHeaderWrapper .brand-title{display:none!important}
+  #premiumHeaderWrapper #syncStatus{
+    background:#fff!important;color:#47736a!important;border:1px solid var(--evp-line)!important;
+    box-shadow:0 3px 10px rgba(15,55,48,.035)!important;padding:7px 12px!important;font-size:9px!important
+  }
+  #premiumHeaderWrapper .user-greeting{color:#70817b!important;font-size:11px!important;font-weight:700!important;margin:0 0 10px!important;letter-spacing:.1px!important}
+  #premiumHeaderWrapper .bank-divider{display:none!important}
+  #premiumHeaderWrapper .balance-section{
+    align-items:center!important;padding:18px 22px!important;margin:0!important;
+    border-radius:19px!important;color:#fff!important;
+    background:radial-gradient(circle at 90% 0%,rgba(196,164,107,.2),transparent 34%),linear-gradient(112deg,#073c3b 0%,#0b625b 100%)!important;
+    box-shadow:0 13px 28px rgba(7,63,61,.14)!important;
+  }
+  #premiumHeaderWrapper .balance-label{color:#c4dcd4!important;font-size:9px!important;letter-spacing:1.35px!important}
+  #premiumHeaderWrapper .balance-value{font-size:29px!important;line-height:1.15!important;letter-spacing:-.8px!important;margin:5px 0 7px!important;color:#fff!important}
+  #premiumHeaderWrapper .trend-badge{font-size:9px!important;padding:4px 9px!important}
+  #premiumHeaderWrapper .btn-sync-icon{width:40px!important;height:40px!important;border-radius:12px!important;background:rgba(255,255,255,.13)!important;border-color:rgba(255,255,255,.17)!important;font-size:14px!important}
+  #premiumHeaderWrapper .pills-container{
+    display:grid!important;grid-template-columns:repeat(3,minmax(125px,170px))!important;
+    justify-content:start!important;gap:9px!important;margin:10px 0 0!important;padding:0!important
+  }
+  #premiumHeaderWrapper .premium-pill{
+    min-height:35px!important;padding:8px 11px!important;border-radius:11px!important;
+    color:#49645d!important;background:#fff!important;border:1px solid var(--evp-line)!important;
+    box-shadow:0 3px 10px rgba(15,55,48,.035)!important;backdrop-filter:none!important;
+    font-size:9px!important;justify-content:flex-start!important;white-space:nowrap!important
+  }
+  #premiumHeaderWrapper .premium-pill span{color:#1d665b!important;font-weight:900!important}
+
+  #evoraWorkspaceHeading{
+    display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:18px!important;
+    margin:0 0 0 254px!important;padding:24px 32px 2px!important;
+  }
+  .ev-page-heading-copy{min-width:0}
+  .ev-page-eyebrow{font-size:8px;font-weight:950;letter-spacing:1.5px;color:#9a8055;text-transform:uppercase;margin-bottom:6px}
+  #evPageTitle{font-size:23px;line-height:1.15;letter-spacing:-.65px;font-weight:900;color:#183a34;margin:0}
+  #evPageSubtitle{font-size:10px;line-height:1.5;color:#84928d;margin-top:6px}
+  .ev-page-heading-action{width:auto!important;min-height:36px!important;padding:0 13px!important;border-radius:10px!important;background:#fff!important;color:#28675d!important;border:1px solid #dce9e3!important;box-shadow:0 3px 10px rgba(15,55,48,.035)!important;font-size:9px!important;font-weight:850!important;white-space:nowrap!important}
+  .ev-page-heading-action i{margin-right:6px;color:#b18e55}
+
+  .main-sheet{
+    width:calc(100% - 254px)!important;max-width:none!important;
+    margin:0 0 0 254px!important;padding:18px 32px 120px!important;
+    border-radius:0!important;background:transparent!important;box-sizing:border-box!important;
+  }
+  .tab-content,.tab-content.active{width:100%!important;max-width:1540px!important;margin:0 auto!important;min-width:0!important;box-sizing:border-box!important}
+  .tab-content.active{animation:evPremiumPageIn .22s ease-out both!important}
+  @keyframes evPremiumPageIn{from{opacity:.65;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  .main-sheet .card{margin-bottom:16px!important}
+  #tab-beranda .insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
+  #tab-beranda .insight-card{padding:15px!important;background:#fbfdfc!important}
+  #tab-beranda .insight-value{font-size:20px!important;letter-spacing:-.45px!important}
+  #tab-beranda .insight-label{font-size:8px!important;letter-spacing:.7px!important}
+  #tab-beranda .insight-sub{font-size:9px!important}
+  #tab-beranda .quick-grid{gap:10px!important}
+  #tab-beranda .quick-card{border:1px solid var(--evp-line)!important;border-radius:13px!important;background:#fbfdfc!important;box-shadow:none!important}
+  #tab-beranda .quick-card i{color:var(--evp-teal)!important}
+
+  #tab-kasir.active{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;align-items:start!important}
+  #tab-kasir.active > #kasirToolsResi,#tab-kasir.active > #panelKasir{grid-column:1/-1!important}
+  #tab-kasir.active > .card{margin:0!important;min-width:0!important}
+  #tab-kasir #panelKasir{padding:21px!important}
+  #tab-kasir #listBarang.grid-barang{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:11px!important}
+  #tab-kasir #listBarang .item-barang{border:1px solid var(--evp-line)!important;border-radius:14px!important;background:#fbfdfc!important;box-shadow:none!important}
+  #kasirToolsResi{position:static!important;background:#fff!important;border:1px solid var(--evp-line)!important;box-shadow:var(--evp-shadow)!important;border-radius:14px!important;padding:9px!important;margin:0!important}
+
+  #tab-laporan.active{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;align-items:start!important}
+  #tab-laporan.active > .card{margin:0!important;min-width:0!important}
+  #tab-laporan.active > .card:first-child{grid-column:1/-1!important}
+  #tab-laporan .card > h3{margin-bottom:15px!important}
+  #tab-laporan #summaryHarian,#tab-laporan #summaryBulanan{background:#f7faf8!important;border:1px solid var(--evp-line)!important;border-radius:13px!important}
+
+  #tab-riwayat.active{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;align-items:start!important}
+  #tab-riwayat.active > .card{margin:0!important;min-width:0!important}
+  #tab-riwayat.active > .card:first-child{grid-column:1/-1!important}
+  #tab-riwayat .scroll-box{border-radius:12px!important}
+
+  #tab-setting.active{gap:16px!important;align-items:start!important}
+  #tab-setting.active > .card{border-radius:17px!important;margin:0!important}
+  #tab-setting .ev-setting-label{margin-top:12px!important}
+  #tab-belanja{padding-bottom:20px!important}
+  #tab-belanja .ev-buy-hero{border-radius:19px!important;box-shadow:0 12px 28px rgba(7,62,70,.11)!important}
+  #tab-belanja .ev-buy-card{border-radius:15px!important;box-shadow:0 5px 16px rgba(15,55,48,.035)!important}
+  #tab-belanja .ev-buy-toolbar{margin:15px 0!important}
+
+  .bottom-nav{display:none!important}
+  #evQuickFab{left:274px!important;bottom:28px!important;z-index:1300!important}
+  #evQuickActions{left:274px!important;bottom:86px!important;z-index:1301!important}
+  #navEvoraAI{right:28px!important;bottom:28px!important;z-index:1300!important}
+  #evoraProVersion{opacity:0!important;pointer-events:none!important}
+  .modal-overlay{backdrop-filter:blur(7px)!important;background:rgba(6,31,30,.48)!important}
+  .modal-content{border:1px solid rgba(255,255,255,.55)!important;border-radius:19px!important;box-shadow:0 24px 70px rgba(5,31,29,.22)!important}
+}
+
+/* Shared modal / overlay polish */
+.modal-content,.ev-buy-dialog{border-radius:18px!important;border:1px solid var(--evp-line)!important;box-shadow:0 22px 60px rgba(10,45,39,.18)!important}
+.modal-overlay{backdrop-filter:blur(5px)}
+.ev-buy-modal{backdrop-filter:blur(6px)!important}
+.ev-buy-dialog{background:var(--bg-card)!important}
+.ev-buy-dialog-title{font-size:14px!important}
+.ev-buy-field input,.ev-buy-field select,.ev-buy-field textarea{text-align:left!important;text-align-last:left!important}
+
+/* Harmonize AI and Business Center surfaces with the premium palette */
+#evoraBusinessCenter .ev18-shell{border-radius:22px!important}
+#evoraBusinessCenter .ev18-head{border-bottom-color:var(--evp-line)!important}
+#evoraBusinessCenter .ev18-logo{background:linear-gradient(145deg,#0b625b,#073c3b)!important}
+#evoraAICenter .eai2-nav-btn.active{background:#0b5651!important;border-color:#0b5651!important}
+#evoraAICenter .eai2-card,#evoraAICenter .eai2-panel-card{border-radius:15px!important}
+
+/* Dark theme */
+body.dark-theme{--evp-canvas:#0b1717;--evp-line:#263c39;--evp-ink:#e4efeb;--evp-muted:#9aada6;background:#0b1717!important}
+body.dark-theme .card{background:#122321!important;border-color:#263c39!important;box-shadow:0 8px 24px rgba(0,0,0,.16)!important}
+body.dark-theme .card h3{color:#b4c8c0!important}
+body.dark-theme input,body.dark-theme select,body.dark-theme textarea{background:#0d1c1a!important;border-color:#2b4640!important;color:#e4efeb!important}
+body.dark-theme input::placeholder,body.dark-theme textarea::placeholder{color:#71877f!important}
+body.dark-theme .insight-card,body.dark-theme .report-kpi,body.dark-theme .ev-stock-kpi,body.dark-theme .ev-pay-kpi{background:#10211f!important;border-color:#29423c!important}
+body.dark-theme #premiumHeaderWrapper .user-greeting{color:#a9bbb4!important}
+body.dark-theme #premiumHeaderWrapper #syncStatus,body.dark-theme #premiumHeaderWrapper .premium-pill{background:#142824!important;border-color:#29423c!important;color:#c7d8d1!important}
+body.dark-theme #evoraWorkspaceHeading #evPageTitle{color:#e3eee9!important}
+body.dark-theme #evPageSubtitle{color:#8ea49b!important}
+body.dark-theme .ev-page-heading-action{background:#142824!important;border-color:#29423c!important;color:#c7d8d1!important}
+body.dark-theme #tab-laporan #summaryHarian,body.dark-theme #tab-laporan #summaryBulanan{background:#10211f!important;border-color:#29423c!important}
+
+@media(max-width:900px){
+  #evoraPremiumSidebar,#evoraWorkspaceHeading{display:none!important}
+  .card{border-radius:16px!important;box-shadow:0 5px 16px rgba(15,55,48,.045)!important}
+  .card h3{letter-spacing:.8px!important}
+  .quick-card{border:1px solid var(--evp-line)!important;border-radius:12px!important}
+  .modal-content,.ev-buy-dialog{border-radius:19px 19px 12px 12px!important}
+}
+@media(max-width:700px){
+  #tab-kasir.active,#tab-laporan.active,#tab-riwayat.active{display:block!important}
+  #tab-kasir.active > .card,#tab-laporan.active > .card,#tab-riwayat.active > .card{margin-bottom:12px!important}
+  #tab-kasir #listBarang.grid-barang{gap:8px!important}
+  .card{padding:15px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .tab-content.active{animation:none!important}
+  button{transition:none!important}
+}
+@media print{
+  #evoraPremiumSidebar,#evoraWorkspaceHeading,.bottom-nav{display:none!important}
+  #premiumHeaderWrapper{display:none!important}
+  .main-sheet{margin:0!important;width:100%!important;max-width:none!important;padding:0!important}
+}
+</style>
+
+
+<script id="evora-premium-workspace-navigation">
+(function(){
+  'use strict';
+  if(window.__EVORA_PREMIUM_WORKSPACE__)return;
+  window.__EVORA_PREMIUM_WORKSPACE__=true;
+
+  const pageMeta={
+    beranda:{eyebrow:'BUSINESS OVERVIEW',title:'Ringkasan Bisnis',subtitle:'Pantau performa, kesehatan stok, dan prioritas operasional EVORA.'},
+    kasir:{eyebrow:'SALES MANAGEMENT',title:'Kasir & Penjualan',subtitle:'Kelola transaksi, pemrosesan resi, penjualan grosir, dan restock.'},
+    laporan:{eyebrow:'FINANCE & ANALYTICS',title:'Laporan & Keuangan',subtitle:'Tinjau performa harian, rekap bulanan, dan kewajiban PayLater.'},
+    riwayat:{eyebrow:'ACTIVITY CENTER',title:'Riwayat Aktivitas',subtitle:'Telusuri catatan penjualan dan pengeluaran berdasarkan periode.'},
+    belanja:{eyebrow:'PROCUREMENT',title:'Belanja Bahan',subtitle:'Kelola daftar kebutuhan, tautan supplier, dan riwayat pembelian.'},
+    setting:{eyebrow:'SYSTEM PREFERENCES',title:'Pengaturan Sistem',subtitle:'Atur profil, target, keamanan, dan preferensi aplikasi EVORA.'}
+  };
+
+  function makeShell(){
+    if(!document.getElementById('evoraPremiumSidebar')){
+      const aside=document.createElement('aside');
+      aside.id='evoraPremiumSidebar';
+      aside.setAttribute('aria-label','Navigasi utama EVORA');
+      aside.innerHTML=`
+        <div class="ev-side-brand">
+          <div class="ev-side-logo">EV</div>
+          <div class="ev-side-brand-copy"><b>EVORA</b><span>TRACKER PRO</span></div>
+        </div>
+        <div class="ev-side-section">Workspace</div>
+        <nav id="evSideNavList" aria-label="Menu aplikasi"></nav>
+        <div class="ev-side-spacer"></div>
+        <div class="ev-side-section">Intelligence</div>
+        <div class="ev-side-tools">
+          <button type="button" class="ev-side-tool" data-ev-tool="business"><i class="fa-solid fa-brain"></i><span>Business Center</span></button>
+          <button type="button" class="ev-side-tool" data-ev-tool="ai"><i class="fa-solid fa-wand-magic-sparkles"></i><span>AI Business Advisor</span></button>
+        </div>
+        <div class="ev-side-footer"><span class="ev-side-live"></span><div class="ev-side-footer-copy"><b>EVORA WORKSPACE</b><span>Premium business system</span></div><span class="ev-side-footer-version">v18 PRO</span></div>`;
+      document.body.appendChild(aside);
+    }
+
+    if(!document.getElementById('evoraWorkspaceHeading')){
+      const heading=document.createElement('section');
+      heading.id='evoraWorkspaceHeading';
+      heading.innerHTML=`
+        <div class="ev-page-heading-copy">
+          <div id="evPageEyebrow" class="ev-page-eyebrow">BUSINESS OVERVIEW</div>
+          <h1 id="evPageTitle">Ringkasan Bisnis</h1>
+          <div id="evPageSubtitle">Pantau performa, kesehatan stok, dan prioritas operasional EVORA.</div>
+        </div>
+        <button type="button" class="ev-page-heading-action" id="evPageBusinessBtn"><i class="fa-solid fa-chart-line"></i> Business Center</button>`;
+      const header=document.getElementById('premiumHeaderWrapper');
+      if(header&&header.parentNode)header.parentNode.insertBefore(heading,header.nextSibling);
+      else document.body.insertBefore(heading,document.querySelector('.main-sheet')||null);
+    }
+
+    document.getElementById('evPageBusinessBtn')?.addEventListener('click',function(){
+      if(typeof window.evV18OpenCenter==='function')window.evV18OpenCenter();
+    });
+    document.querySelector('[data-ev-tool="business"]')?.addEventListener('click',function(){
+      if(typeof window.evV18OpenCenter==='function')window.evV18OpenCenter();
+    });
+    document.querySelector('[data-ev-tool="ai"]')?.addEventListener('click',function(){
+      if(typeof window.openEvoraAI==='function')window.openEvoraAI();
+    });
+  }
+
+  function updateHeading(tab){
+    const meta=pageMeta[tab]||pageMeta.beranda;
+    const eyebrow=document.getElementById('evPageEyebrow');
+    const title=document.getElementById('evPageTitle');
+    const subtitle=document.getElementById('evPageSubtitle');
+    if(eyebrow)eyebrow.textContent=meta.eyebrow;
+    if(title)title.textContent=meta.title;
+    if(subtitle)subtitle.textContent=meta.subtitle;
+    document.querySelectorAll('.ev-side-link').forEach(link=>{
+      const active=link.dataset.tab===tab;
+      link.classList.toggle('active',active);
+      link.setAttribute('aria-current',active?'page':'false');
+    });
+  }
+
+  function syncSidebarLinks(){
+    const source=document.querySelector('.bottom-nav');
+    const list=document.getElementById('evSideNavList');
+    if(!source||!list)return;
+    const activeSource=source.querySelector('.nav-item.active');
+    const activeTab=activeSource?.id?.replace(/^nav-/,'')||document.querySelector('.tab-content.active')?.id?.replace(/^tab-/,'')||'beranda';
+    const items=[...source.querySelectorAll('.nav-item')];
+    list.innerHTML='';
+    items.forEach(item=>{
+      const tab=String(item.id||'').replace(/^nav-/,'');
+      if(!tab)return;
+      const label=String(item.innerText||item.textContent||tab).replace(/\s+/g,' ').trim();
+      const icon=item.querySelector('.nav-icon')?.innerHTML||'<i class="fa-solid fa-circle"></i>';
+      const button=document.createElement('button');
+      button.type='button';
+      button.className='ev-side-link';
+      button.dataset.tab=tab;
+      button.innerHTML=`<span class="ev-side-icon">${icon}</span><span>${label==='Belanja'?'Belanja Bahan':label}</span>`;
+      button.addEventListener('click',function(){
+        if(typeof window.switchTab==='function')window.switchTab(tab);
+        if(tab==='belanja'&&typeof window.renderBelanjaBahan==='function')window.renderBelanjaBahan();
+      });
+      list.appendChild(button);
+    });
+    updateHeading(activeTab);
+  }
+
+  function patchTabSwitch(){
+    if(typeof window.switchTab!=='function'||window.switchTab.__evoraPremiumNav)return;
+    const base=window.switchTab;
+    const wrapped=function(tabName){
+      const result=base.apply(this,arguments);
+      requestAnimationFrame(()=>updateHeading(String(tabName||'beranda')));
+      return result;
+    };
+    wrapped.__evoraPremiumNav=true;
+    window.switchTab=wrapped;
+  }
+
+  function install(){
+    makeShell();
+    syncSidebarLinks();
+    patchTabSwitch();
+    const nav=document.querySelector('.bottom-nav');
+    if(nav&&'MutationObserver'in window){
+      const observer=new MutationObserver(()=>syncSidebarLinks());
+      observer.observe(nav,{childList:true});
+    }
+    const active=document.querySelector('.tab-content.active')?.id?.replace(/^tab-/,'')||'beranda';
+    updateHeading(active);
+    setTimeout(syncSidebarLinks,500);
+    setTimeout(syncSidebarLinks,1500);
+    setTimeout(patchTabSwitch,900);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
+  else install();
+})();
+</script>
+
 </body>
 </html>
